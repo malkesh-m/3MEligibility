@@ -7,9 +7,9 @@ public partial class ListItem
     [Key]
     public int ItemId { get; set; }
     [Required]
-    public string ItemName { get; set; }
+    public string ItemName { get; set; } = string.Empty;
     [Required]
-    public string Code { get; set; }
+    public string Code { get; set; } = string.Empty;
     [Required]
     public int ListId { get; set; }
 

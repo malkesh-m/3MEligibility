@@ -1,7 +1,10 @@
-﻿namespace EligibilityPlatform.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EligibilityPlatform.Domain.Entities;
 
 public partial class Audit
 {
+    [Key]
     public int AuditId { get; set; }
 
     public DateTime ActionDate { get; set; }

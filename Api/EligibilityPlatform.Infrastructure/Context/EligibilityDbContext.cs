@@ -155,13 +155,13 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.ApidetailsId).HasColumnName("APIDetailsId");
             entity.Property(e => e.Apiid).HasColumnName("APIId");
             entity.Property(e => e.CallingParamName).HasMaxLength(50);
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.FromApiid).HasColumnName("FromAPIId");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.SourceApiparam)
                 .HasMaxLength(50)
                 .HasColumnName("SourceAPIParam");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Api).WithMany(p => p.Apidetails)
                 .HasForeignKey(d => d.Apiid)
@@ -192,9 +192,9 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.ActionDate).HasColumnType("datetime");
             entity.Property(e => e.ActionName).HasMaxLength(50);
             entity.Property(e => e.FieldName).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.NewValue).HasColumnType("nvarchar(max)");
-            entity.Property(e => e.OldValue).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.NewValue).HasColumnType("longtext");
+            entity.Property(e => e.OldValue).HasColumnType("longtext");
             entity.Property(e => e.TableName).HasMaxLength(50);
             entity.Property(e => e.IPAddress).HasMaxLength(50);
             entity.Property(e => e.Comments).HasMaxLength(250);
@@ -212,9 +212,8 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.CategoryName)
                 .HasMaxLength(50)
                 .HasDefaultValue("");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Entity).WithMany(p => p.Categories)
                 .HasForeignKey(d => d.EntityId)
@@ -228,7 +227,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("City");
 
             entity.Property(e => e.CityName).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Country).WithMany(p => p.Cities)
                 .HasForeignKey(d => d.CountryId)
@@ -242,7 +241,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("Condition");
 
             entity.Property(e => e.ConditionValue).HasMaxLength(20);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
 
         modelBuilder.Entity<Country>(entity =>
@@ -252,7 +251,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("Country");
 
             entity.Property(e => e.CountryName).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
 
         modelBuilder.Entity<Currency>(entity =>
@@ -263,7 +262,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.Property(e => e.CurrencyName).HasMaxLength(250);
             entity.Property(e => e.Isocode).HasMaxLength(3);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.MidRate).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.MinorUnitsName).HasMaxLength(20);
         });
@@ -275,7 +274,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("DataType");
 
             entity.Property(e => e.DataTypeName).HasMaxLength(20);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
 
         modelBuilder.Entity<Ecard>(entity =>
@@ -287,7 +286,7 @@ public partial class EligibilityDbContext : DbContext
             entity.HasIndex(e => e.EntityId, "IX_ECards_EntityId");
 
             entity.Property(e => e.EcardId).HasColumnName("ECardId");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.EcardDesc)
                 .HasMaxLength(50)
                 .HasColumnName("ECardDesc");
@@ -298,9 +297,9 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.Expression)
                 .HasDefaultValue("")
                 .HasColumnType("text");
-            entity.Property(e => e.Expshown).HasColumnType("nvarchar(max)");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Expshown).HasColumnType("longtext");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Entity).WithMany(p => p.Ecards)
                 .HasForeignKey(d => d.EntityId)
@@ -316,13 +315,13 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.Code)
                 .HasMaxLength(10)
                 .HasColumnName("code");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.EntityAddress).HasMaxLength(250);
             entity.Property(e => e.EntityName).HasMaxLength(50);
             entity.Property(e => e.Entitylocation).HasMaxLength(50);
             entity.Property(e => e.Isparent).HasColumnName("isparent");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             //entity.HasOne(d => d.BaseCurrency).WithMany(p => p.Entities)
             //    .HasForeignKey(d => d.BaseCurrencyId)
@@ -374,14 +373,14 @@ public partial class EligibilityDbContext : DbContext
             entity.HasIndex(e => e.EntityId, "IX_ERule_EntityId");
 
             entity.Property(e => e.EruleId).HasColumnName("ERuleId").HasDefaultValueSql("2");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-            entity.Property(e => e.ExpShown).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.ExpShown).HasColumnType("longtext");
             entity.Property(e => e.Expression)
                 .HasDefaultValue("")
-                .HasColumnType("nvarchar(max)");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+                .HasColumnType("longtext");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasIndex(i => new { i.EruleMasterId, i.Version }).IsUnique();
 
@@ -446,11 +445,11 @@ public partial class EligibilityDbContext : DbContext
 
             entity.HasIndex(e => e.EntityId, "IX_Factors_EntityId");
 
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.FactorName).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.Note).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.Value1).HasMaxLength(50);
             entity.Property(e => e.Value2).HasMaxLength(50);
 
@@ -471,7 +470,7 @@ public partial class EligibilityDbContext : DbContext
         {
             entity.HasKey(e => new { e.RoleId, e.GroupId }).HasName("PK__GroupRol__3BB3612C136B1C77");
 
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Group).WithMany(p => p.GroupRoles)
                 .HasForeignKey(d => d.GroupId)
@@ -491,7 +490,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.Property(e => e.EcardId).HasColumnName("ECardId");
             entity.Property(e => e.Expression).HasColumnType("text");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Ecard).WithMany(p => p.HistoryEcs)
                 .HasForeignKey(d => d.EcardId)
@@ -511,7 +510,7 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.EcardId).HasColumnName("ECardId");
             entity.Property(e => e.EruleId).HasColumnName("ERuleId");
             entity.Property(e => e.Expression).HasColumnType("text");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Ecard).WithMany(p => p.HistoryErs)
                 .HasForeignKey(d => d.EcardId)
@@ -533,7 +532,7 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.Condition).HasMaxLength(250);
             entity.Property(e => e.EruleId).HasColumnName("ERuleId");
             entity.Property(e => e.Expression).HasColumnType("text");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ParameterId).HasColumnName("ParameterID");
             entity.Property(e => e.ValueRet).HasMaxLength(50);
 
@@ -560,7 +559,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.Property(e => e.CustomerId).HasMaxLength(50);
             entity.Property(e => e.Expression).HasColumnType("text");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.PcardId).HasColumnName("PCardId");
             entity.Property(e => e.TransReference).HasMaxLength(50);
             entity.Property(e => e.TransactionDate).HasColumnType("datetime");
@@ -595,10 +594,10 @@ public partial class EligibilityDbContext : DbContext
         {
             entity.HasKey(e => e.ItemId).HasName("PK__ListItem__727E838B4F37F516");
 
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ItemName).HasMaxLength(200);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.HasOne(d => d.List).WithMany(p => p.ListItems)
                 .HasForeignKey(d => d.ListId)
@@ -634,10 +633,10 @@ public partial class EligibilityDbContext : DbContext
 
             entity.HasIndex(e => e.EntityId, "IX_ManagedList_EntityId");
 
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ListName).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Entity).WithMany(p => p.ManagedLists)
                 .HasForeignKey(d => d.EntityId)
@@ -651,10 +650,10 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("MappingFunction");
 
             entity.Property(e => e.MapFunctionId).HasColumnName("MapFunctionID");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.MapFunctionValue).HasMaxLength(20);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
 
         modelBuilder.Entity<Node>(entity =>
@@ -672,9 +671,9 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.AuthSettings).HasDefaultValue("");
             entity.Property(e => e.AuthType).HasDefaultValue("");
             entity.Property(e => e.Code).HasMaxLength(50);
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.Headers).HasDefaultValue("");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.NodeDesc).HasMaxLength(50);
             entity.Property(e => e.NodeName).HasMaxLength(50);
             entity.Property(e => e.NodeUrl)
@@ -682,7 +681,7 @@ public partial class EligibilityDbContext : DbContext
                 .HasColumnName("NodeURL");
             entity.Property(e => e.PasswordField).HasDefaultValue("");
             entity.Property(e => e.TokenKeyword).HasDefaultValue("");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UrlType)
                 .HasMaxLength(10)
                 .HasDefaultValue("");
@@ -709,15 +708,15 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.BinaryXml)
                 .IsUnicode(false)
                 .HasColumnName("BinaryXML");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.EndpointPath).HasDefaultValue("");
             entity.Property(e => e.Header).HasColumnType("text");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.RequestBody).HasDefaultValue("");
             entity.Property(e => e.RequestParameters).HasDefaultValue("");
             entity.Property(e => e.ResponseRootPath).HasDefaultValue("");
             entity.Property(e => e.TargetTable).HasDefaultValue("");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.XmlfileName)
                 .HasMaxLength(60)
                 .HasColumnName("XMLFileName");
@@ -738,12 +737,12 @@ public partial class EligibilityDbContext : DbContext
        .IsUnique()
        .HasDatabaseName("UQ_Parameter_EntityId_ParameterName");
 
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.FactorOrder).HasMaxLength(3);
             entity.Property(e => e.IsKyc).HasColumnName("IsKYC");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ParameterName).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Condition).WithMany(p => p.Parameters)
                 .HasForeignKey(d => d.ConditionId)
@@ -783,7 +782,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("ParamtersMap");
 
             entity.Property(e => e.Apiid).HasColumnName("APIId");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.Xmlnode)
                 .HasMaxLength(50)
                 .HasColumnName("XMLNode");
@@ -824,12 +823,12 @@ public partial class EligibilityDbContext : DbContext
 
             entity.Property(e => e.PcardId).HasColumnName("PCardId");
             //entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.Expression)
                 .HasDefaultValue("")
                 .HasColumnType("text");
-            entity.Property(e => e.Expshown).HasColumnType("nvarchar(max)");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Expshown).HasColumnType("longtext");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.PcardDesc)
                 .HasMaxLength(50)
                 .HasColumnName("PCardDesc");
@@ -840,7 +839,7 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.Pstatus)
                 .HasMaxLength(10)
                 .HasColumnName("PStatus");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Entity).WithMany(p => p.Pcards)
                 .HasForeignKey(d => d.EntityId)
@@ -879,16 +878,16 @@ public partial class EligibilityDbContext : DbContext
             entity.HasIndex(e => e.EntityId, "IX_Product_EntityId");
 
             entity.Property(e => e.Code).HasMaxLength(10);
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.Description).HasColumnType("nvarchar(50)");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.MaxEligibleAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.MimeType).HasMaxLength(20);
-            entity.Property(e => e.Narrative).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.Narrative).HasColumnType("longtext");
             entity.Property(e => e.ProductName)
                 .HasMaxLength(50)
                 .HasDefaultValue("");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
@@ -920,12 +919,12 @@ public partial class EligibilityDbContext : DbContext
 
             entity.HasIndex(e => e.EntityId, "IX_ProductParam_EntityId");
 
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ParamValue)
                 .HasMaxLength(50)
                 .HasColumnName("paramValue");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Parameter).WithMany(p => p.ProductParams)
                 .HasForeignKey(d => d.ParameterId)
@@ -943,10 +942,10 @@ public partial class EligibilityDbContext : DbContext
             entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1AD71FF567");
 
             entity.Property(e => e.RoleId).ValueGeneratedNever();
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.RoleAction).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
 
         modelBuilder.Entity<Screen>(entity =>
@@ -956,7 +955,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("Screen");
 
             entity.Property(e => e.ScreenId).HasColumnName("ScreenID");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ScreenName)
                 .HasMaxLength(60)
                 .IsUnicode(false);
@@ -967,11 +966,11 @@ public partial class EligibilityDbContext : DbContext
             entity.HasKey(e => e.GroupId).HasName("PK__Security__149AF30AF87E70F1");
 
             entity.Property(e => e.GroupId).HasColumnName("GroupID");
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.GroupDesc).HasMaxLength(250);
             entity.Property(e => e.GroupName).HasMaxLength(50);
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
 
         modelBuilder.Entity<Setting>(entity =>
@@ -996,7 +995,7 @@ public partial class EligibilityDbContext : DbContext
                 .HasDefaultValue("");
             entity.Property(e => e.Issuspended).HasColumnName("issuspended");
             entity.Property(e => e.LastLoginDate).HasColumnType("datetime");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.LoginId)
                 .HasMaxLength(50)
                 .HasDefaultValue("");
@@ -1023,9 +1022,9 @@ public partial class EligibilityDbContext : DbContext
         {
             entity.HasKey(e => new { e.UserId, e.GroupId }).HasName("PK__UserGrou__A6C1637AF327336E");
 
-            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.HasOne(d => d.Group).WithMany(p => p.UserGroups)
                 .HasForeignKey(d => d.GroupId)
@@ -1045,7 +1044,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("UserStatus");
 
             entity.Property(e => e.StatusId).ValueGeneratedNever();
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.StatusName).HasMaxLength(50);
         });
         modelBuilder.Entity<ProductCapAmount>(entity =>

@@ -55,15 +55,20 @@ builder.Services.AddScoped<AuditInterceptor>();
 
 builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
 {
-    options.UseSqlServer(
+    options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions =>
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
+        mySqlOptions =>
         {
-            sqlOptions.CommandTimeout(600); //  increase timeout to 5 minutes
-        })
-        .EnableSensitiveDataLogging()
-        .AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+            mySqlOptions.CommandTimeout(600); // 10 minutes
+        });
+
+    if (builder.Environment.IsDevelopment())
+        options.EnableSensitiveDataLogging();
+
+    options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
@@ -182,7 +187,7 @@ builder.Services.AddSwaggerGen(swagger =>
     swagger.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "Eligibility Platform API",
+        Title = "3MEligibility Platform API",
     });
 });
 
