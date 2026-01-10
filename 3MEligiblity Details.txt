@@ -1,0 +1,22 @@
+(TenatId) Role - Admin User
+(1) Username - aaa@blazorhero.com
+Password - 123Pa$$word!
+
+(2) Username - bbb@blazorhero.com
+Password - 123Pa$$word!
+
+(3) Username ccc@blazorhero.com
+Password - 123Pa$$word!
+
+
+(TenantId) Role - Basic User
+(1) Username - ddd@blazorhero.com
+Password - 123Pa$$word!
+
+(2) Username - eee@blazorhero.com
+Password - 123Pa$$word!
+
+(3) Username - fff@blazorhero.com
+Password - 123Pa$$word!
+
+============================
