@@ -1,0 +1,146 @@
+.container {
+  padding: 20px;
+}
+
+// table {
+//   width: 100%;
+//   border-collapse: collapse; /* Ensure proper collapsing of borders */
+//   border: none; /* Removes the outer border */
+// }
+
+// .table {
+//   margin-top: 20px;
+// }
+
+// .mat-header-cell {
+//   font-weight: bold;
+//   text-align: left;
+//   padding: 10px;
+// }
+
+// .mat-cell {
+//   padding: 10px;
+//   border-bottom: 1px solid #e0e0e0; /* Divider for rows */
+// }
+
+// .mat-header-row {
+//   border-bottom: 2px solid #e0e0e0; /* Stronger line for header */
+// }
+
+// .mat-row:hover {
+//   background-color: #f9f9f9; /* Add a subtle hover effect */
+// }
+
+.dropdown-menu {
+  display: block;
+  position: absolute;
+}
+
+// .bgColorWhite {
+//   background-color: white;
+// }
+
+.card {
+  background: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.button-spacing button {
+  margin-right: 15px;
+
+  &:last-child {
+    margin-right: 0; /* Remove margin for the last button */
+  }
+}
+
+.clickable-icon {
+  cursor: pointer; /* Makes the icon clickable */
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.2); /* Slight zoom effect on hover */
+  }
+}
+
+::placeholder {
+  color: #6c757d; /* Change to your preferred color */
+  opacity: 1; /* Ensure the placeholder is fully visible */
+}
+
+:-ms-input-placeholder { /* For Internet Explorer */
+  color: #6c757d;
+}
+
+::-ms-input-placeholder { /* For Microsoft Edge */
+  color: #6c757d;
+}
+
+// -----------------NEW CSS-------------------------------------------------
+
+.moduleLabel {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.bgColorWhite {
+  background-color: #f8f8f8;
+}
+.cellStyling {
+  border-bottom: 5px solid white !important;
+}
+
+.tableHeader {
+  background-color: #f8f8f8;
+  color: #1CAEC8;
+  font-size: 16px;
+  //font-weight: 600;
+}
+table {
+  width: 100%;
+  background-color: #f8f8f8;
+}
+
+table tr.select-row {
+  background-color: #f8f8f8 !important; 
+  color: #17355A;
+  font-size: 14px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* Enables horizontal scrolling */
+  white-space: nowrap; /* Prevents table from wrapping */
+}
+
+.table-wrapper table {
+  min-width: 1000px; /* Ensures table doesn't shrink too much */
+  width: 100%;
+}
+
+.paginator {
+  background-color: white;
+}
+
+table tr.select-row:hover {
+  cursor: pointer;
+}
+
+.table {
+  margin-top: 20px;
+}
+.align-items-center {
+  display: flex;
+  align-items: center;
+}
+
+.form-check-label {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Optional spacing between checkbox and label text */
+  margin-bottom: 0; /* Remove extra space below label */
+}
+
+.form-check-input {
+  margin-top: 0; /* Align the checkbox properly */
+}

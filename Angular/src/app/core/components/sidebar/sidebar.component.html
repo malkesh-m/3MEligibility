@@ -1,0 +1,143 @@
+<div class="sidebar-wrap">
+    <div class="app-brand" [routerLink]="['/setting/entity']">
+        <img src="images/SDB_logo.png" alt="app-logo" class="app-logo">
+    </div>
+    <div class="list-wrap">
+      <mat-accordion multi>
+        <mat-expansion-panel *ngIf="hasPermission(5)" [expanded]="step() === -1" (opened)="setStep(-1)" hideToggle>
+          <mat-expansion-panel-header>
+            <!-- <mat-panel-title>Setup</mat-panel-title> -->
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">dashboard</mat-icon>
+              <a *ngIf="hasPermission(9)" mat-list-item routerLink="setting/dashboard">{{ 'Dashboard' | translate }}</a>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <!--<mat-nav-list>
+            <a *ngIf="hasPermission(9)" mat-list-item routerLink="setting/dashboard">{{ 'Dashboard' | translate }}</a>
+       
+          </mat-nav-list>-->
+        </mat-expansion-panel>
+        <!-- Setup Section -->
+        <mat-expansion-panel *ngIf="hasPermission(5)" [expanded]="step() === 0" (opened)="setStep(0)" hideToggle>
+          <mat-expansion-panel-header>
+            <!-- <mat-panel-title>Setup</mat-panel-title> -->
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">settings</mat-icon>
+              <span>{{ 'Setup' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <!--<a *ngIf="hasPermission(9)" mat-list-item routerLink="setting/dashboard">{{ 'Dashboard' | translate }}</a>-->
+            <a *ngIf="hasPermission(9)" mat-list-item routerLink="setting/entity">{{ 'Entity' | translate }}</a>
+            <a *ngIf="hasPermission(91)" mat-list-item routerLink="setting/lists">{{ 'Lists' | translate }}</a>
+            <a *ngIf="hasPermission(10)" mat-list-item routerLink="setting/parameters">{{ 'Parameters' | translate }}</a>
+            <a *ngIf="hasPermission(8)" mat-list-item routerLink="setting/factors">{{ 'Factors' | translate }}</a>
+            <a *ngIf="hasPermission(51)" mat-list-item routerLink="setting/products">{{ 'Products' | translate }}</a>
+          </mat-nav-list>
+        </mat-expansion-panel>
+
+        <!-- Conditions Section -->
+        <mat-expansion-panel *ngIf="hasPermission(133)" [expanded]="step() === 1" (opened)="setStep(1)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">rule</mat-icon>
+              <span>{{ 'Conditions' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(52)" mat-list-item routerLink="setting/rules">{{ 'Rules' | translate }}</a>
+            <a *ngIf="hasPermission(53)" mat-list-item routerLink="setting/cards">{{ 'Cards' | translate }}</a>
+            <a *ngIf="hasPermission(54)" mat-list-item routerLink="setting/product-cards">{{ 'Stream Cards' | translate }}</a>
+            <a *ngIf="hasPermission(121)" mat-list-item routerLink="setting/exception">{{ 'Exception Management' | translate }}</a>
+          </mat-nav-list>
+        </mat-expansion-panel>
+
+        <!-- Connections Section -->
+        <mat-expansion-panel *ngIf="hasPermission(134)" [expanded]="step() === 2" (opened)="setStep(2)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">link</mat-icon>
+              <span>{{ 'Connections' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(7)" mat-list-item routerLink="connections/integration">{{ 'Integration' | translate }}</a>
+            <!--<a *ngIf="hasPermission(6)" mat-list-item routerLink="connections/mapping">{{ 'Mapping' | translate }}</a>-->
+          </mat-nav-list>
+        </mat-expansion-panel>
+
+        <!-- Security Section -->
+        <mat-expansion-panel *ngIf="hasPermission(4)" [expanded]="step() === 3" (opened)="setStep(3)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">security</mat-icon>
+              <span>{{ 'Security' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(70)" mat-list-item routerLink="security/user">{{ 'Users' | translate }}</a>
+            <a *ngIf="hasPermission(71)" mat-list-item routerLink="security/group">{{ 'Groups' | translate }}</a>
+            <a *ngIf="hasPermission(72)" mat-list-item routerLink="security/role">{{ 'Roles' | translate }}</a>
+          </mat-nav-list>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel *ngIf="hasPermission(135)" [expanded]="step() === 4" (opened)="setStep(4)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">check_circle</mat-icon>
+              <span>{{ 'Maker Checker' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(90)" mat-list-item routerLink="setting/checker">{{ 'Checker' | translate }}</a>
+          </mat-nav-list>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(50)" mat-list-item routerLink="setting/history">{{ 'History' | translate }}</a>
+          </mat-nav-list>
+        </mat-expansion-panel>
+        <mat-expansion-panel *ngIf="hasPermission(135)" [expanded]="step() === 5" (opened)="setStep(5)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">history</mat-icon>
+              <span>{{ 'Logs' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(90)" mat-list-item routerLink="setting/audit-log">{{ 'Audit Log' | translate }}</a>
+            <a *ngIf="hasPermission(90)" mat-list-item routerLink="setting/log">{{ 'Log' | translate }}</a>
+
+          </mat-nav-list>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel *ngIf="hasPermission(137)" [expanded]="step() === 6" (opened)="setStep(6)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">settings</mat-icon>
+              <span>{{ 'Configuration' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(128)" mat-list-item routerLink="setting/maker-checker-config" class="small-font">{{ 'Maker Checker Config' | translate }}</a>
+            <!-- <a mat-list-item routerLink="configuration/exception">{{ 'Exception Config' | translate }}</a> -->
+            <a *ngIf="hasPermission(141)" mat-list-item routerLink="configuration/Product-Cap" class="small-font">{{ 'Maximum Percentage Per Stream' | translate }}</a>
+            <a *ngIf="hasPermission(145)" mat-list-item routerLink="configuration/Product-Cap-Amount" class="small-font">{{ 'Maximum Amount Per Stream' | translate }}</a>
+
+
+          </mat-nav-list>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel *ngIf="hasPermission(136)" [expanded]="step() === 7" (opened)="setStep(7)" hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="accordion-icon">file_upload</mat-icon>
+              <span>{{ 'Bulk Import' | translate }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <a *ngIf="hasPermission(130)" mat-list-item routerLink="setting/bulk-import">{{ 'Bulk Import' | translate }}</a>
+          </mat-nav-list>
+        </mat-expansion-panel>
+
+      </mat-accordion>
+    </div>
+</div>

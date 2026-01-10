@@ -1,0 +1,53 @@
+.title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .small-text {
+    font-size: 14px;
+    margin: 5px 0;
+  }
+  
+  .json-container {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .json-column {
+    width: 50%;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    overflow-x: auto;
+    max-height: 400px;
+  }
+  
+  .json-header {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .json-list {
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: #ffffff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .full-width {
+    width: 450px;
+  }
+
+  .addMargin {
+    margin-top: 20px;
+  }
+  

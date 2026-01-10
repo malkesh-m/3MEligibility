@@ -1,0 +1,274 @@
+<div class="mb-3">
+  <div>
+      <p class="moduleLabel mb-2">{{ 'Rules' | translate }}</p>
+  </div>
+
+  <!-- Search and Actions Section -->
+  <div class="d-flex justify-content-between align-items-center">
+      <!-- Search Input -->
+      <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+          <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
+              [(ngModel)]="searchTerm" (input)="applyFilter($event)" />
+      </div>
+
+      <!-- Actions Buttons -->
+      <div class="d-flex align-items-center ms-3">
+          <button appUseractivity="User Click on Add button"
+              [componentName]="'RulesComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" *ngIf="hasPermission(55)">
+              <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+          </button>
+          <button appUseractivity="User Click on Download Template button"
+              [componentName]="'RulesComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(58)">
+              <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
+          </button>
+          <button appUseractivity="User Click on Template button"
+              [componentName]="'RulesComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()" *ngIf="hasPermission(58)">
+              <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+          </button>
+          <button class="btn" *ngIf="hasPermission(57)">
+              <mat-icon matTooltip="{{ 'Export' | translate }}" (click)="exportRules()">file_download</mat-icon>
+          </button>
+          <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+          <button (click)="deleteCheckedMultipleRules()" class="btn" *ngIf="hasPermission(56)">
+              <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+          </button>
+      </div>
+  </div>
+</div>
+
+<div *ngIf="formVisible" class="card p-3 mb-3">
+  <form [formGroup]="expressionForm" (ngSubmit)="submit()">
+      <div class="row mb-3">
+          <div class="col-2">
+              <label class="inputLabel">{{ 'Rule Name' | translate }} <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="name" (input)="sanitizeCode($event)" />
+              <div *ngIf="expressionForm.get('name')?.invalid && expressionForm.get('name')?.touched">
+                  <small class="text-danger">{{ 'Rule Name' | translate }}{{ ' is required' | translate }}</small>
+              </div>
+          </div>
+          <div class="col-2">
+              <label class="inputLabel">{{ 'Rule Description' | translate }} <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="description" (input)="sanitizeCode($event)" />
+              <div *ngIf="expressionForm.get('description')?.invalid && expressionForm.get('description')?.touched">
+                  <small class="text-danger">{{ 'Rule Description' | translate }}{{ ' is required' | translate }}</small>
+              </div>
+          </div>
+           <!--<div class="col-2 d-flex align-items-center">
+              <label class="form-check-label">
+                  <input type="checkbox" class="form-check-input" formControlName="isExceptionRule" />
+                  {{ 'Exception Rule?' | translate }}
+              </label>
+          </div>-->
+          <!--<div class="col-2">
+              <label class="inputLabel">{{ 'Exception' | translate }} <span class="text-danger" *ngIf="expressionForm.value.isExceptionRule">*</span></label>
+              <select formControlName="exceptionId" class="form-control">
+                  <option value="" disabled>{{ 'Select Exception' | translate }}</option>
+                  <option *ngFor="let exception of exceptions" [ngValue]="exception.exceptionID">{{
+                      exception.exceptionName }}</option>
+              </select>
+              <div *ngIf="expressionForm.get('exceptionId')?.touched && expressionForm.get('exceptionId')?.invalid">
+                  <small class="text-danger">{{ 'Exception is required' | translate }}</small>
+              </div>
+          </div>-->
+
+          <div class="col-2">
+              <label class="inputLabel">{{ 'Parent Rule' | translate }} <span class="text-danger" *ngIf="expressionForm.value.isExceptionRule">*</span></label>
+              <select formControlName="parentRuleId" class="form-control">
+                  <option value="" disabled>{{ 'Select Parent Rule' | translate }}</option>
+                  <option *ngFor="let erule of parentRules" [ngValue]="erule.eruleId">{{
+                      erule.eruleName }}</option>
+              </select>
+              <div *ngIf="expressionForm.get('parentRuleId')?.touched && expressionForm.get('parentRuleId')?.invalid">
+                  <small class="text-danger">{{ 'Parent rule is required' | translate }}</small>
+              </div>
+          </div>
+      </div>
+      <div class="row mb-3">
+          <div class="col">
+              <label class="inputLabel">{{ 'Open Parenthesis' | translate }}</label>
+              <select #openParenthesisSelect class="form-control" [disabled]="isOpenParenthesis"
+                  (change)="onSelect('openParenthesis', $event)">
+                  <option value="" disabled selected>{{ 'Open Parenthesis' | translate }}</option>
+                  <option *ngFor="let item of openParanthesis" [value]="item">{{ item }}</option>
+              </select>
+          </div>
+          <div class="col">
+              <label class="inputLabel">{{ 'Parameter Name' | translate }}</label>
+              <select #parameterSelect class="form-control" (change)="onSelect('parameter', $event)"
+                  [disabled]="isParameterName">
+                  <option value="" disabled selected>{{ 'Parameter Name' | translate }}</option>
+                  <option *ngFor="let param of parameters" [value]="param.parameterName">{{
+                      param.parameterName }}</option>
+              </select>
+          </div>
+          <div class="col">
+              <label class="inputLabel">{{ 'Operator' | translate }}</label>
+              <select #operatorSelect class="form-control" [disabled]="isOperator" (change)="onSelect('operator', $event)">
+                <option value="" disabled selected>{{ 'Operator' | translate }}</option>
+                <option *ngFor="let operator of operatorsAry" [value]="operator.conditionValue">{{ operator.conditionValue }}</option>
+              </select>
+            </div>
+            
+          <div class="col">
+              <label class="inputLabel">{{ 'Factor' | translate }}</label>
+              <select #factorSelect class="form-control" (change)="onSelect('factor', $event)" [disabled]="isFactor">
+                  <option value="" disabled selected>{{ 'Factor' | translate }}</option>
+                  <option *ngFor="let factor of factors"
+                      [value]="isRangeOperator() ? (factor.value1 + '-' + factor.value2) : factor.value1">
+                      {{ isRangeOperator() ? (factor.value1 + ' - ' + factor.value2) : factor.value1 }}
+                  </option>
+              </select>
+              <div *ngIf="isParameterSelected && factors.length === 0" class="mt-2">
+                  {{ 'No items to show...' | translate }}
+              </div>
+          </div>
+          <div class="col">
+              <label class="inputLabel">Optional Factor</label>
+              <input type="text" class="form-control" [disabled]="isFactor" formControlName="factorName" (blur)="onSelect('factor',$event)" />
+          </div>
+          <div class="col">
+              <label class="inputLabel">{{ 'Logical Operator' | translate }}</label>
+              <select #logicalOperatorSelect class="form-control" [disabled]="isLogicalOperator"
+                  (change)="onSelect('logicalOperator', $event)">
+                  <option value="" disabled selected>{{ 'Logical Operator' | translate }}</option>
+                  <option *ngFor="let logical of logicalOperator" [value]="logical">{{ logical }}</option>
+              </select>
+          </div>
+          <div class="col">
+              <label class="inputLabel">{{ 'Close Parenthesis' | translate }}</label>
+              <select #closeParenthesisSelect class="form-control" [disabled]="isCloseParenthesis"
+                  (change)="onSelect('closeParenthesis', $event)">
+                  <option value="" disabled selected>{{ 'Close Parenthesis' | translate }}</option>
+                  <option *ngFor="let item of closeParanthesis" [value]="item">{{ item }}</option>
+              </select>
+          </div>
+      </div>
+      <div class="d-flex flex-wrap align-items-center">
+          <!-- Expression Textarea -->
+           <div class="flex-row flex-grow-1">
+              <textarea formControlName="expshown" class="flex-grow-1 w-100" readonly>{{ expshown }}</textarea>
+              <div *ngIf="expressionForm.get('expshown')?.touched && expressionForm.get('expshown')?.invalid">
+                  <small class="text-danger">{{ 'Rule expression is required' | translate }}</small>
+              </div>
+           </div>
+
+          <!-- Buttons -->
+          <button appUseractivity="User Click on Clear button"
+              [componentName]="'RulesComponent'"
+              [actionType]="'ButtonClick'" class="clearBtn" type="button" mat-raised-button (click)="resetExpression()">{{ 'Clear' | translate }}</button>
+          <button appUseractivity="User Click on Remove button"
+              [componentName]="'RulesComponent'"
+              [actionType]="'ButtonClick'" class="removeBtn" type="button" mat-raised-button (click)="removeLastItem()">{{ 'Remove' | translate }}</button>
+          <button appUseractivity="User Click on Validate button"
+              [componentName]="'RulesComponent'"
+              [actionType]="'ButtonClick'"  class="validateBtn" type="button" mat-raised-button (click)="openValidatorDialogAdd(expshown)">{{ 'Validate' | translate }}</button>
+          <button  [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'RulesComponent'"
+              [actionType]="'ButtonClick'" class="addBtn" type="submit" mat-flat-button >
+              {{ isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}
+          </button>
+          <button class="cancelBtn" type="button" mat-raised-button (click)="cancelEvent()">{{ 'Cancel' | translate }}</button>
+      </div>
+  </form>
+</div>
+
+<div #userTable class="table-wrapper">
+  <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="select">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+              <mat-checkbox [checked]="isAllSelected()" (change)="toggleAllSelection($event.checked)"></mat-checkbox>
+          </th>
+          <td class="cellStyling" mat-cell *matCellDef="let row">
+              <mat-checkbox [checked]="isRowSelected(row)" (change)="toggleRowSelection(row)"></mat-checkbox>
+          </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Name">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.Name }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Description">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Description' | translate }}
+          </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.Description }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Expression">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Exp shown' | translate }}
+          </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.Expshown }} </td>
+      </ng-container>
+
+      <!-- Created By Column -->
+      <ng-container matColumnDef="createdBy">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
+              <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
+                  matTooltip="Show/Hide Created Date">
+                  {{ rulesColumnsAry.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
+              </mat-icon>
+          </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity">
+              {{ entity.createdBy }}
+          </td>
+      </ng-container>
+
+      <!-- Created Date Column (Initially Hidden) -->
+      <ng-container *ngIf="rulesColumnsAry.includes('createdDate')" matColumnDef="createdDate">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ 'Created Date' | translate }}
+          </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity">
+              {{ entity.createdByDateTime | date:'short' }}
+          </td>
+      </ng-container>
+
+      <!-- Updated By Column -->
+      <ng-container matColumnDef="updatedBy">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+              {{ 'Updated By' | translate }}
+              <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
+                  matTooltip="Show/Hide Updated Date">
+                  {{ rulesColumnsAry.includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
+              </mat-icon>
+          </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity">
+              {{ entity.updatedBy }}
+          </td>
+      </ng-container>
+
+      <!-- Updated Date Column (Initially Hidden) -->
+      <ng-container *ngIf="rulesColumnsAry.includes('updatedDate')" matColumnDef="updatedDate">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ 'Updated Date' | translate }}
+          </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity">
+              {{ entity.updatedByDateTime | date:'short' }}
+          </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Actions">
+          <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+          <td class="cellStyling" mat-cell *matCellDef="let entity">
+              <mat-icon class="clickable-icon" color="primary" (click)="copyRecord(entity)" *ngIf="hasPermission(117)"
+                  matTooltip="{{ 'Copy' | translate }}">file_copy</mat-icon>
+              <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission(59)"
+                  matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+              <mat-icon class="clickable-icon" color="warn" (click)="deleteRecord(entity)" *ngIf="hasPermission(56)"
+                  matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+              <mat-icon class="clickable-icon" color="accent" (click)="openValidatorDialog(entity)" *ngIf="hasPermission(118)"
+                  matTooltip="{{ 'Validate' | translate }}">check_circle</mat-icon>
+          </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="rulesColumnsAry" class="tableHeader"></tr>
+      <tr mat-row *matRowDef="let row; columns: rulesColumnsAry;" class="select-row"></tr>
+  </table>
+  <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
+
+<!-- Full-page Loader -->
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

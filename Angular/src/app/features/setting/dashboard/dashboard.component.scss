@@ -1,0 +1,185 @@
+/* Updated SCSS for Dashboard */
+.tiles-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  background: #f5f5f5;
+}
+.action-cell {
+  text-align: center !important;
+  padding-right: 20px;
+}
+.wide-tile {
+  grid-column: span 2; /* makes it span 2 columns */
+}
+.clickable-icon {
+  cursor: pointer;
+}
+.small-text .tile-count {
+  font-size: 20px; /* smaller font size */
+  line-height: 14px;
+  word-break: break-word; /* wrap long text */
+}
+
+.tile {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.tile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.tile-count {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.tile-footer {
+  font-size: 14px;
+  color: #888;
+}
+
+.positive {
+  color: green;
+}
+
+.negative {
+  color: red;
+}
+
+.moduleLabel {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.chart-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
+}
+
+.chart-container {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  flex: 1 1 45%;
+  min-width: 400px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.chart-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.chart-header select {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Evaluation History Section */
+.evaluation-history-container {
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 95%;
+}
+
+.search-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.search-filter-bar input,
+.search-filter-bar select {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 180px;
+  flex-grow: 1;
+}
+
+.evaluation-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.evaluation-table th,
+.evaluation-table td {
+  padding: 10px;
+  border: 1px solid #eee;
+  text-align: left;
+}
+
+.evaluation-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  color: #333;
+}
+
+.evaluation-table a {
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.evaluation-table a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .search-filter-bar {
+    flex-direction: column;
+  }
+
+  .search-filter-bar input,
+  .search-filter-bar select {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .chart-container {
+    min-width: 100%;
+  }
+}

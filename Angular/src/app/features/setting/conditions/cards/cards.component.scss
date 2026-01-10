@@ -1,0 +1,121 @@
+.card-wrap {
+  padding: 10px 20px;
+  background-color: #f9f9f9;
+}
+
+/* General container styling */
+.container {
+  padding: 15px;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  /* Slightly smaller font size */
+  color: #333;
+  /* Softer font color */
+}
+
+thead th {
+  background-color: #f8f9fa;
+  /* Light header background */
+  text-align: left;
+  padding: 8px;
+  font-weight: 500;
+  /* Slightly lighter font weight for header */
+  font-size: 14px;
+  /* Slightly smaller font size */
+  border-bottom: 1px solid #ddd;
+}
+
+tbody td {
+  padding: 8px;
+  border-bottom: 1px solid #f1f1f1;
+  /* Subtle row separator */
+  font-size: 13px;
+  /* Smaller font size for table rows */
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+  /* Add hover effect */
+}
+
+tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+/* Checkbox column */
+input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Table actions */
+mat-icon.clickable-icon {
+  font-size: 18px;
+  /* Slightly smaller icon size */
+  color: #5c6064;
+  /* Default icon color */
+  margin-right: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+    /* Slight zoom effect */
+    color: #0056b3;
+    /* Darker color on hover */
+  }
+}
+
+/* Search bar styling */
+input[type='text'] {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  font-size: 14px;
+  width: 250px;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+  display: block;
+  /* Ensure visibility */
+  position: absolute;
+  /* Ensure placement */
+
+}
+
+// .dropdown-item {
+//   padding: 6px 12px;
+//   cursor: pointer;
+
+//   &:hover {
+//     background-color: #f1f1f1;
+//   }
+// }
+.card-wrap {
+  padding: 10px 20px;
+  background-color: #f9f9f9;
+}
+
+.remove,
+.cancel {
+  margin-top: 5% !important;
+}
+
+.moduleLabel {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.d-flex {
+  display: flex;
+  flex-wrap: wrap; /* Ensures wrapping on small screens */
+  gap: 10px; /* Adds space between items */
+  align-items: center;
+}

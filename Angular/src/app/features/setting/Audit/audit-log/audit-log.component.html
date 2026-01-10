@@ -1,0 +1,96 @@
+<div class="row mb-4">
+  <div class="col">
+    <h5 class="">Audit Log</h5>
+  </div>
+</div>
+
+<div #auditLogTable class="mat-elevation-z8">
+  <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
+
+    <ng-container matColumnDef="recordId">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> Record Id </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.recordId }} </td>
+    </ng-container>
+    <ng-container matColumnDef="actionDate">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Action Date' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.actionDate |date:'M/d/yy, h:mm a'}} </td>
+    </ng-container>
+    <!-- Table Name Column -->
+    <ng-container matColumnDef="tableName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Table Name' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.tableName }} </td>
+    </ng-container>
+    <!--<ng-container matColumnDef="fieldName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Field Name' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.fieldName }} </td>
+    </ng-container>-->
+    <!-- Action Column -->
+    <ng-container matColumnDef="actionName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Action' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.actionName }} </td>
+    </ng-container>
+
+    <!--<ng-container matColumnDef="oldValue">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Old Value' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
+        {{row.oldValue}}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="newValue">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'New Value' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.newValue }} </td>
+    </ng-container>-->
+    <ng-container matColumnDef="ipAddress">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'IP Address' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.ipAddress }} </td>
+    </ng-container>
+    <ng-container matColumnDef="userName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'User Name' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.userName }} </td>
+    </ng-container>
+    <ng-container matColumnDef="updatedByDateTime">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'UpdateByDateTime' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.updatedByDateTime |date:'M/d/yy, h:mm a'}} </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+
+    <ng-container matColumnDef="Actions">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
+
+        <!-- View Icon -->
+        <mat-icon appUseractivity="User Click on View Details button"
+                  [componentName]="'AuditLogComponent'"
+                  [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
+                  (click)="openDetailsDialog(row)"
+                  matTooltip="{{ 'View Details' | translate }}">
+          visibility
+        </mat-icon>
+
+
+
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
+
+  </table>
+  <div *ngIf="LoadAudit" class="loading-container">
+    <p>Loading data, please wait...</p>
+  </div>
+  <!-- Pagination for the table -->
+  <mat-paginator #paginator
+                 class="paginator"
+                 [length]="totalCount"
+                 [pageSize]="pageSize"
+                 [pageIndex]="pageIndex"
+                 [pageSizeOptions]="[10, 25, 50, 100]"
+                 (page)="onPageChange($event)"
+                 showFirstLastButtons>
+  </mat-paginator>
+</div>
+<p *ngIf="dataSource.data.length === 0 && LoadAudit===false">No Audit Log history records found.</p>
+
+

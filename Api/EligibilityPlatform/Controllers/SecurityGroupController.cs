@@ -1,0 +1,234 @@
+﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Services.Inteface;
+using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
+
+namespace EligibilityPlatform.Controllers
+{    /// <summary>
+     /// API controller for managing security group operations.
+     /// </summary>
+     /// <remarks>
+     /// Initializes a new instance of the <see cref="SecurityGroupController"/> class.
+     /// </remarks>
+     /// <param name="securityGroupService">The security group service for managing security groups.</param>
+     /// <param name="userGroupService">The user group service for managing user-group relationships.</param>
+     /// <param name="groupRoleService">The group role service for managing group-role relationships.</param>
+    [Route("api/securitygroup")]
+    [ApiController]
+    public class SecurityGroupController(ISecurityGroupService securityGroupService, IUserGroupService userGroupService, IGroupRoleService groupRoleService) : ControllerBase
+    {
+        private readonly ISecurityGroupService _securityGroupService = securityGroupService;
+        private readonly IUserGroupService _userGroupService = userGroupService;
+        private readonly IGroupRoleService _groupRoleService = groupRoleService;
+
+        /// <summary>
+        /// Retrieves all security groups from the system.
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing the list of security groups with success status.</returns>
+        /// <response code="200">Returns the list of security groups successfully.</response>
+        /// 
+        [RequireRole("View Groups Screen")]
+
+        [HttpGet("getall")]
+        public IActionResult Get()
+        {
+            // Retrieves all security groups from the security group service
+            List<SecurityGroupModel> result = _securityGroupService.GetAll();
+            // Returns success response with the list of security groups
+            return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
+        }
+
+        /// <summary>
+        /// Retrieves a specific security group by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the security group to retrieve.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the security group data if found.</returns>
+        /// <response code="200">Returns the security group data successfully.</response>
+        /// <response code="404">Returned when the security group with the specified ID is not found.</response>
+        /// 
+        [RequireRole("View Groups Screen")]
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            // Retrieves a specific security group by its ID
+            var result = _securityGroupService.GetById(id);
+            // Checks if the security group was found
+            if (result != null)
+            {
+                // Returns success response with the security group data
+                return Ok(new ResponseModel { IsSuccess = false, Data = result, Message = GlobalcConstants.Success });
+            }
+            else
+            {
+                // Returns not found response when security group doesn't exist
+                return NotFound(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.NotFound });
+            }
+        }
+
+        /// <summary>
+        /// Creates a new security group in the system.
+        /// </summary>
+        /// <param name="securityGroupModel">The security group model containing the data to create.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the creation operation.</returns>
+        /// <response code="200">Returns when the security group is created successfully.</response>
+        /// <response code="400">Returned when the model state is invalid or validation fails.</response>
+        /// 
+        [RequireRole("add groups")]
+
+        [HttpPost]
+        public async Task<IActionResult> Post(SecurityGroupUpdateModel securityGroupModel)
+        {
+            // Sets the created and updated by fields with the current user's name
+            var UserName = User.Identity?.Name;
+            securityGroupModel.CreatedBy = UserName;
+            securityGroupModel.UpdatedBy = UserName;
+
+            // Validates the model state
+            if (!ModelState.IsValid)
+            {
+                // Returns bad request if model validation fails
+                return BadRequest(ModelState);
+            }
+            // Adds the new security group
+            await _securityGroupService.Add(securityGroupModel);
+            // Returns success response after creation
+            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
+        }
+
+        /// <summary>
+        /// Updates an existing security group with new data.
+        /// </summary>
+        /// <param name="securityGroupModel">The security group model containing the updated data.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the update operation.</returns>
+        /// <response code="200">Returns when the security group is updated successfully.</response>
+        /// <response code="400">Returned when the model state is invalid or validation fails.</response>
+        /// 
+        [RequireRole("edit group")]
+
+        [HttpPut]
+        public async Task<IActionResult> Put(SecurityGroupUpdateModel securityGroupModel)
+        {
+            // Validates the model state
+            if (!ModelState.IsValid)
+            {
+                // Returns bad request if model validation fails
+                return BadRequest(ModelState);
+            }
+            // Updates the existing security group
+            await _securityGroupService.Update(securityGroupModel);
+            // Returns success response after update
+            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
+        }
+
+        /// <summary>
+        /// Deletes a specific security group by its unique identifier after checking for dependencies.
+        /// </summary>
+        /// <param name="id">The unique identifier of the security group to delete.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the deletion operation.</returns>
+        /// <response code="200">Returns when the security group is deleted successfully or when validation prevents deletion.</response>
+        /// 
+        [RequireRole("delete group")]
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            // Retrieves the security group by ID to check if it exists
+            var item = _securityGroupService.GetById(id);
+            if (item == null)
+            {
+                // Returns error response if security group is not found
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Security group not found." });
+            }
+
+            // Checks if there are users assigned to this security group
+            var usersAssigned = await _userGroupService.GetByUserGroupId(id);
+            if (usersAssigned)
+            {
+                // Returns error response if users are assigned to the group
+                return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are users assigned to it." });
+            }
+
+            // Checks if there are roles assigned to this security group
+            var rolesAssigned = await _groupRoleService.GetBySecurityGroupId(id);
+            if (rolesAssigned)
+            {
+                // Returns error response if roles are assigned to the group
+                return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are roles assigned to it." });
+            }
+
+            // Additional check for user group assignments
+            var userGroupAssigned = await _userGroupService.GetByUserGroupsId(id);
+            if (userGroupAssigned)
+            {
+                // Returns error response if users are assigned to the group
+                return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are users assigned to it." });
+            }
+
+            // Deletes the security group by its ID
+            await _securityGroupService.Remove(id);
+            // Returns success response after deletion
+            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
+        }
+
+        /// <summary>
+        /// Deletes multiple security groups by their unique identifiers after checking for dependencies.
+        /// </summary>
+        /// <param name="ids">The list of unique identifiers of the security groups to delete.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the bulk deletion operation.</returns>
+        /// <response code="200">Returns when all security groups are deleted successfully or when validation prevents deletion.</response>
+        [RequireRole("delete group")]
+
+        [HttpDelete("multipledelete")]
+        public async Task<IActionResult> MultipleDelete(List<int> ids)
+        {
+            // Validates that IDs were provided
+            if (ids.Count == 0 || ids == null)
+            {
+                // Returns bad request if no IDs are provided
+                return BadRequest(new ResponseModel { IsSuccess = false, Message = "No id's provided" });
+            }
+
+            // Iterates through each ID to check for dependencies
+            foreach (var id in ids)
+            {
+                // Retrieves the security group by ID to check if it exists
+                var item = _securityGroupService.GetById(id);
+                if (item == null)
+                {
+                    // Returns error response if security group is not found
+                    return Ok(new ResponseModel { IsSuccess = false, Message = "Security group not found." });
+                }
+
+                // Checks if there are users assigned to this security group
+                var usersAssigned = await _userGroupService.GetByUserGroupId(id);
+                if (usersAssigned)
+                {
+                    // Returns error response if users are assigned to the group
+                    return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are users assigned to it." });
+                }
+
+                // Checks if there are roles assigned to this security group
+                var rolesAssigned = await _groupRoleService.GetBySecurityGroupId(id);
+                if (rolesAssigned)
+                {
+                    // Returns error response if roles are assigned to the group
+                    return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are roles assigned to it." });
+                }
+
+                // Additional check for user group assignments
+                var userGroupAssigned = await _userGroupService.GetByUserGroupsId(id);
+                if (userGroupAssigned)
+                {
+                    // Returns error response if users are assigned to the group
+                    return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are users assigned to it." });
+                }
+            }
+
+            // Deletes multiple security groups by their IDs
+            await _securityGroupService.MultipleDelete(ids);
+            // Returns success response after deletion
+            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
+        }
+    }
+}

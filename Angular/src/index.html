@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" class="h-full bg-gray-100">
+
+<head>
+  <meta charset="utf-8">
+  <title>SDB Eligibility Backend</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" type="image/png" href="assets/images/SDB_logo.png" sizes="182x184">
+  <!--<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+  <link rel="apple-touch-icon" type="image/png" href="apple-touch-icon.png" sizes="182x184" />
+  <!--<link rel="manifest" href="manifest.json" /> -->
+  <!-- <script src="assets/env.js"></script>-->
+</head>
+
+<body class="h-full mat-typography">
+  <noscript>
+    <p>
+      This page requires JavaScript to work properly. Please enable JavaScript in your browser.
+    </p>
+  </noscript>
+
+  <script>
+    // This hides the address bar on mobile browsers
+    // https://developers.google.com/web/fundamentals/native-hardware/fullscreen/
+    window.addEventListener('load', function () { window.scrollTo(0, 1); });
+  </script>
+  <app-root>
+    <div class="loader-wrapper">
+      <!-- <div class="bottom triangle"></div>
+              <div class="top triangle"></div>
+              <div class="left triangle"></div>
+              <div class="right triangle"></div> -->
+      <!-- <img src="assets/images/SDB_logo.png" alt="Loading" width="500" height="500" /> -->
+    </div>
+  </app-root>
+</body>
+
+</html>

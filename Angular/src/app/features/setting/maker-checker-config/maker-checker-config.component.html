@@ -1,0 +1,25 @@
+<div>
+  <p class="moduleLabel mb-2">{{"Configuration" | translate}}</p>
+</div>
+
+<!-- Toggle with margin for spacing -->
+<div class="mb-3 gap-4" *ngIf="isDataReady">
+  <mat-slide-toggle appUseractivity="User Click on Enable/Disable MakerChecker button"
+              [componentName]="'MakerCheckerConfigComponent'"
+              [actionType]="'ButtonClick'"  [checked]="isMakerCheckerEnabled()" (change)="toggleMakerChecker($event)" *ngIf="hasPermission(129)">
+    {{"Enable Maker-Checker"| translate}}
+  </mat-slide-toggle>
+</div>
+
+<!-- Row layout for input and button -->
+<div class="d-flex align-items-center gap-4">
+  <label class="inputLabel me-2">{{ 'Max child entity limit' | translate }}</label>
+  <input type="number" class="form-control" style="width: 120px;" [(ngModel)]="maxChildEntityLimit"
+    name="maxChildEntityLimit" (input)="sanitizeCode($event)" />
+  <button appUseractivity="User Click on Add Max Child Entity MakerChecker button"
+              [componentName]="'MakerCheckerConfigComponent'"
+              [actionType]="'ButtonClick'"  type="submit" class="addBtn btn-primary me-2"  (click)="updateMaxChildEntityValue()">
+    {{ 'Add' | translate }}
+  </button>
+</div>
+

@@ -1,0 +1,122 @@
+<div class="table-wrapper">
+    <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+
+        <ng-container matColumnDef="ExceptionName">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Exception Name' | translate
+                }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.ExceptionName }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Description">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Description' |
+                translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.Description }} </td>
+        </ng-container>
+        
+        <!-- <ng-container matColumnDef="ParameterName">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Parameter Name' | translate
+                }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.ParameterName }} </td>
+        </ng-container> -->
+
+        <ng-container matColumnDef="TemporaryException">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+                {{ 'Temporary Exception' | translate }}
+                <mat-icon class="info-icon" (click)="toggleColumn('exceptionStartDate', 'exceptionEndDate')"
+                    matTooltip="Show/Hide Start and End Date">
+                    {{ displayedColumns.includes('exceptionStartDate') && displayedColumns.includes('exceptionEndDate') ? 'arrow_left' :
+                    'arrow_right' }}
+                </mat-icon>
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                {{ entity.TemporaryException }}
+            </td>
+        </ng-container>
+
+        <ng-container *ngIf="displayedColumns.includes('exceptionStartDate')" matColumnDef="exceptionStartDate">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{ 'Start Date' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                {{ entity.exceptionStartDate | date: 'short' }}
+            </td>
+        </ng-container>
+
+        <ng-container *ngIf="displayedColumns.includes('exceptionEndDate')" matColumnDef="exceptionEndDate">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{ 'End Date' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                {{ entity.exceptionEndDate | date: 'short' }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Scope">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Scope' | translate
+                }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.Scope }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Status">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Status' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.Status }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="CreatedDate">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Created Date' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.CreatedByDateTime | date:'short' }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="UpdatedDate">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Updated Date' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.UpdatedByDateTime | date:'short' }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="FixedPercentage">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Fixed Percentage' | translate
+                }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.FixedPercentage }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="VariationPercentage">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Variation Percentage' |
+                translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.VariationPercentage }} </td>
+        </ng-container>
+        <ng-container matColumnDef="ExpShown">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Exception Rule' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.expShown || 'N/A' }} </td>
+          </ng-container>
+
+        <ng-container matColumnDef="Actions">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                <!-- Edit Icon -->
+                <!-- <mat-icon class="clickable-icon" color="primary"
+                    matTooltip="{{ 'View' | translate }}">visibility</mat-icon> -->
+                    <mat-icon appUseractivity="User Click on Edit button"
+              [componentName]="'ExceptionComponent'"
+              [actionType]="'ButtonClick'" class="cancelBtn" type="button" class="clickable-icon" color="primary" (click)="editRecord(entity)"
+                    matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+          
+                  <!-- Delete Icon -->
+                  <mat-icon appUseractivity="User Click on Delete button"
+              [componentName]="'ExceptionComponent'"
+              [actionType]="'ButtonClick'" class="cancelBtn" type="button" class="clickable-icon" color="warn" (click)="deleteRecord(entity)"
+                    matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
+
+    </table>
+    <!-- Pagination for the table -->
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>

@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>{{ 'Rules Validator' | translate }}</h2>
+<mat-dialog-content>
+    <!-- Display the original expression -->
+    <div class="mb-3">
+        <label class="inputLabel">{{ 'Expression' | translate }}</label>
+        <textarea
+            class="form-control expression-box"
+            [(ngModel)]="expshown"
+            disabled
+        ></textarea>
+    </div>
+
+    <!-- Scrollable section for parameters -->
+    <div class="parameter-container mb-3">
+        <div *ngFor="let param of filteredParameters" class="param-row-container mb-2">
+            <!-- Parameter Name -->
+            <div class="param-label">
+                <span class="param-name">{{ param.parameterName }}</span>
+            </div>
+            <!-- Factor Selection -->
+            <div class="factor-dropdown">
+                <select
+                    class="form-control factor-select"
+                    (change)="onFactorChange(param.parameterName, $event)"
+                >
+                    <option value="" disabled selected>{{ 'Select Factor' | translate }}</option>
+                    <option
+                        *ngFor="let factor of factorsByParameter[param.parameterName]"
+                        [value]="factor.value1"
+                    >
+                        {{ factor.value1 }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display the dynamically evaluated expression -->
+    <div class="mb-3">
+        <label class="inputLabel">{{ 'Evaluate Expression' | translate }}</label>
+        <textarea
+            class="form-control expression-box"
+            [(ngModel)]="evaluateExpression"
+            readonly
+        ></textarea>
+    </div>
+
+    <!-- Validation Result Message -->
+    <div *ngIf="validationMessage" class="validation-message">
+        {{ validationMessage }}
+    </div>
+</mat-dialog-content>
+
+<!-- Dialog actions -->
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="validateExpression()">
+        {{ 'Validate' | translate }}
+    </button>
+    <button mat-button mat-dialog-close>{{ 'Cancel' | translate }}</button>
+</mat-dialog-actions>

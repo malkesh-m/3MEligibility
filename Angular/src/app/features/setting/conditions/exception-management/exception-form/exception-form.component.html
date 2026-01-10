@@ -1,0 +1,307 @@
+<div class="card p-5 mb-5">
+  <form [formGroup]="exceptionForm" (ngSubmit)="addRecord($event)">
+    <!-- Main Form Fields -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="inputLabel">{{ 'Exception Name' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="exceptionName" (input)="sanitizeCode($event)" />
+        <div *ngIf="exceptionForm.get('exceptionName')?.touched && exceptionForm.get('exceptionName')?.invalid" class="text-danger">
+          {{ 'Exception Name' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label class="inputLabel">{{ 'Exception Description' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="description" />
+        <div *ngIf="exceptionForm.get('description')?.touched && exceptionForm.get('description')?.invalid" class="text-danger">
+          {{ 'Exception Description' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col-md-4" *ngIf="!isScopeSelected">
+        <label class="inputLabel">{{ 'Exception Scope' | translate }} <span class="text-danger">*</span></label>
+        <mat-form-field class="full-width w-100" appearance="outline">
+          <mat-select formControlName="scope" (selectionChange)="onScopeChange()" multiple>
+            <mat-option *ngFor="let scope of exceptionScopes" [value]="scope">
+              {{ scope }}
+            </mat-option>
+          </mat-select>
+
+          <!-- Required error -->
+          <div class="text-danger" *ngIf="exceptionForm.get('scope')?.touched && exceptionForm.get('scope')?.hasError('required')">
+            {{ 'Exception Scope is required' | translate }}
+          </div>
+
+          <!-- Custom validator error -->
+         
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-4" *ngIf="isScopeSelected">
+        <label class="inputLabel">{{ 'Selected Scope' | translate }}</label>
+        <p>{{ exceptionForm.get('scope')?.value.join(', ') || 'None' }}</p>
+        <div class="text-danger" s [style.padding-bottom.px]="10"  *ngIf="exceptionForm.get('scope')?.touched && exceptionForm.get('scope')?.hasError('limitWithoutProduct')">
+          {{ 'Product Eligibility scope is required when Limit Amount is selected' | translate }}
+        </div>
+        <button appUseractivity="User Click on Change Scope button"
+                [componentName]="'ExceptionFormComponent'"
+                [actionType]="'ButtonClick'" type="button" mat-raised-button (click)="isScopeSelected = false">
+          Change Scope
+        </button>
+
+      </div>
+
+     
+    </div>
+
+    <!-- Limit Amount Section -->
+    @if(limitAmountEnabled)
+    {
+    <!--<div class="row mb-3 w-50">
+    <div class="col-md-6">
+      <label class="inputLabel">{{ 'Amount Type' | translate }} <span class="text-danger">*</span></label>
+      <select (change)="onChangeAmountType()" class="form-control" formControlName="limitAmountType" required>
+        <option value="null" disabled selected>{{ 'Select Amount Type' | translate }}</option>
+        <option value="Fixed">{{ 'Fixed Amount' | translate }}</option>
+        <option value="Variation">{{ 'Variation Amount' | translate }}</option>
+      </select>
+      <div *ngIf="exceptionForm.get('limitAmountType')?.touched && exceptionForm.get('limitAmountType')?.invalid" class="text-danger">
+        {{ 'Amount Type' | translate }}{{ ' is required' | translate }}
+      </div>
+    </div>
+    <div class="col-md-6" formControlName="amountType" >
+      <label class="inputLabel">
+        {{ 'Percentage ' | translate }}
+        <span *ngIf="limitAmountType === 'Fixed'"> (Fixed)</span>
+        <span *ngIf="limitAmountType === 'Variation'"> (Variation)</span>
+        <span class="text-danger">*</span>
+      </label>
+      <input type="number" class="form-control" (input)="onChangePercentage($event)" formControlName="percentageValue"
+             [ngClass]="{'is-invalid': exceptionForm.get('percentageValue')?.touched && exceptionForm.get('percentageValue')?.invalid}" min="0" max="100" />
+      <div *ngIf="exceptionForm.get('percentageValue')?.touched && exceptionForm.get('percentageValue')?.invalid" class="text-danger">
+        {{ 'Percentage Value' | translate }}{{ ' is required' | translate }}
+      </div>
+    </div>
+  </div>-->
+  <div class="row mb-3 w-50">
+    <!-- Amount Type Select -->
+    <div class="col-md-6">
+      <label class="inputLabel">
+        {{ 'Amount Type' | translate }}
+        <span class="text-danger">*</span>
+      </label>
+      <select class="form-control"
+              formControlName="amountType"
+              (change)="onChangeAmountType()">
+        <option value="" disabled selected>{{ 'Select Amount Type' | translate }}</option>
+        <option value="Fixed">{{ 'Fixed Amount' | translate }}</option>
+        <option value="Variation">{{ 'Variation Amount' | translate }}</option>
+      </select>
+      <div *ngIf="
+      exceptionForm.get('amountType')?.touched &&
+      exceptionForm.get('amountType')?.invalid
+    "
+           class="text-danger">
+        {{ 'Amount Type' | translate }}{{ ' is required' | translate }}
+      </div>
+    </div>
+
+    <!-- Percentage Input + IsActive Checkbox -->
+    <div class="col-md-6">
+      <label class="inputLabel">
+        {{ 'Percentage' | translate }}
+        <span *ngIf="exceptionForm.get('amountType')?.value === 'Fixed'"> (Fixed)</span>
+        <span *ngIf="exceptionForm.get('amountType')?.value === 'Variation'"> (Variation)</span>
+        <span class="text-danger">*</span>
+      </label>
+
+      <!-- Flex container for input + checkbox -->
+      <div class="d-flex align-items-center">
+        <!-- Percentage Input -->
+        <input type="number"
+               class="form-control"
+               formControlName="percentageValue"
+               (input)="onChangePercentage($event)"
+               min="0"
+               max="100"
+               [ngClass]="{
+               'is-invalid': exceptionForm.get('percentageValue')?.touched &&
+                             exceptionForm.get('percentageValue')?.invalid
+             }" />
+
+     
+      </div>
+
+      <div *ngIf="
+      exceptionForm.get('percentageValue')?.touched &&
+      exceptionForm.get('percentageValue')?.invalid
+    "
+           class="text-danger mt-1">
+        {{ 'Percentage Value' | translate }}{{ ' is required' | translate }}
+      </div>
+    </div>
+
+  </div>
+    }
+
+  <div class="row mb-3 align-items-center">
+    <div class="col-md-4 d-flex align-items-center">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input"
+               formControlName="isTemporary"
+               (change)="onTemporaryExceptionChange()" />
+        {{ 'Temporary Exception' | translate }}
+      </label>
+    </div>
+
+    <div class="col-md-4">
+      <label class="inputLabel">{{ 'Start Date' | translate }}</label>
+      <input type="date" class="form-control" formControlName="startDate" />
+
+      <!-- ERROR MESSAGE -->
+      <div class="text-danger"
+           *ngIf="exceptionForm.get('isTemporary')?.value
+                && exceptionForm.get('startDate')?.touched
+                && exceptionForm.get('startDate')?.invalid">
+        Please select Start Date
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <label class="inputLabel">{{ 'End Date' | translate }}</label>
+      <input type="date" class="form-control" formControlName="endDate" />
+
+      <!-- ERROR MESSAGE -->
+      <div class="text-danger"
+           *ngIf="exceptionForm.get('isTemporary')?.value
+                && exceptionForm.get('endDate')?.touched
+                && exceptionForm.get('endDate')?.invalid">
+        Please select End Date
+      </div>
+    </div>
+    <!-- IsActive Checkbox -->
+
+    <div class="col-md-6">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" formControlName="isActive" />
+        {{ 'IsActive' | translate }}
+      </label>
+    </div>
+  </div>
+    @if(productEligibilityEnabled){
+    <div class="col">
+      <!--<label class="inputLabel">{{ 'Product' | translate }} <span class="text-danger">*</span></label>
+    <select #productSelect class="form-control" formControlName="Product" multiple>
+        <option value="null" disabled selected>{{ '--Product--' | translate }}</option>
+        <option *ngFor="let product of productsList" [value]="product.productId">{{
+            product.productName }}</option>
+    </select>-->
+
+      <label class="inputLabel">{{ 'Select Stream' | translate }} <span class="text-danger">*</span></label>
+
+      <mat-form-field appearance="outline" class="full-width w-100">
+        <mat-select formControlName="productId" multiple>
+          <mat-option *ngFor="let product of productsList" [value]="product.productId">
+            {{ product.productName }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    }
+    <!-- Expression Builder -->
+    <div class="row mb-3">
+      <div class="col">
+        <label class="inputLabel">{{ 'Open Parenthesis' | translate }}</label>
+        <select #openParenthesisSelect class="form-control" [disabled]="isOpenParenthesis" (change)="onSelect('openParenthesis', $event)">
+          <option value="" disabled selected>{{ 'Open Parenthesis' | translate }}</option>
+          <option *ngFor="let item of openParanthesis" [value]="item">{{ item }}</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Parameter Name' | translate }}</label>
+        <select #parameterSelect class="form-control" [disabled]="isParameterName" (change)="onSelect('parameter', $event)">
+          <option value="" disabled selected>{{ 'Parameter Name' | translate }}</option>
+          <option *ngFor="let param of parameters" [value]="param.parameterName">{{ param.parameterName }}</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Operator' | translate }}</label>
+        <select #operatorSelect class="form-control" [disabled]="isOperator" (change)="onSelect('operator', $event)">
+          <option value="" disabled selected>{{ 'Operator' | translate }}</option>
+          <option *ngFor="let operator of operatorsAry" [value]="operator.conditionValue">{{ operator.conditionValue }}</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Factor' | translate }}</label>
+        <select #factorSelect class="form-control" [disabled]="isFactor" (change)="onSelect('factor', $event)">
+          <option value="" disabled selected>{{ 'Factor' | translate }}</option>
+          <option *ngFor="let factor of factors" [value]="isRangeOperator() ? (factor.value1 + ' - ' + factor.value2) : factor.value1">
+            {{ isRangeOperator() ? (factor.value1 + ' - ' + factor.value2) : factor.value1 }}
+          </option>
+        </select>
+        <div *ngIf="isParameterSelected && factors.length === 0" class="mt-2">
+          {{ 'No items to show...' | translate }}
+        </div>
+      </div>
+      <!-- <div class="col">
+      <label class="inputLabel">Optional Factor</label>
+      <input type="text" class="form-control" formControlName="factorName" />
+    </div> -->
+      <div class="col">
+        <label class="inputLabel">{{ 'Logical Operator' | translate }}</label>
+        <select #logicalOperatorSelect class="form-control" [disabled]="isLogicalOperator" (change)="onSelect('logicalOperator', $event)">
+          <option value="" disabled selected>{{ 'Logical Operator' | translate }}</option>
+          <option *ngFor="let logical of logicalOperator" [value]="logical">{{ logical }}</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Close Parenthesis' | translate }}</label>
+        <select #closeParenthesisSelect class="form-control"  (change)="onSelect('closeParenthesis', $event)">
+          <option value="" disabled selected>{{ 'Close Parenthesis' | translate }}</option>
+          <option *ngFor="let item of closeParanthesis" [value]="item">{{ item }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Expression Display and Buttons -->
+    <div class="row mb-3 align-items-center">
+      <div class="col-7">
+        <textarea formControlName="expShown" class="flex-grow-1 w-100" readonly>{{ expShown }}</textarea>
+        <div *ngIf="exceptionForm.get('expShown')?.touched && exceptionForm.get('expShown')?.invalid" class="text-danger">
+          {{ 'Rule expression is required' | translate }}
+        </div>
+      </div>
+      <div class="col-5 d-flex justify-content-end gap-2">
+        <button appUseractivity="User Click on Clear Expression button"
+              [componentName]="'ExceptionFormComponent'"
+              [actionType]="'ButtonClick'" class="clearBtn" type="button" mat-raised-button (click)="resetExpression()">{{ 'Clear' | translate }}</button>
+        <button appUseractivity="User Click on Remove Last Item button"
+              [componentName]="'ExceptionFormComponent'"
+              [actionType]="'ButtonClick'" class="removeBtn" type="button" mat-raised-button (click)="removeLastItem()">{{ 'Remove' | translate }}</button>
+        <button  appUseractivity="User Click on Validate button"
+              [componentName]="'ExceptionFormComponent'"
+              [actionType]="'ButtonClick'"class="validateBtn" type="button" mat-raised-button (click)="openValidatorDialogAdd(expShown)">{{ 'Validate' | translate }}</button>
+        <button   [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'ExceptionFormComponent'"
+              [actionType]="'FormSubmit'"class="addBtn" type="submit" mat-flat-button>{{ isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}</button>
+        <button appUseractivity="User Click on Cancel button"
+              [componentName]="'ExceptionFormComponent'"
+              [actionType]="'ButtonClick'" class="cancelBtn" type="button" mat-raised-button (click)="cancelEvent()">{{ 'Cancel' | translate }}</button>
+      </div>
+    </div>
+
+    <!-- Additional Buttons -->
+    <div class="d-flex justify-content-end mt-3">
+      <button  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'ExceptionFormComponent'"
+              [actionType]="'SubmitForm'" type="submit" class="addBtn btn-primary me-2" style="min-width: 100px; color: white" [disabled]="exceptionForm.invalid">
+        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+      </button>
+      <button  appUseractivity="User Click on Cancel button"
+              [componentName]="'ExceptionFormComponent'"
+              [actionType]="'ButtonClick'"type="button" class="btn btn-secondary cancelBtn" style="min-width: 100px; color: white" (click)="closeForm()">
+        {{ 'Cancel' | translate }}
+      </button>
+    </div>
+  </form>
+</div>
+
+

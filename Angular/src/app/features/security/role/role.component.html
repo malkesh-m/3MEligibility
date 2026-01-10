@@ -1,0 +1,104 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="me-auto">
+        <h4 class="mb-0">{{ activeTab === 'AssignedRoles' ? ('Assigned Roles' | translate) : ('Available Roles' | translate) }}</h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="card p-3 mb-3 d-flex flex-row justify-content-between align-items-center">
+        <div class="col-4" *ngIf="activeTab === 'AssignedRoles'">
+            <label class="inputLabel">{{ 'Assigned Roles' | translate }}</label>
+            <select #parameterSelect class="form-control" [(ngModel)]="selectedGroupId" (change)="onSelect($event)">
+                <option value="null" disabled [selected]="selectedGroupId === null">{{ 'Select' | translate }}</option>
+                <option *ngFor="let param of records" [value]="param.groupId">
+                    {{ param.groupName }}
+                </option>
+            </select>
+        </div>
+
+        <div class="col-4" *ngIf="activeTab === 'AvailableRoles'">
+            <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
+                (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
+        </div>
+        <div class="col-auto" *ngIf="activeTab === 'AssignedRoles' && hasPermission(124)">
+            <button appUseractivity="User Click on Remove Role button"
+              [componentName]="'RoleComponent'"
+              [actionType]="'ButtonClick'" class="cancelBtn btn-outline-secondary" style="min-width: 125px !important;" (click)="deleteRole()">
+                {{ 'Remove Role' | translate }}
+            </button>
+        </div>
+        <div class="col-auto" *ngIf="activeTab === 'AvailableRoles' && hasPermission(125)">
+            <button appUseractivity="User Click on Add Role button"
+              [componentName]="'RoleComponent'"
+              [actionType]="'ButtonClick'" class="btn btn-outline-secondary" (click)="addRole()">
+                {{ 'Add Role' | translate }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'AssignedRoles'" (click)="switchTab('AssignedRoles')">
+            {{ 'Assigned Roles' | translate }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'AvailableRoles'" (click)="switchTab('AvailableRoles')">
+            {{ 'Available Roles' | translate }}
+        </a>
+    </li>
+</ul>
+
+<!-- Assigned Roles Table -->
+<div *ngIf="activeTab === 'AssignedRoles'">
+    <div *ngIf="roleAssigndataSource.data.length === 0" class="text-center text-muted">
+        {{ 'No items to show...' | translate }}
+    </div>
+    <table mat-table [dataSource]="roleAssigndataSource" matSort *ngIf="roleAssigndataSource.data.length > 0">
+        <ng-container matColumnDef="select">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+                <!-- Optional header for checkbox -->
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                <mat-checkbox [(ngModel)]="entity.selected" (change)="onCheckboxChange(entity)">
+                </mat-checkbox>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="roleAction">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.roleAction }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="combinedColumns" class="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: combinedColumns;"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
+
+<!-- Available Roles Table -->
+<div *ngIf="activeTab === 'AvailableRoles'">
+    <div *ngIf="roleUnAssigndataSource.data.length === 0" class="text-center text-muted">
+        {{ 'No items to show...' | translate }}
+    </div>
+    <table class="bgColorWhite" mat-table [dataSource]="roleUnAssigndataSource" matSort
+        *ngIf="roleUnAssigndataSource.data.length > 0">
+        <ng-container matColumnDef="select">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+                <!-- Optional header for checkbox -->
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                <mat-checkbox [(ngModel)]="entity.selected" (change)="onCheckboxChange(entity)">
+                </mat-checkbox>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="roleAction">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.roleAction }} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="combinedColumns" class="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: combinedColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>

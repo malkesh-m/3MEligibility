@@ -1,0 +1,124 @@
+﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Services.Inteface;
+using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
+
+namespace EligibilityPlatform.Controllers
+{
+    /// <summary>
+    /// API controller for managing user group operations.
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="UserGroupController"/> class.
+    /// </remarks>
+    /// <param name="userGroupService">The user group service.</param>
+    [Route("api/usergroup")]
+    [ApiController]
+    public class UserGroupController(IUserGroupService userGroupService) : ControllerBase
+    {
+        private readonly IUserGroupService _userGroupService = userGroupService;
+
+        /// <summary>
+        /// Retrieves all user groups.
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing the list of user groups.</returns>
+        /// 
+        [RequireRole("View Groups Screen")]
+
+        [HttpGet(Name = "getall")]
+        public IActionResult GetAll()
+        {
+            // Retrieves all user groups from the service
+            List<UserGroupModel> result = _userGroupService.GetAll();
+            // Returns success response with the list of user groups
+            return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
+        }
+
+        /// <summary>
+        /// Retrieves a user group by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the user group.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the user group if found; otherwise, not found.</returns>
+        [RequireRole("View Groups Screen")]
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            // Retrieves a specific user group by its ID
+            var result = _userGroupService.GetUserByGroupId(id);
+            // Checks if the user group was found
+            if (result != null)
+            {
+                // Returns success response with the user group data
+                return Ok(new ResponseModel { IsSuccess = false, Data = result, Message = GlobalcConstants.Success });
+            }
+            else
+            {
+                // Returns not found response when user group doesn't exist
+                return NotFound(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.NotFound });
+            }
+        }
+
+        /// <summary>
+        /// Adds a new user group.
+        /// </summary>
+        /// <param name="userGroupModel">The user group model to add.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// 
+        [RequireRole("add group user")]
+
+        [HttpPost]
+        public async Task<IActionResult> Post(UserGroupCreateUpdateModel userGroupModel)
+        {
+            // Sets the created and updated by fields from the current user
+            var UserName = User.Identity?.Name;
+            userGroupModel.CreatedBy = UserName;
+            userGroupModel.UpdatedBy = UserName;
+            // Validates the model state
+            if (!ModelState.IsValid)
+            {
+                // Returns bad request if model validation fails
+                return BadRequest(ModelState);
+            }
+            // Adds the new user group
+            var message = await _userGroupService.Add(userGroupModel);
+            // Returns success response after creation
+            return Ok(new ResponseModel { IsSuccess = true, Message = message });
+        }
+
+        /// <summary>
+        /// Deletes a user group by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the user group to delete.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// 
+        [RequireRole("delete groupuser")]
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            // Deletes the user group by ID
+            await _userGroupService.Remove(id);
+            // Returns success response after deletion
+            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
+        }
+
+        /// <summary>
+        /// Deletes a user group by user ID and group ID.
+        /// </summary>
+        /// <param name="userId">The user ID.</param>
+        /// <param name="groupId">The group ID.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// 
+        [RequireRole("delete groupuser")]
+
+        [HttpDelete("deletebyuseridandgroupid")]
+        public async Task<IActionResult> Delete(int userId, int groupId)
+        {
+            // Deletes the user group by user ID and group ID
+            await _userGroupService.RemoveUserGroup(userId, groupId);
+            // Returns success response after deletion
+            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
+        }
+    }
+}

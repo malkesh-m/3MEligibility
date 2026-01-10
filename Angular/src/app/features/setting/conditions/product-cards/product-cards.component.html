@@ -1,0 +1,188 @@
+<div class="mb-3">
+    <div>
+        <p class="moduleLabel mb-2">{{ 'Stream Cards' | translate }}</p>
+    </div>
+
+    <!-- Search and Actions Section -->
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Search Input -->
+        <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+            <input type="text" class="form-control" style="width: 100%;" (input)="applyFilter()"
+             [(ngModel)]="searchTerm"   placeholder="{{ 'Search Stream Cards' | translate }}" />
+        </div>
+
+        <!-- Actions Buttons -->
+        <div class="d-flex align-items-center ms-3">
+            <button appUseractivity="User Click on Add button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" *ngIf="hasPermission(65)">
+                <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+            </button>
+            <button appUseractivity="User Click on Add button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(68)">
+                <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
+            </button>
+            <button appUseractivity="User Click on Import button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'"  class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission(68)">
+                <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+            </button>
+            <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+            <button appUseractivity="User Click on Export button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'"   class="btn" (click)="exportPCards()" *ngIf="hasPermission(67)">
+                <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+            </button>
+            <button appUseractivity="User Click on Delete button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleCards()" class="btn" *ngIf="hasPermission(66)">
+                <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="formVisible" class="card p-3 mb-3">
+    <form [formGroup]="expressionForm" (ngSubmit)="submit()">
+        <div class="row mb-3">
+            <div class="col-3">
+                <label class="inputLabel">{{ 'Stream Card Name' | translate }} <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="ProductCardName"
+                    (input)="sanitizeCode($event)"maxlength="50" />
+                <div *ngIf="expressionForm.get('ProductCardName')?.invalid && expressionForm.get('ProductCardName')?.touched"
+                    class="text-danger">
+                    {{ 'Stream Card Name' | translate }}{{ ' is required' | translate }}
+                </div>
+            </div>
+            <div class="col-2">
+                <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="Description" (input)="sanitizeCode($event)" maxlength="50" />
+                <div *ngIf="expressionForm.get('Description')?.invalid && expressionForm.get('Description')?.touched"
+                    class="text-danger">
+                    {{ 'Description' | translate }}{{ ' is required' | translate }}
+                </div>
+            </div>
+            <div class="col">
+                <label class="inputLabel">{{ 'Stream' | translate }} <span class="text-danger">*</span></label>
+                <select #productSelect class="form-control" formControlName="Product">
+                    <option value="null" disabled selected>{{ 'Stream' | translate }}</option>
+                    <option *ngFor="let product of productsList" [value]="product.productId">{{
+                        product.productName }}</option>
+                </select>
+                <div *ngIf="expressionForm.get('Product')?.invalid && expressionForm.get('Product')?.touched"
+                    class="text-danger">
+                    {{ 'Select Stream' | translate }}
+                </div>
+            </div>
+            <!--<div class="col-2">
+                <label class="inputLabel">{{ 'Maximum Amount' | translate }} <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="MaximumAmount" (input)="sanitizeCode($event)" (keypress)="validateValueInput($event)"
+                (paste)="onPasteValue($event)" />
+                <div *ngIf="expressionForm.get('MaximumAmount')?.invalid && expressionForm.get('MaximumAmount')?.touched"
+                    class="text-danger">
+                    {{ 'Maximum Amount' | translate }}{{ ' is required' | translate }}
+                </div>
+            </div>-->
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="inputLabel">{{ 'Open Parenthesis' | translate }}</label>
+                <select #openParenthesisSelect class="form-control" (change)="onSelect('openParenthesis', $event)"
+                    [disabled]="isOpenParenthesis">
+                    <option value="" disabled selected>{{ '--Open Parenthesis--' | translate }}</option>
+                    <option *ngFor="let item of openParenthesis" [value]="item">{{ item }}</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="inputLabel">{{ 'Cards' | translate }}</label>
+                <select #cardsSelect class="form-control" (change)="onSelect('cards', $event)"
+                    [disabled]="isCardsDisabled">
+                    <option value="" disabled selected>{{ '--Cards--' | translate }}</option>
+                    <option *ngFor="let card of cards" [value]="card.name">{{ card.name }}</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="inputLabel">{{ 'Function' | translate }}</label>
+                <select class="form-control" [disabled]="isLogicalOperator" (change)="onSelect('function', $event)">
+                    <option value="" disabled selected>{{ 'Function' | translate }}</option>
+                    <option *ngFor="let logical of function" [value]="logical">{{ logical }}</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="inputLabel">{{ 'Close Parenthesis' | translate }}</label>
+                <select #closeParenthesisSelect class="form-control" (change)="onSelect('closeParenthesis', $event)"
+                    [disabled]="isCloseParenthesis">
+                    <option value="" disabled selected>{{ '--Close Parenthesis--' | translate }}</option>
+                    <option *ngFor="let item of closeParenthesis" [value]="item">{{ item }}</option>
+                </select>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center">
+            <!-- Expression Textarea -->
+            <textarea formControlName="Expshown" class="flex-grow-1" readonly>{{ expshown }}</textarea>
+        
+            <!-- Buttons -->
+            <button appUseractivity="User Click on Clear Expression button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'"  class="clearBtn" type="button" mat-raised-button (click)="resetExpression()">{{ 'Clear' | translate }}</button>
+            <button appUseractivity="User Click on Remove Last item button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'"  class="removeBtn" type="button" mat-raised-button (click)="removeLastItem()">{{ 'Remove' | translate }}</button>
+            <button appUseractivity="User Click on Validate button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'"  class="validateBtn" type="button" mat-raised-button (click)="openValidatorDialog(expshown)">{{ 'Validate' | translate }}</button>
+            <button  [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'FormSubmit'" class="addBtn" type="submit" mat-flat-button [disabled]="expressionForm.invalid">
+                {{ isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}
+            </button>
+            <button appUseractivity="User Click on Cancel button"
+              [componentName]="'ProductCardsComponent'"
+              [actionType]="'ButtonClick'"  class="cancelBtn" type="button" mat-raised-button (click)="cancelEvent()">{{ 'Cancel' | translate }}</button>
+        </div>
+        <div *ngIf="selectedCard.length > 0" class="mt-3">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th> {{ 'Card Name' | translate }}</th>
+                        <th>{{ 'Card Expression' | translate }}</th>
+                        <th>{{ 'Rule Expression' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let rule of selectedCard">
+                        <td>{{ rule.name }}</td>
+                        <td>{{ rule.expshown }}</td>
+                        <td>{{ rule.ruleExpshown }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>{{ 'Equivalent' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ combinevalue }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<app-table *ngIf="!loading" #tableChild [cols]="productCardsColumnsAry" [checkedSelectedId]="deleteKeyForMultiple" [displayedColumns]="productCardsColumnsAry"
+    [rows]="filteredProductCardsList" [header]="cardsHeaderAry" (actionEvent)="tableRowAction($event)" [hasValidationAction]="true" [editRoleId]="69" [deleteRoleId]="66" [validateRoleId]="120">
+</app-table>
+
+<!-- Full-page Loader -->
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
+
+<div *ngIf="loading" class="text-center my-4">
+  <div class="loading-container" role="status">
+    <span class="">Loading data, please wait...</span>
+  </div>
+</div>

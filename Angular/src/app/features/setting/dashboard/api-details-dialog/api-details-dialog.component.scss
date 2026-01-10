@@ -1,0 +1,38 @@
+/* Section Titles (similar to table headers and moduleLabel) */
+.api-block h3,
+.bre-section h3,
+.dialog-content h3,
+.dialog-content h4 {
+  color: #1CAEC8 !important; /* same as tableHeader color */
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* API/BRE Block Card Styling */
+.api-block,
+.bre-section {
+  background-color: #ffffff !important; /* light gray, same as table background */
+  border-left: 4px solid #1CAEC8 !important; /* blue accent */
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* JSON Box Styling */
+.json-box {
+  background-color: #ffffff !important;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  font-size: 12px;
+  color: #17355A; /* dark blue text */
+  font-family: 'Courier New', monospace;
+}
+
+/* Section small headings (Request / Response) */
+.dialog-content h4 {
+  color: #17355A; /* same dark blue as table rows */
+  font-weight: 500;
+}

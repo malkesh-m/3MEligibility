@@ -1,0 +1,326 @@
+<div class="mb-3">
+  <!-- Entities Label -->
+  <div>
+    <p class="moduleLabel mb-2">{{ 'Parameters' | translate }}</p>
+  </div>
+
+  <!-- Search and Actions Section -->
+  <div class="d-flex justify-content-between align-items-center">
+    <!-- Search Input -->
+    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+      <input type="text" class="form-control" style="width: 100%;" [(ngModel)]="searchTerms[activeTab]"
+        (input)="applyFilter()" placeholder="{{ 'Search Parameters' | translate }}" />
+    </div>
+
+    <!-- Actions Buttons -->
+    <div class="d-flex align-items-center ms-3">
+      <button appUseractivity="User Click on Add button"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'ButtonClick'"  class="btn me-1" (click)="addParameter()" *ngIf="hasPermission(18)">
+        <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Download Template button"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(19)">
+        <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Import button"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission(19)">
+        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+      </button>
+      <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+      <button appUseractivity="User Click on Export button"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="exportParameters()" *ngIf="hasPermission(20)">
+        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Delete Selected button"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'ButtonClick'" (click)="deleteSelectedParameters()" class="btn" *ngIf="hasPermission(16)">
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Form -->
+<div *ngIf="formVisible" class="card p-3 mb-3">
+  <form [formGroup]="expressionForm" (ngSubmit)="submitEditForm()">
+    <div class="row">
+      <div class="col">
+        <label class="inputLabel" for="parameterName">{{ 'Parameter Name' | translate }} <span
+            class="text-danger">*</span></label>
+        <input type="text" id="parameterName" class="form-control" formControlName="parameterName" required
+          (input)=" sanitizeCode($event)" maxlength="50" />
+        <div *ngIf="expressionForm.get('parameterName')?.invalid && expressionForm.get('parameterName')?.touched"
+          class="text-danger">
+          {{ 'Parameter Name' | translate }}{{ ' is required' | translate }}
+        </div>
+        <div *ngIf="showMaxLengthWarning" class="text-danger">
+          {{ 'Parameter Name cannot exceed 50 characters.' | translate }}
+        </div>
+      </div>
+      <!-- Data Type -->
+      <div class="col">
+        <label class="inputLabel" for="dataTypeId">{{ 'Parameter Type' | translate }} <span
+            class="text-danger">*</span></label>
+        <select id="dataTypeId" class="form-control" formControlName="dataTypeId" required>
+          <option value="0" disabled selected>{{ 'Select Parameter Type' | translate }}</option>
+          <option *ngFor="let type of dataTypes" [value]="type.dataTypeId">
+            {{ type.dataTypeName }}
+          </option>
+        </select>
+        <div *ngIf="expressionForm.get('dataTypeId')?.invalid && expressionForm.get('dataTypeId')?.touched"
+          class="text-danger">
+          {{ 'Parameter Type' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+
+
+      <div class="col d-flex align-items-center">
+        <label class="form-check-label">
+          <input type="checkbox" class="form-check-input" formControlName="isMandatory"
+            (input)="sanitizeCode($event)" />
+          {{ 'Mandatory' | translate }}
+        </label>
+
+      </div>
+
+      <!-- Factors Checkbox -->
+      <!--<div class="col d-flex align-items-center">
+        <label class="form-check-label">
+          <input type="checkbox" class="form-check-input" formControlName="hasFactors"
+            (change)="handleHasFactorsChange()" (input)="sanitizeCode($event)" />
+          {{ 'Factors' | translate }}
+        </label>
+        <div *ngIf="expressionForm.get('hasFactors')?.invalid && expressionForm.get('hasFactors')?.touched"
+          class="text-danger">
+          {{ 'hasFactors' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+
+
+      <div class="col">
+        <label class="inputLabel">{{ 'Factor Order' | translate }} <span class="text-danger"
+            *ngIf="this.expressionForm?.get('hasFactors')?.value">*</span></label>
+        <select class="form-control" formControlName="factorOrder" [disabled]="!areFactorsEnabled"
+          (change)="onFieldChange('factorOrder')">
+          <option value="" disabled selected>{{ 'Select Factor Order' | translate }}</option>
+          <option *ngFor="let order of factorOrders" [value]="order">
+            {{ order }}
+          </option>
+        </select>
+        <div *ngIf="expressionForm.get('factorOrder')?.invalid && expressionForm.get('factorOrder')?.touched"
+          class="text-danger">
+          {{ 'Factor Order' | translate }}{{ ' is required' | translate }}
+        </div>
+        <div *ngIf="validationErrors.factorOrder">
+          <small class="text-danger">{{ validationErrors.factorOrder }}</small>
+        </div>
+      </div>-->
+
+      <!-- Condition -->
+      <!--<div class="col">
+        <label class="inputLabel">{{ 'Condition' | translate }} <span class="text-danger"
+            *ngIf="this.expressionForm?.get('hasFactors')?.value">*</span></label>
+        <select class="form-control" formControlName="conditionId" [disabled]="!areFactorsEnabled"
+          (change)="onFieldChange('conditionId')">
+          <option value="" disabled selected>{{ 'Select Condition' | translate }}</option>
+          <option *ngFor="let condition of conditions" [value]="condition.conditionId">
+            {{ condition.conditionValue }}
+          </option>
+        </select>
+        <div *ngIf="expressionForm.get('conditionId')?.invalid && expressionForm.get('conditionId')?.touched"
+          class="text-danger">
+          {{ 'Condition' | translate }}{{ ' is required' | translate }}
+        </div>
+        <div *ngIf="validationErrors.conditionId">
+          <small class="text-danger">{{ validationErrors.conditionId }}</small>
+        </div>
+
+      </div>-->
+      <div class="col">
+        <button appUseractivity="User Click on Add Computed Value button"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'ButtonClick'" type="button" class="btn me-1" class="addBtn btn-secondary me-2" (click)="openComputedValuesDialog()">
+          {{ isEditMode ? ('Edit Computed Values' | translate) : ('Add Computed Values' | translate) }}
+        </button>
+      </div>
+
+      <!-- Entity -->
+      <!--<div class="col">
+    <label class="inputLabel">{{ 'Entity' | translate }}</label>
+    <select class="form-control" formControlName="entityId" required>
+      <option value="0" disabled selected>{{ 'Select Entity' | translate }}</option>
+      <option *ngFor="let type of entitiesList; trackBy: trackByUserId" [value]="type.entityId">
+        {{ type.entityName }}
+      </option>
+    </select>
+  </div>-->
+      <!-- KYC Checkbox -->
+      <!-- <div class="col d-flex align-items-center">
+    <label class="form-check-label">
+      <input type="checkbox" class="form-check-input" [(ngModel)]="formData.isKyc" name="isKyc" />
+      KYC
+    </label>
+  </div> -->
+    </div>
+
+    <!-- Submit and Cancel Buttons -->
+    <div class="d-flex justify-content-end mt-3">
+      <button  [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" style="min-width: 100px"
+        [disabled]="expressionForm.invalid||showMaxLengthWarning">
+        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+      </button>
+
+      <button appUseractivity="User Click on Cancel button"
+              [componentName]="'ParametersComponent'"
+              [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" style="min-width: 100px;" (click)="closeForm()">
+        {{ 'Cancel' | translate }}
+      </button>
+    </div>
+  </form>
+
+</div>
+
+<ul class="nav nav-tabs">
+  <!--<li class="nav-item">
+    <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'customer'"
+      (click)="switchTab('customer')">
+      {{ 'Customer' | translate }}
+    </a>
+  </li>-->
+  <li class="nav-item">
+    <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'product'"
+      (click)="switchTab('product')">
+      {{ 'Product' | translate }}
+    </a>
+  </li>
+</ul>
+
+<!-- Parameters Table -->
+<div class="table-wrapper">
+  <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+    <ng-container matColumnDef="select">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+        <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+          (change)="toggleSelectAll($event)">
+        </mat-checkbox>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
+        <mat-checkbox [checked]="selectedRows.has(row.parameterId)" (change)="toggleSelection($event, row.parameterId)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="parameterName">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'Parameter Name' | translate }}
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let parameter">
+        {{ parameter.parameterName }}
+      </td>
+    </ng-container>
+
+    <!--<ng-container matColumnDef="dataTypeId">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Data Type' | translate }}</th>
+      <td class="cellStyling" mat-cell *matCellDef="let parameter">
+        {{ getDataTypeName(parameter.dataTypeId, parameter) }}
+      </td>
+    </ng-container>-->
+
+    <!--<ng-container matColumnDef="hasFactors">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Factors' | translate }}</th>
+      <td class="cellStyling" mat-cell *matCellDef="let parameter">
+        {{ parameter.hasFactors ? 'True' : 'False' }}
+      </td>
+    </ng-container>-->
+    <ng-container matColumnDef="isMandatory">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Mandatory' | translate }}</th>
+      <td class="cellStyling" mat-cell *matCellDef="let parameter">
+        {{ parameter.isMandatory ? 'True' : 'False' }}
+      </td>
+    </ng-container>
+
+    <!--<ng-container matColumnDef="conditionId">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Condition' | translate }}</th>
+      <td class="cellStyling" mat-cell *matCellDef="let parameter">
+        {{ getConditionName(parameter.conditionId, parameter) }}
+      </td>
+    </ng-container>-->
+
+    <!-- <ng-container matColumnDef="isKyc">
+    <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'KYC' | translate }}</th>
+    <td class="cellStyling" mat-cell *matCellDef="let parameter">
+      {{ parameter.isKyc ? 'Yes' : 'No' }}
+    </td>
+  </ng-container> -->
+    <!-- Created By Column -->
+    <ng-container matColumnDef="createdBy">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+        {{ 'Created By' | translate }}
+        <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
+          matTooltip="Show/Hide Created Date">
+          {{ displayedColumns[activeTab].includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
+        </mat-icon>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.createdBy }}
+      </td>
+    </ng-container>
+
+    <!-- Created Date Column (Initially Hidden) -->
+    <ng-container *ngIf="displayedColumns[activeTab]?.includes('createdDate')" matColumnDef="createdDate">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'Created Date' | translate }}
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.createdByDateTime | date:'short' }}
+      </td>
+    </ng-container>
+
+    <!-- Updated By Column -->
+    <ng-container matColumnDef="updatedBy">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+        {{ 'Updated By' | translate }}
+        <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
+          matTooltip="Show/Hide Updated Date">
+          {{ displayedColumns[activeTab].includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
+        </mat-icon>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.updatedBy }}
+      </td>
+    </ng-container>
+
+    <!-- Updated Date Column (Initially Hidden) -->
+    <ng-container *ngIf="displayedColumns[activeTab]?.includes('updatedDate')" matColumnDef="updatedDate">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'Updated Date' | translate }}
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.updatedByDateTime | date:'short' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+      <td class="cellStyling" mat-cell *matCellDef="let parameter">
+        <mat-icon class="clickable-icon" color="primary" (click)="editParameter(parameter)" *ngIf="hasPermission(17)"
+          matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+        <mat-icon class="clickable-icon" color="warn" (click)="deleteParameter(parameter)" *ngIf="hasPermission(16)"
+          matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns[activeTab]" class="tableHeader"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns[activeTab];" class="select-row"></tr>
+  </table>
+  <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
+
+<!-- Full-page Loader -->
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

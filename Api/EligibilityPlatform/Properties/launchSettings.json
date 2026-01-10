@@ -1,0 +1,29 @@
+﻿{
+    "profiles": {
+        "EligibilityPlatform": {
+            "commandName": "Project",
+            "launchBrowser": true,
+            "launchUrl": "swagger/index.html",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "applicationUrl": "https://localhost:50647;http://localhost:50648"
+        },
+        "IIS Express": {
+            "commandName": "IISExpress",
+            "launchBrowser": true,
+            "launchUrl": "swagger/index.html",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    },
+    "iisSettings": {
+        "windowsAuthentication": false,
+        "anonymousAuthentication": true,
+        "iisExpress": {
+            "applicationUrl": "http://localhost:59399/",
+            "sslPort": 44352
+        }
+    }
+}

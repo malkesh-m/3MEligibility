@@ -1,0 +1,63 @@
+<div class="table-wrapper">
+  <table class="mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+
+    <!-- Select All Checkbox Column -->
+    <ng-container matColumnDef="Select">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+        [checked]="selectedRows.size > 0 && selectedRows.size === paginatedRows.length"
+        [indeterminate]="selectedRows.size > 0 && selectedRows.size < paginatedRows.length"
+        (change)="toggleSelectAll($event)">
+      </mat-checkbox>
+      
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row; let i = index">
+        <mat-checkbox [checked]="selectedRows.has(i)" (change)="toggleSelection(i, row)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Dynamic Columns -->
+    <ng-container *ngFor="let header of displayedColumns" [matColumnDef]="header">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ header | translate }}
+        <mat-icon *ngIf="header === 'Created By' || header === 'Updated By'"
+          (click)="toggleColumn(header === 'Created By' ? 'Created Date' : 'Updated Date')">
+          {{ displayedColumns.includes(header === 'Created By' ? 'Created Date' : 'Updated Date') ? 'arrow_left' : 'arrow_right' }}
+        </mat-icon>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        <ng-container *ngIf="header === 'Created Date' || header === 'Updated Date'; else normalCell">
+          {{ entity[header] | date: 'short' }}
+        </ng-container>
+        <ng-template #normalCell>
+          {{ entity[header] }}
+        </ng-template>
+      </td>
+    </ng-container>
+    
+
+    <ng-container matColumnDef="Actions">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
+        <mat-icon class="clickable-icon" color="primary" (click)="actionEvent.emit({ action: 'edit', data: row })"
+          matTooltip="{{ 'Edit' | translate }}" *ngIf="hasPermission(editRoleId)">edit</mat-icon>
+        <mat-icon class="clickable-icon" color="warn" (click)="deleterow(row)"
+          matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission(deleteRoleId)">delete</mat-icon>
+        @if (hasValidationAction)
+        {
+          <mat-icon class="clickable-icon" color="accent" (click)="actionEvent.emit({ action: 'validate', data: row })"
+                    matTooltip="{{ 'Validate' | translate }}" *ngIf="hasPermission(validateRoleId)">check_circle</mat-icon>
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="finalColumns" class="tableHeader"></tr>
+    <tr mat-row *matRowDef="let row; columns: finalColumns;" class="select-row"></tr>
+
+  </table>
+</div>
+
+<mat-paginator class="paginator" [length]="rows.length" [pageSize]="pageSize" [pageSizeOptions]="[10, 25, 50, 100]"
+  (page)="onPageChange($event)">
+</mat-paginator>

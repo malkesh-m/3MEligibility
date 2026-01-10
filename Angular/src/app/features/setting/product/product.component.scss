@@ -1,0 +1,23 @@
+.card-wrap {
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+}
+
+::ng-deep mat-tab-group mat-tab.mdc-tab {
+    width: 35px;
+    min-width: 30px;
+}
+
+.moduleLabel {
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 18px;
+  color: #666;
+}

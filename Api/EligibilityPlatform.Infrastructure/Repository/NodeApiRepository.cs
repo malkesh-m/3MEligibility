@@ -1,0 +1,22 @@
+﻿using EligibilityPlatform.Application.Repository;
+using EligibilityPlatform.Domain.Entities;
+using EligibilityPlatform.Infrastructure.Context;
+using Microsoft.AspNetCore.Http;
+
+namespace EligibilityPlatform.Infrastructure.Repository
+{
+    /// <summary>
+    /// Repository implementation for managing <see cref="NodeApi"/> entities.
+    /// Provides data access logic for node API configurations using the base <see cref="Repository{TEntity}"/> class.
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="NodeApiRepository"/> class.
+    /// </remarks>
+    /// <param name="context">The database context used for data operations.</param>
+    /// <param name="httpContext">Provides access to the current HTTP context for user-related data.</param>
+    public class NodeApiRepository(
+        EligibilityDbContext context,
+        IHttpContextAccessor httpContext) : Repository<NodeApi>(context, httpContext), INodeApiRepository
+    {
+    }
+}

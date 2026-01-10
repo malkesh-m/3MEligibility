@@ -1,0 +1,185 @@
+<!-- Search and Actions -->
+
+<div class="mb-3">
+    <div>
+        <p class="moduleLabel mb-2">{{ 'Mapping Tree' | translate }}</p>
+    </div>
+
+    <!-- Search and Actions Section -->
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Search Input -->
+        <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+            <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
+                [(ngModel)]="searchTerms[activeTab]" (input)="applyFilter($event)" />
+        </div>
+
+        <!-- Actions Buttons -->
+        <div class="d-flex align-items-center ms-3">
+            <button class="btn me-2" appUseractivity="User Click on Add button"
+              [componentName]="'MappingComponent'"
+              [actionType]="'ButtonClick'"  (click)="openForm()" *ngIf="activeTab === 'mappingTree' && hasPermission(38)">
+                <mat-icon matTooltip="{{ 'Map' | translate }}">add_circle_outline</mat-icon>
+            </button>
+            <button appUseractivity="User Click on Delete button"
+              [componentName]="'MappingComponent'"
+              [actionType]="'ButtonClick'"  (click)="deleteMulSelectedRows()" class="btn" *ngIf="activeTab === 'mapping' && hasPermission(36)">
+                <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'mappingTree'"appUseractivity="User Click on Switch Tab button"
+              [componentName]="'MappingComponent'"
+              [actionType]="'ButtonClick'" (click)="switchTab('mappingTree')">
+            {{ 'Mapping Tree' | translate }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'mapping'"  appUseractivity="User Click Switch Tab button"
+              [componentName]="'MappingComponent'"
+              [actionType]="'ButtonClick'"(click)="switchTab('mapping')">
+            {{ 'Mapping' | translate }}
+        </a>
+    </li>
+</ul>
+<div *ngIf="formVisible" class="card p-3 mb-3">
+    <form (ngSubmit)="addRecord()" [formGroup]="mappingForm">
+        <div class="row">
+            <div class="col">
+                <label class="inputLabel">{{ 'Web Services' | translate }} <span class="text-danger">*</span></label>
+                <select class="form-control"   (change)="onWebServiceSelect($event)"
+                    formControlName="nodeId"  >
+                    <option [value]="null" disabled selected>{{ 'Web Services' | translate }}</option>
+                    <option *ngFor="let item of webServicesRecords" [value]="item.nodeId">{{ item.nodeName }}
+                    </option>
+                </select>
+                <div *ngIf="mappingForm.get('nodeId')?.invalid && mappingForm.get('nodeId')?.touched"
+                    class="text-danger">
+                    {{ 'Web Services' | translate }}{{ ' is required' | translate }}
+                </div>
+            </div>
+            <div class="col">
+                <label class="inputLabel">{{ 'Method' | translate }} <span class="text-danger">*</span></label>
+                <select class="form-control"  (change)="onSelect('method',$event)"
+                    formControlName="apiid">
+                    <option [value]="null" disabled selected>{{ 'Select Method' | translate }}</option>
+                    <option *ngFor="let item of filteredMethodRecords" [value]="item.apiid">{{ item.apiname }}
+                    </option>
+                </select>
+                <div *ngIf="mappingForm.get('apiid')?.invalid && mappingForm.get('apiid')?.touched" class="text-danger">
+                    {{ 'Method' | translate }}{{ ' is required' | translate }}
+                </div>
+            </div>
+            <div class="col">
+                <label class="inputLabel">{{ 'Parameters' | translate }} <span class="text-danger">*</span></label>
+                <select class="form-control" 
+                    (change)="onSelect('parameter',$event)" formControlName="parameterId">
+                    <option [value]="null" disabled selected>{{ 'Select Parameters' | translate }}</option>
+                    <option *ngFor="let item of parameterRecords" [value]="item.parameterId">{{ item.parameterName
+                        }}
+                    </option>
+                </select>
+                <div *ngIf="mappingForm.get('parameterId')?.invalid && mappingForm.get('parameterId')?.touched"
+                    class="text-danger">
+                    {{ 'Parameters' | translate }}{{ ' is required' | translate }}
+                </div>
+            </div>
+            <div class="col">
+                <label class="inputLabel">{{ 'Mapping Title' | translate }} <span class="text-danger">*</span></label>
+                <select class="form-control" 
+                    (change)="onSelect('mapTitle',$event)" formControlName="mapFunctionId">
+                    <option [value]="null" disabled selected>{{ 'Mapping Title' | translate }}</option>
+                    <option *ngFor="let item of mappingFunctionRecords" [value]="item.mapFunctionId">{{
+                        item.mapFunctionValue }}</option>
+                </select>
+                <div *ngIf="mappingForm.get('mapFunctionId')?.invalid && mappingForm.get('mapFunctionId')?.touched"
+                    class="text-danger">
+                    {{ 'Mapping Title' | translate }}{{ ' is required' | translate }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col btn-container">
+                <button  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'MappingComponent'"
+              [actionType]="'SubmitForm'" type="submit" class="addBtn btn-primary me-2 mt-4 map-btn" [disabled]="mappingForm.invalid">
+                    <!-- {{ isEditMode ? 'Update' : 'Add' }} -->
+                    {{ 'Map' | translate }}
+                </button>
+                <button  appUseractivity="User Click on Cancel button"
+              [componentName]="'MappingComponent'"
+              [actionType]="'ButtonClick'"type="button" class="btn btn-secondary mt-4 cancelBtn" (click)="closeForm()">{{ 'Cancel' | translate }}</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Mapping Tree Table -->
+<div *ngIf="activeTab === 'mappingTree'">
+    <table *ngIf="!isDisabled" mat-table [dataSource]="mappingDatasource" matSort>
+        <ng-container matColumnDef="Select">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+                {{ 'Select' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let row; let i = index">
+                <mat-checkbox (change)="onSelectMapTree(row)" [checked]="row.isChecked">
+                </mat-checkbox>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="XMLNode">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'XMLNode' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.xmlNode }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="XMLParent">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'XMLParent' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.xmlParent }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedMappingTreeColumns" class="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedMappingTreeColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
+<!-- Mapping Table -->
+<div *ngIf="activeTab === 'mapping'">
+    <table mat-table [dataSource]="mappingDatasource" matSort>
+        <ng-container matColumnDef="API">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'API' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.apiname }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Parameter">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Parameter' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.parameter }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="XMLNode">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'XMLNode' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.xmlNode }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="XMLParent">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'XMLParent' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.xmlParent }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Actions">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                <mat-icon class="clickable-icon" color="primary" (click)="editMappingRecord(entity)" *ngIf="hasPermission(37)"
+                    matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+                <mat-icon class="clickable-icon" color="warn" (click)="deleteMappingrecord(entity)" *ngIf="hasPermission(36)"
+                    matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedMappingColumns" class="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedMappingColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
