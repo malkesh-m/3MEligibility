@@ -1,0 +1,56 @@
+.bgColorWhite {
+  background-color: #f8f8f8;
+}
+
+.cellStyling {
+  border-bottom: 5px solid white !important;
+}
+
+.tableHeader {
+  background-color: #f8f8f8;
+  color: #1CAEC8;
+  font-size: 16px;
+}
+
+table {
+  width: 100%;
+  background-color: #f8f8f8;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* Enables horizontal scrolling */
+  white-space: nowrap; /* Prevents table from wrapping */
+}
+
+.table-wrapper table {
+  min-width: 1000px; /* Ensures table doesn't shrink too much */
+  width: 100%;
+}
+
+.table-body-wrapper {
+  max-height: 400px; /* Set the height for the table body */
+  overflow-y: auto; /* Enables vertical scrolling */
+}
+
+.paginator {
+  background-color: white;
+}
+
+table tr.select-row {
+  background-color: #f8f8f8 !important;
+  color: #17355A;
+  font-size: 14px;
+}
+
+.paginator {
+  background-color: white;
+}
+
+table tr.select-row:hover {
+  cursor: pointer;
+}
+
+.table {
+  margin-top: 20px;
+}

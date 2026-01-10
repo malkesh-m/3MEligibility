@@ -1,0 +1,288 @@
+<!-- Search and Actions -->
+
+<div class="mb-3">
+    <div>
+        <p class="moduleLabel mb-2">{{ 'Users Lists' | translate }}</p>
+    </div>
+
+    <!-- Search and Actions Section -->
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Search Input -->
+        <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+            <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search Lists' | translate }}"
+                (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
+        </div>
+
+        <!-- Actions Buttons -->
+        <div class="d-flex align-items-center ms-3">
+            <button class="btn me-2" appUseractivity="User Click on Add button"
+              [componentName]="'UserComponent'"
+              [actionType]="'ButtonClick'" (click)="openForm()" *ngIf="hasPermission(44)">
+                <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+            </button>
+            <button appUseractivity="User Click on DeActiveUser button"
+              [componentName]="'UserComponent'"
+              [actionType]="'ButtonClick'" (click)="DeActiveUser()" class="btn" *ngIf="hasPermission(42)">
+                <mat-icon matTooltip="{{ 'DeActiveUser' | translate }}">delete</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Form -->
+<div *ngIf="formVisible" class="card p-3 mb-3">
+  <form (ngSubmit)="addRecord()" #userForm="ngForm">
+    <input type="hidden" [(ngModel)]="formData.userId" name="userId" />
+
+    <div class="row">
+      <div class="col">
+        <label class="inputLabel">{{ 'User Name' | translate }} <span class="text-danger">*</span></label>
+        <input type="text"
+               class="form-control"
+               [(ngModel)]="formData.userName"
+               name="userName"
+               required
+               minlength="3"
+               #userName="ngModel" maxlength="50" />
+
+        <div *ngIf="userName.invalid && userName.touched" class="text-danger">
+          <small *ngIf="userName.errors?.['required']">
+            {{ 'User Name' | translate }}{{ ' is required' | translate }}
+          </small>
+          <small *ngIf="userName.errors?.['minlength']">
+            {{ 'User Name' | translate }}{{ ' must be at least 3 characters' | translate }}
+          </small>
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Login Id' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="formData.loginId" name="LoginId" required
+               minlength="6" #loginId="ngModel" maxlength="50" />
+        <div *ngIf="loginId.invalid && loginId.touched" class="text-danger">
+          <small *ngIf="loginId.errors?.['required']">{{ 'Login Id' | translate }}{{ ' is required' | translate }}</small>
+          <small *ngIf="loginId.errors?.['minlength']">User Name must be at least 6 characters long.</small>
+        </div>
+      </div>
+      <div *ngIf="!isEditMode" class="col">
+        <label class="inputLabel">
+          {{ 'Password' | translate }} <span class="text-danger">*</span>
+        </label>
+        <input type="password"
+               class="form-control"
+               [(ngModel)]="formData.userPassword"
+               name="userPassword"
+               required
+               minlength="6"
+               [pattern]="passwordRegex"
+               #userPassword="ngModel"  maxlength="255"/>
+
+        <div *ngIf="userPassword.invalid && userPassword.touched" class="text-danger">
+
+          <small *ngIf="userPassword.errors?.['required']">
+            Password is required.
+          </small>
+
+          <small *ngIf="userPassword.errors?.['minlength']">
+            Password must be at least 6 characters long.
+          </small>
+
+          <small *ngIf="userPassword.errors?.['pattern']">
+            Password must contain:
+            <br>• One uppercase letter (A-Z)
+            <br>• One lowercase letter (a-z)
+            <br>• One number (0-9)
+            <br>• One special character (!&#64;#$%^&*)
+          </small>
+
+        </div>
+      </div>
+
+      <div class="col">
+        <label class="inputLabel">{{ 'Email' | translate }} <span class="text-danger">*</span></label>
+        <input type="email" class="form-control"
+               [(ngModel)]="formData.email" name="email" required
+               email
+               #email="ngModel" maxlength="50" />
+        <div *ngIf="email.invalid && email.touched" class="text-danger">
+          <small *ngIf="email.errors?.['required']">
+            {{ 'Email' | translate }} {{ ' is required' | translate }}
+          </small>
+          <small *ngIf="email.errors?.['email']">
+            {{ ' Invalid email format' | translate }}
+          </small>
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">
+          {{ 'Entity' | translate }}
+          <span class="text-danger">*</span>
+        </label>
+
+        <select class="form-control"
+                [(ngModel)]="formData.entityId"
+                name="entityId"
+                #entityId="ngModel"
+                required>
+          <option value="" disabled selected>
+            {{ 'Select Entity' | translate }}
+          </option>
+
+          <option *ngFor="let entity of EntityList"
+                  [value]="entity.entityId">
+            {{ entity.entityName }}
+          </option>
+        </select>
+
+        <!-- Validation messages -->
+        <div *ngIf="entityId.invalid && entityId.touched" class="text-danger">
+          <small *ngIf="entityId.errors?.['required']">
+            {{ 'Entity is required' | translate }}
+          </small>
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Phone' | translate }}</label>
+
+        <input type="tel"
+               class="form-control"
+               [(ngModel)]="formData.phone"
+               name="phone"
+               pattern="^[0-9]+$"
+               minlength="10"
+               maxlength="10"
+               #phone="ngModel"
+               inputmode="numeric" />
+
+        <div *ngIf="phone.invalid && phone.touched" class="text-danger">
+
+          <small *ngIf="phone.errors?.['pattern']">
+            Please enter numbers only.
+          </small>
+
+          <small *ngIf="phone.errors?.['minlength']">
+            Phone number must be at least 10 digits.
+          </small>
+
+          <small *ngIf="phone.errors?.['maxlength']">
+            Phone number cannot exceed 10 digits.
+          </small>
+
+        </div>
+        <div class="mt-3">
+          <label class="inputLabel me-2">
+            {{ 'Is Active' | translate }}
+          </label>
+          <input type="checkbox"
+                 [checked]="getCheckboxStatus()"
+                 (change)="updateStatus($event)"
+                 name="isActive" />
+        </div>
+    
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+      <button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'UserComponent'"
+              [actionType]="'FormSubmit'"
+              type="submit"
+              class="addBtn btn-primary me-2"
+              style="min-width: 100px"
+            [disabled]="!userForm.form.valid || !userForm.controls['entityId'].valid || (!isEditMode && !userForm.controls['userPassword'].valid)"
+
+>
+        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+      </button>
+      <button appUseractivity="User Click on Cancel button"
+              [componentName]="'UserComponent'"
+              [actionType]="'ButtonClick'"
+              style="border: none;"
+              class="cancelBtn"
+              type="button"
+              mat-raised-button
+              (click)="closeForm()">
+        {{ 'Cancel' | translate }}
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<div #userTable class="mat-elevation-z8">
+  <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
+    <ng-container matColumnDef="select">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+        <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+                      (change)="toggleSelectAll($event)">
+        </mat-checkbox>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
+        <mat-checkbox [checked]="selectedRows.has(row.userId)" (change)="toggleSelection($event, row.userId)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="userName">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'User Name' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let element"> {{ element.userName }} </td>
+    </ng-container>
+
+    <!-- Login ID Column -->
+    <ng-container matColumnDef="loginId">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Login ID' | translate }}</th>
+      <td class="cellStyling" mat-cell *matCellDef="let element"> {{element.loginId}} </td>
+    </ng-container>
+
+    <!-- Email Column (This must exist if you list 'email') -->
+    <ng-container matColumnDef="email">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Email' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let element"> {{element.email}} </td>
+    </ng-container>
+
+    <!-- Phone Column -->
+    <ng-container matColumnDef="phone">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Phone' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let element"> {{element.phone}} </td>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="statusName">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Status' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let element"> {{element.statusName}} </td>
+    </ng-container>
+
+    <!-- Entity Column -->
+    <ng-container matColumnDef="entityName">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Entity' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let element"> {{element.entityName}} </td>
+    </ng-container>
+    <ng-container matColumnDef="isSuspended">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Is Suspended' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let element"> {{element.isSuspended}} </td>
+    </ng-container>
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let user">
+        <!-- Edit Icon -->
+        <mat-icon class="clickable-icon" color="primary" (click)="editRecord(user)" *ngIf="hasPermission(43)"
+                  matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+
+        <!-- Delete Icon -->
+        <mat-icon class="clickable-icon" color="warn" (click)="deleteRecord(user)" *ngIf="hasPermission(42)"
+                  matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        <mat-icon class="clickable-icon" color="primary"
+                  (click)="reActivateUser(user)"
+                  *ngIf="hasPermission(42)"
+                  matTooltip="{{ 'ReActivate Suspended User' | translate }}">
+          restart_alt
+        </mat-icon>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+    <!-- Pagination for the table -->
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>

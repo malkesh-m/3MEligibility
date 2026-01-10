@@ -1,0 +1,23 @@
+<!-- <h1 mat-dialog-title>Delete</h1>
+<div mat-dialog-content>
+  <p>Would you like to delete records?</p>
+</div>
+<mat-dialog-actions align="end">
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="warn" [mat-dialog-close]="{ delete: true }">Delete</button>
+</mat-dialog-actions> -->
+
+
+<div class="popup-container">
+  <div class="popup-header">
+    <img src="https://img.icons8.com/color/48/000000/trash.png" alt="Delete Icon" class="icon" />
+    <h2>{{ 'Delete records' | translate }}</h2>
+  </div>
+  <div class="popup-content">
+    <p>{{ 'Are you sure you want to delete the records? This action cannot be undone.' | translate }}</p>
+  </div>
+  <div class="popup-actions">
+    <button mat-raised-button mat-dialog-close class="cancel-btn">Cancel</button>
+    <button class="delete-btn" mat-raised-button color="warn" [mat-dialog-close]="{ delete: true }">Confirm</button>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+.edit-modal-wrap {
+    padding: 10px;
+    background-color: #eaeaea;
+    border-radius: 10px;
+}
+
+.input-wrap {
+    display: flex;
+    gap: 10px;
+}
+
+.form-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.action-wrap {
+    display: flex;
+    align-self: center;
+    gap: 15px;
+}
+
+.submit-btn {
+    height: fit-content;
+    border-radius: 21px;
+    border-width: 3px;
+    color: #ffffff;
+}
+.image-preview {
+    // width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+}
+.no-image-text{
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 18px;
+  color: #666;
+}

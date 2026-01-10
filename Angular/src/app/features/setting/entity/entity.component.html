@@ -1,0 +1,291 @@
+<div class="mb-3">
+  <div>
+    <p class="moduleLabel mb-2">{{ 'Entities' | translate }}</p>
+  </div>
+
+  <!-- Search and Actions Section -->
+  <div class="d-flex justify-content-between align-items-center">
+    <!-- Search Input -->
+    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+      <input type="text" class="form-control" style="width: 100%;" (input)="applyFilter($event)"
+        placeholder="{{ 'Search Entities' | translate }}" />
+    </div>
+
+    <!-- Actions Buttons -->
+    <div class="d-flex align-items-center ms-3">
+      <button appUseractivity="User Click on Add button"
+              [componentName]="'EntityComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" *ngIf="hasPermission(15)">
+        <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Download Template button"
+              [componentName]="'EntityComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(11)">
+        <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Import button"
+              [componentName]="'EntityComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission(11)">
+        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+      </button>
+      <input  type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+      <button appUseractivity="User Click on Export button"
+              [componentName]="'EntityComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="exportEntities()" *ngIf="hasPermission(12)">
+        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Delete Multiple button"
+              [componentName]="'EntityComponent'"
+              [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="btn" *ngIf="hasPermission(13)">
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Form -->
+<div *ngIf="formVisible" class="card p-3 mb-3">
+  <form #form="ngForm" (ngSubmit)="addRecord(form)">
+    <div class="row">
+      <div class="col">
+        <label class="inputLabel">{{ 'Entity Code' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="formData.code" name="code" required
+          (input)="onEntityCodeInput($event)" #code="ngModel" (input)="sanitizeCode($event)" />
+        <div *ngIf="code.invalid && code.touched" class="text-danger">
+          {{ 'Entity Code' | translate }}{{ ' is required' | translate }}
+        </div>
+        <div *ngIf="showMaxLengthEntityCode" class="text-danger">
+          {{ 'Entity code cannot exceed 10 characters.' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Entity Name' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="formData.entityName" name="entityName" required
+          #entityName="ngModel" (input)="sanitizeCode($event)" (input)="onEntityNameInput($event)" />
+        <div *ngIf="entityName.invalid && entityName.touched" class="text-danger">
+          {{ 'Entity Name' | translate }}{{ ' is required' | translate }}
+        </div>
+        <div *ngIf="showMaxLengthWarning" class="text-danger">
+          {{ 'Entity Name cannot exceed 50 characters.' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Country' | translate }} <span class="text-danger">*</span></label>
+        <select required class="form-control" [(ngModel)]="formData.countryId" name="countryId"
+          (change)="filterCities()" #countryId="ngModel">
+          <option value="null" disabled selected>{{ 'Select Country' | translate }}</option>
+          <option *ngFor="let country of countries" [value]="country.id">
+            {{ country.name }}
+          </option>
+        </select>
+        <div *ngIf="countryId.invalid && countryId.touched" class="text-danger">
+          {{ 'Country' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'City' | translate }} <span class="text-danger">*</span></label>
+        <select required placeholder="City" class="form-control" [(ngModel)]="formData.cityId" name="cityId"
+          #cityId="ngModel">
+          <option value="null" disabled selected>{{ 'Select City' | translate }}</option>
+          <option *ngFor="let city of filteredCities" [value]="city.id">
+            {{ city.name }}
+          </option>
+        </select>
+        <div *ngIf="cityId.invalid && cityId.touched" class="text-danger">
+          {{ 'City' | translate }}{{ ' is required' | translate }}
+        </div>
+
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col-3">
+        <label class="inputLabel">{{ 'Address' | translate }} <span class="text-danger">*</span></label>
+        <input required type="text" class="form-control" [(ngModel)]="formData.entityAddress" name="entityAddress"
+          #entityAddress="ngModel" maxlength="250" />
+        <div *ngIf="entityAddress.invalid && entityAddress.touched" class="text-danger" >
+          {{ 'Address' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <!--<div class="col">
+        <label class="inputLabel">{{ 'Base Currency' | translate }} <span class="text-danger">*</span></label>
+        <select required placeholder="BaseCurrency" class="form-control" [(ngModel)]="formData.BaseCurrencyId"
+          name="BaseCurrencyId" #BaseCurrency="ngModel" [disabled]="formData.isparent">
+          <option value="null" disabled selected>{{ 'Select Currency' | translate }}</option>
+          <option *ngFor="let currency of Currencies" [value]="currency.currencyId">
+            {{ currency.currencyName }}
+          </option>
+        </select>
+        <div *ngIf="BaseCurrency.invalid && BaseCurrency.touched" class="text-danger">
+          {{ 'Base Currency' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>-->
+
+    <div class="col-3 d-flex align-items-center px-2 pt-4">
+      <label class="inputLabel form-check-label me-2">
+        {{ 'Is Child' | translate }}
+      </label>
+      <input type="checkbox"
+             class="form-check-input"
+             [(ngModel)]="formData.isparent"
+             name="isparent"
+             (change)="handleIsParentIdChange()" />
+    </div>
+      <div class="col-3">
+        <label class="inputLabel">{{ 'Parent Entity' | translate }}</label>
+        <select class="form-control" name="parentEnitityId" [(ngModel)]="formData.parentEnitityId"
+          #parentEnitityId="ngModel" [disabled]="!formData.isparent"
+          [ngClass]="{'is-invalid': (form.submitted || parentEnitityId.touched) && formData.isparent && !formData.parentEnitityId  }">
+          <option [ngValue]="null" disabled>{{ 'Select Entity' | translate }}</option>
+          <option *ngFor="let entity of entitiesOptions" [ngValue]="entity.entityId">
+            {{ entity.entityName }}
+          </option>
+        </select>
+
+        <!-- Manual validation error display -->
+        <div *ngIf="(form.submitted || parentEnitityId.touched) && formData.isparent && !formData.parentEnitityId"
+          class="text-danger">
+          {{ 'Parent Entity' | translate }} {{ 'is required' | translate }}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+      <button  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'EntityComponent'"
+              [actionType]="'FormSubmit'" (click)="validateParentSelection()" type="submit" class="addBtn btn-primary me-2"
+        [disabled]="form.invalid || (formData.isparent && !formData.parentEnitityId)||showMaxLengthWarning||showMaxLengthEntityCode">
+        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+      </button>
+      <button appUseractivity="User Click on Cancel button"
+              [componentName]="'EntityComponent'"
+              [actionType]="'ButtonClick'" type="button" class="btn-secondary cancelBtn" (click)="closeForm()">
+        {{ 'Cancel' | translate }}
+      </button>
+    </div>
+
+  </form>
+</div>
+
+
+<!-- <div class="container"> -->
+<div #entityTable class="table-wrapper">
+  <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+    <ng-container matColumnDef="select">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+        <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+          (change)="toggleSelectAll($event)">
+        </mat-checkbox>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
+        <mat-checkbox [checked]="selectedRows.has(row.entityId)" (change)="toggleSelection($event, row.entityId)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="code">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Code' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.code }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="entityName">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.entityName }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="countryId">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Country' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.countryName }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="cityId">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'City' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.cityName }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="entityAddress">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Address' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.entityAddress }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="isparent">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Is Child' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.isparent }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="parentEnitityId">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Parent Entity Name' | translate }}
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.parentEnitityName }} </td>
+    </ng-container>
+
+    <!-- Created By Column -->
+    <ng-container matColumnDef="createdBy">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
+        <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
+          matTooltip="Show/Hide Created Date">
+          {{ displayedColumns.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
+        </mat-icon>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.createdBy }}
+      </td>
+    </ng-container>
+
+    <!-- Created Date Column (Initially Hidden) -->
+    <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'Created Date' | translate }}
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.createdByDateTime | date:'short' }}
+      </td>
+    </ng-container>
+
+    <!-- Updated By Column -->
+    <ng-container matColumnDef="updatedBy">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+        {{ 'Updated By' | translate }}
+        <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
+          matTooltip="Show/Hide Updated Date">
+          {{ displayedColumns.includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
+        </mat-icon>
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.updatedBy }}
+      </td>
+    </ng-container>
+
+    <!-- Updated Date Column (Initially Hidden) -->
+    <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'Updated Date' | translate }}
+      </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        {{ entity.updatedByDateTime | date:'short' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let entity">
+        <!-- Edit Icon -->
+        <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission(14)"
+          matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+
+        <!-- Delete Icon -->
+        <mat-icon class="clickable-icon" color="warn" (click)="deleteRecord(entity)" *ngIf="hasPermission(13)"
+          matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
+
+  </table>
+  <!-- Pagination for the table -->
+  <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>
+
+<!-- Full-page Loader -->
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

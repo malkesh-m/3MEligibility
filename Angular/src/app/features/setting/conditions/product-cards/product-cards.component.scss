@@ -1,0 +1,28 @@
+.card-wrap {
+  padding: 10px 20px;
+  background-color: #f9f9f9;
+}
+
+.remove,.cancel{
+  margin-top: 5% !important;
+}
+
+.moduleLabel {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.d-flex {
+  display: flex;
+  flex-wrap: wrap; /* Ensures wrapping on small screens */
+  gap: 10px; /* Adds space between items */
+  align-items: center;
+}
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 18px;
+  color: #666;
+}

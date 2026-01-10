@@ -1,0 +1,23 @@
+<h2 class="mt-3">{{ "Exception Configuration" | translate }}</h2>
+
+<div class="p-3 mb-3">
+    <div class="row">
+        <!-- Full Override Exception Toggle -->
+        <div class="col-12 col-md-6 mb-4 d-flex align-items-center">
+            <mat-slide-toggle 
+                [checked]="isExceptionEnabled()" 
+                (change)="toggleException($event)">
+            </mat-slide-toggle>
+            <label class="mr-3">{{ 'Full Override ' | translate }}</label>
+        </div>
+
+        <!-- Scope Check Exception Toggle -->
+        <div class="col-12 col-md-6 mb-4 d-flex align-items-center">
+            <mat-slide-toggle 
+                [checked]="isExceptionEnabled()" 
+                (change)="toggleException($event)">
+            </mat-slide-toggle>
+            <label class="mr-3">{{ 'Scope Check ' | translate }}</label>
+        </div>
+    </div>
+</div>

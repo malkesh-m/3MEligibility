@@ -1,0 +1,129 @@
+<h2 mat-dialog-title>{{ 'Add Computed Values' | translate }}</h2>
+<mat-dialog-content [formGroup]="form">
+  <div formArrayName="computedValues">
+    <div *ngFor="let group of computedValues.controls; let i = index" [formGroupName]="i"
+         class="row border rounded p-3 mb-3 align-items-end">
+
+      <div class="col-md-3">
+        <label>{{ 'Type' | translate }}</label>
+        <select class="form-control" formControlName="computedParameterType">
+          <option [value]="ComputedParameterType.Single">{{ 'Single' | translate }}</option>
+          <option [value]="ComputedParameterType.Range">{{ 'Range' | translate }}</option>
+        </select>
+        <mat-error *ngIf="group.get('computedParameterType')?.hasError('required')">
+          {{ 'This field is required' | translate }}
+        </mat-error>
+      </div>
+
+      <ng-container *ngIf="isRange(group)">
+        <div class="col-md-2">
+          <label>{{ 'From' | translate }}</label>
+
+          <input class="form-control"
+                 formControlName="fromValue"
+                 type="text"
+                 (keypress)="dataTypeId === 2 ? numericOnly($event) : null" />
+
+          <mat-error *ngIf="group.get('fromValue')?.hasError('required')">
+            {{ 'This field is required' | translate }}
+          </mat-error>
+
+          <!-- numeric validation -->
+          <mat-error *ngIf="group.get('fromValue')?.hasError('pattern')">
+            {{ 'Only numeric value allowed' | translate }}
+          </mat-error>
+        </div>
+
+        <div class="col-md-2">
+          <label>{{ 'To' | translate }}</label>
+
+          <input class="form-control"
+                 formControlName="toValue"
+                 type="text"
+                 (keypress)="dataTypeId === 2 ? numericOnly($event) : null" />
+
+          <mat-error *ngIf="group.get('toValue')?.hasError('required')">
+            {{ 'This field is required' | translate }}
+          </mat-error>
+
+          <!-- numeric validation -->
+          <mat-error *ngIf="group.get('toValue')?.hasError('pattern')">
+            {{ 'Only numeric value allowed' | translate }}
+          </mat-error>
+
+          <!-- From must be <= To -->
+          <mat-error *ngIf="group.hasError('fromToDate')">
+            {{ 'From field must be less than or equal to To field' | translate }}
+          </mat-error>
+        </div>
+        <mat-error *ngIf="group.hasError('rangeOverlap')
+      && group.get('fromValue')?.value
+      && group.get('toValue')?.value
+      && group.touched">
+          {{ 'This range overlaps with an existing range' | translate }}
+        </mat-error>
+      </ng-container>
+
+      <ng-container *ngIf="isSingle(group)">
+        <div class="col-md-4">
+          <label>{{ 'Parameter Exact Value' | translate }} <span class="text-danger">*</span></label>
+
+          <input class="form-control"
+                 formControlName="parameterExactValue"
+                    type="text"
+                 (keypress)="dataTypeId === 2 ? numericOnly($event) : null" />
+
+          <mat-error *ngIf="group.get('parameterExactValue')?.hasError('required')">
+            {{ 'This field is required' | translate }}
+          </mat-error>
+
+          <mat-error *ngIf="group.get('parameterExactValue')?.invalid && group.get('parameterExactValue')?.touched">
+            {{ 'Only numeric value allowed' | translate }}
+          </mat-error>
+        </div>
+      </ng-container>
+
+      <div class="col-md-3">
+        <label>{{ 'Range Type' | translate }}</label>
+        <select class="form-control" formControlName="rangeType">
+          <option [value]="null"> </option>
+          <option [value]="rangeType.Hours">{{ 'Hours' | translate }}</option>
+          <option [value]="rangeType.Days">{{ 'Days' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label>{{ 'Computed Value' | translate }}<span class="text-danger">*</span></label>
+        <input class="form-control" formControlName="computedValue" />
+        <mat-error *ngIf="group.get('computedValue')?.hasError('required')">
+          {{ 'This field is required' | translate }}
+        </mat-error>
+      </div>
+
+
+      <div class="col-md-1 d-flex align-items-end">
+        <button appUseractivity="User Click on Remove button"
+                [componentName]="'ComputedValuesDialogComponent'"
+                [actionType]="'ButtonClick'" class="btn me-1" (click)="removeComputedValue(i)" [disabled]="computedValues.length === 0">
+          <mat-icon class="warn" matTooltip="{{ 'Remove' | translate }}">remove_circle_outline</mat-icon>
+        </button>
+
+        <button appUseractivity="User Click on Add button"
+                [componentName]="'ComputedValuesDialogComponent'"
+                [actionType]="'ButtonClick'" class="btn me-1" (click)="addComputedValue()">
+          <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-dialog-close type="button" class="cancelBtn  me-2">{{ 'Cancel' | translate }}</button>
+  <button appUseractivity="User Click on Save button"
+          [componentName]="'ComputedValuesDialogComponent'"
+          [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="form.invalid" (click)="save()">
+    {{ 'Save' | translate }}
+  </button>
+</mat-dialog-actions>

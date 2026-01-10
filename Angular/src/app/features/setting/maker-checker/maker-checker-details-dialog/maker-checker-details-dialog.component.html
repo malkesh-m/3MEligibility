@@ -1,0 +1,92 @@
+<h2 mat-dialog-title class="title">{{ 'Task Details' | translate }}</h2>
+<mat-dialog-content class="content">
+  <p class="small-text"><strong>{{ 'Object Name' | translate }}:</strong> {{ data.tableName }}</p>
+  <p class="small-text"><strong>{{ 'Action' | translate }}:</strong> {{ data.actionName }}</p>
+  <p class="small-text"><strong>{{ 'Status' | translate }}:</strong> {{ data.statusName }}</p>
+
+  <!-- <div class="json-container">
+    <div class="json-column">
+      <h3 class="json-header">{{ 'Old Value' | translate }}</h3>
+      <pre class="json-list">{{ parsedOldJson | json }}</pre>
+    </div>
+    <div class="json-column">
+      <h3 class="json-header">{{ 'New Value' | translate }}</h3>
+      <pre class="json-list">{{ parsedNewJson | json }}</pre>
+    </div>
+  </div> -->
+  <!-- Only New Value for Add -->
+  <div class="row mb-4 addMargin" *ngIf="data.actionName === 'Add' && parsedNewJson">
+    <div class="col-md-12">
+      <h3 class="json-header">{{ 'New Value' | translate }}</h3>
+      <div *ngFor="let item of (parsedNewJson | keyvalue)" class="mb-3">
+        <ng-container *ngIf="!isArray(item.value)">
+          <label class="inputLabel">{{ getKeyLabel(item.key) | titlecase }}</label>
+          <input type="text" class="form-control" [value]="formatValue(item.value)" readonly />
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Only Old Value for Delete -->
+  <div class="row mb-4 addMargin" *ngIf="data.actionName === 'Delete' && parsedOldJson">
+    <div class="col-md-12">
+      <h3 class="json-header">{{ 'Old Value' | translate }}</h3>
+      <div *ngFor="let item of (parsedOldJson | keyvalue)" class="mb-3">
+        <ng-container *ngIf="!isArray(item.value)">
+          <label class="inputLabel">{{ getKeyLabel(item.key) | titlecase }}</label>
+          <input type="text" class="form-control" [value]="formatValue(item.value)" readonly />
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Old and New Value for Update -->
+  <div class="row mb-4 addMargin" *ngIf="data.actionName === 'Update' && changedFields.length > 0">
+    <div class="col-md-6">
+      <h3 class="json-header">{{ 'Old Value' | translate }}</h3>
+      <div *ngFor="let field of changedFields" class="mb-3">
+        <label class="inputLabel">{{ field.key | titlecase }}</label>
+        <input type="text" class="form-control" [value]="field.oldValue" readonly />
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="json-header">{{ 'New Value' | translate }}</h3>
+      <div *ngFor="let field of changedFields" class="mb-3">
+        <label class="inputLabel">{{ field.key | titlecase }}</label>
+        <input type="text" class="form-control" [value]="field.newValue" readonly />
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Textarea for Comments -->
+  <div *ngIf="data.isMakerChecker &&!fromhistory">
+    <mat-form-field class="full-width">
+      <mat-label>{{ 'Comment' | translate }}</mat-label>
+      <textarea matInput [(ngModel)]="comment"></textarea>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<div *ngIf="data.isMakerChecker">
+
+  <mat-dialog-actions align="end">
+    <button appUseractivity="User Click on Approve  button"
+              [componentName]="'MakerCheckerDetailsComponent'"
+              [actionType]="'ButtonClick'" mat-button color="primary" (click)="approve()" *ngIf="hasPermission(126)&& !fromhistory">{{ 'Approve' | translate }}</button>
+    <button appUseractivity="User Click on Reject  button"
+              [componentName]="'MakerCheckerDetailsComponent'"
+              [actionType]="'ButtonClick'"  mat-button color="warn" (click)="reject()" *ngIf="hasPermission(127)&& !fromhistory">{{ 'Reject' | translate }}</button>
+    <button  appUseractivity="User Click on Close Dialog button"
+              [componentName]="'MakerCheckerDetailsComponent'"
+              [actionType]="'ButtonClick'" mat-button (click)="closeDialog()">{{ 'Close' | translate }}</button>
+  </mat-dialog-actions>
+  </div>
+<div *ngIf="!data.isMakerChecker">
+
+  <mat-dialog-actions align="end">
+    <button  appUseractivity="User Click on Close  button"
+              [componentName]="'AuditLogsComponent'"
+              [actionType]="'ButtonClick'"  mat-button (click)="closeDialog()">{{ 'Close' | translate }}</button>
+
+  </mat-dialog-actions>
+  </div>

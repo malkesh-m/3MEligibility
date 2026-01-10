@@ -1,0 +1,202 @@
+<div class="mb-3">
+    <div>
+        <p class="moduleLabel mb-2">{{ activeTab === 'group' ? ('Group' | translate)  : ('Assigned Users' | translate) }}</p>
+    </div>
+    <!-- Search and Actions Section -->
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Search Input -->
+        <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+            <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
+                (input)="applyFilter($event)" [(ngModel)]="searchTerm"  />
+        </div>
+
+        <!-- Actions Buttons -->
+        <div class="d-flex align-items-center ms-3">
+            <button appUseractivity="User Click on Add button"
+              [componentName]="'GroupComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" *ngIf="getAddPermission()">
+                <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'group'" style="cursor: pointer;"
+            (click)="switchTab('group')">
+            {{ 'Group' | translate }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'assignedUser'" style="cursor: pointer;"
+            (click)="switchTab('assignedUser')">
+            {{ 'Assigned Users' | translate }}
+        </a>
+    </li>
+</ul>
+
+<ng-container *ngIf="activeTab?.toLowerCase() == 'group'">
+    <!-- Add/Edit Form -->
+    <div *ngIf="formVisible" class="card p-3 mb-3">
+        <form #form="ngForm" (ngSubmit)="submitEditForm(form)">
+            <div class="row mb-3">
+                <div class="col">
+                    <label class="inputLabel">{{ 'Name' | translate }} <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.groupName" name="Name" required
+                        #Name="ngModel" maxlength="50" (input)="sanitizeCode($event)" />
+                    <div *ngIf="Name.invalid && Name.touched" class="text-danger">
+                        {{ 'Name' | translate }}{{ ' is required' | translate }}
+                    </div>
+                </div>
+                <div class="col">
+                    <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.groupDesc" name="Description" required
+                        #Description="ngModel" maxlength="250" (input)="sanitizeCode($event)" />
+                    <div *ngIf="Description.invalid && Description.touched" class="text-danger">
+                        {{ 'Description' | translate }}{{ ' is required' | translate }}
+                    </div>
+                </div>
+                <div class="col" style="align-content: end;">
+                    <button appUseractivity="User Click on Add/Edit button"
+              [componentName]="'GroupComponent'"
+              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="form.invalid">
+                        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+                    </button>
+                    <button  appUseractivity="User Click on Cancel button"
+              [componentName]="'GroupComponent'"
+              [actionType]="'ButtonClick'"type="button" class="btn btn-secondary cancelBtn" (click)="closeForm()"
+                        style="min-width: 100px; ">
+                        {{ 'Cancel' | translate }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="table-wrapper">
+        <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+
+            <ng-container matColumnDef="groupName">
+                <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Name' | translate }}</th>
+                <td class="cellStyling" mat-cell *matCellDef="let list">{{ list.groupName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="groupDesc">
+                <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Description' | translate
+                    }}
+                </th>
+                <td class="cellStyling" mat-cell *matCellDef="let list">{{ list.groupDesc }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+                <td class="cellStyling" mat-cell *matCellDef="let list">
+                    <mat-icon appUseractivity="User Click on Edit button"
+              [componentName]="'GroupComponent'"
+              [actionType]="'ButtonClick'"class="clickable-icon" color="primary" (click)="editRecord(list)"
+                        *ngIf="hasPermission(48)" matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+                    <mat-icon appUseractivity="User Click on Delete button"
+              [componentName]="'GroupComponent'"
+              [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteRecord(list)" *ngIf="hasPermission(47)"
+                        matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
+        </table>
+        <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+    </div>
+</ng-container>
+
+<div class="table-wrapper" *ngIf="UnassignedUser && activeTab === 'assignedUser'">
+    <div class="card p-3 mb-3">
+        <form #form="ngForm" (ngSubmit)="submitEditForm(form)">
+            <div class="row mb-3">
+                <div class="col-4">
+                    <input type="text" class="form-control" placeholder="{{ 'Unassigned users *' | translate }}"
+                        [(ngModel)]="searchGroup" name="searchGroup" (input)="filterGroupNames()" required />
+                    <div *ngIf="filteredGroupNames.length > 0" class="mt-2">
+                        <div *ngFor="let group of filteredGroupNames; trackBy: trackByUserId">
+                            <label *ngIf="group.userName">
+                                <input type="checkbox" [(ngModel)]="group.selected" name="group{{ group.userId }}"
+                                    (change)="onGroupSelectionChange(group.userId)" />
+                                {{ group.userName }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="filteredGroupNames.length === 0 && searchGroup" class="mt-2">
+                    {{ 'No items to show...' | translate }}
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'GroupComponent'"
+              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" style="min-width: 100px">
+                        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+                    </button>
+                    <button appUseractivity="User Click on Cancel button"
+              [componentName]="'GroupComponent'"
+              [actionType]="'ButtonClick'" style="border: none;" class="cancelBtn" type="button" (click)="closeForm()">
+                        {{ 'Cancel' | translate }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div *ngIf="activeTab === 'assignedUser'" class="card p-3 mb-3">
+    <div class="col-4">
+        <label>{{ 'Group Name' | translate }}</label>
+        <select #parameterSelect class="form-control" (change)="onSelect($event)">
+            <option value="" disabled selected>{{ 'Select' | translate }}</option>
+            <option *ngFor="let param of records" [value]="param.groupId">{{
+                param.groupName }}</option>
+        </select>
+    </div>
+</div>
+
+<div *ngIf="activeTab === 'assignedUser'">
+   
+    <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="assignedUserDataSource" matSort>
+        <ng-container matColumnDef="userName">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.userName }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="loginId">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Login ID' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.loginId }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Email' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.email }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="entityName">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Entity' | translate }}
+            </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.entityName }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                <mat-icon appUseractivity="User Click on Delete button"
+              [componentName]="'GroupComponent'"
+              [actionType]="'ButtonClick'" class="clickable-icon"  color="warn" (click)="deleteAssignedUserRecord(entity)"
+                    *ngIf="hasPermission(46)" matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="assignedUserColumns" class="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: assignedUserColumns;" class="select-row"></tr>
+    </table>
+    <p style="text-align: center;" *ngIf="assignedUserDataSource.data.length === 0">{{recordMessage}}</p>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</div>

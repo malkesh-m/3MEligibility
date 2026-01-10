@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>API Evaluation Details</h2>
+
+<div mat-dialog-content>
+  <div *ngIf="loading">Loading...</div>
+
+  <!-- BRE API Section -->
+  <div *ngIf="!loading && BreData" class="api-block">
+    <h4> Api &nbsp;&nbsp;  BREIntegrationAlignment</h4>
+
+    <p><b>Outcome:</b> {{ BreData.outCome }}</p>
+    <p><b>Credit Score:</b> {{ BreData.creditScore }}</p>
+    <p><b>Processing Time:</b> {{ BreData.processingTime }} s</p>
+
+    <h4>Request:</h4>
+    <pre class="json-box">{{ formatJson(BreData.breRequest) }}</pre>
+
+    <h4>Response:</h4>
+    <pre class="json-box">{{ formatJson(BreData.breResponse) }}</pre>
+
+    <mat-divider></mat-divider>
+  </div>
+
+  <!-- API Details Section -->
+  <div *ngIf="!loading && apiDetails.length === 0">
+    <p>No API evaluation history found.</p>
+  </div>
+
+  <div *ngFor="let api of apiDetails" class="api-block">
+    <h4>Api &nbsp;&nbsp;  {{  api.apiName }}</h4>
+
+    <p><b>Timestamp:</b> {{ api.evaluationTimeStamp | date:'short' }}</p>
+
+    <h4>Request:</h4>
+    <pre class="json-box">{{ api.formattedRequest }}</pre>
+
+    <h4>Response:</h4>
+    <pre class="json-box">{{ api.formattedResponse }}</pre>
+
+    <mat-divider></mat-divider>
+  </div>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" mat-dialog-close>Close</button>
+</div>

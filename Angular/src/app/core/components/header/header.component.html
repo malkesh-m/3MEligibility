@@ -1,0 +1,49 @@
+
+
+<mat-toolbar color="primary" class="toolbar">
+    <!-- Search Bar -->
+    <!-- <div class="search-bar">
+        <mat-form-field appearance="outline" class="custom-search-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput placeholder="Search">
+        </mat-form-field>
+    </div> -->
+
+    <!-- <div class="search-container">
+        <input type="text" class="search-input" placeholder="{{ 'Search' | translate }}" />
+    </div> -->
+
+    <span class="example-spacer"></span>
+
+    <!-- Notification Icon -->
+    <!-- <button mat-icon-button aria-label="Notifications" style="margin-right: 20px;">
+        <mat-icon matTooltip="Notifications">notifications</mat-icon>
+      </button> -->
+
+    <!-- Language Icon -->
+    <mat-menu #languageMenu="matMenu">
+        <button mat-menu-item (click)="changeLanguage('en')">EN</button>
+        <button mat-menu-item (click)="changeLanguage('ar')">AR</button>
+    </mat-menu>
+    <button mat-icon-button [matMenuTriggerFor]="languageMenu" aria-label="Language" style="margin-right: 40px;">
+        <mat-icon matTooltip="{{ 'Language' | translate }}">language</mat-icon>
+        <span class="lang-text">{{ currentLanguage.toUpperCase() }}</span>
+    </button>
+
+    <!-- User Profile -->
+    <!-- <div class="user-profile">
+        <img src="assets/images/user.jpg" alt="User Image" class="user-image">
+        <div class="user-info">
+            <span class="user-role">Administrator</span>
+            <span class="user-name">Mohammed Ahmed</span>
+        </div>
+    </div> -->
+    <button mat-mini-fab [matMenuTriggerFor]="menu" style="margin-right: 30px;">
+        <mat-icon matTooltip="{{ 'Profile' | translate }}">person</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item routerLink="security/userprofile"><mat-icon>person</mat-icon> {{ 'My Profile' | translate
+            }}</button>
+        <button mat-menu-item (click)="logoutUser()"><mat-icon>logout</mat-icon>{{ 'Logout' | translate }}</button>
+    </mat-menu>
+</mat-toolbar>

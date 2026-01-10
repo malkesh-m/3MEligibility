@@ -1,0 +1,19 @@
+<div class="d-flex justify-content-between align-items-center">
+    <h5>{{ 'Products' | translate }}</h5>
+    <div class="search-wrap">
+        <div class="d-flex mt-3">
+            <input type="text" class="form-control" placeholder="Search" />
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="nav nav-tabs d-flex" id="nav-tab" role="tablist">
+    @for(item of listOfTabs;track item) {
+    <a class="w-100 nav-item nav-link" [routerLink]="item.route" routerLinkActive="active" style="flex: 1">
+        {{item.name}}
+    </a>
+    }
+</div>

@@ -1,0 +1,78 @@
+.parameter-container {
+  max-height: 300px; /* Scrollable container */
+  overflow-y: auto;
+  padding-right: 10px;
+
+  scrollbar-width: thin; /* Thin scrollbar for Firefox */
+  scrollbar-color: #c1c1c1 transparent; /* Light gray thumb */
+}
+
+.parameter-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.parameter-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 8px;
+}
+
+.parameter-container::-webkit-scrollbar-thumb:hover {
+  background: #8c8c8c;
+}
+
+.param-row-container {
+  display: flex;
+  flex-direction: column;
+  
+  justify-content: flex-start;
+  padding: 10px 0;
+
+}
+
+.param-label {
+  margin: 3px;
+}
+
+.param-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+}
+
+.factor-select {
+  width: 100%;
+  height: 40px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+.param-row-container:hover {
+  background-color: #f9f9f9;
+}
+
+.expression-box {
+  width: 100%;
+  min-height: 60px;
+  font-size: 16px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  background-color: #f3f3f3;
+  border-radius: 4px;
+  resize: none;
+}
+
+.validation-message {
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.text-success {
+  color: #28a745;
+}
+
+.text-danger {
+  color: #dc3545;
+}

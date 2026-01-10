@@ -1,0 +1,312 @@
+<div class="list-wrap">
+
+    <div *ngIf="formVisible" class="card p-3 mb-3">
+
+        <div [ngSwitch]="currentTab">
+            <div *ngSwitchCase="'Category'">
+                <form [formGroup]="formData" (ngSubmit)="formRecord()">
+                    <div class="row">
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Name' | translate }} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" formControlName="categoryName"
+                                (input)="sanitizeCode($event)"   maxlength="50"
+ />
+                            <div *ngIf="formData.get('categoryName')?.invalid && formData.get('categoryName')?.touched"
+                                class="text-danger">
+                                {{ 'Category' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" formControlName="catDescription"
+                                (input)="sanitizeCode($event)"  maxlength="250"
+ />
+
+                            <div *ngIf="formData.get('catDescription')?.invalid && formData.get('catDescription')?.touched"
+                                class="text-danger">
+                                {{ 'Description' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+                        <!--<div class="col">
+                            <label class="inputLabel">{{ 'Select Entity' | translate }} <span class="text-danger">*</span></label>
+                            <select class="form-control" formControlName="entityId" required>
+                                <option value="null" disabled selected>{{ 'Select Entity' | translate }}</option>
+                                <option *ngFor="let type of entitiesList" [value]="type.entityId">
+                                    {{ type.entityName }}
+                                </option>
+                            </select>
+                            <div *ngIf="formData.get('entityId')?.invalid && formData.get('entityId')?.touched"
+                                class="text-danger">
+                                {{ 'Entity' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>-->
+
+                        <div class="col" style="align-content: end;">
+                            <button  [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'ProductListComponent'"
+              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="formData.invalid">
+                                {{isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}
+                            </button>
+                            <button appUseractivity="User Click on Cancel button"
+              [componentName]="'ProductListComponent'"
+              [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" (click)="cancelEvent()">{{
+                                'Cancel' | translate }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div *ngSwitchCase="'Info'">
+                <form [formGroup]="formData" (ngSubmit)="onSubmit()">
+                  <div class="row mb-3">
+                    <div class="col">
+                      <label class="inputLabel">{{ 'Code' | translate }} <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" formControlName="code"
+                             (input)="sanitizeCode($event)" maxlength="10" />
+                      <div *ngIf="formData.get('code')?.invalid && formData.get('code')?.touched"
+                           class="text-danger">
+                        {{ 'Code' | translate }}{{ ' is required' | translate }}
+                      </div>
+                    </div>
+                    <div class="col">
+                      <label class="inputLabel">{{ 'Stream Name' | translate }} <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="{{ 'Stream Name' | translate }}"
+                             formControlName="productName" (input)="sanitizeCode($event)" maxlength="50" />
+                      <div *ngIf="formData.get('productName')?.invalid && formData.get('productName')?.touched"
+                           class="text-danger">
+                        {{ 'Stream Name' | translate }}{{ ' is required' | translate }}
+                      </div>
+                      <div class="text-danger"
+                           *ngIf="formData.get('productName')?.value?.length === 50">
+                        Stream Name must be less than 50 characters
+                      </div>
+                    </div>
+                   
+                    <!--<div class="col">
+                      <label class="inputLabel">{{ 'Stream Cap' | translate }} <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" placeholder="{{ 'Stream Cap' | translate }}"
+                             formControlName="maxEligibleAmount" (input)="sanitizeCode($event)" />
+                      <div *ngIf="formData.get('maxEligibleAmount')?.invalid && formData.get('maxEligibleAmount')?.touched"
+                           class="text-danger">
+                        {{ 'Stream Cap' | translate }}{{ ' is required' | translate }}
+                      </div>
+                    </div>-->
+                    <div class="col">
+                      <label class="inputLabel">{{ 'Select Product' | translate }} <span class="text-danger">*</span></label>
+                      <select class="form-control" formControlName="productCategory"
+                              (change)="bindEntityId($event,'Info')">
+                        <option value="null" disabled>{{ 'Select Product' | translate }}</option>
+                        <option *ngFor="let category of categoryList" [value]="category.categoryId">
+                          {{
+                                    category.categoryName
+                          }}
+                        </option>
+                      </select>
+                      <div *ngIf="formData.get('productCategory')?.invalid && formData.get('productCategory')?.touched"
+                           class="text-danger">
+                        {{ 'Product Product' | translate }}{{ ' is required' | translate }}
+                      </div>
+                    </div>
+                    <!--<div class="col">
+                      <label class="inputLabel">{{ 'Select Entity' | translate }}</label>
+                      <select class="form-control" formControlName="entityId">
+                        <option value="null" disabled selected>{{ 'Select Entity' | translate }}</option>
+                        <option *ngFor="let type of entitiesList" [value]="type.entityId">
+                          {{ type.entityName }}
+                        </option>
+                      </select>
+                      <div *ngIf="formData.get('entityId')?.invalid && formData.get('entityId')?.touched"
+                           class="text-danger">
+                        {{ 'Entity' | translate }}{{ ' is required' | translate }}
+                      </div>
+                    </div>-->
+                  </div>
+                    <!--<div class="row mb-3">-->
+                        <!-- <div class="col"> -->
+                            <!--<div class="col-2 d-flex align-items-center">
+                                <label class="form-check-label">
+                                    <input type="checkbox" class="form-check-input" formControlName="isExceptionRule" (change)="toggleException()" />
+                                    {{ 'Exception Product?' | translate }}
+                                </label>
+                            </div>
+                            <div class="col-2">
+                                <label class="inputLabel">{{ 'Exception' | translate }} <span class="text-danger" *ngIf="formData.value.isExceptionRule">*</span></label>
+                                <select formControlName="exceptionId" class="form-control">
+                                    <option value="" disabled>{{ 'Select Exception' | translate }}</option>
+                                    <option *ngFor="let exception of exceptions" [value]="exception.exceptionID">{{
+                                        exception.exceptionName }}</option>
+                                </select>
+                                <div *ngIf="formData?.get('exceptionId')?.touched && formData.get('exceptionId')?.invalid">
+                                    <small class="text-danger">{{ 'Exception is required' | translate }}</small>
+                                </div>
+                            </div>-->
+                        <!-- </div> -->
+                    <!--</div>-->
+                <div class="row">
+                  <div class="col">
+                    <label> Select Image <span class="text-danger"></span></label>
+                    <input type="file" class="form-control" (change)="onFileSelect($event)" accept="image/*" />
+                    <div>
+                      <img *ngIf="imagePreview; else noImage" [src]="imagePreview" alt="Product Image"
+                           class="image-preview" />
+                      <ng-template #noImage>
+                        <p class="no-image-text">{{ 'No image available' | translate }} <span class="text-danger"></span></p>
+                      </ng-template>
+                    </div>
+                    <!--<div *ngIf="formData.get('productImage')?.invalid && formData.get('productImage')?.touched"
+        class="text-danger">
+        {{ 'Product Image' | translate }}{{ ' is required' |  }}
+    </div>-->
+                  </div>
+                  <!--<div class="col">
+      <quill-editor placeholder="Enter Narrative" formControlName="narrative"></quill-editor>
+  </div>-->
+                  <!--<div class="col">
+                    <quill-editor placeholder="Enter Description" formControlName="description"></quill-editor>
+                  </div>-->
+
+                  <div class="col">
+                    <label class="inputLabel">
+                      {{ 'Description' | translate }}
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           formControlName="description"
+                           maxlength="50"
+                           placeholder="Enter Description"/>
+
+                    <div class="text-danger"
+                         *ngIf="formData.get('description')?.value?.length === 50">
+                      Description must be less than 50 characters
+                    </div>
+                  </div>
+                  <div class="col d-flex justify-content-end align-items-end">
+                    <button [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+                            [componentName]="'ProductListComponent'"
+                            [actionType]="'FormSubmit'"
+                            type="submit"
+                            class="addBtn btn-primary me-2"
+                            [disabled]="formData.invalid">
+                      {{ isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}
+                    </button>
+
+                    <button appUseractivity="User Click on Cancel button"
+                            [componentName]="'ProductListComponent'"
+                            [actionType]="'ButtonClick'"
+                            type="button"
+                            class="btn btn-secondary cancelBtn"
+                            (click)="cancelEvent()">
+                      {{ 'Cancel' | translate }}
+                    </button>
+                  </div>
+                </div>
+                </form>
+            </div>
+            <div *ngSwitchCase="'Details'">
+                <form [formGroup]="formData" (ngSubmit)="detailsFormSubmit()">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Select Stream' | translate }} <span class="text-danger">*</span></label>
+                            <select class="form-control" formControlName="product"
+                                (change)="onSelectProductItem($event)">
+                                <option value="null">{{ 'Select Stream' | translate }}</option>
+                                <option *ngFor="let products of ProductListDetails" [value]="products.productId">{{
+                                    products.productName }}
+                                </option>
+                            </select>
+                            <div *ngIf="formData.get('product')?.invalid && formData.get('product')?.touched"
+                                class="text-danger">
+                                {{ 'Stream' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+                        <!--<div class="col">
+                            <label class="inputLabel">{{ 'Select Entity' | translate }}</label>
+                            <select class="form-control" formControlName="entityId">
+                                <option value="null" disabled selected>{{ 'Select Entity' | translate }}</option>
+                                <option *ngFor="let type of entitiesList" [value]="type.entityId">
+                                    {{ type.entityName }}
+                                </option>
+                            </select>
+                            <div *ngIf="formData.get('entityId')?.invalid && formData.get('entityId')?.touched"
+                                class="text-danger">
+                                {{ 'Entity' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>-->
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Select Parameter' | translate }} <span class="text-danger">*</span></label>
+                            <select class="form-control" formControlName="parameter"
+                                (change)="onSelectParameterItem($event)">
+                                <option value="null">{{ 'Select Parameter' | translate }}</option>
+                                <option *ngFor="let paramters of parametersList" [value]="paramters.parameterId">
+                                    {{paramters.parameterName }}
+                                </option>
+                            </select>
+                            <div *ngIf="formData.get('parameter')?.invalid && formData.get('parameter')?.touched"
+                                class="text-danger">
+                                {{ 'Parameter' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Select Parameter value' | translate }}</label>
+                            <select class="form-control" formControlName="parameterValue">
+                                <option value="null">{{ 'Select Parameter value' | translate }}</option>
+                                <option *ngFor="let paramValue of parametersValueList" [value]="paramValue">
+                                    {{ paramValue }}
+                                </option>
+                            </select>
+                            <div *ngIf="formData.get('parameterValue')?.invalid && formData.get('parameterValue')?.touched"
+                                class="text-danger">
+                                {{ 'Value' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Display Order' | translate }} <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" placeholder="{{ 'Display Order' | translate }}"
+                                formControlName="displayOrder" />
+                            <div *ngIf="formData.get('displayOrder')?.invalid && formData.get('displayOrder')?.touched"
+                                class="text-danger">
+                                {{ 'Display Order' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Select Category' | translate }} <span class="text-danger">*</span></label>
+                            <select class="form-control" formControlName="isrequired">
+                                <option value="null">{{ 'Select Category' | translate }}</option>
+                                <option *ngFor="let isrequired of requiredAry" [value]="isrequired.value">{{
+                                    isrequired.label }}
+                                </option>
+                            </select>
+                            <div *ngIf="formData.get('isrequired')?.invalid && formData.get('isrequired')?.touched"
+                                class="text-danger">
+                                {{ 'Category' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+
+                        <div class="col"></div>
+                        <div class="col">
+                            <button  appUseractivity="User Click on Add button"
+              [componentName]="'ProductListComponent'"
+              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="formData.invalid"> {{
+                                isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}</button>
+                            <button  appUseractivity="User Click on Cancel button"
+              [componentName]="'ProductListComponent'"
+              [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" (click)="cancelEvent()">{{
+                                'Cancel' | translate }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple" [displayedColumns]="columnsDisplayAry"
+            [header]="headerDisplayAry" [rows]="rows" (actionEvent)="tableRowAction($event)" [editRoleId]="editRoleId" [deleteRoleId]="deleteRoleId" >
+        </app-table>
+       
+
+    </div>
+</div>

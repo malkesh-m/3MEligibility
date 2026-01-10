@@ -1,0 +1,134 @@
+<div class="mb-3">
+  <div>
+    <p class="moduleLabel mb-2">Evaluation Summary & KPIs</p>
+  </div>
+
+  <!-- Key Metrics Display -->
+  <div class="tiles-container">
+    <div class="tile" *ngFor="let item of dashboardTiles" [ngClass]="item.class">
+      <div class="tile-header">
+        <span>{{ item.name }}</span>
+        <mat-icon>{{ item.icon }}</mat-icon>
+      </div>
+      <div class="tile-count">{{ item.count }}</div>
+      <div class="tile-footer" *ngIf="item.footer">
+        <span>{{ item.footer }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evaluation Trends Section -->
+  <div class="dashboard-container">
+    <div class="chart-section">
+
+      <!-- Pass/Fail Trends Over Time -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h4>Pass/Fail Trends Over Time</h4>
+          <select [(ngModel)]="selectedYear" (change)="updateCharts()">
+            <option *ngFor="let yr of years" [value]="yr">{{ yr }}</option>
+          </select>
+        </div>
+        <canvas id="passFailTrendChart"></canvas>
+      </div>
+
+      <!-- Failure Reasons Breakdown -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h4>Failure Reasons Breakdown</h4>
+        </div>
+        <canvas id="failureReasonsChart"></canvas>
+      </div>
+
+      <!-- Evaluations by Customer Segment -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h4>Evaluations by Customer Segment</h4>
+        </div>
+        <canvas id="customerSegmentChart"></canvas>
+      </div>
+
+      <!-- Processing Time Distribution -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h4>Processing Time Distribution</h4>
+        </div>
+        <canvas id="processingTimeChart"></canvas>
+      </div>
+
+      <!-- Risk Score Distribution -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h4>Risk Score Distribution</h4>
+        </div>
+        <canvas id="riskScoreChart"></canvas>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Evaluation History Section -->
+  <div class="evaluation-history-container">
+    <div class="chart-header">
+      <h4>Detailed Evaluation History</h4>
+    </div>
+
+    <!-- Filters -->
+    <div class="search-filter-bar">
+
+      <input type="text" placeholder="Search National ID"
+             [(ngModel)]="filter.searchText" (ngModelChange)="applyFilters()">
+
+      <select [(ngModel)]="filter.decision" (change)="applyFilters()">
+        <option value="">All Decisions</option>
+        <option>Approved</option>
+        <option>Rejected</option>
+      </select>
+
+      <label>From Date</label>
+      <input type="date" [(ngModel)]="filter.fromDate" (change)="applyFilters()">
+
+      <label>To Date</label>
+      <input type="date" [(ngModel)]="filter.toDate" (change)="applyFilters()">
+
+    </div>
+
+    <!-- Table -->
+    <table class="evaluation-table">
+      <thead>
+        <tr>
+          <th>National ID</th>
+          <th>Loan No</th>
+          <th>Evaluation Time</th>
+          <th>Outcome</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let row of evaluationHistory">
+          <td>{{ row.nationalId }}</td>
+          <td>{{ row.loanNo }}</td>
+          <td>{{ row.evaluationTimeStamp | date:'short' }}</td>
+          <td>{{ row.outCome }}</td>
+
+          <td class="action-cell">
+            <mat-icon class="clickable-icon" color="primary"
+                      (click)="openApiDetails(row.evaluationHistoryId)"
+                      matTooltip="View Details">
+              visibility
+            </mat-icon>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <mat-paginator [length]="totalRecords"
+                   [pageSize]="pageSize"
+                   showFirstLastButtons
+                   [pageSizeOptions]="[10, 25, 50, 100]"
+                   (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+
+</div>

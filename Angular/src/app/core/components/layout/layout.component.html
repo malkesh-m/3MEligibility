@@ -1,0 +1,15 @@
+<mat-drawer-container class="drawer-wrapper" autosize>
+    <mat-drawer #drawer class="example-sidenav" mode="side" opened>
+        <app-sidebar></app-sidebar>
+    </mat-drawer>
+
+    <mat-drawer-content style="background-color: white;overflow-x: hidden;">
+        <div class="header-wrap">
+            <app-header (menuToggle)="drawer.toggle()"></app-header>
+        </div>
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+    </mat-drawer-content>
+
+</mat-drawer-container>

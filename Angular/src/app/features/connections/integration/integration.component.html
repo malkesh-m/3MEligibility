@@ -1,0 +1,1021 @@
+<!-- Search and Actions -->
+
+<div class="mb-3">
+  <div>
+    <p class="moduleLabel mb-2">
+      {{
+    activeTab === 'nodes' ? ('Nodes' | translate) :
+    activeTab === 'api' ? ('API' | translate) :
+    activeTab === 'addParameters' ? ('API Parameters' | translate) :
+    activeTab === 'mapApiParams' ? ('Map API Parameters' | translate) :
+    activeTab === 'testApi' ? ('Test API' | translate) :
+    ('API Details' | translate)
+      }}
+    </p>
+  </div>
+
+  <!-- Search and Actions Section -->
+  <div class="d-flex justify-content-between align-items-center">
+    <!-- Search Input -->
+    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+      <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
+             [(ngModel)]="searchTerms[activeTab]" (input)="applyFilter($event)" />
+    </div>
+
+    <!-- Actions Buttons -->
+    <div class="d-flex align-items-center ms-3">
+      <button class="btn me-2" (click)="openForm()" appUseractivity="User Click on add  button"
+              [componentName]="'IntegrationComponent'"
+              [actionType]="'ButtonClick'" *ngIf="getAddPermission()">
+        <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+      </button>
+      <button (click)="deleteMulSelectedRows()" appUseractivity="User Click on Delete button"
+              [componentName]="'LoginComponent'"
+              [actionType]="'ButtonClick'" class="btn" *ngIf="getAddPermission()">
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'nodes'" (click)="switchTab('nodes')">
+      {{ 'Nodes' | translate }}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'api'" (click)="switchTab('api')">
+      {{ 'API' | translate }}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'addParameters'" (click)="switchTab('addParameters')">Api Parameters</a>
+  </li>
+  <!--<li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'apiDetails'" (click)="switchTab('apiDetails')">
+      {{ 'API Details' | translate }}
+    </a>
+  </li>-->
+  <li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'mapApiParams'" (click)="switchTab('mapApiParams')">
+      Map API Parameters
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'testApi'" (click)="switchTab('testApi')">Test API</a>
+  </li>
+
+</ul>
+
+<!-- Node Form -->
+<div *ngIf="formVisible" class="card p-3 mb-3">
+  <form (ngSubmit)="addRecord()" [formGroup]="nodeForm">
+    <div class="row">
+      <div class="col form-group">
+        <label class="inputLabel">{{ 'Code' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="nodeformData.code" formControlName="code"
+               required maxlength="50" />
+        <div *ngIf="nodeForm.get('code')?.invalid && nodeForm.get('code')?.touched" class="text-danger">
+          {{ 'Code' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+
+      <div class="col">
+        <label class="inputLabel">{{ 'Node Name' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="nodeformData.nodeName" formControlName="nodeName"
+               required maxlength="50" (input)=" sanitizeCode($event)" />
+        <div *ngIf="nodeForm.get('nodeName')?.invalid && nodeForm.get('nodeName')?.touched" class="text-danger">
+          {{ 'Node Name' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+
+      <div class="col">
+        <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="nodeformData.nodeDesc"
+               formControlName="description" required maxlength="50" (input)=" sanitizeCode($event)" />
+        <div *ngIf="nodeForm.get('description')?.invalid && nodeForm.get('description')?.touched"
+             class="text-danger">
+          {{ 'Description' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+
+      <div class="col">
+        <label class="inputLabel">{{ 'URL' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="nodeformData.nodeUrl" formControlName="url"
+               required />
+        <div *ngIf="nodeForm.get('url')?.invalid && nodeForm.get('url')?.touched" class="text-danger">
+          {{ 'URL' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'URL Type' | translate }} <span class="text-danger">*</span></label>
+        <select class="form-control" [(ngModel)]="nodeformData.urlType" formControlName="urlType" required>
+          <option *ngFor="let type of urlTypes" [value]="type.value" [disabled]="type.value === ''">
+            {{ type.label }}
+          </option>
+        </select>
+        <div *ngIf="nodeForm.get('urlType')?.invalid && nodeForm.get('urlType')?.touched" class="text-danger">
+          {{ 'URL Type' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <!--<div class="col">
+        <label class="inputLabel">{{ 'UserName' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="nodeformData.apiuserName"
+               formControlName="username" />
+      </div>
+
+      <div class="col">
+        <label class="inputLabel">{{ 'Password' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="nodeformData.apipassword"
+               formControlName="password" />
+      </div>-->
+    </div>
+    <div class="row">
+      <div class="col btn-container">
+        <button type="submit" class="addBtn btn-primary me-2 mt-4 add-btn" appUseractivity="User Click on Add Node button"
+                [componentName]="'IntegrationComponent'"
+                [actionType]="'FormSubmit'" [disabled]="nodeForm.invalid">
+          {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+        </button>
+        <button type="button" appUseractivity="User Click on cancel button"
+                [componentName]="'IntegrationComponent'"
+                [actionType]="'ButtonClick'" class="btn btn-secondary mt-4 cancelBtn" (click)="closeForm()">
+          {{
+ 'Cancel' |
+                    translate
+          }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Node API Form -->
+<div *ngIf="NodeAPIVisible" class="card p-3 mb-3">
+  <form (ngSubmit)="addRecord()" [formGroup]="nodeAPIForm">
+    <div class="row">
+      <div class="col">
+        <label class="inputLabel">{{ 'Node' | translate }} <span class="text-danger">*</span></label>
+        <select #openParenthesisSelect class="form-control"
+                (change)="onNodeSelect($event)" formControlName="nodeId">
+          <option value="null" disabled>{{ 'Select Node' | translate }}</option>
+          <option *ngFor="let item of noderecords" [value]="item.nodeId">{{ item.nodeName }}</option>
+        </select>
+        <div *ngIf="nodeAPIForm.get('node')?.invalid && nodeAPIForm.get('node')?.touched" class="text-danger">
+          {{ 'Node' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col" *ngIf="isDropdown">
+        <label class="inputLabel">{{ 'API Name' | translate }} <span class="text-danger">*</span></label>
+        <select class="form-control" (change)="onApiNameChange($event)" formControlName="apiName">
+          <option value="null" disabled>
+            {{ 'Select API Name' | translate }}
+          </option>
+          <option *ngFor="let item of nodeAPIs" [value]="item.name">
+            {{ item.name }}
+          </option>
+        </select>
+        <div *ngIf="nodeAPIForm.get('apiName')?.invalid && nodeAPIForm.get('apiName')?.touched"
+             class="text-danger">
+          {{ 'API Name' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+
+      <div class="col" *ngIf="!isDropdown">
+        <label class="inputLabel">{{ 'API Name' | translate }} <span class="text-danger">*</span></label>
+        <input type="text" class="form-control"
+               formControlName="apiName" required />
+        <div *ngIf="nodeAPIForm.get('apiName')?.invalid && nodeAPIForm.get('apiName')?.touched"
+             class="text-danger">
+          {{ 'API Name' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Http Method Type' | translate }} <span class="text-danger">*</span></label>
+        <select class="form-control" formControlName="httpMethodType" required>
+          <option value="" disabled selected>{{ 'Select Method' | translate }}</option>
+          <option value="Get">GET</option>
+          <option value="Post">POST</option>
+          <option value="Put">PUT</option>
+          <option value="Delete">DELETE</option>
+        </select>
+        <div *ngIf="nodeAPIForm.get('httpMethodType')?.invalid && nodeAPIForm.get('httpMethodType')?.touched"
+             class="text-danger">
+          {{ 'Http Method Type' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+
+      <div class="col">
+        <label class="inputLabel">{{ 'Description' | translate }}</label>
+        <input type="text" class="form-control"
+               formControlName="apidesc" (input)=" sanitizeCode($event)" />
+      </div>
+
+      <div class="col">
+        <label class="inputLabel">{{ 'Header (JSON)' | translate }}</label>
+        <input type="text" class="form-control"
+               formControlName="header" />
+      </div>
+      <div class="col form-check">
+        <input type="checkbox"
+               class="form-check-input"
+               id="isActiveCheckbox"
+               formControlName="isActive" />
+        <label class="form-check-label" for="isActiveCheckbox">
+          {{ 'IsActive' | translate }}
+        </label>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Execution Order' | translate }}</label>
+        <input type="number" class="form-control"
+               formControlName="executionOrder" />
+        <div *ngIf="nodeAPIForm.get('executionOrder')?.invalid && nodeAPIForm.get('executionOrder')?.touched"
+             class="text-danger">
+          {{ 'Execution Order' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <!--<div class="col">
+
+        <div class="form-group">
+          <label class="inputLabel">{{ 'Sample' | translate }}</label>
+          <div class="file-input" (click)="openFileInput()">
+            <input type="file"
+                   #fileInput
+                   accept=".xml"
+                   (change)="onFileSelect($event)"
+                   hidden />
+
+            <span>
+              {{ nodeAPIformData.xmlfileName || ('Select XML File' | translate) }}
+            </span>
+          </div>
+        </div>
+      </div>-->
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <label class="inputLabel">{{ 'Example Query Parameters (JSON)' | translate }}</label>
+          <textarea class="form-control"
+                    rows="3"
+                    formControlName="requestParameters"
+                    placeholder='{"param1": "value1", "param2": "value2"}'></textarea>
+        </div>
+
+        <div class="col-md-6">
+          <label class="inputLabel">{{ 'Example Request Body (JSON)' | translate }}</label>
+          <textarea class="form-control"
+                    rows="3"
+                    formControlName="requestBody"
+                    placeholder='{"key": "value", "data": {}}'></textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="inputLabel">{{ 'Example Response Body (JSON)' | translate }}</label>
+          <textarea class="form-control"
+                    rows="3"
+                    formControlName="responseFormate"
+                    placeholder='{"key": "value", "data": {}}'></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col btn-container">
+        <button type="submit" class="addBtn btn-primary me-2 mt-4 add-btn" appUseractivity="User Click on Add Node Api button"
+                [componentName]="'IntegrationComponent'"
+                [actionType]="'FormSubmit'" [disabled]="nodeAPIForm.invalid">
+          {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+        </button>
+        <button type="button" appUseractivity="User Click on cancel button"
+                [componentName]="'IntegrationComponent'"
+                [actionType]="'ButtonClick'" class="btn btn-secondary mt-4 cancelBtn" (click)="closeForm()">
+          {{
+ 'Cancel' |
+                    translate
+          }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- -- API Details Form -- -->
+<div *ngIf="NodeAPIDetailsVisible" class="card p-3 mb-3">
+  <form (ngSubmit)="addRecord()" [formGroup]="apidetailsForm">
+    <div class="row">
+      <div class="col">
+        <label class="inputLabel">{{ 'API Name' | translate }} <span class="text-danger">*</span></label>
+        <select #openParenthesisSelect class="form-control" [(ngModel)]="nodeAPIDetailsformData.apiid"
+                (change)="onSelect($event)" formControlName="apiid">
+          <option value="null" disabled selected>{{ 'Select API Name' | translate }}</option>
+          <option *ngFor="let item of apirecords" [value]="item.apiid">{{ item.apiname }}</option>
+        </select>
+        <div *ngIf="apidetailsForm.get('apiid')?.invalid && apidetailsForm.get('apiid')?.touched"
+             class="text-danger">
+          {{ 'API Name' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Calling Parameter' | translate }} <span class="text-danger">*</span></label>
+        <select class="form-control" [(ngModel)]="nodeAPIDetailsformData.callingParamName"
+                formControlName="callingParamName">
+          <option value="" disabled selected>{{ 'Calling Parameter' | translate }}</option>
+          <option *ngFor="let paramters of parametersList" [value]="paramters.parameterName">
+            {{paramters.parameterName }}
+        </select>
+        <div *ngIf="apidetailsForm.get('callingParamName')?.invalid && apidetailsForm.get('callingParamName')?.touched"
+             class="text-danger">
+          {{ 'Calling Parameter' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'From API' | translate }} <span class="text-danger">*</span></label>
+        <select class="form-control" (change)="onSelect($event)" [(ngModel)]="nodeAPIDetailsformData.fromApiid"
+                formControlName="fromApiid">
+          <option value="null" disabled selected>{{ 'Select From API' | translate }}</option>
+          <option *ngFor="let item of apirecords" [value]="item.apiid">{{ item.apiname }}</option>
+        </select>
+        <div *ngIf="apidetailsForm.get('fromApiid')?.invalid && apidetailsForm.get('fromApiid')?.touched"
+             class="text-danger">
+          {{ 'From API' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Source Parameter' | translate }} <span class="text-danger">*</span></label>
+        <select class="form-control" [(ngModel)]="nodeAPIDetailsformData.sourceApiparam"
+                formControlName="sourceApiparam">
+          <option value="" disabled selected>{{ 'Source Parameter' | translate }}</option>
+          <option *ngFor="let paramters of parametersList" [value]="paramters.parameterName">
+            {{paramters.parameterName }}
+        </select>
+        <div *ngIf="apidetailsForm.get('sourceApiparam')?.invalid && apidetailsForm.get('sourceApiparam')?.touched"
+             class="text-danger">
+          {{ 'Source Parameter' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+      <div class="col">
+        <label class="inputLabel">{{ 'Data Type' | translate }} <span class="text-danger">*</span></label>
+        <select #openParenthesisSelect class="form-control" [(ngModel)]="nodeAPIDetailsformData.dataTypeId"
+                (change)="onSelect($event)" formControlName="dataTypeId">
+          <option value="null" disabled selected>{{ 'Select Data Type' | translate }}</option>
+          <option *ngFor="let type of dataTypes" [value]="type.dataTypeId">
+            {{ type.dataTypeName }}
+          </option>
+        </select>
+        <div *ngIf="apidetailsForm.get('dataTypeId')?.invalid && apidetailsForm.get('dataTypeId')?.touched"
+             class="text-danger">
+          {{ 'DataType' | translate }}{{ ' is required' | translate }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col btn-container">
+        <button type="submit" class="addBtn btn-primary me-2 mt-4 add-btn" [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+                [componentName]="'IntegrationComponent'"
+                [actionType]="'FormSubmit'" [disabled]="apidetailsForm.invalid">
+          {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+        </button>
+        <button type="button" appUseractivity="User Click on cancel button"
+                [componentName]="'IntegrationComponent'"
+                [actionType]="'ButtonClick'" class="btn btn-secondary mt-4 cancelBtn" (click)="closeForm()">
+          {{
+ 'Cancel' |
+                    translate
+          }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+</div>
+<!-- Add Parameters Form -->
+<div *ngIf="activeTab === 'addParameters'">
+
+  <div class="mb-3" style="width: 200px; padding-top:11px">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Filter by API</mat-label>
+      <mat-select [(value)]="selectedApiParameter" (selectionChange)="filterByApi()">
+        <mat-option value="">All APIs</mat-option>
+        <mat-option *ngFor="let api of apiList" [value]="api.apiname">
+          {{ api.apiname }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  </div>
+  <div *ngIf="addParameterVisible" class="card mt-3 p-3">
+
+    <form [formGroup]="apiParameterForm" (ngSubmit)="addApiParameter()">
+
+      <div class="row g-3">
+        <input hidden type="text" class="form-control" formControlName="apiParameterId">
+        <div class="col-md-3">
+          <label class="inputLabel">API <span class="text-danger">*</span></label>
+          <select class="form-control" formControlName="apiId">
+            <option value="" disabled>Select API</option>
+            <option *ngFor="let api of apiList" [value]="api.apiid">
+              {{ api.apiname }}
+            </option>
+          </select>
+          <div *ngIf="apiParameterForm.get('apiId')?.invalid && apiParameterForm.get('apiId')?.touched" class="text-danger">
+            API selection is required
+          </div>
+        </div>
+        <div class="col-md-2">
+          <label class="inputLabel">Direction <span class="text-danger">*</span></label>
+          <select class="form-control" formControlName="parameterDirection">
+            <option value="" disabled selected>Select Direction</option>
+            <option value="Input">Input</option>
+            <option value="Output">Output</option>
+          </select>
+          <div *ngIf="apiParameterForm.get('parameterDirection')?.invalid && apiParameterForm.get('parameterDirection')?.touched" class="text-danger">
+            Direction is required
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label class="inputLabel">Parameter Name <span class="text-danger">*</span></label>
+          <select class="form-control" formControlName="parameterName">
+            <option value="" disabled selected>Select Parameter Name</option>
+            <option *ngFor="let param of parametersList" [value]="param.parameterName">
+              {{ param.parameterName }}
+            </option>
+          </select>
+          <div *ngIf="apiParameterForm.get('parameterName')?.invalid && apiParameterForm.get('parameterName')?.touched" class="text-danger">
+            Parameter Name is required
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <label class="inputLabel">Type <span class="text-danger">*</span></label>
+          <select class="form-control" formControlName="parameterType">
+            <option value="" disabled selected>Select Type</option>
+            <option value="string">string</option>
+            <!--<option value="integer">integer</option>-->
+
+            <option value="numeric">numeric</option>
+            <option value="boolean">boolean</option>
+          </select>
+          <div *ngIf="apiParameterForm.get('parameterType')?.invalid && apiParameterForm.get('parameterType')?.touched" class="text-danger">
+            Type is required
+          </div>
+        </div>
+
+        <!--<div class="col-md-2 d-flex align-items-center">
+          <input type="checkbox" formControlName="isRequired" class="form-check-input" id="isRequired">
+          <label class="form-check-label ms-2" for="isRequired">Required</label>
+        </div>-->
+        <!--<div class="col-md-3">
+          <label class="inputLabel">Default Value</label>
+          <input type="text" class="form-control" formControlName="defaultValue" placeholder="Enter Default Value">
+        </div>-->
+      </div>
+
+      <div class="row">
+        <div class="col btn-container">
+          <button type="submit"
+                  class="addBtn btn-primary me-2 mt-4 add-btn"
+                  [appUseractivity]="!isEditMode ? 'Add API Parameter button clicked' : 'Update API Parameter button clicked'"
+                  [componentName]="'IntegrationComponent'"
+                  [actionType]="'FormSubmit'"
+                  [disabled]="apiParameterForm.invalid">
+            {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+          </button>
+
+          <button type="button"
+                  appUseractivity="User Click on cancel button"
+                  [componentName]="'IntegrationComponent'"
+                  [actionType]="'ButtonClick'"
+                  class="btn btn-secondary mt-4 cancelBtn"
+                  (click)="closeForm()">
+            {{ 'Cancel' | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="activeTab === 'addParameters'">
+
+    <!-- API Parameters Table -->
+    <table mat-table [dataSource]="apiParameterDataSource" matSort class="mat-elevation-z8 mt-3">
+      <ng-container matColumnDef="select">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+                        (change)="toggleSelectAll($event)">
+          </mat-checkbox>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.has(row.apiParameterId)" (change)="toggleSelection($event, row.apiParameterId)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+      <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.apiParameterId }}</td>
+      <ng-container matColumnDef="apiName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>API</th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.apiName }}</td>
+      </ng-container>
+      <!-- Direction Column -->
+      <ng-container matColumnDef="parameterDirection">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>Direction</th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterDirection }}</td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="parameterName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterName }}</td>
+      </ng-container>
+
+      <!-- Type Column -->
+      <ng-container matColumnDef="parameterType">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterType }}</td>
+      </ng-container>
+
+      <!-- Required Column -->
+      <!--<ng-container matColumnDef="IsRequired">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>Required</th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.IsRequired ? 'Yes' : 'No' }}</td>
+      </ng-container>-->
+      <!-- Actions Column -->
+      <ng-container matColumnDef="Actions">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Actions</th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">
+          <mat-icon class="clickable-icon" color="primary" (click)="editApiParameter(row)" matTooltip="Edit">edit</mat-icon>
+
+          <mat-icon class="clickable-icon" color="warn" (click)="onDeleteApiParameter(row)" matTooltip="Delete">delete</mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- Header and Row Definitions -->
+      <tr mat-header-row *matHeaderRowDef="displayedAPIParamsColumns" class="tableHeader"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedAPIParamsColumns;" class="select-row"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[ 10, 25,50,100]" showFirstLastButtons></mat-paginator>
+  </div>
+
+  <!-- <div *ngSwitchCase="'Info'">
+          <form [formGroup]="formData" (ngSubmit)="onSubmit()">
+              <div class="row mb-3">
+                  <div class="col">
+                      <input type="text" class="form-control" placeholder="Code" formControlName="code" />
+                      <div *ngIf="formData.get('code')?.invalid && formData.get('code')?.touched"
+                          class="text-danger">
+                          Code is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <input type="text" class="form-control" placeholder="Product Name"
+                          formControlName="productName" />
+                      <div *ngIf="formData.get('productName')?.invalid && formData.get('productName')?.touched"
+                          class="text-danger">
+                          Product Name is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <select class="form-control" formControlName="productCategory">
+                          <option value="">Select Category</option>
+                          <option *ngFor="let category of categoryList" [value]="category.categoryId">{{
+                              category.categoryName }}
+                          </option>
+                      </select>
+                      <div *ngIf="formData.get('productCategory')?.invalid && formData.get('productCategory')?.touched"
+                          class="text-danger">
+                          Product Category is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <button type="submit" class="btn btn-primary" [disabled]="formData.invalid">Submit</button>
+                      <button type="button" class="btn btn-secondary" (click)="cancelEvent()">Cancel</button>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col">
+                      <input type="file" class="form-control" (change)="onFileSelect($event)" />
+                      <div *ngIf="formData.get('productImage')?.invalid && formData.get('productImage')?.touched"
+                          class="text-danger">
+                          Product Image is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <quill-editor formControlName="narrative"></quill-editor>
+                  </div>
+                  <div class="col">
+                      <quill-editor formControlName="description"></quill-editor>
+                  </div>
+                  <div class="col"></div>
+
+              </div>
+
+          </form>
+      </div>
+      <div *ngSwitchCase="'Details'">
+          <form [formGroup]="formData" (ngSubmit)="detailsFormSubmit()">
+              <div class="row mb-3">
+                  <div class="col">
+                      <select class="form-control" formControlName="product"
+                          (change)="onSelectProductItem($event)">
+                          <option value="null">Select Product</option>
+                          <option *ngFor="let products of productList" [value]="products.productId">{{
+                              products.productName }}
+                          </option>
+                      </select>
+                      <div *ngIf="formData.get('product')?.invalid && formData.get('product')?.touched"
+                          class="text-danger">
+                          Product is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <select class="form-control" formControlName="parameter"
+                          (change)="onSelectParameterItem($event)">
+                          <option value="null">Select parameter</option>
+                          <option *ngFor="let paramters of parametersList" [value]="paramters.parameterId">
+                              {{paramters.parameterName }}
+                          </option>
+                      </select>
+                      <div *ngIf="formData.get('parameter')?.invalid && formData.get('parameter')?.touched"
+                          class="text-danger">
+                          Parameter is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <select class="form-control" formControlName="parameterValue">
+                          <option value="null">Select Parameter value</option>
+                          <option *ngFor="let paramValue of parametersValueList" [value]="paramValue">
+                              {{ paramValue }}
+                          </option>
+                      </select>
+                      <div *ngIf="formData.get('parameterValue')?.invalid && formData.get('parameterValue')?.touched"
+                          class="text-danger">
+                          Value is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <button type="submit" class="btn btn-primary" [disabled]="formData.invalid">Submit</button>
+                      <button type="button" class="btn btn-secondary" (click)="cancelEvent()">Cancel</button>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col">
+                      <input type="number" class="form-control" placeholder="Display Order"
+                          formControlName="displayOrder" />
+                      <div *ngIf="formData.get('displayOrder')?.invalid && formData.get('displayOrder')?.touched"
+                          class="text-danger">
+                          Display Order is required.
+                      </div>
+                  </div>
+                  <div class="col">
+                      <select class="form-control" formControlName="required">
+                          <option value="null">Select Category</option>
+                          <option *ngFor="let isrequired of requiredAry" [value]="isrequired.value">{{
+                              isrequired.label }}
+                          </option>
+                      </select>
+                      <div *ngIf="formData.get('required')?.invalid && formData.get('required')?.touched"
+                          class="text-danger">
+                          Field is required.
+                      </div>
+                  </div>
+
+                  <div class="col"></div>
+                  <div class="col"></div>
+              </div>
+          </form>
+      </div> -->
+  <!-- Node Table -->
+  <div *ngIf="activeTab === 'nodes'">
+    <table mat-table [dataSource]="nodeDataSource" matSort #nodeSort="matSort">
+      <ng-container matColumnDef="select">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+                        (change)="toggleSelectAll($event)">
+          </mat-checkbox>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.has(row.nodeId)" (change)="toggleSelection($event, row.nodeId)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nodeName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.nodeName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="code">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Code' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.code }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nodeDesc">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Description' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.nodeDesc }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Actions">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission(33)"
+                    matTooltip="{{'Edit' | translate}}">edit</mat-icon>
+          <mat-icon class="clickable-icon" color="warn" (click)="deleteNode(entity)" *ngIf="hasPermission(32)"
+                    matTooltip="{{'Delete' | translate}}">delete</mat-icon>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedNodeColumns" class="tableHeader"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedNodeColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator #nodePaginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+  </div>
+
+  <!-- Node API Table -->
+  <div *ngIf="activeTab === 'api'">
+    <table mat-table [dataSource]="nodeAPIDataSource" matSort #apiSort="matSort">
+      <ng-container matColumnDef="select">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+                        (change)="toggleSelectAll($event)">
+          </mat-checkbox>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.has(row.apiid)" (change)="toggleSelection($event, row.apiid)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="nodeName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Node' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.nodeName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="apiname">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.apiname }} </td>
+      </ng-container>
+      <ng-container matColumnDef="httpMethodType">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Http Method Type' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.httpMethodType }} </td>
+      </ng-container>
+      <ng-container matColumnDef="executionOrder">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Execution Order' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.executionOrder }} </td>
+      </ng-container>
+      <ng-container matColumnDef="apidesc">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Description' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.apidesc }} </td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="isActive">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Is Active' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.isActive }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Actions">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          <mat-icon class="clickable-icon" color="primary" (click)="editNodeAPIRecord(entity)" *ngIf="hasPermission(30)"
+                    matTooltip="{{'Edit' | translate}}">edit</mat-icon>
+          <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeAPI(entity)" *ngIf="hasPermission(29)"
+                    matTooltip="{{'Delete' | translate}}">delete</mat-icon>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedAPIColumns" class="tableHeader"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedAPIColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator #apiPaginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+  </div>
+
+  <!-- Node API Details Table -->
+  <div *ngIf="activeTab === 'apiDetails'&&!showApiParameterSection">
+    <table mat-table [dataSource]="apiDetailsDataSource" matSort>
+      <ng-container matColumnDef="select">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+                        (change)="toggleSelectAll($event)">
+          </mat-checkbox>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.has(row.apidetailsId)" (change)="toggleSelection($event, row.apidetailsId)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="API">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'API' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.apiname }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Parameter">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Parameter' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.callingParamName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="DataType">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'DataType' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.dataTypeName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="From API">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'From API' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.fromAPIName }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Actions">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          <mat-icon class="clickable-icon" color="primary" (click)="editAPIDetailsRecord(entity)" *ngIf="hasPermission(27)"
+                    matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+          <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeDetails(entity)" *ngIf="hasPermission(26)"
+                    matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedAPIDetailColumns" class="tableHeader"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedAPIDetailColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+  </div>
+
+
+  <div class="tab-content mt-3">
+
+    <!-- Test API Tab -->
+    <div class="tab-pane fade" [class.show]="activeTab==='testApi'" [class.active]="activeTab==='testApi'">
+      <div class="position-relative">
+
+        <!-- Test API Form (always visible) -->
+        <div class="card mt-3 p-3">
+          <h5>Test API</h5>
+
+          <!-- API Selector -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Select API:</label>
+            <select [(ngModel)]="selectedApi" class="form-select" (change)="onApiChangeForTest()">
+              <option [ngValue]="null">-- Select API --</option>
+              <option *ngFor="let api of apiList" [ngValue]="api">
+                {{ api.httpMethodType }} - {{ api.apiname }}
+              </option>
+            </select>
+
+            <div *ngIf="selectedApi" class="mt-2">
+              <small class="text-muted">
+                <strong>Endpoint:</strong> {{ getFullApiUrl(selectedApi) }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Query Parameters -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Query Parameters (JSON):</label>
+            <textarea [(ngModel)]="testQuery" rows="3" class="form-control"></textarea>
+          </div>
+
+          <!-- Request Body -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Request Body (JSON):</label>
+            <textarea [(ngModel)]="testInput" rows="6" class="form-control"></textarea>
+          </div>
+
+          <button class="btn btn-primary mb-3" (click)="testApi()">Test API</button>
+
+          <!-- Output -->
+          <div *ngIf="testOutput !== undefined && testOutput !== null">
+            <label class="form-label fw-bold">Output Response:</label>
+            <pre class="bg-light p-2 rounded border" style="max-height: 400px; overflow: auto; white-space: pre-wrap;">
+            <code>{{ formatJson(testOutput) }}</code>
+  </pre>
+          </div>
+        </div>
+
+        <!-- Overlay Spinner (appears on top of form) -->
+        <div *ngIf="isLoadingTestApi" class="overlay-spinner d-flex justify-content-center align-items-center">
+          <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- API Parameter Mapping Tab -->
+  <div class="tab-pane fade" [class.show]="activeTab==='mapApiParams'" [class.active]="activeTab==='mapApiParams'">
+    <div *ngIf="showMappingSection">
+
+      <div class="card mt-3 p-3">
+
+        <div class="row g-3">
+          <!-- Select API -->
+          <div class="col-md-4">
+            <label>API</label>
+            <select [(ngModel)]="selectedApi" name="apiSelect" #apiSelect="ngModel" required class="form-select" (change)="onApiChange()">
+              <option [ngValue]="null">-- Select API --</option>
+              <option *ngFor="let api of apiList" [ngValue]="api.apiid">
+                {{ api.httpMethodType }} - {{ api.apiname }}
+              </option>
+            </select>
+            <div *ngIf="apiSelect.invalid && apiSelect.touched" class="text-danger mt-1">
+              Please select an API.
+            </div>
+          </div>
+
+          <!-- Select API Parameter -->
+          <div class="col-md-4">
+            <label>API Parameter</label>
+            <select [(ngModel)]="selectedApiParameterId" name="apiParamSelect" #apiParamSelect="ngModel" required class="form-select">
+              <option [ngValue]="null">-- Select API Parameter --</option>
+              <option *ngFor="let param of apiParameters" [ngValue]="param.apiParamterId">
+                {{ param.parameterName }}
+              </option>
+            </select>
+
+          </div>
+
+          <!-- Select Internal Parameter -->
+          <div class="col-md-4">
+            <label>Internal Parameter</label>
+            <select [(ngModel)]="selectedInternalParameterId" name="internalParamSelect" #internalParamSelect="ngModel" required class="form-select">
+              <option [ngValue]="null">-- Select Internal Parameter --</option>
+              <option *ngFor="let p of parametersList" [ngValue]="p.parameterId">
+                {{ p.parameterName }}
+              </option>
+            </select>
+
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col btn-container">
+            <button type="submit" class="btn btn-primary"
+                    [disabled]="!selectedApi || !selectedApiParameterId || !selectedInternalParameterId"
+                    (click)="saveMapping()">
+              {{ isEditMode ? 'Update' : 'Add' }}
+            </button>
+            <button type="button"
+                    appUseractivity="User Click on cancel button"
+                    [componentName]="'IntegrationComponent'"
+                    [actionType]="'ButtonClick'"
+                    class="btn btn-secondary cancelBtn"
+                    (click)="closeForm()">
+              {{ 'Cancel' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="activeTab === 'mapApiParams'">
+        <div *ngIf="!showMappingForm">
+
+          <!-- API Parameter Mappings Table -->
+          <table mat-table [dataSource]="apiParameterMappingsDataSource" matSort class="mat-elevation-z8 mt-3">
+
+
+
+            <!-- API Parameter Name -->
+            <ng-container matColumnDef="apiParameterName">
+              <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>API Parameter</th>
+              <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.apiParameterName }}</td>
+            </ng-container>
+
+            <!-- Internal Parameter Name -->
+            <ng-container matColumnDef="parameterName">
+              <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>Internal Parameter</th>
+              <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterName }}</td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th class="cellStyling" mat-header-cell *matHeaderCellDef>Actions</th>
+              <td class="cellStyling" mat-cell *matCellDef="let row">
+                <mat-icon class="clickable-icon" color="primary" (click)="editMapping(row)" matTooltip="Edit">edit</mat-icon>
+                <mat-icon class="clickable-icon" color="warn" (click)="deleteMapping(row.id)" matTooltip="Delete">delete</mat-icon>
+              </td>
+            </ng-container>
+
+            <!-- Header & Row Definitions -->
+            <tr mat-header-row *matHeaderRowDef="displayedMappingColumns" class="tableHeader"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedMappingColumns;" class="select-row"></tr>
+          </table>
+
+          <!-- Paginator -->
+          <mat-paginator [pageSizeOptions]="[10, 25, 50,100]" showFirstLastButtons></mat-paginator>
+        </div>
+
+      </div>
+
+    </div>

@@ -1,0 +1,257 @@
+@use '@angular/material' as mat;
+@import 'assets/fonts/material-symbols/material-symbols.css';
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:root {
+  @include mat.menu-overrides((item-label-text-color: #000,
+      item-icon-color: #000,
+    ));
+  @include mat.toolbar-overrides((container-background-color: #EEFDF8, //#f3f3ed
+      container-text-color: #160327,
+    ));
+  @include mat.sidenav-overrides((container-background-color: #EEFDF8,
+      container-text-color: #160327,
+    ));
+  @include mat.expansion-overrides((container-background-color: #EEFDF8,
+      container-text-color: #160327,
+      header-indicator-color: #160327));
+  @include mat.list-overrides((list-item-label-text-color:#160327));
+}
+
+@import 'quill/dist/quill.snow.css';
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+mat-icon {
+  color: #1CAEC8 !important;
+  vertical-align: middle;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.2);
+    /* Slight zoom on hover */
+  }
+}
+
+.paginator {
+  background-color: white;
+}
+
+.inputLabel {
+  font-size: 14px !important;
+  margin-left: 4px;
+  color: grey !important;
+}
+
+.form-control:focus {
+  box-shadow: none !important;
+  border: 1px solid black;
+}
+
+select.form-control {
+  appearance: auto;
+  /* For most modern browsers */
+  -webkit-appearance: auto;
+  /* For Safari/Chrome */
+  -moz-appearance: auto;
+  /* For Firefox */
+}
+
+.clearBtn {
+  box-shadow: none;
+  min-width: 90px !important;
+  border-radius: 15px !important;
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid lightgrey !important;
+  padding: 4px !important;
+}
+
+.cancelBtn {
+  box-shadow: none;
+  min-width: 90px !important;
+  border-radius: 15px !important;
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid lightgrey !important;
+  padding: 4px !important;
+}
+
+.validateBtn {
+  background-color: #1CAEC8 !important;
+  color: white !important;
+  border: 1px solid lightgrey;
+  padding: 4px;
+}
+
+.mat-mdc-raised-button  {
+  height: 32px !important;
+  box-shadow: none !important;
+}
+
+.mat-mdc-unelevated-button {
+  height: 32px !important;
+  box-shadow: none !important;
+  border-radius: 15px !important;
+}
+
+.removeBtn {
+  box-shadow: none;
+  min-width: 90px !important;
+  border-radius: 15px !important;
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid lightgrey !important;
+  padding: 4px !important;
+}
+
+.clearBtn:hover,
+.cancelBtn:hover,
+.removeBtn:hover {
+  /* your hover styles here */
+  background-color: #dcdcdc !important;
+  color: black !important;
+  border: 1px solid lightgrey !important;;
+  padding: 4px !important;;
+  //cursor: pointer;
+}
+
+.addBtn {
+  vertical-align: baseline;
+  border-radius: 15px  !important;;
+  background-color: #1CAEC8 !important;
+  color: white !important;
+  box-shadow: none;
+  min-width: 90px !important;;
+  border: 1px solid lightgrey !important;;
+  padding: 4px !important;;
+}
+
+.addBtn:hover {
+  vertical-align: baseline;
+  border-radius: 15px !important;;
+  background-color: #158BA0 !important;
+  color: white !important;
+  box-shadow: none;
+  border: 1px solid lightgrey !important;;
+  padding: 4px !important;;
+}
+
+.confirmBtn {
+  //margin-right: 8px;
+  //vertical-align: baseline;
+  border-radius: 15px;
+  //background-color: green !important;
+  //color: white !important;
+  box-shadow: none;
+  border: 1px solid lightgrey;
+  padding: 4px;
+}
+
+button .btn {
+  vertical-align: baseline;
+  border-radius: 15px !important;;
+  background-color: #1CAEC8 !important;
+  color: white !important;
+  box-shadow: none;
+  min-width: 90px !important;;
+  border: 1px solid lightgrey !important;;
+  padding: 4px !important;;
+}
+
+.btn button:hover {
+  vertical-align: baseline;
+  border-radius: 15px !important;;
+  background-color: #158BA0 !important;
+  color: white !important;
+  box-shadow: none;
+  border: 1px solid lightgrey !important;;
+  padding: 4px !important;;
+}
+
+button:disabled {
+  background-color: #ccc;
+  /* Disabled button background */
+  cursor: not-allowed;
+  /* Show not-allowed cursor */
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  /* Red for errors */
+  color: #ffffff !important;
+}
+
+.default-snackbar {
+  background-color: #2196f3;
+  /* Blue for default messages */
+  color: #ffffff;
+}
+
+::ng-deep .cdk-overlay-pane.mat-mdc-dialog-panel {
+  max-width: 40vw !important;
+  /* Set max width */
+  min-width: 60vw !important;
+  /* Set min width */
+  width: 80vw !important;
+  /* Override the default width */
+}
+
+.custom-dialog-container .mat-mdc-dialog-container {
+  max-width: 40vw !important;
+  width: 80vw !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  min-width: 40vw !important;
+  /* Adjust min width */
+  width: 80vw !important;
+  /* Set desired width */
+  height: 45vh !important;
+  /* Set desired height */
+  position: fixed !important;
+  /* Fix position to viewport */
+  top: 50% !important;
+  /* Move to center */
+  left: 50% !important;
+  /* Move to center */
+  transform: translate(-50%, -50%) !important;
+  /* Perfect centering */
+}
+
+.custom-dialog-container {
+  max-width: 40vw !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+::ng-deep .mat-tab-header {
+  display: none !important;
+}
+/* Roboto Normal */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900; 
+  font-style: normal;
+}
+
+/* Roboto Italic */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+}
