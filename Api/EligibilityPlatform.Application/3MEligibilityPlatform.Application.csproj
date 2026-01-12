@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\EligibilityPlatform.Domain\EligibilityPlatform.Domain.csproj" />
+		<ProjectReference Include="..\EligibilityPlatform.Domain\3MEligibilityPlatform.Domain.csproj" />
 	</ItemGroup>
 
 </Project>

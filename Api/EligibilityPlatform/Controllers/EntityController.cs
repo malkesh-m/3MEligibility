@@ -86,8 +86,8 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="CreateOrUpdateEntityModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Entity")]
-
+        //[RequireRole("Add new Entity")]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Post(CreateOrUpdateEntityModel model)
         {
@@ -95,9 +95,9 @@ namespace EligibilityPlatform.Controllers
             /// Validates the model state before proceeding with entity creation.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
-            model.CreatedBy = userName;
-            model.UpdatedBy = userName;
+            var userName = User.Identity?.Name;
+            model.CreatedBy = userName ?? "System";
+            model.UpdatedBy = userName??"System";
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\EligibilityPlatform.Application\EligibilityPlatform.Application.csproj" />
+		<ProjectReference Include="..\EligibilityPlatform.Application\3MEligibilityPlatform.Application.csproj" />
 	</ItemGroup>
 
 </Project>

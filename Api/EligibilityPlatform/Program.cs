@@ -2,7 +2,6 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using EligibilityPlatform;
-using EligibilityPlatform.Application.Extensions;
 using EligibilityPlatform.Application.Middleware;
 using EligibilityPlatform.Application.Repository;
 using EligibilityPlatform.Application.Services;
@@ -14,19 +13,16 @@ using EligibilityPlatform.Infrastructure.Middleware;
 using EligibilityPlatform.Infrastructure.Repository;
 using EligibilityPlatform.Infrastructure.UnitOfWork;
 using EligibilityPlatform.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.MSSqlServer;
 using AuthenticationService = EligibilityPlatform.Application.Services.AuthenticationService;
 using IAuthenticationService = EligibilityPlatform.Application.Services.Inteface.IAuthenticationService;
 
-Log.Information("Starting Eligibility Platform API application.");
+Log.Information("Starting 3M Eligibility Platform API application.");
 
 Serilog.Debugging.SelfLog.Enable(msg => Console.Error.WriteLine(msg));
 
@@ -68,7 +64,7 @@ builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
 
     options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
-
+ 
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
