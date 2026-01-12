@@ -11,7 +11,7 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { LogerrorService } from '../services/Log/logerror.service';
+import { LogerrorService } from '../services/log/logerror.service';
 
 @Injectable()
 export class GlobalErrorInterceptor implements HttpInterceptor {
