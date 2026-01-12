@@ -86,8 +86,8 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="CreateOrUpdateEntityModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        //[RequireRole("Add new Entity")]
-        [AllowAnonymous]
+        [RequireRole("Add new Entity")]
+        //[AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Post(CreateOrUpdateEntityModel model)
         {

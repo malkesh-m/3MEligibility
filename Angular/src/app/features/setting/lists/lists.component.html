@@ -1,1 +1,349 @@
-<p>lists works!</p>
+<div class="mb-3">
+  <div>
+    <p class="moduleLabel mb-2">{{ 'Manage Lists' | translate }}</p>
+  </div>
+
+  <!-- Search and Actions Section -->
+  <div class="d-flex justify-content-between align-items-center">
+    <!-- Search Input -->
+    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+      <input type="text" class="form-control" style="width: 100%;" [(ngModel)]="searchTerms[activeTab]"
+        (input)="applyFilter($event)" placeholder="{{ 'Search Lists' | translate }}" />
+    </div>
+
+    <!-- Actions Buttons -->
+    <div class="d-flex align-items-center ms-3">
+      <button appUseractivity="User Click on Add button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="addList()" *ngIf="getAddPermission()">
+        <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Download Template button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="getImportPermission()">
+        <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Import button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="fileInput.click()" *ngIf="getImportPermission()">
+        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+      </button>
+      <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+      <button appUseractivity="User Click on Export button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'"  class="btn" (click)="ExportLists()" *ngIf="getExportPermission()">
+        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+      </button>
+      <button appUseractivity="User Click on Delete Multiple button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'" (click)="deleteSelectedLists()" class="btn" *ngIf="getDeletePermission()">
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'lists'" style="cursor: pointer;" (click)="switchTab('lists')">
+      {{ 'Lists' | translate }}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" [class.active]="activeTab === 'listItems'" style="cursor: pointer;"
+      (click)="switchTab('listItems')">
+      {{ 'List Items' | translate }}
+    </a>
+  </li>
+</ul>
+
+<ng-container *ngIf="activeTab?.toLowerCase() == 'lists'">
+  <!-- Add/Edit Form -->
+  <div *ngIf="formVisible" class="card p-3 mb-3">
+    <form #form="ngForm" (ngSubmit)="submitEditForm(form)">
+      <div class="row mb-3">
+        <div class="col">
+          <label class="inputLabel">{{ 'List Name' | translate }} <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" [(ngModel)]="formData.listName" name="listName" required
+            #listName="ngModel" maxlength="50" (input)="sanitizeCode($event)"  />
+          <div *ngIf="listName.invalid && listName.touched" class="text-danger">
+            {{ 'List Name' | translate }}{{ ' is required' | translate }}
+          </div>
+        </div>
+        <!--<div class="col">
+          <label class="inputLabel">{{ 'Entity Name' | translate }} <span class="text-danger">*</span></label>
+          <select required class="form-control" [(ngModel)]="formData.entityId" name="entityId" #entityId="ngModel">
+            <option value="" disabled selected>{{ 'Select' | translate }}</option>
+            <option *ngFor="let entity of entities" [value]="entity.entityId">
+              {{ entity.entityName }}
+            </option>
+          </select>
+          <div *ngIf="entityId.invalid && entityId.touched" class="text-danger">
+            {{ 'Entity Name' | translate }}{{ ' is required' | translate }}
+          </div>
+        </div>-->
+        <div class="col" style="align-content: end;">
+          <button  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+              [componentName]="'ListComponent'"
+              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="form.invalid">
+            {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
+          </button>
+          <button appUseractivity="User Click on Cancel button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" (click)="closeForm()" style="min-width: 100px; ">
+            {{ 'Cancel' | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- Lists Table -->
+  <div class="table-wrapper">
+    <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="select">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+            (change)="toggleSelectAll($event)">
+          </mat-checkbox>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.has(row.listId)" (change)="toggleSelection($event, row.listId)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="listName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'List Name' | translate }}</th>
+        <td class="cellStyling" mat-cell *matCellDef="let list">{{ list.listName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="entityName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Entity Name' | translate }}</th>
+        <td class="cellStyling" mat-cell *matCellDef="let list">
+          {{ getEntityName(list.entityId, list) }}
+        </td>
+      </ng-container>
+
+      <!-- Created By Column -->
+      <ng-container matColumnDef="createdBy">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
+          <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
+            matTooltip="Show/Hide Created Date">
+            {{ displayedColumns.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
+          </mat-icon>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.createdBy }}
+        </td>
+      </ng-container>
+
+      <!-- Created Date Column (Initially Hidden) -->
+      <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Created Date' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.createdByDateTime | date:'short' }}
+        </td>
+      </ng-container>
+
+      <!-- Updated By Column -->
+      <ng-container matColumnDef="updatedBy">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          {{ 'Updated By' | translate }}
+          <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
+            matTooltip="Show/Hide Updated Date">
+            {{ displayedColumns.includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
+          </mat-icon>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.updatedBy }}
+        </td>
+      </ng-container>
+
+      <!-- Updated Date Column (Initially Hidden) -->
+      <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Updated Date' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.updatedByDateTime | date:'short' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+        <td class="cellStyling" mat-cell *matCellDef="let list">
+          <mat-icon class="clickable-icon" color="primary" appUseractivity="User Click on Edit button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'" (click)="editList(list)" *ngIf="hasPermission(93)"
+            matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+          <mat-icon appUseractivity="User Click on Delete button"
+              [componentName]="'ListComponent'"
+              [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteList(list)" *ngIf="hasPermission(94)"
+            matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="activeTab?.toLowerCase() == 'listitems'">
+  <!-- list item table  -->
+  <div class="table-wrapper">
+    <!-- Add/Edit Form -->
+    <div *ngIf="listItemFormVisible" class="card p-3 mb-3">
+      <form #form="ngForm" (ngSubmit)="submitEditForm(form)">
+        <div class="row mb-3">
+
+          <div class="col">
+            <label class="inputLabel">{{ 'Code' | translate }} <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="listItemFormData.code" name="code" required
+                   #code="ngModel" maxlength="50" (input)="sanitizeCode($event)" />
+            <div *ngIf="code.invalid && code.touched" class="text-danger">
+              Code is required
+            </div>
+          </div>
+          <div class="col">
+            <label class="inputLabel">{{ 'List Name' | translate }} <span class="text-danger">*</span></label>
+            <select required class="form-control" [(ngModel)]="listItemFormData.listId" name="listName"
+                    #listName="ngModel">
+              <option value="" disabled selected>{{ 'Select' | translate }}</option>
+              <option *ngFor="let list of listItems" [value]="list.listId">
+                {{ list.listName }}
+              </option>
+            </select>
+            <div *ngIf="listName.invalid && listName.touched" class="text-danger">
+              List Name is required
+            </div>
+          </div>
+          <div class="col">
+            <label class="inputLabel">{{ 'Item Name' | translate }} <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="listItemFormData.itemName" name="itemName" required
+                   #itemName="ngModel" maxlength="50" (input)="sanitizeCode($event)" />
+            <div *ngIf="itemName.invalid && itemName.touched" class="text-danger">
+              Item Name is required
+            </div>
+          </div>
+          <div class="col" style="align-content: end;">
+            <button [appUseractivity]="!listItemisEditMode ? 'Add button clicked' : 'Update button clicked'"
+                    [componentName]="'ListComponent'"
+                    [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="form.invalid">
+              {{ listItemisEditMode ? ('Update' | translate) : ('Add' | translate) }}
+            </button>
+            <button appUseractivity="User Click on Cancel button"
+                    [componentName]="'ListComponent'"
+                    [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" (click)="closeForm()" style="min-width: 100px;">
+              {{ 'Cancel' | translate }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="listItemDataSource" matSort>
+      <ng-container matColumnDef="select">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+                        (change)="toggleSelectAll($event)">
+          </mat-checkbox>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.has(row.itemId)" (change)="toggleSelection($event, row.itemId)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="code">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Code' | translate }}</th>
+        <td class="cellStyling" mat-cell *matCellDef="let list">
+          {{list.code }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="listName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'List Name' | translate }}</th>
+        <td class="cellStyling" mat-cell *matCellDef="let list">
+          {{ getListName(list.listId, list) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="itemName">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Item Name' | translate }}</th>
+        <td class="cellStyling" mat-cell *matCellDef="let list">
+          {{ list.itemName }}
+        </td>
+      </ng-container>
+
+      <!-- Created By Column -->
+      <ng-container matColumnDef="createdBy">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          {{ 'Created By' | translate }}
+          <mat-icon class="info-icon" (click)="toggleColumnlistItem('createdDate','createdBy')"
+                    matTooltip="Show/Hide Created Date">
+            {{ listItemdisplayedColumns.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
+          </mat-icon>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.createdBy }}
+        </td>
+      </ng-container>
+
+      <!-- Created Date Column (Initially Hidden) -->
+      <ng-container *ngIf="listItemdisplayedColumns.includes('createdDate')" matColumnDef="createdDate">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Created Date' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.createdByDateTime | date:'short' }}
+        </td>
+      </ng-container>
+
+      <!-- Updated By Column -->
+      <ng-container matColumnDef="updatedBy">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+          {{ 'Updated By' | translate }}
+          <mat-icon class="info-icon" (click)="toggleColumnlistItem('updatedDate','updatedBy')"
+                    matTooltip="Show/Hide Updated Date">
+            {{ listItemdisplayedColumns.includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
+          </mat-icon>
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.updatedBy }}
+        </td>
+      </ng-container>
+
+      <!-- Updated Date Column (Initially Hidden) -->
+      <ng-container *ngIf="listItemdisplayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ 'Updated Date' | translate }}
+        </th>
+        <td class="cellStyling" mat-cell *matCellDef="let entity">
+          {{ entity.updatedByDateTime | date:'short' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+        <td class="cellStyling" mat-cell *matCellDef="let list">
+          <mat-icon appUseractivity="User Click on Edit button"
+                    [componentName]="'ListComponent'"
+                    [actionType]="'ButtonClick'" class="clickable-icon" color="primary" (click)="editList(list)" *ngIf="hasPermission(98)"
+                    matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+          <mat-icon appUseractivity="User Click on Delete button"
+                    [componentName]="'ListComponent'"
+                    [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteList(list)" *ngIf="hasPermission(99)"
+                    matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="listItemdisplayedColumns" class="tableHeader"></tr>
+      <tr mat-row *matRowDef="let row; columns: listItemdisplayedColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+  </div>
+</ng-container>
+
+<!-- Full-page Loader -->
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

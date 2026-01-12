@@ -33,14 +33,23 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
+               {
+           "glob": "**/*",
+           "input": "public"
+          },
               "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "@angular/material/prebuilt-themes/azure-blue.css",
+              "src/styles.scss",
+              "src/assets/fonts/material-symbols/material-symbols.css"
             ],
-            "scripts": []
-          },
+            "scripts": [
+            "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+           ]
+           },
           "configurations": {
             "production": {
              "fileReplacements": [
