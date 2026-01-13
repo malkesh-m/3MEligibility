@@ -41,7 +41,7 @@ import { FormsModule } from '@angular/forms';
     TableComponent,
     SidebarComponent,
     SpinnerComponent,
-    ValidatorDialogComponent
+    ValidatorDialogComponent,
   ],
   imports: [
     CommonModule,

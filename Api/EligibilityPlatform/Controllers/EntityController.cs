@@ -25,7 +25,6 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="EntityModel"/> objects.</returns>
         /// 
-        [RequireRole("View Entities Screen")]
         [HttpGet("getall")]
         public IActionResult Get()
         {

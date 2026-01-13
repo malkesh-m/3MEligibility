@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -16,11 +16,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { SharedModule } from '../../shared/shared.module';
+import { KeycloakService } from '../../core/services/auth/keycloak-init-service.service';
+
 
 
 @NgModule({
+
   declarations: [
-    AuthComponent,
+    AuthComponent,    
     LoginComponent,
     ForgetPasswordComponent
   ],

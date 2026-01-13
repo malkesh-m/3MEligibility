@@ -149,25 +149,13 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
+}).
+AddJwtBearer(options =>
 {
-    var key = builder.Configuration["Jwt:Key"]
-        ?? throw new InvalidOperationException("JWT Key is not configured");
-    var issuer = builder.Configuration["Jwt:Issuer"]
-        ?? "EligibilityPlatform";
-    var audience = builder.Configuration["Jwt:Audience"]
-        ?? "EligibilityPlatformClients";
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-    };
+    options.Authority = builder.Configuration["Keycloak:Authority"];
+    options.Audience = builder.Configuration["Keycloak:Audience"];
+    options.RequireHttpsMetadata = true;
+    options.MetadataAddress = builder.Configuration["Keycloak:MetadataAddress"]!;
 });
 builder.Services.AddMemoryCache();
 builder.Services.AddDistributedMemoryCache();
