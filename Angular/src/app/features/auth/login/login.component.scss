@@ -459,3 +459,57 @@ mat-form-field, .password-rules-container, .submit-button {
     margin-right: 8px;
   }
 }
+
+// Keycloak Login Button Styles
+.keycloak-login-section {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.keycloak-btn {
+  min-width: 280px !important;
+  height: 50px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3) !important;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(63, 81, 181, 0.4) !important;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.btn-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.info-text {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 1.5rem;
+  font-style: italic;
+}

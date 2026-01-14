@@ -27,12 +27,9 @@ export class HeaderComponent {
   logoutUser() {
     this.authService.logout().subscribe({
       next: (res: any) => {
-        console.log("Logout API response:", res);
-        this.router.navigate(['/auth']);
       },
-      error: (err: { message: any; }) => {
-        console.error("Logout API failed:", err.message);
-        this.router.navigate(['/auth']);
+      error: (err: any) => {
+        this.router.navigate(['/auth/login']);
       }
     });
   }

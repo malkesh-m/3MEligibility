@@ -1,7 +1,9 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
+import { Injectable, Injector } from '@angular/core';
+import { BehaviorSubject, Observable, throwError, from, of } from 'rxjs';
+import { catchError, tap, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { OidcAuthService } from './oidc-auth.service';
 import { RolesService } from '../setting/role.service';
 
 @Injectable({
@@ -13,7 +15,11 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<any | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient,private rolesService:RolesService) {
+  constructor(
+    private http: HttpClient,
+    private injector: Injector,
+    private rolesService: RolesService
+  ) {
     const savedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<any | null>(savedUser ? JSON.parse(savedUser) : null);
     this.currentUser$ = this.currentUserSubject.asObservable();
@@ -76,23 +82,39 @@ export class AuthService {
     return throwError(() => errorMessage);
   }
   logout(): Observable<any> {
-    const currentUser = this.currentUserSubject.value.user;
+    const currentUser = this.currentUserSubject.value?.user; // Safe access
+    const userId = currentUser ? currentUser.userId : 'unknown';
 
-
+    // 1. Call Backend Logout API
     return this.http.post<any>(
-      `${this.apiUrl}/user/Logout/${currentUser.userId}`,
-      {},  
+      `${this.apiUrl}/user/Logout/${userId}`,
+      {},
       { headers: this.getHeaders() }
-    )
-
-      .pipe(
-        tap(() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('currentUser');
-          this.currentUserSubject.next(null);
-        }),
-        catchError(this.handleError)
-      );
+    ).pipe(
+      catchError(err => {
+        return of(null);
+      }),
+      tap(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('keycloak_profile');
+        this.currentUserSubject.next(null);
+      }),
+      switchMap(() => {
+        try {
+          const oidcAuthService = this.injector.get(OidcAuthService);
+          return from(oidcAuthService.logout()).pipe(
+            catchError(err => {
+              console.error('OIDC logout failed explicitly:', err);
+              return of(null);
+            })
+          );
+        } catch (e) {
+          console.error('Could not get OidcAuthService:', e);
+          return of(null);
+        }
+      })
+    );
   }
 
   isLoggedIn(): boolean {

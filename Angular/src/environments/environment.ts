@@ -1,14 +1,14 @@
 
 export const environment = {
-    apiUrl: 'http://localhost:50647/api',
+    apiUrl: 'https://localhost:50647/api',
    production: false,
   identitySettings: {
-    authority: 'http://auth.3m-technology.com',
+    authority: 'https://auth.3m-technology.com',
     clientId: '3MEligibility-Client',
     scope: 'profile openid email',
     authorizedUris: ['http://localhost:4200'],
-    loginCallBackPath: 'http://localhost:4200/authentication/login-callback',
-    logoutCallBackPath: 'http://localhost:4200/authentication/logout-callback',
+    loginCallBackPath: 'http://localhost:4200',
+    logoutCallBackPath: 'http://localhost:4200',
     loginCallBackPage: 'login-callback',
     logoutCallBackPage: 'logout-callback',
   },

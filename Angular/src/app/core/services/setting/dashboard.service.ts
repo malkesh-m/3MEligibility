@@ -31,7 +31,7 @@ export class DashboardService {
       return this.http.get<any>(`${this.apiUrl}/dashboard/failure-reasons`, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
     }
   getEvaluationHistoryById(id: number){
-    return this.http.get < any > (`${this.apiUrl}/evalutionhistory/${id}`);
+    return this.http.get < any > (`${this.apiUrl}/evaluationhistory/${id}`);
   }
 
   getEvaluationHistory(filter: EvaluationHistoryFilter) {

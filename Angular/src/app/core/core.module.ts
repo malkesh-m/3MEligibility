@@ -74,9 +74,6 @@ import { FormsModule } from '@angular/forms';
     HeaderComponent,
     MatExpansionModule,
     SpinnerComponent
-  ],
-  providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ]
 })
 export class CoreModule { }
