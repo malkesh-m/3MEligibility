@@ -60,7 +60,7 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all products for the specified entity from the repository
             var allProducts = _uow.ProductRepository.Query()
-                 .Where(p => p.EntityId == entityId).Select(p => new Product
+                 .Where(p => p.TenantId == entityId).Select(p => new Product
                  {
                      ProductId = p.ProductId,
                      ProductName = p.ProductName,
@@ -75,7 +75,7 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all product caps for the specified entity from the repository
             var productCap = _uow.ProductCapRepository.Query()
-                .Where(p => p.Product.EntityId == entityId)
+                .Where(p => p.Product.TenantId == entityId)
                 .ToList();
 
             // Retrieves exception products with their related data for the specified entity
@@ -92,7 +92,7 @@ namespace EligibilityPlatform.Application.Services
                    ProductId = e.Product.ProductId,
                    ProductName = e.Product.ProductName,
                    CategoryId = e.Product.CategoryId,
-                   EntityId = e.Product.EntityId,
+                   TenantId = e.Product.TenantId,
                    Code = e.Product.Code,
                    Narrative = e.Product.Narrative,
                    Description = e.Product.Description,
@@ -104,7 +104,7 @@ namespace EligibilityPlatform.Application.Services
                    IsImport = e.Product.IsImport,
                    MaxEligibleAmount = e.Product.MaxEligibleAmount,
                    Category = e.Product.Category,
-                   Entity = e.Product.Entity,
+                   //Entity = e.Product.Entity,
                    ExceptionProducts = e.Product.ExceptionProducts,
                    HistoryPcs = e.Product.HistoryPcs,
                    Pcard = e.Product.Pcard,
@@ -264,7 +264,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Retrieves all product IDs that have associated PCARD configurations
             var productsWithPcard = _uow.PcardRepository.Query()
-                .Where(pc => pc.Product!.EntityId == entityId)
+                .Where(pc => pc.Product!.TenantId == entityId)
                 .Select(pc => pc.ProductId)
                 .Distinct()
                 .ToList();
@@ -300,7 +300,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Retrieves all product IDs that have PCARD configurations for the entity
             var productIdsWithPcard = _uow.PcardRepository.Query()
-                .Where(p => p.Product != null && p.Product.EntityId == entityId)
+                .Where(p => p.Product != null && p.Product.TenantId == entityId)
                 .Select(p => p.ProductId)
                 .Distinct()
                 .ToList();
@@ -324,12 +324,12 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all PCARDs for the entity
             var allPcards = _uow.PcardRepository.Query()
-                .Where(p => p.ProductId != null && p.Product!.EntityId == entityId)
+                .Where(p => p.ProductId != null && p.Product!.TenantId == entityId)
                 .ToList();
 
             // Retrieves all ECARDs for the entity
             var allEcards = _uow.EcardRepository.Query()
-                .Where(e => e.EntityId == entityId)
+                .Where(e => e.TenantId == entityId)
                 .ToList();
 
             // Creates eligibility results for failed products with appropriate error messages
@@ -413,12 +413,12 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all PCARDs for the entity
             var allPcards = _uow.PcardRepository.Query()
-                .Where(p => p.Product!.EntityId == entityId)
+                .Where(p => p.Product!.TenantId == entityId)
                 .ToList();
 
             // Retrieves all ECARDs for the entity
             var allEcards = _uow.EcardRepository.Query()
-                .Where(e => e.EntityId == entityId)
+                .Where(e => e.TenantId == entityId)
                 .ToList();
 
             // Creates eligibility results for non-eligible products with appropriate error messages
@@ -844,7 +844,7 @@ namespace EligibilityPlatform.Application.Services
         {
             var results = new List<ProductEligibilityResult>();
             var factors = _uow.FactorRepository.Query()
-                .Where(f => f.EntityId == entityId)
+                .Where(f => f.TenantId == entityId)
                 .ToList();
 
             int score = GetScore(keyValues);
@@ -1052,7 +1052,7 @@ namespace EligibilityPlatform.Application.Services
             /// <summary>
             /// Retrieves all Pcards for the specified entity.
             /// </summary>
-            var allPcards = _uow.PcardRepository.Query().Where(f => f.EntityId == entityId);
+            var allPcards = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
             var matchedPcards = new List<Pcard>();
 
             foreach (var pcard in allPcards)
@@ -1199,7 +1199,7 @@ namespace EligibilityPlatform.Application.Services
             /// <summary>
             /// Retrieves all Ecards for the specified entity.
             /// </summary>
-            var allEcards = _uow.EcardRepository.Query().Where(f => f.EntityId == entityId);
+            var allEcards = _uow.EcardRepository.Query().Where(f => f.TenantId == entityId);
             var matchedEcards = new List<Ecard>();
 
             foreach (var ecard in allEcards)
@@ -1754,8 +1754,8 @@ namespace EligibilityPlatform.Application.Services
         /// <returns>A ValidationResult containing the validation outcome.</returns>
         private ValidationResult ValidateRule(int entityId, int ruleId, Dictionary<int, object> keyValues)
         {
-            var rule = _uow.EruleRepository.Query().First(f => f.EruleId == ruleId && f.EntityId == entityId);
-            var factors = _uow.FactorRepository.Query().Where(f => f.EntityId == entityId);
+            var rule = _uow.EruleRepository.Query().First(f => f.EruleId == ruleId && f.TenantId == entityId);
+            var factors = _uow.FactorRepository.Query().Where(f => f.TenantId == entityId);
             return ProcessExpression(entityId, rule.Expression, factors, keyValues, "Rule");
         }
 
@@ -2058,7 +2058,7 @@ namespace EligibilityPlatform.Application.Services
             /// Retrieves active rules valid for the current time.
             /// </summary>
             var eRules = _uow.EruleRepository.Query()
-         .Where(f => f.EntityId == entityId
+         .Where(f => f.TenantId == entityId
                      && f.EruleMaster != null
                      && f.EruleMaster.IsActive
                      && (f.ValidFrom <= now && (!f.ValidTo.HasValue || f.ValidTo >= now)))
@@ -2069,7 +2069,7 @@ namespace EligibilityPlatform.Application.Services
             /// Retrieves all factors for the entity to resolve FactorName to ParameterId.
             /// </summary>
             var factors = _uow.FactorRepository.Query()
-                .Where(f => f.EntityId == entityId && f.ParameterId.HasValue)
+                .Where(f => f.TenantId == entityId && f.ParameterId.HasValue)
                 .ToList();
 
             var matchRules = new List<Erule>();
@@ -2098,12 +2098,12 @@ namespace EligibilityPlatform.Application.Services
 
 
 
-        public async Task<BREIntegrationResponses> ProcessBREIntegration(Dictionary<string, object> KeyValues, int EntityId, string? RequestId)
+        public async Task<BREIntegrationResponses> ProcessBREIntegration(Dictionary<string, object> KeyValues, int TenantId, string? RequestId)
         {
             var stopwatch = Stopwatch.StartNew();
             var requestId = RequestId ?? Guid.NewGuid().ToString();
             var allMandatoryParams = _uow.ParameterRepository.Query()
-    .Where(p => p.IsMandatory && p.EntityId == EntityId)
+    .Where(p => p.IsMandatory && p.TenantId == TenantId)
     .ToList();
 
             // Count how many mandatory parameters are present in KeyValues (case-insensitive)
@@ -2172,14 +2172,14 @@ namespace EligibilityPlatform.Application.Services
             //    }
             //}
 
-            var listValidationResult = ValidateListTypeParameters(KeyValues, EntityId, requestId);
+            var listValidationResult = ValidateListTypeParameters(KeyValues, TenantId, requestId);
             if (listValidationResult != null)
             {
                 return listValidationResult;
             }
             var evaluation = new EvaluationHistory
             {
-                EntityId = EntityId,
+                TenantId = TenantId,
                 EvaluationTimeStamp = DateTime.Now,
                 NationalId = nationalId!,
                 LoanNo = loanNo!
@@ -2209,7 +2209,7 @@ namespace EligibilityPlatform.Application.Services
                     var normalizedInputName = new string([.. parameterName.Where(c => !char.IsWhiteSpace(c))]).ToLower();
 
                     var parameter = parameters.FirstOrDefault(p =>
-                        p.EntityId == EntityId &&
+                        p.TenantId == TenantId &&
                         !string.IsNullOrWhiteSpace(p.ParameterName) &&
                         new string([.. p.ParameterName.Where(c => !char.IsWhiteSpace(c))]).Equals(normalizedInputName
                         , StringComparison.CurrentCultureIgnoreCase)
@@ -2429,7 +2429,7 @@ namespace EligibilityPlatform.Application.Services
                 //if (pdParam != null && keyValuesForEligibility.ContainsKey(pdParam.ParameterId))
                 //    keyValuesForEligibility[pdParam.ParameterId] = scoreResult.ProbabilityOfDefault;
                 // Step 8: Perform eligibility evaluation
-                var eligibilityResult = GetAllEligibleProducts(EntityId, keyValuesForEligibility);
+                var eligibilityResult = GetAllEligibleProducts(TenantId, keyValuesForEligibility);
                 var nationalIdValue = KeyValues
                     .FirstOrDefault(x =>
                           x.Key.Equals("NationalIdNumber", StringComparison.OrdinalIgnoreCase) ||
@@ -2442,7 +2442,7 @@ namespace EligibilityPlatform.Application.Services
                 evaluation.CreditScore = scoreResult.CustomerScore;
                 evaluation.NationalId = nationalIdValue!;
                 evaluation.LoanNo = LoanNo ?? "";
-                evaluation.EntityId = EntityId;
+                evaluation.TenantId = TenantId;
                 evaluation.ProcessingTime = Math.Round(stopwatch.Elapsed.TotalSeconds, 2);
                 var breRequestWithNames = keyValuesForEligibility.ToDictionary(
                     kv => parameters.FirstOrDefault(p => p.ParameterId == kv.Key)?.ParameterName ?? kv.Key.ToString(),
@@ -2505,7 +2505,7 @@ namespace EligibilityPlatform.Application.Services
                     on f.ParameterId equals p.ParameterId
                 join c in _uow.ConditionRepository.Query()
                     on f.ConditionId equals c.ConditionId
-                where f.EntityId == entityId
+                where f.TenantId == entityId
                       && (
                             c.ConditionValue!.ToLower() == "in list" ||
                             c.ConditionValue.ToLower() == "not in list"
@@ -2623,7 +2623,7 @@ namespace EligibilityPlatform.Application.Services
                     }
                 }
                 var factor = _uow.FactorRepository.Query()
-                    .FirstOrDefault(f => f.EntityId == entityId && f.ParameterId ==
+                    .FirstOrDefault(f => f.TenantId == entityId && f.ParameterId ==
                         _uow.ParameterRepository.Query().First(p => p.ParameterName == param).ParameterId);
 
                 var listName = factor?.Value1?.Trim();

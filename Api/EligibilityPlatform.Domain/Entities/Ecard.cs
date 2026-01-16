@@ -10,7 +10,7 @@ public partial class Ecard
 
     public string Expression { get; set; } = null!;
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public string? Expshown { get; set; }
 
@@ -24,7 +24,7 @@ public partial class Ecard
 
     public bool IsImport { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<HistoryEc> HistoryEcs { get; set; } = [];
 

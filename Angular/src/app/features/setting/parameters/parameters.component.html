@@ -16,7 +16,7 @@
     <div class="d-flex align-items-center ms-3">
       <button appUseractivity="User Click on Add button"
               [componentName]="'ParametersComponent'"
-              [actionType]="'ButtonClick'"  class="btn me-1" (click)="addParameter()" *ngIf="hasPermission(18)">
+              [actionType]="'ButtonClick'"  class="btn me-1" (click)="addParameter()" >
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
       <button appUseractivity="User Click on Download Template button"

@@ -58,7 +58,7 @@ namespace EligibilityPlatform.Application.Services
             // Initialize result message
             var resultMessage = "";
             // Get existing Pcards with same product and entity
-            var products = _uow.PcardRepository.Query().Where(f => f.ProductId == model.ProductId && f.EntityId == model.EntityId).ToList();
+            var products = _uow.PcardRepository.Query().Where(f => f.ProductId == model.ProductId && f.TenantId == model.TenantId).ToList();
             // Handle null product ID
             model.ProductId = model.ProductId == 0 ? (int?)null : model.ProductId;
             // Map model to entity
@@ -104,7 +104,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int entityId, int id)
         {
             // Find Pcard by ID and entity
-            var Item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.EntityId == entityId);
+            var Item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == entityId);
             // Remove entity from repository
             _uow.PcardRepository.Remove(Item);
             // Commit changes to database
@@ -119,7 +119,7 @@ namespace EligibilityPlatform.Application.Services
         public List<PcardListModel> GetAll(int entityId)
         {
             // Get Pcards by entity ID
-            var pcard = _uow.PcardRepository.Query().Where(f => f.EntityId == entityId);
+            var pcard = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
             // Map entities to models and return
             return _mapper.Map<List<PcardListModel>>(pcard);
         }
@@ -133,7 +133,7 @@ namespace EligibilityPlatform.Application.Services
         public PcardListModel GetById(int entityId, int id)
         {
             // Find Pcard by ID and entity
-            var pcard = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.EntityId == entityId);
+            var pcard = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == entityId);
             // Map entity to model and return
             return _mapper.Map<PcardListModel>(pcard);
         }
@@ -146,7 +146,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Update(PcardUpdateModel model)
         {
             // Find existing Pcard by ID and entity
-            var Item = await _uow.PcardRepository.Query().FirstOrDefaultAsync(f => f.PcardId == model.PcardId && f.EntityId == model.EntityId);
+            var Item = await _uow.PcardRepository.Query().FirstOrDefaultAsync(f => f.PcardId == model.PcardId && f.TenantId == model.TenantId);
             // Check if product is already associated with another Pcard
             var existProduct = _uow.PcardRepository.Query().Any(p => p.ProductId == model.ProductId && p.PcardId != model.PcardId);
             // Initialize result message
@@ -185,16 +185,16 @@ namespace EligibilityPlatform.Application.Services
                          join product in _uow.ProductRepository.Query()
                          on pcard.ProductId equals product.ProductId
                          join entity in _uow.EntityRepository.Query()
-                         on pcard.EntityId equals entity.EntityId into entityGroup
+                         on pcard.TenantId equals entity.EntityId into entityGroup
                          from entity in entityGroup.DefaultIfEmpty() // LEFT JOINs
-                         where pcard.EntityId == entityId && product.EntityId == entityId && entity.EntityId == entityId
+                         where pcard.TenantId == entityId && product.TenantId == entityId && entity.EntityId == entityId
                          select new PcardCsvModel
                          {
                              PcardId = pcard.PcardId,
                              PcardName = pcard.PcardName,
                              PcardDesc = pcard.PcardDesc,
                              Expression = pcard.Expression,
-                             //EntityId = pcard.EntityId,
+                             //TenantId = pcard.TenantId,
                              //EntityName = entity != null ? entity.EntityName : null,
                              ProductId = pcard.ProductId,
                              ProductName = product.ProductName,
@@ -202,7 +202,7 @@ namespace EligibilityPlatform.Application.Services
                              Pstatus = pcard.Pstatus
                          };
 
-            // If selectedEntityIds is not null and contains items, filter by IDs
+            // If selectedTenantIds is not null and contains items, filter by IDs
             if (selectedPcardIds != null && selectedPcardIds.Count > 0)
             {
                 // Filter by selected Pcard IDs
@@ -270,7 +270,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var model in models)
             {
                 // Set entity ID
-                model.EntityId = entityId;
+                model.TenantId = entityId;
                 // Map model to entity
                 var entity = _mapper.Map<Pcard>(model);
                 // Add entity to repository
@@ -293,7 +293,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Find Pcard by ID and entity
-                var item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.EntityId == entityId);
+                var item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == entityId);
                 if (item != null)
                 {
                     // Remove entity from repository
@@ -410,7 +410,7 @@ namespace EligibilityPlatform.Application.Services
                         CreatedBy = createdBy,
                         UpdatedBy = createdBy,
                         ProductId = productId,
-                        EntityId = entityId
+                        TenantId = entityId
                     });
                 }
 

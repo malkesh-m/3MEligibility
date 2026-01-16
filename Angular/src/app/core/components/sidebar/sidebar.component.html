@@ -18,7 +18,7 @@
           </mat-nav-list>-->
       </mat-expansion-panel>
       <!-- Setup Section -->
-      <mat-expansion-panel *ngIf="hasPermission(5)" [expanded]="step() === 0" (opened)="setStep(0)" hideToggle>
+      <mat-expansion-panel  [expanded]="step() === 0" (opened)="setStep(0)" hideToggle>
         <mat-expansion-panel-header>
           <!-- <mat-panel-title>Setup</mat-panel-title> -->
           <mat-panel-title>
@@ -30,8 +30,8 @@
           <!--<a *ngIf="hasPermission(9)" mat-list-item routerLink="setting/dashboard">{{ 'Dashboard' | translate }}</a>-->
           <a *ngIf="hasPermission(9)" mat-list-item routerLink="setting/entity">{{ 'Entity' | translate }}</a>
           <a *ngIf="hasPermission(91)" mat-list-item routerLink="setting/lists">{{ 'Lists' | translate }}</a>
-          <a *ngIf="hasPermission(10)" mat-list-item routerLink="setting/parameters">{{ 'Parameters' | translate }}</a>
-          <a *ngIf="hasPermission(8)" mat-list-item routerLink="setting/factors">{{ 'Factors' | translate }}</a>
+          <a  mat-list-item routerLink="setting/parameters">{{ 'Parameters' | translate }}</a>
+          <a  mat-list-item routerLink="setting/factors">{{ 'Factors' | translate }}</a>
           <a *ngIf="hasPermission(51)" mat-list-item routerLink="setting/products">{{ 'Products' | translate }}</a>
         </mat-nav-list>
       </mat-expansion-panel>

@@ -47,7 +47,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult LogFrontendError(FrontendErrorLog error)
         {
             // Gets the current user's name
-            var UserName = User.Identity?.Name;
+            var UserName = User.GetUserName();
             // Logs the frontend error with detailed information
             //_logger.LogError(
             //    "Frontend exception | User: {User} | Component: {Component} | Path: {Path} | Request: {Request} | Exception: {Exception} | Status: {Status} | UserAgent: {UserAgent}",

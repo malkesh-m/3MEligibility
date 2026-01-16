@@ -30,7 +30,7 @@ namespace EligibilityPlatform.Domain.Models
         public int? ConditionId { get; set; }
 
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
     }
     public class FactorListModel : FactorModel
@@ -65,7 +65,7 @@ namespace EligibilityPlatform.Domain.Models
 
         public int? ConditionId { get; set; }
 
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         public string? EntityName { get; set; }
         public int? ParameterId { get; set; }

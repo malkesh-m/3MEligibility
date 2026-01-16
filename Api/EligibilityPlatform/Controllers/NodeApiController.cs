@@ -80,7 +80,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(NodeApiCreateOrUpdateModel nodeApi)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             nodeApi.CreatedBy = userName;
             nodeApi.UpdatedBy = userName;
             // Validates the model state
@@ -106,7 +106,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(NodeApiCreateOrUpdateModel nodeApi)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             nodeApi.UpdatedBy = userName;
             // Validates the model state
             if (!ModelState.IsValid)

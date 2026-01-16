@@ -72,7 +72,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(RoleCreateUpdateModel roleModel)
         {
 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             roleModel.CreatedBy = userName;
             roleModel.UpdatedBy = userName;
             // Validates the model state
@@ -98,7 +98,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(RoleCreateUpdateModel roleModel)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             roleModel.CreatedBy = userName;
             // Validates the model state
             if (!ModelState.IsValid)

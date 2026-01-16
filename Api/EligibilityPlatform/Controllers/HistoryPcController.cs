@@ -28,7 +28,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get()
         {
             // Retrieves all history PC records for the current entity
-            List<HistoryPcModel> result = _historyPcService.GetAll(User.GetEntityId());
+            List<HistoryPcModel> result = _historyPcService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved history PC list
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -42,7 +42,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a history PC record by ID for the current entity
-            var result = _historyPcService.GetById(User.GetEntityId(), id);
+            var result = _historyPcService.GetById(User.GetTenantId(), id);
             // Checks if the history PC record was found
             if (result != null)
             {
@@ -65,7 +65,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(HistoryPcModel historyPc)
         {
             // Sets the entity ID from current user context
-            historyPc.EntityId = User.GetEntityId();
+            historyPc.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -87,7 +87,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(HistoryPcModel historyPc)
         {
             // Sets the entity ID from current user context
-            historyPc.EntityId = User.GetEntityId();
+            historyPc.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -109,7 +109,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             // Deletes the history PC record by ID for current entity
-            await _historyPcService.Delete(User.GetEntityId(), id);
+            await _historyPcService.Delete(User.GetTenantId(), id);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -129,7 +129,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No id's provided" });
             }
             // Deletes multiple history PC records for current entity
-            await _historyPcService.MultipleDelete(User.GetEntityId(), ids);
+            await _historyPcService.MultipleDelete(User.GetTenantId(), ids);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }

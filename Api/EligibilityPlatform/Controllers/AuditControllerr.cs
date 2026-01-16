@@ -93,7 +93,7 @@ namespace EligibilityPlatform.Controllers
             /// Validates the model state before processing.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             audit.UserName = userName;
 
             if (!ModelState.IsValid)
@@ -130,7 +130,7 @@ namespace EligibilityPlatform.Controllers
             /// Validates the model state before processing.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             audit.UserName = userName;
 
             if (!ModelState.IsValid)

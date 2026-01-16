@@ -118,7 +118,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves API details for the current user's entity and specified node ID.
             /// </summary>
-            var apiDetails = _nodeService.GetById(User.GetEntityId(), id);
+            var apiDetails = _nodeService.GetById(User.GetTenantId(), id);
 
             /// <summary>
             /// Extracts parameters from the request body or initializes an empty dictionary.

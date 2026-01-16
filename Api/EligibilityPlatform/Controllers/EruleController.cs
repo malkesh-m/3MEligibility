@@ -36,7 +36,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves all erules for the current entity and returns a success response.
             /// </summary>
-            List<EruleListModel> result = _eruleService.GetAll(User.GetEntityId());
+            List<EruleListModel> result = _eruleService.GetAll(User.GetTenantId());
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
 
@@ -53,7 +53,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves a specific erule by ID for the current entity and returns appropriate response.
             /// </summary>
-            var result = _eruleService.GetById(User.GetEntityId(), id);
+            var result = _eruleService.GetById(User.GetTenantId(), id);
             if (result != null)
             {
                 /// <summary>
@@ -85,10 +85,10 @@ namespace EligibilityPlatform.Controllers
             /// Sets the entity ID from the current user context.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             model.CreatedBy = userName;
             model.UpdatedBy = userName;
-            model.EntityId = User.GetEntityId();
+            model.TenantId = User.GetTenantId();
             /// <summary>
             /// Validates the model state before proceeding with erule creation.
             /// </summary>
@@ -117,12 +117,12 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Sets the entity ID from the current user context.
             /// </summary>
-            model.EntityId = User.GetEntityId();
+            model.TenantId = User.GetTenantId();
             /// <summary>
             /// Validates the model state before proceeding with erule master creation.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             model.CreatedBy = userName;
             model.UpdatedBy = userName;
 
@@ -133,7 +133,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Adds the new erule master and returns a success response.
             /// </summary>
-            await _eruleMasterService.Add(model, User.GetEntityId());
+            await _eruleMasterService.Add(model, User.GetTenantId());
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
 
@@ -151,9 +151,9 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Sets the entity ID from the current user context.
             /// </summary>
-            erule.EntityId = User.GetEntityId();
+            erule.TenantId = User.GetTenantId();
 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             erule.UpdatedBy = userName;
             /// <summary>
             /// Validates the model state before proceeding with erule update.
@@ -183,7 +183,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves the entity ID from the current user context.
             /// </summary>
-            var EntityId = User.GetEntityId();
+            var EntityId = User.GetTenantId();
             /// <summary>
             /// Validates the model state before proceeding with erule master update.
             /// </summary>
@@ -212,7 +212,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves all erules by master ID for the current entity and returns a success response.
             /// </summary>
-            return Ok(new ResponseModel { IsSuccess = true, Data = await _eruleService.GetAllByEruleMasterId(EruleMasterId, User.GetEntityId()), Message = GlobalcConstants.Success });
+            return Ok(new ResponseModel { IsSuccess = true, Data = await _eruleService.GetAllByEruleMasterId(EruleMasterId, User.GetTenantId()), Message = GlobalcConstants.Success });
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves the entity ID from the current user context.
             /// </summary>
-            int entityId = User.GetEntityId();
+            int entityId = User.GetTenantId();
             /// <summary>
             /// Publishes the draft erule and returns a success response.
             /// </summary>
@@ -249,7 +249,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves the entity ID from the current user context.
             /// </summary>
-            int entityId = User.GetEntityId();
+            int entityId = User.GetTenantId();
             /// <summary>
             /// Updates the erule status and returns a success response.
             /// </summary>
@@ -273,7 +273,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Deletes the specified erule and returns a success response with result message.
                 /// </summary>
-                string resultMessage = await _eruleService.Delete(User.GetEntityId(), id);
+                string resultMessage = await _eruleService.Delete(User.GetTenantId(), id);
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
             catch (Exception ex)
@@ -308,7 +308,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Deletes multiple erules and returns a success response with result message.
                 /// </summary>
-                string resultMessage = await _eruleService.RemoveMultiple(User.GetEntityId(), ids);
+                string resultMessage = await _eruleService.RemoveMultiple(User.GetTenantId(), ids);
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
             catch (Exception ex)
@@ -342,7 +342,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Processes the erule file import and returns the result message.
                 /// </summary>
-                string resultMessage = await _eruleService.ImportErule(User.GetEntityId(), file.OpenReadStream(), createdBy);
+                string resultMessage = await _eruleService.ImportErule(User.GetTenantId(), file.OpenReadStream(), createdBy);
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
             catch (Exception ex)
@@ -359,7 +359,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> ImportEruleMaster(IFormFile file)
         {
 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             /// <summary>
             /// Validates that a file was uploaded before proceeding with import.
             /// </summary>
@@ -370,7 +370,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Processes the erule file import and returns the result message.
                 /// </summary>
-                string resultMessage = await _eruleService.ImportEruleMaster(User.GetEntityId(), file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _eruleService.ImportEruleMaster(User.GetTenantId(), file.OpenReadStream(), userName ?? "");
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
             catch (Exception ex)
@@ -392,7 +392,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Generates and returns the erule import template as an Excel file download.
             /// </summary>
-            var excelBytes = await _eruleService.DownloadTemplate(User.GetEntityId());
+            var excelBytes = await _eruleService.DownloadTemplate(User.GetTenantId());
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsm");
         }
         [HttpGet("download-templateerulemaster")]
@@ -401,7 +401,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Generates and returns the erule import template as an Excel file download.
             /// </summary>
-            var excelBytes = await _eruleService.DownloadTemplateEruleMaster(User.GetEntityId());
+            var excelBytes = await _eruleService.DownloadTemplateEruleMaster(User.GetTenantId());
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsm");
         }
 
@@ -419,7 +419,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Exports the selected erules and returns the Excel file as a download.
             /// </summary>
-            var stream = await _eruleService.ExportErule(User.GetEntityId(), selectedEruleIds);
+            var stream = await _eruleService.ExportErule(User.GetTenantId(), selectedEruleIds);
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "rules.xlsx");
         }
 
@@ -454,7 +454,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Deletes multiple erules and returns a success response with result message.
                 /// </summary>
-                string resultMessage = await _eruleMasterService.RemoveMultiple(User.GetEntityId(), ids);
+                string resultMessage = await _eruleMasterService.RemoveMultiple(User.GetTenantId(), ids);
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
             catch (Exception ex)

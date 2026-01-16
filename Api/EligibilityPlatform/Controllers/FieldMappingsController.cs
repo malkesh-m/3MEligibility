@@ -104,7 +104,7 @@ namespace EligibilityPlatform.Controllers
                 }
 
                 // Retrieves the API configuration associated with the mapping configuration
-                var apiConfiguration = _nodeService.GetById(User.GetEntityId(), mappingConfiguration.NodeId ?? 0);
+                var apiConfiguration = _nodeService.GetById(User.GetTenantId(), mappingConfiguration.NodeId ?? 0);
 
                 // Validates that the API configuration exists
                 if (apiConfiguration == null)

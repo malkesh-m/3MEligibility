@@ -31,7 +31,6 @@ namespace EligibilityPlatform.Controllers
         /// <param name="year">The year to filter the summary (optional).</param>
         /// <returns>An <see cref="IActionResult"/> containing the monthly summary.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("monthly-summary")]
         public async Task<IActionResult> GetMonthlySummary(int? year = null)
@@ -39,7 +38,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to retrieve monthly evaluation summary for the current user's entity.
             /// </summary>
-            var result = await _dashboardService.GetEvaluationSummaryByMonthAsync(User.GetEntityId(), year);
+            var result = await _dashboardService.GetEvaluationSummaryByMonthAsync(User.GetTenantId(), year);
 
             /// <summary>
             /// Returns successful response with the monthly summary data.
@@ -52,7 +51,6 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the failure reason breakdown.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("failure-reasons")]
         public async Task<IActionResult> GetFailureReasonBreakdown()
@@ -60,7 +58,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's entity ID.
             /// </summary>
-            var entityId = User.GetEntityId();
+            var entityId = User.GetTenantId();
 
             /// <summary>
             /// Calls the service to retrieve failure reason breakdown for the entity.
@@ -81,7 +79,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPost("evaluation-history")]
         public async Task<IActionResult> GetEvaluationHistory([FromBody] EvaluationHistoryFilter filter)
         {
-            var (data, totalCount) = await _dashboardService.GetEvaluationHistoryAsync(filter, User.GetEntityId());
+            var (data, totalCount) = await _dashboardService.GetEvaluationHistoryAsync(filter, User.GetTenantId());
 
             // Return paginated response
             return Ok(new
@@ -96,7 +94,6 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the processing time distribution.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("processing-time-distribution")]
         public async Task<IActionResult> GetProcessingTimeDistribution()
@@ -104,7 +101,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to retrieve processing time distribution for the current user's entity.
             /// </summary>
-            var result = await _dashboardService.GetProcessingTimeDistributionAsync(User.GetEntityId());
+            var result = await _dashboardService.GetProcessingTimeDistributionAsync(User.GetTenantId());
 
             /// <summary>
             /// Returns successful response with the processing time distribution data.
@@ -120,77 +117,71 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the number of customers evaluated.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("customers-evaluated")]
         public async Task<IActionResult> GetCustomersEvaluated()
             /// <summary>
             /// Calls the service to retrieve the number of customers evaluated for the current user's entity and returns the result.
             /// </summary>
-            => Ok(await _dashboardService.GetCustomersEvaluatedAsync(User.GetEntityId()));
+            => Ok(await _dashboardService.GetCustomersEvaluatedAsync(User.GetTenantId()));
 
         /// <summary>
         /// Retrieves the approval rate for the current entity.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the approval rate.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("approval-rate")]
         public async Task<IActionResult> GetApprovalRate()
             /// <summary>
             /// Calls the service to retrieve the approval rate for the current user's entity and returns the result.
             /// </summary>
-            => Ok(await _dashboardService.GetApprovalRateAsync(User.GetEntityId()));
+            => Ok(await _dashboardService.GetApprovalRateAsync(User.GetTenantId()));
 
         /// <summary>
         /// Retrieves the rejection rate for the current entity.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the rejection rate.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("rejection-rate")]
         public async Task<IActionResult> GetRejectionRate()
             /// <summary>
             /// Calls the service to retrieve the rejection rate for the current user's entity and returns the result.
             /// </summary>
-            => Ok(await _dashboardService.GetRejectionRateAsync(User.GetEntityId()));
+            => Ok(await _dashboardService.GetRejectionRateAsync(User.GetTenantId()));
 
         /// <summary>
         /// Retrieves the top failure reason for the current entity.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the top failure reason.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("top-failure-reason")]
         public async Task<IActionResult> GetTopFailureReason()
             /// <summary>
             /// Calls the service to retrieve the top failure reason for the current user's entity and returns the result.
             /// </summary>
-            => Ok(await _dashboardService.GetTopFailureReasonAsync(User.GetEntityId()));
+            => Ok(await _dashboardService.GetTopFailureReasonAsync(User.GetTenantId()));
 
         /// <summary>
         /// Retrieves the average approved score for the current entity.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the average approved score.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("avg-approved-score")]
         public async Task<IActionResult> GetAvgApprovedScore()
             /// <summary>
             /// Calls the service to retrieve the average approved score for the current user's entity and returns the result.
             /// </summary>
-            => Ok(await _dashboardService.GetAverageApprovedScoreAsync(User.GetEntityId()));
+            => Ok(await _dashboardService.GetAverageApprovedScoreAsync(User.GetTenantId()));
 
         /// <summary>
         /// Retrieves the average processing time for all entities.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the average processing time.</returns>
         /// 
-        [RequireRole("Display Home")]
 
         [HttpGet("avg-processing-time")]
         public async Task<IActionResult> GetAvgProcessingTime()
@@ -199,7 +190,6 @@ namespace EligibilityPlatform.Controllers
             /// </summary>
             => Ok(await _dashboardService.GetAverageProcessingTimeAsync());
 
-        [RequireRole("Display Home")]
 
         [HttpGet("apievaluationhistory")]
         public async Task<IActionResult> ApiEvaluationHistory(int EvaluationHistoryId)

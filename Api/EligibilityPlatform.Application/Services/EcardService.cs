@@ -37,7 +37,7 @@ namespace EligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(int entityId, EcardAddUpdateModel model)
         {
-            var existingCard = _uow.EcardRepository.Query().Any(p => p.EcardName == model.EcardName && p.EntityId == entityId);
+            var existingCard = _uow.EcardRepository.Query().Any(p => p.EcardName == model.EcardName && p.TenantId == entityId);
             if (existingCard)
             {
                 throw new Exception("Ecard with this name already exists");
@@ -45,7 +45,7 @@ namespace EligibilityPlatform.Application.Services
             // Maps the model to Ecard entity
             var ecardEntites = _mapper.Map<Ecard>(model);
             // Sets the entity ID for the Ecard
-            ecardEntites.EntityId = entityId;
+            ecardEntites.TenantId = entityId;
             // Sets the update timestamp to current UTC time
             ecardEntites.UpdatedByDateTime = DateTime.UtcNow;
             // Sets the creation timestamp to current UTC time
@@ -67,7 +67,7 @@ namespace EligibilityPlatform.Application.Services
             // Initializes the result message
             var resultMessage = "";
             // Retrieves all PCards for the specified entity
-            var pCards = _uow.PcardRepository.Query().Where(f => f.EntityId == entityId);
+            var pCards = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
             try
             {
                 // Checks if the Ecard is being used in any PCard
@@ -81,7 +81,7 @@ namespace EligibilityPlatform.Application.Services
                 }
 
                 // Retrieves the Ecard entity by ID from the repository
-                var Item = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.EntityId == entityId);
+                var Item = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.TenantId == entityId);
                 // Removes the Ecard entity from the repository
                 _uow.EcardRepository.Remove(Item);
                 // Commits the changes to the database
@@ -105,7 +105,7 @@ namespace EligibilityPlatform.Application.Services
         public List<EcardListModel> GetAll(int entityId)
         {
             // Retrieves all Ecard entities for the specified entity ID
-            var ecards = _uow.EcardRepository.Query().Where(f => f.EntityId == entityId);
+            var ecards = _uow.EcardRepository.Query().Where(f => f.TenantId == entityId);
             // Maps the Ecard entities to EcardListModel objects and returns the list
             return _mapper.Map<List<EcardListModel>>(ecards);
         }
@@ -119,7 +119,7 @@ namespace EligibilityPlatform.Application.Services
         public EcardListModel GetById(int entityId, int id)
         {
             // Retrieves the Ecard entity by ID from the repository
-            var ecards = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.EntityId == entityId);
+            var ecards = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.TenantId == entityId);
             // Maps the Ecard entity to EcardListModel object and returns it
             return _mapper.Map<EcardListModel>(ecards);
         }
@@ -131,13 +131,13 @@ namespace EligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Update(EcardUpdateModel model)
         {
-            var existingCard = _uow.EcardRepository.Query().Any(p => p.EcardName == model.EcardName && p.EntityId == model.EntityId && p.EcardId != model.EcardId);
+            var existingCard = _uow.EcardRepository.Query().Any(p => p.EcardName == model.EcardName && p.TenantId == model.TenantId && p.EcardId != model.EcardId);
             if (existingCard)
             {
                 throw new Exception("Ecard with this name already exists");
             }
             // Retrieves the existing Ecard entity from the repository
-            var ecards = _uow.EcardRepository.Query().First(r => r.EcardId == model.EcardId && r.EntityId == model.EntityId);
+            var ecards = _uow.EcardRepository.Query().First(r => r.EcardId == model.EcardId && r.TenantId == model.TenantId);
             // Maps the updated model to the existing entity
             var ecardEntites = _mapper.Map<EcardUpdateModel, Ecard>(model, ecards);
 
@@ -164,7 +164,7 @@ namespace EligibilityPlatform.Application.Services
             // Initializes a collection for successfully deleted rules
             var deletedRules = new List<int>();
             // Retrieves all PCards for the specified entity
-            var pCards = _uow.PcardRepository.Query().Where(f => f.EntityId == entityId);
+            var pCards = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
             try
             {
                 // Processes each Ecard ID for deletion
@@ -345,7 +345,7 @@ namespace EligibilityPlatform.Application.Services
 
                     models.Add(new EcardListModel
                     {
-                        EntityId = entityId,
+                        TenantId = entityId,
                         EcardName = EcardName,
                         EcardDesc = EcardDesc,
                         Expshown = ExpressionShown,
@@ -368,7 +368,7 @@ namespace EligibilityPlatform.Application.Services
 
                     // Duplicate check
                     var exists = await _uow.EcardRepository.Query()
-                        .AnyAsync(p => p.EntityId == entityId &&
+                        .AnyAsync(p => p.TenantId == entityId &&
                                        p.EcardName == model.EcardName &&
                                        p.EcardDesc == model.EcardDesc);
 
@@ -580,7 +580,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Queries Ecard entities for the specified entity ID
             var Ecards = from ecard in _uow.EcardRepository.Query()
-                         where ecard.EntityId == entityId
+                         where ecard.TenantId == entityId
                          select new EcardModelDescription
                          {
                              EcardId = ecard.EcardId,

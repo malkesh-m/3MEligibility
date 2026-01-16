@@ -35,7 +35,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves all e-card records for the current user's entity from the service.
             /// </summary>
-            List<EcardListModel> result = _ecardService.GetAll(User.GetEntityId());
+            List<EcardListModel> result = _ecardService.GetAll(User.GetTenantId());
 
             /// <summary>
             /// Returns successful response with the retrieved e-card records.
@@ -57,7 +57,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves a specific e-card record by ID for the current user's entity from the service.
             /// </summary>
-            var result = _ecardService.GetById(User.GetEntityId(), id);
+            var result = _ecardService.GetById(User.GetTenantId(), id);
 
             /// <summary>
             /// Checks if the e-card record was found.
@@ -93,7 +93,7 @@ namespace EligibilityPlatform.Controllers
             /// Validates the model state before processing.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             ecard.CreatedBy = userName;
             ecard.UpdatedBy = userName;
             if (!ModelState.IsValid)
@@ -107,7 +107,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's entity ID.
             /// </summary>
-            var entityId = User.GetEntityId();
+            var entityId = User.GetTenantId();
 
             /// <summary>
             /// Calls the service to add a new e-card record for the entity.
@@ -134,9 +134,9 @@ namespace EligibilityPlatform.Controllers
             /// Sets the entity ID from the current user's context.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             ecard.UpdatedBy = userName;
-            ecard.EntityId = User.GetEntityId();
+            ecard.TenantId = User.GetTenantId();
 
             /// <summary>
             /// Validates the model state before processing.
@@ -179,7 +179,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Calls the service to delete an e-card record for the current user's entity.
                 /// </summary>
-                string resultMessage = await _ecardService.Delete(User.GetEntityId(), id);
+                string resultMessage = await _ecardService.Delete(User.GetTenantId(), id);
 
                 /// <summary>
                 /// Returns successful response with the delete result message.
@@ -228,7 +228,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Calls the service to delete multiple e-card records for the current user's entity.
                 /// </summary>
-                string resultMessage = await _ecardService.RemoveMultiple(User.GetEntityId(), ids);
+                string resultMessage = await _ecardService.RemoveMultiple(User.GetTenantId(), ids);
 
                 /// <summary>
                 /// Returns successful response with the delete result message.
@@ -263,7 +263,7 @@ namespace EligibilityPlatform.Controllers
             /// Validates that a file was uploaded and has content.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             if (file == null || file.Length == 0)
                 /// <summary>
                 /// Returns bad request response for no file uploaded.
@@ -278,7 +278,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Calls the service to import e-cards from the file for the current user's entity.
                 /// </summary>
-                string resultMessage = await _ecardService.ImportECard(User.GetEntityId(), file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _ecardService.ImportECard(User.GetTenantId(), file.OpenReadStream(), userName ?? "");
 
                 /// <summary>
                 /// Returns successful response with the import result message.
@@ -309,7 +309,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to download the e-card import template for the current user's entity.
             /// </summary>
-            var excelBytes = await _ecardService.DownloadTemplate(User.GetEntityId());
+            var excelBytes = await _ecardService.DownloadTemplate(User.GetTenantId());
 
             /// <summary>
             /// Returns the template file as a downloadable Excel document.
@@ -331,7 +331,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to export e-cards for the current user's entity.
             /// </summary>
-            var stream = await _ecardService.ExportECard(User.GetEntityId(), selectedEntityIds);
+            var stream = await _ecardService.ExportECard(User.GetTenantId(), selectedEntityIds);
 
             /// <summary>
             /// Returns the exported file as a downloadable Excel document.

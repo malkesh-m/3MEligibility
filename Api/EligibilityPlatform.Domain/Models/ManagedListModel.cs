@@ -13,7 +13,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? ListName { get; set; }
 
 
-        public int? EntityId { get; set; }
+        public int? TenantId { get; set; }
 
     }
     public class ManagedListGetModel : ManagedListModel
@@ -41,7 +41,7 @@ namespace EligibilityPlatform.Domain.Models
 
         public string? ListName { get; set; }
 
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
         public string? EntityName { get; set; }
 
     }

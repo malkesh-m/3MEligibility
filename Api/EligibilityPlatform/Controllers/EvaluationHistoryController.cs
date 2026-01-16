@@ -27,7 +27,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> GetAll()
         {
             // Retrieves all evaluation history records for the current entity
-            var result = await _evaluationHistoryService.GetAll(User.GetEntityId());
+            var result = await _evaluationHistoryService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result });
         }
@@ -41,7 +41,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             // Retrieves specific evaluation history record by ID for the current entity
-            var result = await _evaluationHistoryService.GetById(id, User.GetEntityId());
+            var result = await _evaluationHistoryService.GetById(id, User.GetTenantId());
             if (result != null)
             {
                 // Returns success response with the found record data
@@ -65,7 +65,7 @@ namespace EligibilityPlatform.Controllers
             // Sets the current user ID in the model
             model.NationalId = User.GetUserId().ToString();
             // Adds the new evaluation history record
-            await _evaluationHistoryService.Add(model, User.GetEntityId());
+            await _evaluationHistoryService.Add(model, User.GetTenantId());
             // Returns success response indicating record was created
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
@@ -93,7 +93,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             // Deletes the evaluation history record by ID for the current entity
-            await _evaluationHistoryService.Delete(id, User.GetEntityId());
+            await _evaluationHistoryService.Delete(id, User.GetTenantId());
             // Returns success response indicating record was deleted
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }

@@ -10,5 +10,5 @@ public partial class Country
 
     public virtual ICollection<City> Cities { get; set; } = [];
 
-    public virtual ICollection<Entity> Entities { get; set; } = [];
+    //public virtual ICollection<Entity> Entities { get; set; } = [];
 }

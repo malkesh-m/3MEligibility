@@ -8,7 +8,7 @@ public partial class Product
 
     public int? CategoryId { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public string? Code { get; set; }
 
@@ -34,7 +34,7 @@ public partial class Product
 
     public virtual Category? Category { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<ExceptionProduct> ExceptionProducts { get; set; } = [];
 

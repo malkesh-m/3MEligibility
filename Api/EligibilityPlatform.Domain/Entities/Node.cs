@@ -16,7 +16,7 @@ public partial class Node
 
     public string? Apipassword { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public string UrlType { get; set; } = null!;
 
@@ -48,7 +48,7 @@ public partial class Node
 
     public string AuthSettings { get; set; } = null!;
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<NodeApi> NodeApis { get; set; } = [];
 

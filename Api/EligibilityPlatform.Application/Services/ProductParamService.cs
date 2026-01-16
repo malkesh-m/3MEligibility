@@ -22,7 +22,7 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="productService">The product service instance.</param>
     /// <param name="parameterService">The parameter service instance.</param>
     /// <param name="factorService">The factor service instance.</param>
-    public class ProductParamService(IUnitOfWork uow, IMapper mapper, IEntityService entityService, IProductService productService, IParameterService parameterService, IFactorService factorService) : IProductParamservice
+    public class ProductParamService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/, IProductService productService, IParameterService parameterService, IFactorService factorService) : IProductParamservice
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -37,7 +37,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// The entity service instance for entity operations.
         /// </summary>
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
 
         /// <summary>
         /// The product service instance for product operations.
@@ -61,14 +61,14 @@ namespace EligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(ProductParamAddUpdateModel model)
         {
-            // Checks if EntityId is zero
-            if (model.EntityId == 0)
+            // Checks if TenantId is zero
+            if (model.TenantId == 0)
             {
-                // Throws exception if EntityId is zero
-                throw new InvalidOperationException("The EntityId does not exist in the database.");
+                // Throws exception if TenantId is zero
+                throw new InvalidOperationException("The TenantId does not exist in the database.");
             }
             // Checks if a record with the same ProductId and ParameterId already exists
-            var existingEntity = await _uow.ProductParamRepository.Query().AnyAsync(p => p.ProductId == model.ProductId && p.ParameterId == model.ParameterId && p.EntityId == model.EntityId);
+            var existingEntity = await _uow.ProductParamRepository.Query().AnyAsync(p => p.ProductId == model.ProductId && p.ParameterId == model.ParameterId && p.TenantId == model.TenantId);
             // Validates if entity already exists
             if (existingEntity)
             {
@@ -101,7 +101,7 @@ namespace EligibilityPlatform.Application.Services
             var productParams = from pp in _uow.ProductParamRepository.Query()
                                 join p in _uow.ProductRepository.Query() on pp.ProductId equals p.ProductId
                                 join param in _uow.ParameterRepository.Query() on pp.ParameterId equals param.ParameterId
-                                where pp.EntityId == entityId
+                                where pp.TenantId == entityId
                                 select new ProductParamListModel
                                 {
                                     CreatedBy = pp.CreatedBy,
@@ -109,7 +109,7 @@ namespace EligibilityPlatform.Application.Services
                                     ProductId = pp.ProductId,
                                     ParameterId = pp.ParameterId,
                                     DisplayOrder = pp.DisplayOrder,
-                                    EntityId = pp.EntityId,
+                                    TenantId = pp.TenantId,
                                     ParamValue = pp.ParamValue,
                                     IsRequired = pp.IsRequired,
                                     ProductName = p.ProductName,
@@ -132,7 +132,7 @@ namespace EligibilityPlatform.Application.Services
         public ProductParamListModel GetById(int productId, int parameterId, int entityId)
         {
             // Finds the product parameter by composite key
-            var product = _uow.ProductParamRepository.Query().FirstOrDefault(pp => pp.ProductId == productId && pp.ParameterId == parameterId && pp.EntityId == entityId);
+            var product = _uow.ProductParamRepository.Query().FirstOrDefault(pp => pp.ProductId == productId && pp.ParameterId == parameterId && pp.TenantId == entityId);
             // Maps the entity to list model and returns
             return _mapper.Map<ProductParamListModel>(product);
         }
@@ -149,13 +149,13 @@ namespace EligibilityPlatform.Application.Services
             var product = (from pp in _uow.ProductParamRepository.Query()
                            join p in _uow.ProductRepository.Query() on pp.ProductId equals p.ProductId
                            join param in _uow.ParameterRepository.Query() on pp.ParameterId equals param.ParameterId
-                           where pp.ProductId == productId && pp.EntityId == entityId
+                           where pp.ProductId == productId && pp.TenantId == entityId
                            select new ProductParamListModel
                            {
                                ProductId = pp.ProductId,
                                ParameterId = pp.ParameterId,
                                DisplayOrder = pp.DisplayOrder,
-                               EntityId = pp.EntityId,
+                               TenantId = pp.TenantId,
                                ParamValue = pp.ParamValue,
                                IsRequired = pp.IsRequired,
                                ProductName = p.ProductName,
@@ -172,11 +172,11 @@ namespace EligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Update(ProductParamAddUpdateModel model)
         {
-            // Checks if EntityId is zero
-            if (model.EntityId == 0)
+            // Checks if TenantId is zero
+            if (model.TenantId == 0)
             {
-                // Throws exception if EntityId is zero
-                throw new InvalidOperationException("The EntityId does not exist in the database.");
+                // Throws exception if TenantId is zero
+                throw new InvalidOperationException("The TenantId does not exist in the database.");
             }
 
             // Finds the existing product parameter
@@ -203,7 +203,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int productId, int parameterId, int entityId)
         {
             // Finds the product parameter to delete
-            var Item = await _uow.ProductParamRepository.Query().FirstOrDefaultAsync(pm => pm.ProductId == productId && pm.ParameterId == parameterId && pm.EntityId == entityId);
+            var Item = await _uow.ProductParamRepository.Query().FirstOrDefaultAsync(pm => pm.ProductId == productId && pm.ParameterId == parameterId && pm.TenantId == entityId);
             // Removes the entity from the repository
             if (Item != null)
             {
@@ -226,7 +226,7 @@ namespace EligibilityPlatform.Application.Services
             var items = _uow.ProductParamRepository.Query()
                 .Where(pm => productIds.Contains(pm.ProductId)
                           && parameterIds.Contains(pm.ParameterId)
-                          && pm.EntityId == entityId)
+                          && pm.TenantId == entityId)
                 .ToList();
 
             // Removes the range of entities from the repository
@@ -301,7 +301,7 @@ namespace EligibilityPlatform.Application.Services
                     var model = new ProductParam
                     {
                         ProductId = int.TryParse(productId, out int ProductId) ? ProductId : 0,
-                        EntityId = int.TryParse(entityIdFromFile, out int EntityId) ? EntityId : 0,
+                        TenantId = int.TryParse(entityIdFromFile, out int TenantId) ? TenantId : 0,
                         ParameterId = int.TryParse(parameterId, out int ParameterId) ? ParameterId : 0,
                         ParamValue = paramValue,
                         CreatedBy = createdBy,
@@ -316,7 +316,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if a duplicate record exists
-                    var existingEntity = await _uow.ProductParamRepository.Query().AnyAsync(p => p.ProductId == model.ProductId && p.ParameterId == model.ParameterId && p.EntityId == entityId);
+                    var existingEntity = await _uow.ProductParamRepository.Query().AnyAsync(p => p.ProductId == model.ProductId && p.ParameterId == model.ParameterId && p.TenantId == entityId);
                     // Validates if entity already exists
                     if (existingEntity)
                     {
@@ -409,7 +409,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate(int entityId)
         {
             // Gets all entities
-            List<EntityModel> entities = _entityService.GetAll();
+            //List<EntityModel> entities = _entityService.GetAll();
             // Gets all products for the entity
             List<ProductListModel> product = _productService.GetAll(entityId);
             // Gets all parameters for the entity
@@ -425,7 +425,7 @@ namespace EligibilityPlatform.Application.Services
             var sheet = package.Workbook.Worksheets.Add("Details");
 
             // Defines headers for the template
-            string[] headers = ["ProductName*", "ProductId*", "EntityName*", "EntityId*", "ParameterName*", "ParameterId*", "ParamValue*", "DisplayOrder*", "Category*", "Field Description"];
+            string[] headers = ["ProductName*", "ProductId*", "EntityName*", "TenantId*", "ParameterName*", "ParameterId*", "ParamValue*", "DisplayOrder*", "Category*", "Field Description"];
             // Sets header values in the first row
             for (int i = 0; i < headers.Length; i++)
             {
@@ -444,12 +444,12 @@ namespace EligibilityPlatform.Application.Services
             // Sets header for product ID reference column
             sheet.Cells[1, 14].Value = "ProductId";
             // Sets header for product entity ID reference column
-            sheet.Cells[1, 15].Value = "ProductEntityId";
+            sheet.Cells[1, 15].Value = "ProductTenantId";
 
             // Sets header for entity name reference column
             sheet.Cells[1, 16].Value = "EntityName";
             // Sets header for entity ID reference column
-            sheet.Cells[1, 17].Value = "EntityId";
+            sheet.Cells[1, 17].Value = "TenantId";
 
             // Sets header for parameter name reference column
             sheet.Cells[1, 19].Value = "ParameterName";
@@ -476,10 +476,10 @@ namespace EligibilityPlatform.Application.Services
 
             // Populates static columns with data
             PopulateColumn(sheet, [.. product.Select(e => e.ProductName ?? "")], 13);
-            PopulateColumn(sheet, [.. product.Select(e => e.EntityId.ToString())], 14);
-            PopulateColumn(sheet, [.. product.Select(e => e.EntityId.ToString())], 15);
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 16);
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityId.ToString())], 17);
+            PopulateColumn(sheet, [.. product.Select(e => e.TenantId.ToString())], 14);
+            PopulateColumn(sheet, [.. product.Select(e => e.TenantId.ToString())], 15);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 16);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 17);
             PopulateColumn(sheet, [.. parameters.Select(e => e.ParameterName ?? "")], 19);
             PopulateColumn(sheet, [.. parameters.Select(e => e.ParameterId.ToString())], 20);
             PopulateColumn(sheet, [.. factors.Select(e => e.Value1 != null ? e.Value1.ToString() : "")], 24);
@@ -677,16 +677,16 @@ namespace EligibilityPlatform.Application.Services
                                  on productParam.ParameterId equals parameter.ParameterId
 
                                  join entity in _uow.EntityRepository.Query()
-                                 on productParam.EntityId equals entity.EntityId into entityGroup
+                                 on productParam.TenantId equals entity.EntityId into entityGroup
                                  from entity in entityGroup.DefaultIfEmpty()
 
-                                 where productParam.EntityId == entityId
+                                 where productParam.TenantId == entityId
 
                                  select new ProductParamDescription
                                  {
                                      ProductId = productParam.ProductId,
                                      ProductName = product.ProductName,
-                                     EntityId = productParam.EntityId,
+                                     TenantId = productParam.TenantId,
                                      EntityName = entity.EntityName ?? "",
                                      ParameterId = productParam.ParameterId,
                                      ParameterName = parameter.ParameterName,

@@ -23,13 +23,13 @@ namespace EligibilityPlatform.Domain.Entities
         public int CreditScore { get; set; }
         public int? PreviousApplication { get; set; }
         public double ProcessingTime { get; set; }
-        [ForeignKey("EntityId")]
-        public int? EntityId { get; set; }
+        //[ForeignKey("EntityId")]
+        public int? TenantId { get; set; }
         public string? BreRequest { get; set; }
         public string? BreResponse { get; set; }
 
 
-        public virtual Entity? Entity { get; set; }
+        //public virtual Entity? Entity { get; set; }
         //public virtual User? User { get; set; }
         public virtual ICollection<IntegrationApiEvaluation> IntegrationApiEvaluations { get; set; } = [];
 

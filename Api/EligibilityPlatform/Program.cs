@@ -82,7 +82,7 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IConditionService, ConditionService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
-builder.Services.AddScoped<IEntityService, EntityService>();
+//builder.Services.AddScoped<IEntityService, EntityService>();
 builder.Services.AddScoped<IBulkImportService, BulkImportService>();
 builder.Services.AddScoped<IParameterService, ParameterService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();

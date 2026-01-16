@@ -41,7 +41,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get()
         {
             // Retrieves all users for the current entity
-            List<UserGetModel> result = _userService.GetAll(User.GetEntityId());
+            List<UserGetModel> result = _userService.GetAll(User.GetTenantId());
             // Returns success response with the list of users
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -58,7 +58,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a specific user by ID for the current entity
-            var result = _userService.GetById(User.GetEntityId(), id);
+            var result = _userService.GetById(User.GetTenantId(), id);
             // Checks if the user was found
             if (result != null)
             {
@@ -84,8 +84,8 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Add(UserAddModel userModel)
         {
             // Sets the entity ID from the current user context
-            userModel.EntityId = User.GetEntityId();
-            var userName = User.Identity!.Name;
+            userModel.EntityId = User.GetTenantId();
+            var userName = User.GetUserName();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -111,7 +111,7 @@ namespace EligibilityPlatform.Controllers
         {
             // Sets the entity ID from the current user context
             userModel.EntityId = userModel.EntityId;
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
 
             // Validates the model state
             if (!ModelState.IsValid)
@@ -140,7 +140,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
             // Updates the user's profile picture
-            await _userService.UpdatePic(User.GetEntityId(), model.UserProfileFile, model);
+            await _userService.UpdatePic(User.GetTenantId(), model.UserProfileFile, model);
             // Returns success response after update
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
@@ -157,7 +157,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Deactivate(int id)
         {
             // Deactivates the user
-            await _userService.Remove(User.GetEntityId(), id);
+            await _userService.Remove(User.GetTenantId(), id);
             // Returns success response after deactivation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -179,7 +179,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No IDs provided." });
             }
             // Deactivates the user using alternative endpoint
-            await _userService.RemoveUsers(User.GetEntityId(), ids);
+            await _userService.RemoveUsers(User.GetTenantId(), ids);
             // Returns success response after deactivation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }

@@ -30,8 +30,8 @@ ErrorMessage = "Description can contain Arabic letters, English letters, numbers
         [StringLength(50, ErrorMessage = "API Password cannot exceed 50 characters.")]
         public string? Apipassword { get; set; }
 
-        [Required(ErrorMessage = "EntityId is required.")]
-        public int EntityId { get; set; }
+        [Required(ErrorMessage = "TenantId is required.")]
+        public int TenantId { get; set; }
 
         public bool IsAuthenticationRequired { get; set; }
 

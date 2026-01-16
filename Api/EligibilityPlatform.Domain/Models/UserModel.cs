@@ -35,6 +35,7 @@ namespace EligibilityPlatform.Domain.Models
 
         [SwaggerIgnore]
         public byte[]? UserPicture { get; set; }
+        public int TenantId { get; set; }
 
         [NotMapped]
         public IFormFile? UserProfileFile { get; set; }
@@ -98,6 +99,7 @@ namespace EligibilityPlatform.Domain.Models
 
         //[Range(1, int.MaxValue, ErrorMessage = "Entity ID must be a positive integer.")]
         public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         [SwaggerIgnore]
         public byte[]? UserPicture { get; set; }

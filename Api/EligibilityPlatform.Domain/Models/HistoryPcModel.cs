@@ -12,7 +12,7 @@ namespace EligibilityPlatform.Domain.Models
 
         public int? ProductId { get; set; }
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         public string? CustomerId { get; set; }
 

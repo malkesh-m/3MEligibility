@@ -62,7 +62,7 @@ namespace EligibilityPlatform.Application.Services
         /// <exception cref="Exception">Thrown when an error occurs during the add operation.</exception>
         public async Task Add(FactorAddUpdateModel model)
         {
-            var existingFactor = _uow.FactorRepository.Query().Any(p => p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && model.Value1 == p.Value1 && model.Value2 == p.Value2 && p.EntityId == model.EntityId);          // Maps the incoming model to Factor entity
+            var existingFactor = _uow.FactorRepository.Query().Any(p => p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && model.Value1 == p.Value1 && model.Value2 == p.Value2 && p.TenantId == model.TenantId);          // Maps the incoming model to Factor entity
             if (existingFactor)
             {
                 throw new Exception("Duplicate Record already exist");
@@ -91,7 +91,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int entityId, int id)
         {
             // Retrieves the factor by ID and entity ID
-            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.EntityId == entityId);
+            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == entityId);
             // Removes the factor from the repository
             _uow.FactorRepository.Remove(factors);
             // Commits the changes to the database
@@ -107,7 +107,7 @@ namespace EligibilityPlatform.Application.Services
         public List<FactorListModel> GetAll(int entityId)
         {
             // Retrieves all factors for the specified entity
-            var factors = _uow.FactorRepository.Query().Where(f => f.EntityId == entityId);
+            var factors = _uow.FactorRepository.Query().Where(f => f.TenantId == entityId);
             // Maps the factors to FactorListModel objects
             return _mapper.Map<List<FactorListModel>>(factors);
         }
@@ -123,7 +123,7 @@ namespace EligibilityPlatform.Application.Services
         public FactorListModel GetById(int entityId, int id)
         {
             // Retrieves the factor by ID and entity ID
-            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.EntityId == entityId);
+            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == entityId);
             // Maps the factor to FactorListModel object
             return _mapper.Map<FactorListModel>(factors);
         }
@@ -137,13 +137,13 @@ namespace EligibilityPlatform.Application.Services
         /// <exception cref="Exception">Thrown when the factor record is not found or an error occurs during the update operation.</exception>
         public async Task Update(FactorAddUpdateModel model)
         {
-            var existingFactor = _uow.FactorRepository.Query().Any(p => p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && model.Value1 == p.Value1 && model.Value2 == p.Value2 && p.EntityId == model.EntityId && p.FactorId != model.FactorId);          // Maps the incoming model to Factor entity
+            var existingFactor = _uow.FactorRepository.Query().Any(p => p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && model.Value1 == p.Value1 && model.Value2 == p.Value2 && p.TenantId == model.TenantId && p.FactorId != model.FactorId);          // Maps the incoming model to Factor entity
             if (existingFactor)
             {
                 throw new Exception("Duplicate Record already exist");
             }
             // Retrieves the factor by ID and entity ID
-            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == model.FactorId && f.EntityId == model.EntityId);
+            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == model.FactorId && f.TenantId == model.TenantId);
             var createdBy = factors.CreatedBy;
             var createdDate = factors.CreatedByDateTime;
             // Maps the model properties to the existing factor entity
@@ -179,11 +179,11 @@ namespace EligibilityPlatform.Application.Services
                           join condition in _uow.ConditionRepository.Query()
                           on factor.ConditionId equals condition.ConditionId
 
-                          join entity in _uow.EntityRepository.Query()
-                          on factor.EntityId equals entity.EntityId into entityGroup
-                          from entity in entityGroup.DefaultIfEmpty() // LEFT JOIN
+                          //join entity in _uow.EntityRepository.Query()
+                          //on factor.TenantId equals entity.TenantId into entityGroup
+                          //from entity in entityGroup.DefaultIfEmpty() // LEFT JOIN
 
-                          where factor.EntityId == entityId && parameter.EntityId == entityId
+                          where factor.TenantId == entityId && parameter.TenantId == entityId
                           select new FactorModelDescription
                           {
                               FactorId = factor.FactorId,
@@ -192,8 +192,8 @@ namespace EligibilityPlatform.Application.Services
                               Value1 = factor.Value1,
                               Value2 = factor.Value2,
                               ConditionId = factor.ConditionId,
-                              EntityId = factor.EntityId,
-                              EntityName = entity != null ? entity.EntityName : null,
+                              TenantId = factor.TenantId,
+                              //EntityName = entity != null ? entity.EntityName : null,
                               ParameterId = factor.ParameterId,
                               ParameterName = parameter.ParameterName,
                               ConditionValue = condition.ConditionValue
@@ -276,7 +276,7 @@ namespace EligibilityPlatform.Application.Services
                 // Resets the FactorId to 0 for new entities
                 entity.FactorId = 0;
                 // Sets the entity ID
-                entity.EntityId = entityId;
+                entity.TenantId = entityId;
                 // Adds the entity to the repository
                 _uow.FactorRepository.Add(entity);
             }
@@ -300,7 +300,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Retrieves the factor by ID and entity ID
-                var item = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.EntityId == entityId);
+                var item = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == entityId);
                 // Checks if the item exists
                 if (item != null)
                 {
@@ -324,7 +324,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Queries factors by entity ID and parameter ID
             var values = _uow.FactorRepository.Query()
-                                     .Where(f => f.EntityId == entityId && f.ParameterId == parameterId)
+                                     .Where(f => f.TenantId == entityId && f.ParameterId == parameterId)
                                      // Concatenates Value1 and Value2 with separator
                                      .Select(f =>
                                          (f.Value1 ?? string.Empty) +
@@ -349,7 +349,7 @@ namespace EligibilityPlatform.Application.Services
             // Queries factors by entity ID and condition ID
             var factors = _uow.FactorRepository
                      .Query()
-                     .Where(factor => factor.EntityId == entityId && factor.ConditionId == conditionId)
+                     .Where(factor => factor.TenantId == entityId && factor.ConditionId == conditionId)
                      // Converts results to list
                      .ToList();
             // Maps factors to FactorModel objects
@@ -367,7 +367,7 @@ namespace EligibilityPlatform.Application.Services
         public List<FactorModel> GetFactorByparameter(int entityId, int parameterId)
         {
             // Queries factors by entity ID and parameter ID
-            var factors = _uow.FactorRepository.Query().Where(factor => factor.EntityId == entityId && factor.ParameterId == parameterId).ToList();
+            var factors = _uow.FactorRepository.Query().Where(factor => factor.TenantId == entityId && factor.ParameterId == parameterId).ToList();
             // Maps factors to FactorModel objects
             return _mapper.Map<List<FactorModel>>(factors);
         }
@@ -491,7 +491,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if a factor with the same properties already exists
-                    var existingEntity = await _uow.FactorRepository.Query().AnyAsync(p => p.EntityId == entityId && p.FactorName == model.FactorName && p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && p.ConditionId == model.ConditionId && p.Value1 == model.Value1);
+                    var existingEntity = await _uow.FactorRepository.Query().AnyAsync(p => p.TenantId == entityId && p.FactorName == model.FactorName && p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && p.ConditionId == model.ConditionId && p.Value1 == model.Value1);
                     if (existingEntity)
                     {
                         // Increments duplicated records counter
@@ -500,7 +500,7 @@ namespace EligibilityPlatform.Application.Services
                         continue;
                     }
                     // Sets the entity ID
-                    model.EntityId = entityId;
+                    model.TenantId = entityId;
                     // Sets the update timestamp to current UTC time
                     // Sets the creation timestamp to current UTC time
                     model.CreatedByDateTime = DateTime.UtcNow;
@@ -622,7 +622,7 @@ namespace EligibilityPlatform.Application.Services
             // Adds reference column headers for internal data mapping
             sheet.Cells[1, 11].Value = "ParameterName";
             sheet.Cells[1, 12].Value = "ParameterId";
-            sheet.Cells[1, 13].Value = "EntityId";
+            sheet.Cells[1, 13].Value = "TenantId";
             sheet.Cells[1, 14].Value = "ConditionValue";
             sheet.Cells[1, 15].Value = "ConditionId";
             sheet.Cells[1, 17].Value = "ListName";
@@ -630,7 +630,7 @@ namespace EligibilityPlatform.Application.Services
             // Populates reference columns with respective data
             PopulateColumn(sheet, [.. parameterList.Select(d => d.ParameterName ?? "")], 11);
             PopulateColumn(sheet, [.. parameterList.Select(d => d.ParameterId.ToString())], 12);
-            PopulateColumn(sheet, [.. parameterList.Select(d => d.EntityId.ToString() ?? "")], 13);
+            //PopulateColumn(sheet, [.. parameterList.Select(d => d.TenantId.ToString() ?? "")], 13);
             PopulateColumn(sheet, [.. conditionsList.Select(c => c.ConditionValue ?? "")], 14);
             PopulateColumn(sheet, [.. conditionsList.Select(c => c.ConditionId.ToString())], 15);
             PopulateColumn(sheet, [.. managedList.Select(c => c.ListName ?? "".ToString())], 17);

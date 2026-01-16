@@ -52,7 +52,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int entityId, int id)
         {
             // Retrieves the HistoryPc record by entity ID and transaction ID
-            var Item = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.EntityId == entityId);
+            var Item = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == entityId);
             // Removes the record from the repository
             _uow.HistoryPcRepository.Remove(Item);
             // Commits the changes to the database
@@ -67,7 +67,7 @@ namespace EligibilityPlatform.Application.Services
         public List<HistoryPcModel> GetAll(int entityId)
         {
             // Retrieves all HistoryPc records for the specified entity
-            var HistoriPcs = _uow.HistoryPcRepository.Query().Where(f => f.EntityId == entityId);
+            var HistoriPcs = _uow.HistoryPcRepository.Query().Where(f => f.TenantId == entityId);
             // Maps the records to HistoryPcModel objects
             return _mapper.Map<List<HistoryPcModel>>(HistoriPcs);
         }
@@ -81,7 +81,7 @@ namespace EligibilityPlatform.Application.Services
         public HistoryPcModel GetById(int entityId, int id)
         {
             // Retrieves the specific HistoryPc record by entity ID and transaction ID
-            var city = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.EntityId == entityId);
+            var city = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == entityId);
             // Maps the record to HistoryPcModel object
             return _mapper.Map<HistoryPcModel>(city);
         }
@@ -94,7 +94,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Update(HistoryPcModel model)
         {
             // Retrieves the existing HistoryPc record by entity ID and transaction ID
-            var Item = _uow.HistoryPcRepository.Query().First(f => f.TranId == model.TranId && f.EntityId == model.EntityId);
+            var Item = _uow.HistoryPcRepository.Query().First(f => f.TranId == model.TranId && f.TenantId == model.TenantId);
             // Sets the update timestamp to current UTC time
             model.UpdatedByDateTime = DateTime.UtcNow;
             // Updates the record with mapped data from the model
@@ -115,7 +115,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Checks if the record exists in the database
-                var hasvalue = await _uow.HistoryPcRepository.Query().AnyAsync(item => item.TranId == id && item.EntityId == entityId);
+                var hasvalue = await _uow.HistoryPcRepository.Query().AnyAsync(item => item.TranId == id && item.TenantId == entityId);
                 // Throws exception if any ID is not found
                 if (hasvalue == false)
                 {
@@ -127,7 +127,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Retrieves each record by entity ID and transaction ID
-                var historypcitem = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.EntityId == entityId);
+                var historypcitem = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == entityId);
                 // Removes the record if found
                 if (historypcitem != null)
                 {

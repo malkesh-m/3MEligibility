@@ -74,7 +74,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(ListItemCreateUpdateModel listItem)
         {
 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             listItem.CreatedBy = userName;
             listItem.UpdatedBy = userName;
             // Validates the model state
@@ -101,7 +101,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(ListItemCreateUpdateModel listItem)
         {
 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             listItem.UpdatedBy = userName;
             // Validates the model state
             if (!ModelState.IsValid)
@@ -184,7 +184,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportListIteams(IFormFile file)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             // Validates if file exists and has content
             if (file == null || file.Length == 0)
                 // Returns bad request if no file is uploaded
@@ -211,7 +211,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> DownloadTemplate()
         {
             // Downloads the list item import template
-            var excelBytes = await _listItemService.DownloadTemplate(User.GetEntityId());
+            var excelBytes = await _listItemService.DownloadTemplate(User.GetTenantId());
             // Returns the template file as Excel document
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsx");
         }

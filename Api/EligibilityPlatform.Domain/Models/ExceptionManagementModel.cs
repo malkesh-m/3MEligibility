@@ -42,7 +42,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? ExpShown { get; set; }
 
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         [StringLength(100, ErrorMessage = "AmountType cannot exceed 100 characters")]
         public string? AmountType { get; set; }

@@ -33,7 +33,7 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="ecardService">The ecard service.</param>
     /// <param name="productService">The product service.</param>
     /// <param name="categoryService">The category service.</param>
-    public partial class BulkImportService(IUnitOfWork uow, IMapper mapper, ICountryService countryService, ICityService cityService, IEntityService entityService, IEruleService eruleService, IParameterService parameterService, IConditionService conditionService, IFactorService factorService, IManagedListService managedListService, IDataTypeService dataTypeService, IEcardService ecardService, IProductService productService, ICategoryService categoryService) : IBulkImportService
+    public partial class BulkImportService(IUnitOfWork uow, IMapper mapper, ICountryService countryService, ICityService cityService/*, IEntityService entityService*/, IEruleService eruleService, IParameterService parameterService, IConditionService conditionService, IFactorService factorService, IManagedListService managedListService, IDataTypeService dataTypeService, IEcardService ecardService, IProductService productService, ICategoryService categoryService) : IBulkImportService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -58,7 +58,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// The entity service instance for entity-related operations.
         /// </summary>
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
 
         /// <summary>
         /// The erule service instance for eligibility rule operations.
@@ -174,9 +174,9 @@ namespace EligibilityPlatform.Application.Services
                 // Processes each sheet based on its name
                 switch (sheetName)
                 {
-                    case "entities":
-                        results.Add(await ImportEntities(worksheet, createdBy));
-                        break;
+                    //case "entities":
+                    //    results.Add(await ImportEntities(worksheet, createdBy));
+                    //    break;
                     case "lists":
                         results.Add(await ImportList(worksheet, createdBy, entityId));
                         break;
@@ -270,165 +270,165 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing entity data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportEntities(ExcelWorksheet worksheet, string createdBy)
-        {
-            // Retrieves all existing entities from the service
-            List<EntityModel> entities = _entityService.GetAll();
-            // Gets the number of data rows in the worksheet
-            int rowCount = GetRowCount(worksheet);
-            // List to store entity models from the Excel file
-            var models = new List<EntityModel>();
-            // Counter for skipped records
-            int skippedRecordsCount = 0;
-            // Counter for inserted records
-            int insertedRecordsCount = 0;
-            // Result message for the import operation
-            var resultMessage = "";
-            // Counter for duplicate records
-            int dublicatedRecordsCount = 0;
-            // Gets the last entity to determine the next code
-            var lastEntity = _uow.EntityRepository.GetAll()
-                     .OrderByDescending(e => e.Code)
-                     .FirstOrDefault();
-            // Parses the last code or defaults to 0 if not found
-            string[] expectedHeaders = [
-              "EntityName*",
-              "CountryName*",
-              "CountryId*",
-              "CityName*",
-              "CityId*",
-              "Address*",
-              "IsChild",
-              "ParentEntity",
-              "ParentEntityId",
-              "Code*"];
-            try
-            {
-                // Checks if the worksheet is empty
-                if (rowCount == 0 || rowCount == -1)
-                {
-                    return resultMessage = "Entity Page = Uploaded File Entities sheets Is Empty";
-                }
-                // Read data from the Excel file into models
-                for (int row = 2; row <= rowCount + 1; row++)
-                {
-                    try
-                    {
-                        var Code = worksheet.Cells[row, 10].Text;
-                        var entityName = worksheet.Cells[row, 1].Text;
-                        var countryIdText = worksheet.Cells[row, 3].Text;
-                        var cityIdText = worksheet.Cells[row, 5].Text;
-                        var address = worksheet.Cells[row, 6].Text;
+        //public async Task<string> ImportEntities(ExcelWorksheet worksheet, string createdBy)
+        //{
+        //    // Retrieves all existing entities from the service
+        //    List<EntityModel> entities = _entityService.GetAll();
+        //    // Gets the number of data rows in the worksheet
+        //    int rowCount = GetRowCount(worksheet);
+        //    // List to store entity models from the Excel file
+        //    var models = new List<EntityModel>();
+        //    // Counter for skipped records
+        //    int skippedRecordsCount = 0;
+        //    // Counter for inserted records
+        //    int insertedRecordsCount = 0;
+        //    // Result message for the import operation
+        //    var resultMessage = "";
+        //    // Counter for duplicate records
+        //    int dublicatedRecordsCount = 0;
+        //    // Gets the last entity to determine the next code
+        //    var lastEntity = _uow.EntityRepository.GetAll()
+        //             .OrderByDescending(e => e.Code)
+        //             .FirstOrDefault();
+        //    // Parses the last code or defaults to 0 if not found
+        //    string[] expectedHeaders = [
+        //      "EntityName*",
+        //      "CountryName*",
+        //      "CountryId*",
+        //      "CityName*",
+        //      "CityId*",
+        //      "Address*",
+        //      "IsChild",
+        //      "ParentEntity",
+        //      "ParentTenantId",
+        //      "Code*"];
+        //    try
+        //    {
+        //        // Checks if the worksheet is empty
+        //        if (rowCount == 0 || rowCount == -1)
+        //        {
+        //            return resultMessage = "Entity Page = Uploaded File Entities sheets Is Empty";
+        //        }
+        //        // Read data from the Excel file into models
+        //        for (int row = 2; row <= rowCount + 1; row++)
+        //        {
+        //            try
+        //            {
+        //                var Code = worksheet.Cells[row, 10].Text;
+        //                var entityName = worksheet.Cells[row, 1].Text;
+        //                var countryIdText = worksheet.Cells[row, 3].Text;
+        //                var cityIdText = worksheet.Cells[row, 5].Text;
+        //                var address = worksheet.Cells[row, 6].Text;
 
-                        _ = int.TryParse(countryIdText, out int countryId);
-                        _ = int.TryParse(cityIdText, out int cityId);
+        //                _ = int.TryParse(countryIdText, out int countryId);
+        //                _ = int.TryParse(cityIdText, out int cityId);
 
-                        // if required fields missing → skip
-                        if (string.IsNullOrWhiteSpace(Code) ||
-                            string.IsNullOrWhiteSpace(entityName) ||
-                            countryId == 0 ||
-                            cityId == 0 ||
-                            string.IsNullOrWhiteSpace(address))
-                        {
-                            skippedRecordsCount++;
-                            continue;
-                        }
+        //                // if required fields missing → skip
+        //                if (string.IsNullOrWhiteSpace(Code) ||
+        //                    string.IsNullOrWhiteSpace(entityName) ||
+        //                    countryId == 0 ||
+        //                    cityId == 0 ||
+        //                    string.IsNullOrWhiteSpace(address))
+        //                {
+        //                    skippedRecordsCount++;
+        //                    continue;
+        //                }
 
-                        var model = new EntityModel
-                        {
-                            Code = Code,
-                            EntityName = entityName,
-                            CountryId = countryId,
-                            CityId = cityId,
-                            EntityAddress = address,
-                            CreatedBy = createdBy,
-                        };
+        //                var model = new EntityModel
+        //                {
+        //                    Code = Code,
+        //                    EntityName = entityName,
+        //                    CountryId = countryId,
+        //                    CityId = cityId,
+        //                    EntityAddress = address,
+        //                    CreatedBy = createdBy,
+        //                };
 
-                        models.Add(model);
-                    }
-                    catch
-                    {
-                        skippedRecordsCount++; // row crashed due to wrong format
-                        continue;
-                    }
-                }
-                static bool Same(string a, string b)
-                {
-                    return string.Equals(
-                        a?.Replace(" ", "").Trim(),
-                        b?.Replace(" ", "").Trim(),
-                        StringComparison.OrdinalIgnoreCase
-                    );
-                }
-                for (int i = 0; i < expectedHeaders.Length; i++)
-                {
-                    string excelHeader = worksheet.Cells[1, i + 1].Text;
+        //                models.Add(model);
+        //            }
+        //            catch
+        //            {
+        //                skippedRecordsCount++; // row crashed due to wrong format
+        //                continue;
+        //            }
+        //        }
+        //        static bool Same(string a, string b)
+        //        {
+        //            return string.Equals(
+        //                a?.Replace(" ", "").Trim(),
+        //                b?.Replace(" ", "").Trim(),
+        //                StringComparison.OrdinalIgnoreCase
+        //            );
+        //        }
+        //        for (int i = 0; i < expectedHeaders.Length; i++)
+        //        {
+        //            string excelHeader = worksheet.Cells[1, i + 1].Text;
 
-                    if (!Same(excelHeader, expectedHeaders[i]))
-                    {
-                        return $"Incorrect file format. Expected header '{expectedHeaders[i]}' in column {i + 1}.";
-                    }
-                }
-                // Filters out existing entities to get only new ones
-                List<EntityModel> existingEntities = _entityService.GetAll();
-                var newModels = models.Where(model =>
-                !existingEntities.Any(existing => (existing.Code ?? "0") == model.Code)).ToList();
+        //            if (!Same(excelHeader, expectedHeaders[i]))
+        //            {
+        //                return $"Incorrect file format. Expected header '{expectedHeaders[i]}' in column {i + 1}.";
+        //            }
+        //        }
+        //        // Filters out existing entities to get only new ones
+        //        List<EntityModel> existingEntities = _entityService.GetAll();
+        //        var newModels = models.Where(model =>
+        //        !existingEntities.Any(existing => (existing.Code ?? "0") == model.Code)).ToList();
 
-                // Returns message if no new records to insert
-                if (newModels.Count == 0)
-                {
-                    dublicatedRecordsCount++;
-                }
+        //        // Returns message if no new records to insert
+        //        if (newModels.Count == 0)
+        //        {
+        //            dublicatedRecordsCount++;
+        //        }
 
-                // Processes each model for insertion
-                foreach (var model in models)
-                {
-                    // Checks if the entity already exists
-                    var existingEntity = await _uow.EntityRepository.Query().AnyAsync(p => p.Code == model.Code || (p.EntityName == model.EntityName && p.CountryId == model.CountryId && p.CityId == model.CityId && p.EntityAddress == model.EntityAddress));
-                    if (existingEntity)
-                    {
-                        // Increments duplicate count if entity exists
-                        continue;
-                    }
+        //        // Processes each model for insertion
+        //        foreach (var model in models)
+        //        {
+        //            // Checks if the entity already exists
+        //            var existingEntity = await _uow.EntityRepository.Query().AnyAsync(p => p.Code == model.Code || (p.EntityName == model.EntityName && p.CountryId == model.CountryId && p.CityId == model.CityId && p.EntityAddress == model.EntityAddress));
+        //            if (existingEntity)
+        //            {
+        //                // Increments duplicate count if entity exists
+        //                continue;
+        //            }
 
-                    // Sets creation and update timestamps
-                    model.CreatedByDateTime = DateTime.UtcNow;
-                    model.UpdatedByDateTime = DateTime.UtcNow;
-                    model.UpdatedBy = createdBy;
+        //            // Sets creation and update timestamps
+        //            model.CreatedByDateTime = DateTime.UtcNow;
+        //            model.UpdatedByDateTime = DateTime.UtcNow;
+        //            model.UpdatedBy = createdBy;
 
-                    var entity = _mapper.Map<Entity>(model);
+        //            var entity = _mapper.Map<Entity>(model);
 
-                    // Adds entity to repository
-                    _uow.EntityRepository.Add(entity);
-                }
-                insertedRecordsCount = newModels.Count;
-                // Updates import counts
-                UpdateImportCounts(rowCount, insertedRecordsCount);
+        //            // Adds entity to repository
+        //            _uow.EntityRepository.Add(entity);
+        //        }
+        //        insertedRecordsCount = newModels.Count;
+        //        // Updates import counts
+        //        UpdateImportCounts(rowCount, insertedRecordsCount);
 
-                // Commit the changes to the database
-                await _uow.CompleteAsync();
+        //        // Commit the changes to the database
+        //        await _uow.CompleteAsync();
 
-                // Builds result message based on import results
-                if (newModels.Count > 0)
-                {
-                    resultMessage = $"Entity Page= {newModels.Count} Entities Inserted Successfully.{Environment.NewLine}";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $"Entity Page={skippedRecordsCount} records were not inserted because of missing required field.{Environment.NewLine}";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $"Entity Page= {dublicatedRecordsCount} record already exists.{Environment.NewLine}";
-                }
-            }
-            catch (Exception ex)
-            {
-                // Returns error message if exception occurs
-                resultMessage = "Error Entity Page = " + ex.Message + Environment.NewLine;
-            }
-            return resultMessage;
-        }
+        //        // Builds result message based on import results
+        //        if (newModels.Count > 0)
+        //        {
+        //            resultMessage = $"Entity Page= {newModels.Count} Entities Inserted Successfully.{Environment.NewLine}";
+        //        }
+        //        if (skippedRecordsCount > 0)
+        //        {
+        //            resultMessage += $"Entity Page={skippedRecordsCount} records were not inserted because of missing required field.{Environment.NewLine}";
+        //        }
+        //        if (dublicatedRecordsCount > 0)
+        //        {
+        //            resultMessage += $"Entity Page= {dublicatedRecordsCount} record already exists.{Environment.NewLine}";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Returns error message if exception occurs
+        //        resultMessage = "Error Entity Page = " + ex.Message + Environment.NewLine;
+        //    }
+        //    return resultMessage;
+        //}
 
         /// <summary>
         /// Imports a list of managed entities from an Excel worksheet and stores them in the database.
@@ -509,7 +509,7 @@ namespace EligibilityPlatform.Application.Services
                         // Sets the list name
                         ListName = ListName,
                         // Parses and sets entity ID
-                        EntityId = entityId,
+                        TenantId = entityId,
                         // Sets the created by user
                         CreatedBy = createdBy,
                         UpdatedBy = createdBy
@@ -522,7 +522,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if the managed list already exists
-                    var existingEntity = await _uow.ManagedListRepository.Query().AnyAsync(p => p.ListName == model.ListName && p.EntityId == model.EntityId);
+                    var existingEntity = await _uow.ManagedListRepository.Query().AnyAsync(p => p.ListName == model.ListName && p.TenantId == model.TenantId);
                     if (existingEntity)
                     {
                         // Increments duplicate count if managed list exists
@@ -740,14 +740,14 @@ namespace EligibilityPlatform.Application.Services
                     // Reads has factors flag from column 4
                     var HasFactors = worksheet.Cells[row, 4].Text;
                     // Reads entity ID from column 10
-                    var EntityId = worksheet.Cells[row, 10].Text;
+                    var TenantId = worksheet.Cells[row, 10].Text;
                     // Reads condition ID from column 8
                     var ConditionId = worksheet.Cells[row, 8].Text;
                     // Reads factor order from column 6
                     var FactorOrder = worksheet.Cells[row, 6].Text;
 
                     // Check for missing or invalid data
-                    if (string.IsNullOrWhiteSpace(ParameterName) || !int.TryParse(DataTypeId, out _) || string.IsNullOrWhiteSpace(HasFactors) || !int.TryParse(EntityId, out _))
+                    if (string.IsNullOrWhiteSpace(ParameterName) || !int.TryParse(DataTypeId, out _) || string.IsNullOrWhiteSpace(HasFactors) || !int.TryParse(TenantId, out _))
                     {
                         // Increments skipped records count if required fields are missing
                         skippedRecordsCount++;
@@ -782,7 +782,7 @@ namespace EligibilityPlatform.Application.Services
                         // Marks parameter as required
                         IsRequired = true,
                         // Parses and sets entity ID
-                        EntityId = int.TryParse(EntityId, out int entityId) ? entityId : 0,
+                        TenantId = int.TryParse(TenantId, out int entityId) ? entityId : 0,
                         // Parses and sets condition ID (nullable)
                         ConditionId = int.TryParse(ConditionId, out int conditionId) ? conditionId : null,
                         // Sets the factor order
@@ -796,7 +796,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if the parameter already exists
-                    var existingEntity = await _uow.ParameterRepository.Query().AnyAsync(p => p.ParameterName == model.ParameterName && p.DataTypeId == model.DataTypeId && p.HasFactors == model.HasFactors && p.EntityId == model.EntityId && p.ConditionId == model.ConditionId && p.FactorOrder == model.FactorOrder);
+                    var existingEntity = await _uow.ParameterRepository.Query().AnyAsync(p => p.ParameterName == model.ParameterName && p.DataTypeId == model.DataTypeId && p.HasFactors == model.HasFactors && p.TenantId == model.TenantId && p.ConditionId == model.ConditionId && p.FactorOrder == model.FactorOrder);
                     if (existingEntity)
                     {
                         // Increments duplicate count if parameter exists
@@ -944,7 +944,7 @@ namespace EligibilityPlatform.Application.Services
                         // Sets the created by user
                         CreatedBy = createdBy,
                         // Parses and sets entity ID
-                        EntityId = entityId,
+                        TenantId = entityId,
                         // Parses and sets condition ID (nullable)
                         IsRequired = bool.TryParse(isMandatory, out bool isRequired) && isRequired,
                     };
@@ -956,7 +956,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if the parameter already exists
-                    var existingEntity = await _uow.ParameterRepository.Query().AnyAsync(p => p.ParameterName == model.ParameterName && p.EntityId == model.EntityId);
+                    var existingEntity = await _uow.ParameterRepository.Query().AnyAsync(p => p.ParameterName == model.ParameterName && p.TenantId == model.TenantId);
                     if (existingEntity)
                     {
                         // Increments duplicate count if parameter exists
@@ -1115,7 +1115,7 @@ namespace EligibilityPlatform.Application.Services
                         // Skips insertion for duplicate records
                         continue;
                     }
-                    model.EntityId = entityId;
+                    model.TenantId = entityId;
                     // Sets creation timestamp to current UTC time
                     model.CreatedByDateTime = DateTime.UtcNow;
                     // Sets first update timestamp to current UTC time
@@ -1186,7 +1186,7 @@ namespace EligibilityPlatform.Application.Services
     "CategoryName*",
     "CatDescription*",
     "EntityName*",
-    "EntityId*"
+    "TenantId*"
 ];
 
             // Read header row from Excel
@@ -1221,10 +1221,10 @@ namespace EligibilityPlatform.Application.Services
                     // Reads category description from column 2
                     var CatDescription = worksheet.Cells[row, 2].Text;
                     // Reads entity ID from column 4
-                    var EntityId = worksheet.Cells[row, 4].Text;
+                    var TenantId = worksheet.Cells[row, 4].Text;
 
                     // Check for empty or invalid fields
-                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) || !int.TryParse(EntityId, out _))
+                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) || !int.TryParse(TenantId, out _))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1240,7 +1240,7 @@ namespace EligibilityPlatform.Application.Services
                         // Sets category description from Excel data
                         CatDescription = CatDescription,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        EntityId = int.TryParse(EntityId, out int entityId) ? entityId : 0,
+                        TenantId = int.TryParse(TenantId, out int entityId) ? entityId : 0,
                         // Sets creator identifier
                         CreatedBy = createdBy
                     };
@@ -1252,7 +1252,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if identical record already exists in database
-                    var existingEntity = await _uow.CategoryRepository.Query().AnyAsync(p => p.CategoryName == model.CategoryName && p.EntityId == model.EntityId);
+                    var existingEntity = await _uow.CategoryRepository.Query().AnyAsync(p => p.CategoryName == model.CategoryName && p.TenantId == model.TenantId);
                     if (existingEntity)
                     {
                         // Increments duplicate records counter
@@ -1333,7 +1333,7 @@ namespace EligibilityPlatform.Application.Services
     "Category*",
     "CategoryId*",
     "Entity*",
-    "EntityId*",
+    "TenantId*",
     "StreamImage",
     "Narrative",
     "Description"
@@ -1376,7 +1376,7 @@ namespace EligibilityPlatform.Application.Services
                     // Reads entity from column 5
                     var Entity = worksheet.Cells[row, 5].Text;
                     // Reads entity ID from column 6
-                    var EntityId = worksheet.Cells[row, 6].Text;
+                    var TenantId = worksheet.Cells[row, 6].Text;
                     // Reads image URL from column 7
                     var imageUrl = worksheet.Cells[row, 7].Text;
                     // Reads narrative from column 8
@@ -1385,7 +1385,7 @@ namespace EligibilityPlatform.Application.Services
                     var Description = worksheet.Cells[row, 9].Text;
 
                     // Check for missing or invalid data
-                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || !int.TryParse(EntityId, out _))
+                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || !int.TryParse(TenantId, out _))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1403,7 +1403,7 @@ namespace EligibilityPlatform.Application.Services
                         // Parses and sets category ID, defaults to 0 if invalid
                         CategoryId = int.TryParse(CategoryId, out int categoryId) ? categoryId : 0,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        EntityId = int.TryParse(EntityId, out int entityId) ? entityId : 0,
+                        TenantId = int.TryParse(TenantId, out int entityId) ? entityId : 0,
                         // Converts image URL to byte array if provided, otherwise null
                         ProductImage = await SafeLoadImage(imageUrl),
                         // Sets narrative from Excel data
@@ -1421,7 +1421,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if identical record already exists in database
-                    var existingEntity = await _uow.ProductRepository.Query().AnyAsync(p => p.Code == model.Code || (p.ProductName == model.ProductName && p.CategoryId == model.CategoryId && p.EntityId == model.EntityId && p.EntityId == model.EntityId));
+                    var existingEntity = await _uow.ProductRepository.Query().AnyAsync(p => p.Code == model.Code || (p.ProductName == model.ProductName && p.CategoryId == model.CategoryId && p.TenantId == model.TenantId && p.TenantId == model.TenantId));
                     if (existingEntity)
                     {
                         // Increments duplicate records counter
@@ -1595,7 +1595,7 @@ namespace EligibilityPlatform.Application.Services
                         // Parses and sets product ID, defaults to 0 if invalid
                         ProductId = int.TryParse(productId, out int ProductId) ? ProductId : 0,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        EntityId = int.TryParse(entityId, out int EntityId) ? EntityId : 0,
+                        TenantId = int.TryParse(entityId, out int TenantId) ? TenantId : 0,
                         // Parses and sets parameter ID, defaults to 0 if invalid
                         ParameterId = int.TryParse(parameterId, out int ParameterId) ? ParameterId : 0,
                         // Sets parameter value from Excel data
@@ -1754,7 +1754,7 @@ namespace EligibilityPlatform.Application.Services
                         EruleName = ruleName,
                         EruleDesc = ruleDesc,
                         IsActive = isActive,
-                        EntityId = entityId,
+                        TenantId = entityId,
                         CreatedBy = createdBy,
                         CreatedByDateTime = DateTime.UtcNow,
                         UpdatedBy = createdBy,
@@ -1768,7 +1768,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     bool exists = await _uow.EruleMasterRepository.Query()
-                        .AnyAsync(x => x.EntityId == entityId && x.EruleName == model.EruleName);
+                        .AnyAsync(x => x.TenantId == entityId && x.EruleName == model.EruleName);
 
                     if (exists)
                     {
@@ -1879,7 +1879,7 @@ namespace EligibilityPlatform.Application.Services
 
                     var master = new EruleMaster
                     {
-                        EntityId = entityId,
+                        TenantId = entityId,
                         EruleName = ruleName,
                         EruleDesc = ruleDesc,
                         IsActive = isActive,
@@ -2107,7 +2107,7 @@ namespace EligibilityPlatform.Application.Services
 
                     models.Add(new EcardListModel
                     {
-                        EntityId = entityId,
+                        TenantId = entityId,
                         EcardName = EcardName,
                         EcardDesc = EcardDesc,
                         Expshown = ExpressionShown,
@@ -2132,7 +2132,7 @@ namespace EligibilityPlatform.Application.Services
                     // Duplicate check
                     var exists = await _uow.EcardRepository.Query()
                         .AnyAsync(p =>
-                            p.EntityId == entityId &&
+                            p.TenantId == entityId &&
                             p.EcardName == model.EcardName &&
                             p.EcardDesc == model.EcardDesc
                         );
@@ -2646,7 +2646,7 @@ namespace EligibilityPlatform.Application.Services
                         CreatedBy = createdBy,
                         UpdatedBy = createdBy,
                         ProductId = productId,
-                        EntityId = entityId
+                        TenantId = entityId
                     };
 
                     models.Add(model);
@@ -2670,7 +2670,7 @@ namespace EligibilityPlatform.Application.Services
                     // Duplicate check
                     var exists = await _uow.PcardRepository.Query()
                         .AnyAsync(p =>
-                            p.EntityId == model.EntityId &&
+                            p.TenantId == model.TenantId &&
                             p.PcardName == model.PcardName &&
                             p.PcardDesc == model.PcardDesc &&
                             p.ProductId == model.ProductId);
@@ -2816,7 +2816,7 @@ namespace EligibilityPlatform.Application.Services
             List<CityModel> cities = [.. _cityService.GetAll().OrderBy(x => x.CountryId)];
 
             // Retrieves all entities from service
-            List<EntityModel> entities = _entityService.GetAll();
+            //List<EntityModel> entities = _entityService.GetAll();
 
             // Retrieves all erules for the specified entity
             List<EruleListModel> erule = _eruleService.GetAll(entityId);
@@ -2861,7 +2861,7 @@ namespace EligibilityPlatform.Application.Services
                 var sheet1 = package.Workbook.Worksheets.Add("Entities");
 
                 // Populates Entities template
-                EntityTemplate(sheet1, countries, cities, entities);
+                EntityTemplate(sheet1, countries, cities/*, entities*/);
             }
 
             if (selectedList == "All" || selectedList == "Lists")
@@ -2890,7 +2890,7 @@ namespace EligibilityPlatform.Application.Services
                 var sheet5 = package.Workbook.Worksheets.Add("Parameter");
 
                 // Populates Product Parameter template
-                ProductParameterTemplate(sheet5, dataTypes, conditions, entities);
+                ProductParameterTemplate(sheet5, dataTypes, conditions/*, entities*/);
             }
 
             if (selectedList == "All" || selectedList == "Factors")
@@ -2908,7 +2908,7 @@ namespace EligibilityPlatform.Application.Services
                 var sheet7 = package.Workbook.Worksheets.Add("Category");
 
                 // Populates Category template
-                CategoryTemplate(sheet7, entities);
+                CategoryTemplate(sheet7/*, entities*/);
             }
 
             if (selectedList == "All" || selectedList == "Stream")
@@ -2917,7 +2917,7 @@ namespace EligibilityPlatform.Application.Services
                 var sheet8 = package.Workbook.Worksheets.Add("Stream");
 
                 // Populates Info template
-                InfoTemplate(sheet8, entities, categories);
+                InfoTemplate(sheet8/*, entities*/, categories);
             }
 
             //if (selectedList == "All" || selectedList == "Details")
@@ -2974,7 +2974,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="countries">List of countries.</param>
         /// <param name="cities">List of cities.</param>
         /// <param name="entities">List of entities.</param>
-        public static void EntityTemplate(ExcelWorksheet sheet1, List<CountryModel> countries, List<CityModel> cities, List<EntityModel> entities)
+        public static void EntityTemplate(ExcelWorksheet sheet1, List<CountryModel> countries, List<CityModel> cities/*, List<EntityModel> entities*/)
         {
             // Sanitizes country names for use as range names
             foreach (var country in countries)
@@ -2999,7 +2999,7 @@ namespace EligibilityPlatform.Application.Services
         "Address*",
         "IsChild",
         "ParentEntity",
-        "ParentEntityId",
+        "ParentTenantId",
         "Code*",
         "Field Description"
             ];
@@ -3018,7 +3018,7 @@ namespace EligibilityPlatform.Application.Services
             sheet1.Cells[1, 18].Value = "CityCountryIdValue";
             sheet1.Cells[1, 20].Value = "IsChildValue";
             sheet1.Cells[1, 22].Value = "ParentEntityName";
-            sheet1.Cells[1, 23].Value = "ParentEntityId";
+            sheet1.Cells[1, 23].Value = "ParentTenantId";
 
             // IsChild dropdown values
             string[] IsChildOptions = ["True", "False"];
@@ -3038,8 +3038,8 @@ namespace EligibilityPlatform.Application.Services
             PopulateColumn(sheet1, [.. cities.Select(e => e.CityName ?? "".ToString())], 16);
             PopulateColumn(sheet1, [.. cities.Select(e => e.CityId.ToString())], 17);
             PopulateColumn(sheet1, [.. cities.Select(e => e.CountryId.ToString() ?? "")], 18);
-            PopulateColumn(sheet1, [.. entities.Select(e => e.EntityName ?? "".ToString())], 22);
-            PopulateColumn(sheet1, [.. entities.Select(e => e.EntityId.ToString())], 23);
+            //PopulateColumn(sheet1, [.. entities.Select(e => e.EntityName ?? "".ToString())], 22);
+            //PopulateColumn(sheet1, [.. entities.Select(e => e.TenantId.ToString())], 23);
 
             ApplyDropdown(sheet1, "CountryNameRange", "B", 13, 100);
 
@@ -3047,16 +3047,16 @@ namespace EligibilityPlatform.Application.Services
 
             ApplyDropdown(sheet1, "IsChildRange", "G", 20, 100);
 
-            PopulateColumn(sheet1, [.. entities.Select(e => e.EntityName ?? "".ToString())], 22);
+            //PopulateColumn(sheet1, [.. entities.Select(e => e.EntityName ?? "".ToString())], 22);
 
-            sheet1.Workbook.Names.Add("ParentEntityRange", sheet1.Cells[2, 22, entities.Count + 1, 22]);
+            //sheet1.Workbook.Names.Add("ParentEntityRange", sheet1.Cells[2, 22, entities.Count + 1, 22]);
 
             AddFormula(sheet1, "C", "B", 13, 14, countries.Count);
 
             ApplyParamValueDropdown(sheet1, cities);
 
             AddFormula(sheet1, "E", "D", 16, 17, cities.Count);
-            AddFormula(sheet1, "I", "H", 22, 23, entities.Count);
+            //AddFormula(sheet1, "I", "H", 22, 23, entities.Count);
         }
 
         /// <summary>
@@ -3086,11 +3086,11 @@ namespace EligibilityPlatform.Application.Services
 
             // Sets up reference columns for data validation
             //sheet2.Cells[1, 10].Value = "EntityName";
-            //sheet2.Cells[1, 11].Value = "EntityId";
+            //sheet2.Cells[1, 11].Value = "TenantId";
 
             // Populates reference columns with data
             //PopulateColumn(sheet2, [.. entities.Select(e => e.EntityName ?? "")], 10);
-            //PopulateColumn(sheet2, [.. entities.Select(e => e.EntityId.ToString())], 11);
+            //PopulateColumn(sheet2, [.. entities.Select(e => e.TenantId.ToString())], 11);
 
             // Applies dropdown validation to EntityName column
 
@@ -3136,12 +3136,12 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="conditions">List of conditions.</param>
         /// <param name="entities">List of entities.</param>
 
-        public void CustomerParameterTemplate(ExcelWorksheet sheet4, List<DataTypeModel> dataTypes, List<ConditionModel> conditions, List<EntityModel> entities)
+        public void CustomerParameterTemplate(ExcelWorksheet sheet4, List<DataTypeModel> dataTypes, List<ConditionModel> conditions/*, List<EntityModel> entities*/)
         {
             // Sanitize DataType names
             dataTypes.ForEach(dataType => dataType.DataTypeName = SanitizeRangeName(dataType.DataTypeName ?? ""));
 
-            string[] headers = ["ParameterName*", "ParameterType*", "ParameterTypeId*", "Factor*", "FactorOrder*", "FactorOrderId*", "Conditions*", "ConditionsId*", "Entity", "EntityIds", "Field Description"];
+            string[] headers = ["ParameterName*", "ParameterType*", "ParameterTypeId*", "Factor*", "FactorOrder*", "FactorOrderId*", "Conditions*", "ConditionsId*", "Entity", "TenantIds", "Field Description"];
             for (int i = 0; i < headers.Length; i++)
             {
                 sheet4.Cells[1, i + 1].Value = headers[i];
@@ -3153,7 +3153,7 @@ namespace EligibilityPlatform.Application.Services
             sheet4.Cells[1, 19].Value = "ConditionValue";
             sheet4.Cells[1, 20].Value = "ConditionId";
             sheet4.Cells[1, 22].Value = "EntityName";
-            sheet4.Cells[1, 23].Value = "EntityId";
+            sheet4.Cells[1, 23].Value = "TenantId";
             sheet4.Cells[1, 24].Value = "FactorOptions";
             sheet4.Cells[1, 25].Value = "FactorOrderValues";
 
@@ -3197,8 +3197,8 @@ namespace EligibilityPlatform.Application.Services
             PopulateColumn(sheet4, [.. dataTypes.Select(d => d.DataTypeId.ToString())], 17);
             PopulateColumn(sheet4, [.. conditions.Select(c => c.ConditionValue ?? "")], 19);
             PopulateColumn(sheet4, [.. conditions.Select(c => c.ConditionId.ToString())], 20);
-            PopulateColumn(sheet4, [.. entities.Select(e => e.EntityName ?? "")], 22);
-            PopulateColumn(sheet4, [.. entities.Select(e => e.EntityId.ToString())], 23);
+            //PopulateColumn(sheet4, [.. entities.Select(e => e.EntityName ?? "")], 22);
+            //PopulateColumn(sheet4, [.. entities.Select(e => e.TenantId.ToString())], 23);
 
             // Apply dropdown validations
             ApplyDropdown(sheet4, "DataTypeNameRange", "B", 16, 100);
@@ -3221,7 +3221,7 @@ namespace EligibilityPlatform.Application.Services
             sheet4.Column(3).Hidden = true;  // ParameterTypeId
             sheet4.Column(6).Hidden = true;  // FactorOrderId
             sheet4.Column(8).Hidden = true;  // ConditionsId
-            sheet4.Column(10).Hidden = true; // EntityIds
+            sheet4.Column(10).Hidden = true; // TenantIds
         }
         /// <summary>
         /// Populates the product parameter template worksheet.
@@ -3231,7 +3231,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="conditions">List of conditions.</param>
         /// <param name="entities">List of entities.</param>
 
-        public void ProductParameterTemplate(ExcelWorksheet sheet5, List<DataTypeModel> dataTypes, List<ConditionModel> conditions, List<EntityModel> entities)
+        public void ProductParameterTemplate(ExcelWorksheet sheet5, List<DataTypeModel> dataTypes, List<ConditionModel> conditions /*List<EntityModel> entities*/)
         {
             // Sanitize DataType names
             dataTypes.ForEach(dataType => dataType.DataTypeName = SanitizeRangeName(dataType.DataTypeName ?? ""));
@@ -3248,7 +3248,7 @@ namespace EligibilityPlatform.Application.Services
             sheet5.Cells[1, 19].Value = "ConditionValue";
             sheet5.Cells[1, 20].Value = "ConditionId";
             sheet5.Cells[1, 22].Value = "EntityName";
-            sheet5.Cells[1, 23].Value = "EntityId";
+            sheet5.Cells[1, 23].Value = "TenantId";
             sheet5.Cells[1, 24].Value = "FactorOptions";
             sheet5.Cells[1, 25].Value = "FactorOrderValues";
 
@@ -3271,8 +3271,8 @@ namespace EligibilityPlatform.Application.Services
             PopulateColumn(sheet5, [.. dataTypes.Select(d => d.DataTypeId.ToString())], 17);
             PopulateColumn(sheet5, [.. conditions.Select(c => c.ConditionValue ?? "")], 19);
             PopulateColumn(sheet5, [.. conditions.Select(c => c.ConditionId.ToString())], 20);
-            PopulateColumn(sheet5, [.. entities.Select(e => e.EntityName ?? "")], 22);
-            PopulateColumn(sheet5, [.. entities.Select(e => e.EntityId.ToString())], 23);
+            //PopulateColumn(sheet5, [.. entities.Select(e => e.EntityName ?? "")], 22);
+            //PopulateColumn(sheet5, [.. entities.Select(e => e.TenantId.ToString())], 23);
 
             // Apply dropdown validations
             ApplyDropdown(sheet5, "DataTypeNameRange", "B", 16, 100);
@@ -3296,7 +3296,7 @@ namespace EligibilityPlatform.Application.Services
             //sheet5.Column(3).Hidden = true;  // ParameterTypeId
             //sheet5.Column(6).Hidden = true;  // FactorOrderId
             //sheet5.Column(8).Hidden = true;  // ConditionsId
-            //sheet5.Column(10).Hidden = true; // EntityIds
+            //sheet5.Column(10).Hidden = true; // TenantIds
         }
         /// <summary>
         /// Populates the factor template worksheet.
@@ -3329,7 +3329,7 @@ namespace EligibilityPlatform.Application.Services
             // Adds internal reference column headers
             sheet6.Cells[1, 11].Value = "ParameterName";
             sheet6.Cells[1, 12].Value = "ParameterId";
-            sheet6.Cells[1, 13].Value = "EntityId";
+            sheet6.Cells[1, 13].Value = "TenantId";
             sheet6.Cells[1, 14].Value = "ConditionValue";
             sheet6.Cells[1, 15].Value = "ConditionId";
             sheet6.Cells[1, 17].Value = "ListName";
@@ -3337,7 +3337,7 @@ namespace EligibilityPlatform.Application.Services
             // Populates internal reference columns
             PopulateColumn(sheet6, [.. parameter.Select(d => d.ParameterName ?? "")], 11);
             PopulateColumn(sheet6, [.. parameter.Select(d => d.ParameterId.ToString())], 12);
-            PopulateColumn(sheet6, [.. parameter.Select(d => d.EntityId?.ToString() ?? "")], 13);
+            PopulateColumn(sheet6, [.. parameter.Select(d => d.TenantId.ToString() ?? "")], 13);
             PopulateColumn(sheet6, [.. conditionsList.Select(c => c.ConditionValue ?? "")], 14);
             PopulateColumn(sheet6, [.. conditionsList.Select(c => c.ConditionId.ToString())], 15);
             PopulateColumn(sheet6, [.. managedList.Select(c => c.ListName ?? "")], 17);
@@ -3364,9 +3364,9 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="sheet7">The worksheet to populate.</param>
         /// <param name="entities">List of entities.</param>
 
-        public void CategoryTemplate(ExcelWorksheet sheet7, List<EntityModel> entities)
+        public void CategoryTemplate(ExcelWorksheet sheet7/*, List<EntityModel> entities*/)
         {
-            string[] headers = ["CategoryName*", "CatDescription*", "EntityName*", "EntityId*", "Field Description"];
+            string[] headers = ["CategoryName*", "CatDescription*", "EntityName*", "TenantId*", "Field Description"];
             for (int i = 0; i < headers.Length; i++)
             {
                 sheet7.Cells[1, i + 1].Value = headers[i];
@@ -3378,10 +3378,10 @@ namespace EligibilityPlatform.Application.Services
             sheet7.Cells[2, 5].Style.Font.Color.SetColor(Color.Red); // Make text red for visibility
 
             sheet7.Cells[1, 10].Value = "EntityName";
-            sheet7.Cells[1, 11].Value = "EntityId";
+            sheet7.Cells[1, 11].Value = "TenantId";
 
-            PopulateColumn(sheet7, [.. entities.Select(e => e.EntityName ?? "")], 10);
-            PopulateColumn(sheet7, [.. entities.Select(e => e.EntityId.ToString())], 11);
+            //PopulateColumn(sheet7, [.. entities.Select(e => e.EntityName ?? "")], 10);
+            //PopulateColumn(sheet7, [.. entities.Select(e => e.TenantId.ToString())], 11);
 
             ApplyDropdown(sheet7, "EntityNameRange", "C", 10, 100);
 
@@ -3395,10 +3395,10 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="sheet8">The worksheet to populate.</param>
         /// <param name="entities">List of entities to populate the entity dropdowns.</param>
         /// <param name="categories">List of categories to populate the category dropdowns.</param>
-        public void InfoTemplate(ExcelWorksheet sheet8, List<EntityModel> entities, List<CategoryListModel> categories)
+        public void InfoTemplate(ExcelWorksheet sheet8/*, List<EntityModel> entities*/, List<CategoryListModel> categories)
         {
             // Defines the column headers for the product information template.
-            string[] headers = ["Code*", "StreamName*", "Category*", "CategoryId*", "Entity*", "EntityId*", "StreamImage", "Narrative", "Description"];
+            string[] headers = ["Code*", "StreamName*", "Category*", "CategoryId*", "Entity*", "TenantId*", "StreamImage", "Narrative", "Description"];
 
             // Populates the header row with the defined column names.
             for (int i = 0; i < headers.Length; i++)
@@ -3418,14 +3418,14 @@ namespace EligibilityPlatform.Application.Services
 
             // Creates hidden reference columns for Entity data validation.
             sheet8.Cells[1, 13].Value = "EntityName";
-            sheet8.Cells[1, 14].Value = "EntityId";
+            sheet8.Cells[1, 14].Value = "TenantId";
             // Creates hidden reference columns for Category data validation.
             sheet8.Cells[1, 16].Value = "CategoryName";
             sheet8.Cells[1, 17].Value = "CategoryId";
 
             // Populates the hidden Entity reference columns with data.
-            PopulateColumn(sheet8, [.. entities.Select(e => e.EntityName ?? "")], 13);
-            PopulateColumn(sheet8, [.. entities.Select(e => e.EntityId.ToString())], 14);
+            //PopulateColumn(sheet8, [.. entities.Select(e => e.EntityName ?? "")], 13);
+            //PopulateColumn(sheet8, [.. entities.Select(e => e.TenantId.ToString())], 14);
             // Populates the hidden Category reference columns with data.
             PopulateColumn(sheet8, [.. categories.Select(e => e.CategoryName ?? "".ToString())], 16);
             PopulateColumn(sheet8, [.. categories.Select(e => e.CategoryId.ToString())], 17);
@@ -3438,10 +3438,10 @@ namespace EligibilityPlatform.Application.Services
             // Applies dropdown validation to the Category column using the hidden reference data.
             ApplyDropdown(sheet8, "CategoryNameRange", "C", 16, 100);
 
-            // Adds a formula to auto-populate EntityId based on the selected EntityName.
-            AddFormula(sheet8, "F", "E", 13, 14, entities.Count);
-            // Adds a formula to auto-populate CategoryId based on the selected CategoryName.
-            AddFormula(sheet8, "D", "C", 16, 17, entities.Count);
+            // Adds a formula to auto-populate TenantId based on the selected EntityName.
+            //AddFormula(sheet8, "F", "E", 13, 14, entities.Count);
+            //// Adds a formula to auto-populate CategoryId based on the selected CategoryName.
+            //AddFormula(sheet8, "D", "C", 16, 17, entities.Count);
         }
 
         /// <summary>
@@ -3452,10 +3452,10 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="entities">List of entities for dropdown validation.</param>
         /// <param name="parameters">List of parameters for dropdown validation.</param>
         /// <param name="factors">List of factors for dynamic value dropdowns.</param>
-        public void DetailsTemplate(ExcelWorksheet sheet9, List<ProductListModel> product, List<EntityModel> entities, List<ParameterListModel> parameters, List<FactorListModel> factors)
+        public void DetailsTemplate(ExcelWorksheet sheet9, List<ProductListModel> product/*, List<EntityModel> entities*/, List<ParameterListModel> parameters, List<FactorListModel> factors)
         {
             // Defines the column headers for the product details template.
-            string[] headers = ["ProductName*", "ProductId*", "EntityName*", "EntityId*", "ParameterName*", "ParameterId*", "ParamValue*", "DisplayOrder*", "Category*", "Field Description"];
+            string[] headers = ["ProductName*", "ProductId*", "EntityName*", "TenantId*", "ParameterName*", "ParameterId*", "ParamValue*", "DisplayOrder*", "Category*", "Field Description"];
 
             // Populates the header row with the defined column names.
             for (int i = 0; i < headers.Length; i++)
@@ -3473,10 +3473,10 @@ namespace EligibilityPlatform.Application.Services
             // Creates hidden reference columns for Product data validation.
             sheet9.Cells[1, 13].Value = "ProductName";
             sheet9.Cells[1, 14].Value = "ProductId";
-            sheet9.Cells[1, 15].Value = "ProductEntityId";
+            sheet9.Cells[1, 15].Value = "ProductTenantId";
             // Creates hidden reference columns for Entity data validation.
             sheet9.Cells[1, 16].Value = "EntityName";
-            sheet9.Cells[1, 17].Value = "EntityId";
+            sheet9.Cells[1, 17].Value = "TenantId";
             // Creates hidden reference columns for Parameter data validation.
             sheet9.Cells[1, 19].Value = "ParameterName";
             sheet9.Cells[1, 20].Value = "ParameterId";
@@ -3498,10 +3498,10 @@ namespace EligibilityPlatform.Application.Services
             // Populates the hidden Product reference columns with data.
             PopulateColumn(sheet9, [.. product.Select(e => e.ProductName ?? "")], 13);
             PopulateColumn(sheet9, [.. product.Select(e => e.ProductId.ToString())], 14);
-            PopulateColumn(sheet9, [.. product.Select(e => e.EntityId.ToString())], 15);
+            PopulateColumn(sheet9, [.. product.Select(e => e.TenantId.ToString())], 15);
             // Populates the hidden Entity reference columns with data.
-            PopulateColumn(sheet9, [.. entities.Select(e => e.EntityName ?? "")], 16);
-            PopulateColumn(sheet9, [.. entities.Select(e => e.EntityId.ToString())], 17);
+            //PopulateColumn(sheet9, [.. entities.Select(e => e.EntityName ?? "")], 16);
+            //PopulateColumn(sheet9, [.. entities.Select(e => e.TenantId.ToString())], 17);
             // Populates the hidden Parameter reference columns with data.
             PopulateColumn(sheet9, [.. parameters.Select(e => e.ParameterName ?? "")], 19);
             PopulateColumn(sheet9, [.. parameters.Select(e => e.ParameterId.ToString())], 20);
@@ -3524,7 +3524,7 @@ namespace EligibilityPlatform.Application.Services
 
             // Adds a formula to auto-populate ProductId based on the selected ProductName.
             AddFormula(sheet9, "B", "A", 13, 14, 100);
-            // Adds a formula to auto-populate EntityId based on the selected EntityName.
+            // Adds a formula to auto-populate TenantId based on the selected EntityName.
             AddFormula(sheet9, "D", "C", 16, 17, 100);
             // Adds a formula to auto-populate ParameterId based on the selected ParameterName.
             AddFormula(sheet9, "F", "E", 19, 20, 100);
@@ -4817,7 +4817,7 @@ namespace EligibilityPlatform.Application.Services
 
                 // Validate required fields and data types
                 if (string.IsNullOrWhiteSpace(listName)) errorFields.Add("ListName");
-                if (string.IsNullOrWhiteSpace(entityIdText) || !int.TryParse(entityIdText, out _)) errorFields.Add("EntityId");
+                if (string.IsNullOrWhiteSpace(entityIdText) || !int.TryParse(entityIdText, out _)) errorFields.Add("TenantId");
 
                 // Check if any errors were found
                 if (errorFields.Count > 0)
@@ -4920,7 +4920,7 @@ namespace EligibilityPlatform.Application.Services
                 var ParameterName = worksheet.Cells[row, 1].Text;
                 var DataTypeId = worksheet.Cells[row, 3].Text;
                 var HasFactors = worksheet.Cells[row, 4].Text;
-                var EntityId = worksheet.Cells[row, 10].Text;
+                var TenantId = worksheet.Cells[row, 10].Text;
                 var ConditionId = worksheet.Cells[row, 8].Text;
                 var FactorOrder = worksheet.Cells[row, 6].Text;
 
@@ -4931,7 +4931,7 @@ namespace EligibilityPlatform.Application.Services
                 if (string.IsNullOrWhiteSpace(ParameterName)) errorFields.Add("ParameterName");
                 if (string.IsNullOrWhiteSpace(DataTypeId) || !int.TryParse(DataTypeId, out _)) errorFields.Add("ParameterType");
                 if (string.IsNullOrWhiteSpace(HasFactors)) errorFields.Add("HasFactors");
-                if (string.IsNullOrWhiteSpace(EntityId) || !int.TryParse(EntityId, out _)) errorFields.Add("EntityId");
+                if (string.IsNullOrWhiteSpace(TenantId) || !int.TryParse(TenantId, out _)) errorFields.Add("TenantId");
                 // Parse HasFactors boolean and validate conditional fields if true
                 bool factors = bool.TryParse(HasFactors, out bool hasFactors) && hasFactors;
                 if (factors)
@@ -4987,7 +4987,7 @@ namespace EligibilityPlatform.Application.Services
                 var ParameterName = worksheet.Cells[row, 1].Text;
                 var DataTypeId = worksheet.Cells[row, 3].Text;
                 var HasFactors = worksheet.Cells[row, 4].Text;
-                var EntityId = worksheet.Cells[row, 10].Text;
+                var TenantId = worksheet.Cells[row, 10].Text;
                 var ConditionId = worksheet.Cells[row, 8].Text;
                 var FactorOrder = worksheet.Cells[row, 6].Text;
 
@@ -4998,7 +4998,7 @@ namespace EligibilityPlatform.Application.Services
                 if (string.IsNullOrWhiteSpace(ParameterName)) errorFields.Add("ParameterName");
                 if (string.IsNullOrWhiteSpace(DataTypeId) || !int.TryParse(DataTypeId, out _)) errorFields.Add("ParameterType");
                 if (string.IsNullOrWhiteSpace(HasFactors)) errorFields.Add("HasFactors");
-                if (string.IsNullOrWhiteSpace(EntityId) || !int.TryParse(EntityId, out _)) errorFields.Add("EntityId");
+                if (string.IsNullOrWhiteSpace(TenantId) || !int.TryParse(TenantId, out _)) errorFields.Add("TenantId");
                 // Parse HasFactors boolean and validate conditional fields if true
                 bool factors = bool.TryParse(HasFactors, out bool hasFactors) && hasFactors;
                 if (factors)
@@ -5101,13 +5101,13 @@ namespace EligibilityPlatform.Application.Services
             {
                 var CategoryName = worksheet.Cells[row, 1].Text;
                 var CatDescription = worksheet.Cells[row, 2].Text;
-                var EntityId = worksheet.Cells[row, 4].Text;
+                var TenantId = worksheet.Cells[row, 4].Text;
 
                 List<string> errorFields = [];
 
                 if (string.IsNullOrWhiteSpace(CategoryName)) errorFields.Add("ParameterName");
                 if (string.IsNullOrWhiteSpace(CatDescription)) errorFields.Add("CatDescription");
-                if (string.IsNullOrWhiteSpace(EntityId) || !int.TryParse(EntityId, out _)) errorFields.Add("EntityId");
+                if (string.IsNullOrWhiteSpace(TenantId) || !int.TryParse(TenantId, out _)) errorFields.Add("TenantId");
 
                 if (errorFields.Count > 0)
                 {
@@ -5147,7 +5147,7 @@ namespace EligibilityPlatform.Application.Services
                 var Code = worksheet.Cells[row, 1].Text;
                 var ProductName = worksheet.Cells[row, 2].Text;
                 var CategoryId = worksheet.Cells[row, 4].Text;
-                var EntityId = worksheet.Cells[row, 6].Text;
+                var TenantId = worksheet.Cells[row, 6].Text;
                 var imageUrl = worksheet.Cells[row, 7].Text;
                 //var Narrative = worksheet.Cells[row, 8].Text;
                 //var Description = worksheet.Cells[row, 9].Text;
@@ -5157,7 +5157,7 @@ namespace EligibilityPlatform.Application.Services
                 if (string.IsNullOrWhiteSpace(Code)) errorFields.Add("ParameterName");
                 if (string.IsNullOrWhiteSpace(CategoryId) || !int.TryParse(CategoryId, out _)) errorFields.Add("CategoryId");
                 if (string.IsNullOrWhiteSpace(ProductName)) errorFields.Add("ProductName");
-                if (string.IsNullOrWhiteSpace(EntityId) || !int.TryParse(EntityId, out _)) errorFields.Add("EntityId");
+                if (string.IsNullOrWhiteSpace(TenantId) || !int.TryParse(TenantId, out _)) errorFields.Add("TenantId");
                 if (string.IsNullOrWhiteSpace(imageUrl)) errorFields.Add("imageUrl");
 
                 if (errorFields.Count > 0)

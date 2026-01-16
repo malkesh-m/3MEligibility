@@ -31,9 +31,9 @@ namespace EligibilityPlatform
             CreateMap<Country, CountryModel>().ReverseMap();
 
             // Configures bidirectional mapping between Entity entity and EntityModel
-            CreateMap<Entity, EntityModel>().ReverseMap();
-            // Configures bidirectional mapping between Entity entity and CreateOrUpdateEntityModel
-            CreateMap<Entity, CreateOrUpdateEntityModel>().ReverseMap();
+            //CreateMap<Entity, EntityModel>().ReverseMap();
+            //// Configures bidirectional mapping between Entity entity and CreateOrUpdateEntityModel
+            //CreateMap<Entity, CreateOrUpdateEntityModel>().ReverseMap();
 
             // Configures bidirectional mapping between Parameter entity and ParameterModel
             CreateMap<Parameter, ParameterModel>().ReverseMap();

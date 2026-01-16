@@ -29,7 +29,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Get()
         {
             // Retrieves all product parameters for the current entity
-            return Ok(new ResponseModel { IsSuccess = true, Data = await _productParamservice.GetAll(User.GetEntityId()), Message = GlobalcConstants.Success });
+            return Ok(new ResponseModel { IsSuccess = true, Data = await _productParamservice.GetAll(User.GetTenantId()), Message = GlobalcConstants.Success });
         }
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(ProductParamAddUpdateModel product)
         {
             // Sets the entity ID from the current user context
-            product.EntityId = User.GetEntityId();
+            product.TenantId = User.GetTenantId();
             // Gets the username from the current user identity
-            string? UserName = User.Identity?.Name;
+            string? UserName = User.GetUserName();
             // Sets the created by field with the current username
             product.CreatedBy = UserName;
             // Sets the updated by field with the current username
@@ -70,7 +70,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int productId, int parameterId)
         {
             // Retrieves product parameter by product ID and parameter ID for the current entity
-            var result = _productParamservice.GetById(productId, parameterId, User.GetEntityId());
+            var result = _productParamservice.GetById(productId, parameterId, User.GetTenantId());
             // Checks if the product parameter was found
             if (result != null)
             {
@@ -93,7 +93,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int productId)
         {
             // Retrieves product parameters by product ID for the current entity
-            var result = _productParamservice.GetByProductId(productId, User.GetEntityId());
+            var result = _productParamservice.GetByProductId(productId, User.GetTenantId());
             // Checks if any product parameters were found
             if (result != null)
             {
@@ -116,9 +116,9 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(ProductParamAddUpdateModel product)
         {
             // Sets the entity ID from the current user context
-            product.EntityId = User.GetEntityId();
+            product.TenantId = User.GetTenantId();
             // Gets the username from the current user identity
-            string? UserName = User.Identity?.Name;
+            string? UserName = User.GetUserName();
             // Sets the created by field with the current username
             product.CreatedBy = UserName;
             // Sets the updated by field with the current username
@@ -145,7 +145,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete(int productId, int parameterId)
         {
             // Deletes the product parameter by product ID and parameter ID
-            await _productParamservice.Delete(productId, parameterId, User.GetEntityId());
+            await _productParamservice.Delete(productId, parameterId, User.GetTenantId());
             // Returns success response after deletion
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -162,7 +162,7 @@ namespace EligibilityPlatform.Controllers
             //TODO:add required validations
 
             // Deletes multiple product parameters by their IDs
-            await _productParamservice.MultipleDelete(productIds, parameterIds, User.GetEntityId());
+            await _productParamservice.MultipleDelete(productIds, parameterIds, User.GetTenantId());
             // Returns success response after deletion
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -176,7 +176,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> ExportDetails([FromBody] List<int> selectedProductIds)
         {
             // Exports product parameters to an Excel stream
-            var stream = await _productParamservice.ExportDetails(selectedProductIds, User.GetEntityId());
+            var stream = await _productParamservice.ExportDetails(selectedProductIds, User.GetTenantId());
             // Returns the Excel file as a downloadable response
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Product.xlsx");
         }
@@ -189,7 +189,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> DownloadTemplate()
         {
             // Downloads the Excel template for product parameter import
-            byte[] excelBytes = await _productParamservice.DownloadTemplate(User.GetEntityId());
+            byte[] excelBytes = await _productParamservice.DownloadTemplate(User.GetTenantId());
             // Returns the Excel template as a downloadable response
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Template.xlsx");
         }
@@ -211,7 +211,7 @@ namespace EligibilityPlatform.Controllers
             try
             {
                 // Imports product parameters from the uploaded file
-                string resultMessage = await _productParamservice.ImportDetails(file.OpenReadStream(), createdBy, User.GetEntityId());
+                string resultMessage = await _productParamservice.ImportDetails(file.OpenReadStream(), createdBy, User.GetTenantId());
                 // Returns success response with import result message
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }

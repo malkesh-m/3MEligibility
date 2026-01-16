@@ -9,7 +9,7 @@ public partial class ManagedList
 
     public string? ListName { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
 
@@ -21,7 +21,7 @@ public partial class ManagedList
 
     public bool IsImport { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<ListItem> ListItems { get; set; } = [];
 }

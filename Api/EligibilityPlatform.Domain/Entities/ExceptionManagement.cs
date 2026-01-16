@@ -34,11 +34,11 @@ public partial class ExceptionManagement
 
     public string Expression { get; set; } = null!;
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public string? AmountType { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<ExceptionProduct> ExceptionProducts { get; set; } = [];
 }

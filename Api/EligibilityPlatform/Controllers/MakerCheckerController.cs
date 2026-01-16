@@ -72,7 +72,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(MakerCheckerAddUpdateModel model)
         {
 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             model.MakerName = userName;
             var userId = User.GetUserId();
             model.MakerId = userId;
@@ -108,7 +108,7 @@ namespace EligibilityPlatform.Controllers
             }
 
             // Updates the existing maker checker record
-            await _makerChecker.Update(User.GetEntityId(), model);
+            await _makerChecker.Update(User.GetTenantId(), model);
             // Returns success response for updated operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
@@ -158,7 +158,7 @@ namespace EligibilityPlatform.Controllers
             // Sets the optional comment
             result.Comment = Comment;
             // Updates the maker checker record
-            await _makerChecker.Update(User.GetEntityId(), result);
+            await _makerChecker.Update(User.GetTenantId(), result);
 
             // Returns success response for status update
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Success });

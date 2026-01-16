@@ -24,7 +24,7 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
     /// <param name="categoryService">The category service instance.</param>
-    public class ProductService(IUnitOfWork uow, IMapper mapper, IEntityService entityService, ICategoryService categoryService) : IProductService
+    public class ProductService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/, ICategoryService categoryService) : IProductService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -39,7 +39,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// The entity service instance for entity-related operations.
         /// </summary>
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
 
         /// <summary>
         /// The category service instance for category-related operations.
@@ -55,7 +55,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Checks if a product with the same code already exists for the entity.
             var results = _uow.ProductRepository.Query()
-                .Any(f => f.EntityId == model.EntityId && f.Code == model.Code);
+                .Any(f => f.TenantId == model.TenantId && f.Code == model.Code);
 
             // Throws an exception if the code already exists.
             if (results)
@@ -63,7 +63,7 @@ namespace EligibilityPlatform.Application.Services
                 throw new InvalidOperationException("Code is already exits");
             }
             var productName = _uow.ProductRepository.Query()
-              .Any(f => f.EntityId == model.EntityId && f.ProductName == model.ProductName);
+              .Any(f => f.TenantId == model.TenantId && f.ProductName == model.ProductName);
 
             // Throws an exception if the code already exists.
             if (productName)
@@ -96,7 +96,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int entityId, int id)
         {
             // Retrieves the product entity by ID and entity ID.
-            var Item = _uow.ProductRepository.Query().First(f => f.ProductId == id && f.EntityId == entityId);
+            var Item = _uow.ProductRepository.Query().First(f => f.ProductId == id && f.TenantId == entityId);
 
             // Removes the product entity from the repository.
             _uow.ProductRepository.Remove(Item);
@@ -114,7 +114,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Retrieves products filtered by entity ID and includes category information.
             var products = _uow.ProductRepository.Query().Include(i => i.Category)
-                .Where(f => f.EntityId == entityId)
+                .Where(f => f.TenantId == entityId)
                 .Select(s => new ProductListModel
                 {
                     // Maps product properties to the list model.
@@ -124,7 +124,7 @@ namespace EligibilityPlatform.Application.Services
                     CreatedBy = s.CreatedBy,
                     CreatedByDateTime = s.CreatedByDateTime,
                     Description = s.Description,
-                    EntityId = s.EntityId,
+                    TenantId = s.TenantId,
                     MimeType = s.MimeType,
                     Narrative = s.Narrative,
                     ProductId = s.ProductId,
@@ -148,7 +148,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Retrieves product IDs and names filtered by entity ID.
             var products = _uow.ProductRepository.Query()
-                .Where(w => w.EntityId == entityId)
+                .Where(w => w.TenantId == entityId)
                 .Select(s => new ProductIdAndNameModel
                 {
                     // Maps product ID, name, and image to the model.
@@ -171,7 +171,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Retrieves product IDs and names filtered by entity ID.
             var products = _uow.ProductRepository.Query()
-                .Where(w => w.EntityId == entityId)
+                .Where(w => w.TenantId == entityId)
                 .Select(s => new ProductEligibleModel
                 {
                     // Maps product ID and name to the model.
@@ -193,7 +193,7 @@ namespace EligibilityPlatform.Application.Services
         public List<ProductModel> GetProductsByCategory(int entityId, int categoryId)
         {
             // Retrieves products filtered by entity ID and category ID.
-            var products = _uow.ProductRepository.Query().Where(x => x.EntityId == entityId && x.CategoryId == categoryId);
+            var products = _uow.ProductRepository.Query().Where(x => x.TenantId == entityId && x.CategoryId == categoryId);
 
             // Maps the product entities to models and returns.
             return _mapper.Map<List<ProductModel>>(products);
@@ -208,7 +208,7 @@ namespace EligibilityPlatform.Application.Services
         public ProductListModel GetById(int entityId, int id)
         {
             // Retrieves products filtered by entity ID and product ID.
-            var products = _uow.ProductRepository.Query().Where(w => w.ProductId == id && w.EntityId == entityId);
+            var products = _uow.ProductRepository.Query().Where(w => w.ProductId == id && w.TenantId == entityId);
 
             // Maps the product entity to a list model and returns.
             return _mapper.Map<ProductListModel>(products);
@@ -223,7 +223,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Checks if another product with the same code already exists for the entity.
             var results = _uow.ProductRepository.Query()
-           .Any(f => f.EntityId == model.EntityId && f.Code == model.Code && model.ProductId != f.ProductId);
+           .Any(f => f.TenantId == model.TenantId && f.Code == model.Code && model.ProductId != f.ProductId);
 
             // Throws an exception if the code already exists.
             if (results)
@@ -231,7 +231,7 @@ namespace EligibilityPlatform.Application.Services
                 throw new InvalidOperationException("Code is already exits");
             }
             var productName = _uow.ProductRepository.Query()
-           .Any(f => f.EntityId == model.EntityId && f.ProductName == model.ProductName && f.ProductId != model.ProductId);
+           .Any(f => f.TenantId == model.TenantId && f.ProductName == model.ProductName && f.ProductId != model.ProductId);
 
             // Throws an exception if the code already exists.
             if (productName)
@@ -242,7 +242,7 @@ namespace EligibilityPlatform.Application.Services
             model.CategoryId = model.CategoryId == 0 ? (int?)null : model.CategoryId;
 
             // Retrieves the existing product entity by ID and entity ID.
-            var products = _uow.ProductRepository.Query().FirstOrDefault(w => w.ProductId == model.ProductId && w.EntityId == model.EntityId) ?? throw new InvalidOperationException("Product Does Not Exist");
+            var products = _uow.ProductRepository.Query().FirstOrDefault(w => w.ProductId == model.ProductId && w.TenantId == model.TenantId) ?? throw new InvalidOperationException("Product Does Not Exist");
             var createdBy = products.CreatedBy;
             // Maps the updated model to the existing entity.
             var productEntities = _mapper.Map<ProductAddUpdateModel, Product>(model, products);
@@ -271,7 +271,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Retrieves the product entity by ID and entity ID.
-                var products = _uow.ProductRepository.Query().First(w => w.ProductId == id && w.EntityId == entityId);
+                var products = _uow.ProductRepository.Query().First(w => w.ProductId == id && w.TenantId == entityId);
 
                 // Removes the product entity if it exists.
                 if (products != null)
@@ -297,9 +297,9 @@ namespace EligibilityPlatform.Application.Services
                         join category in _uow.CategoryRepository.Query()
                         on product.CategoryId equals category.CategoryId
                         join entity in _uow.EntityRepository.Query()
-                        on product.EntityId equals entity.EntityId into entityGroup
+                        on product.TenantId equals entity.EntityId into entityGroup
                         from entity in entityGroup.DefaultIfEmpty() // LEFT JOIN
-                        where product.EntityId == entityId && category.EntityId == entityId
+                        where product.TenantId == entityId && category.TenantId == entityId
                         select new ProductDescription
                         {
                             // Maps product information to the description model.
@@ -308,7 +308,7 @@ namespace EligibilityPlatform.Application.Services
                             ProductName = product.ProductName,
                             CategoryId = product.CategoryId,
                             CategoryName = category.CategoryName,
-                            EntityId = product.EntityId,
+                            TenantId = product.TenantId,
                             EntityName = entity.EntityName ?? "",
                             ProductImage = product.ProductImage,
                             Narrative = product.Narrative,
@@ -390,7 +390,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var model in models)
             {
                 // Sets the entity ID for the model.
-                model.EntityId = entityId;
+                model.TenantId = entityId;
 
                 // Maps the model to a product entity.
                 var entity = _mapper.Map<Product>(model);
@@ -453,13 +453,13 @@ namespace EligibilityPlatform.Application.Services
                     var Code = worksheet.Cells[row, 1].Text;
                     var ProductName = worksheet.Cells[row, 2].Text;
                     var CategoryId = worksheet.Cells[row, 4].Text;
-                    var EntityId = worksheet.Cells[row, 6].Text; //TODO: Why to import from excel?
+                    var TenantId = worksheet.Cells[row, 6].Text; //TODO: Why to import from excel?
                     var imageUrl = worksheet.Cells[row, 7].Text;
                     var Narrative = worksheet.Cells[row, 8].Text;
                     var Description = worksheet.Cells[row, 9].Text;
 
                     // Checks for missing or invalid data and skips the row if found.
-                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || !int.TryParse(EntityId, out _) || string.IsNullOrWhiteSpace(imageUrl))
+                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || !int.TryParse(TenantId, out _) || string.IsNullOrWhiteSpace(imageUrl))
                     {
                         skippedRecordsCount++;
                         continue;
@@ -472,7 +472,7 @@ namespace EligibilityPlatform.Application.Services
                         CreatedBy = createdBy,
                         ProductName = ProductName,
                         CategoryId = int.Parse(CategoryId),
-                        EntityId = int.Parse(EntityId),
+                        TenantId = int.Parse(TenantId),
                         ProductImage = await SafeLoadImage(imageUrl),
                         Narrative = Narrative,
                         Description = Description,
@@ -493,7 +493,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if an identical product already exists.
-                    var existingEntity = await _uow.ProductRepository.Query().AnyAsync(p => p.Code == model.Code || (p.ProductName == model.ProductName && p.CategoryId == model.CategoryId && p.EntityId == model.EntityId && p.EntityId == model.EntityId));
+                    var existingEntity = await _uow.ProductRepository.Query().AnyAsync(p => p.Code == model.Code || (p.ProductName == model.ProductName && p.CategoryId == model.CategoryId && p.TenantId == model.TenantId && p.TenantId == model.TenantId));
 
                     // Skips the model if it already exists.
                     if (existingEntity)
@@ -660,7 +660,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate(int entityId)
         {
             // Fetches all entities from the entity service.
-            List<EntityModel> entities = _entityService.GetAll();
+            //List<EntityModel> entities = _entityService.GetAll();
 
             // Fetches all categories for the specified entity from the category service.
             List<CategoryListModel> categories = _categoryService.GetAll(entityId);
@@ -675,7 +675,7 @@ namespace EligibilityPlatform.Application.Services
             var sheet = package.Workbook.Worksheets.Add("Info");
 
             // Defines the column headers for the template.
-            string[] headers = ["Code*", "ProductName*", "Category*", "CategoryId*", "Entity*", "EntityId*", "ProductImage", "Narrative", "Description", "Field Description"];
+            string[] headers = ["Code*", "ProductName*", "Category*", "CategoryId*", "Entity*", "TenantId*", "ProductImage", "Narrative", "Description", "Field Description"];
 
             // Adds headers to the worksheet.
             for (int i = 0; i < headers.Length; i++)
@@ -697,13 +697,13 @@ namespace EligibilityPlatform.Application.Services
 
             // Adds additional headers for reference data.
             sheet.Cells[1, 13].Value = "EntityName";
-            sheet.Cells[1, 14].Value = "EntityId";
+            sheet.Cells[1, 14].Value = "TenantId";
             sheet.Cells[1, 16].Value = "CategoryName";
             sheet.Cells[1, 17].Value = "CategoryId";
 
             // Populates reference data columns with entity and category information.
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 13);
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityId.ToString())], 14);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 13);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 14);
             PopulateColumn(sheet, [.. categories.Select(e => e.CategoryName ?? "".ToString())], 16);
             PopulateColumn(sheet, [.. categories.Select(e => e.CategoryId.ToString())], 17);
 
@@ -715,8 +715,8 @@ namespace EligibilityPlatform.Application.Services
             ApplyDropdown(sheet, "CategoryNameRange", "C", 16, 100);
 
             // Adds formulas to automatically populate ID columns based on name selections.
-            AddFormula(sheet, "F", "E", 13, 14, entities.Count);
-            AddFormula(sheet, "D", "C", 16, 17, entities.Count);
+            //AddFormula(sheet, "F", "E", 13, 14, entities.Count);
+            //AddFormula(sheet, "D", "C", 16, 17, entities.Count);
 
             // Auto-fits the columns to the content.
             sheet.Cells[sheet.Dimension.Address].AutoFitColumns();

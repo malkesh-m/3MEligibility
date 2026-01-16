@@ -38,35 +38,35 @@ public partial class Entity
 
     //public virtual Currency? BaseCurrency { get; set; }
 
-    public virtual ICollection<Category> Categories { get; set; } = [];
+    //public virtual ICollection<Category> Categories { get; set; } = [];
 
-    public virtual City? City { get; set; }
+    //public virtual City? City { get; set; }
 
-    public virtual Country? Country { get; set; }
+    //public virtual Country? Country { get; set; }
 
-    public virtual ICollection<Ecard> Ecards { get; set; } = [];
+    //public virtual ICollection<Ecard> Ecards { get; set; } = [];
 
-    public virtual ICollection<Erule> Erules { get; set; } = [];
+    //public virtual ICollection<Erule> Erules { get; set; } = [];
 
-    public virtual ICollection<Factor> Factors { get; set; } = [];
+    //public virtual ICollection<Factor> Factors { get; set; } = [];
 
-    public virtual ICollection<HistoryPc> HistoryPcs { get; set; } = [];
+    //public virtual ICollection<HistoryPc> HistoryPcs { get; set; } = [];
 
-    public virtual ICollection<ManagedList> ManagedLists { get; set; } = [];
+    //public virtual ICollection<ManagedList> ManagedLists { get; set; } = [];
 
-    public virtual ICollection<Node> Nodes { get; set; } = [];
+    //public virtual ICollection<Node> Nodes { get; set; } = [];
 
-    public virtual ICollection<Parameter> Parameters { get; set; } = [];
+    ////public virtual ICollection<Parameter> Parameters { get; set; } = [];
 
-    public virtual ICollection<Pcard> Pcards { get; set; } = [];
+    //public virtual ICollection<Pcard> Pcards { get; set; } = [];
 
-    public virtual ICollection<Product> Products { get; set; } = [];
+    //public virtual ICollection<Product> Products { get; set; } = [];
 
-    public virtual ICollection<Setting> Settings { get; set; } = [];
+    //public virtual ICollection<Setting> Settings { get; set; } = [];
 
-    public virtual ICollection<User> Users { get; set; } = [];
+    //public virtual ICollection<User> Users { get; set; } = [];
 
-    public virtual ICollection<ExceptionManagement> ExceptionManagements { get; set; } = [];
+    //public virtual ICollection<ExceptionManagement> ExceptionManagements { get; set; } = [];
 
 
 }

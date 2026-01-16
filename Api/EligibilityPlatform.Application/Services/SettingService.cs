@@ -30,13 +30,13 @@ namespace EligibilityPlatform.Application.Services
         public async Task Update(SettingModel model)
         {
             // Queries for existing setting by entity ID
-            var Item = _uow.SettingRepository.Query().FirstOrDefault(w => w.EntityId == model.EntityId);
+            var Item = _uow.SettingRepository.Query().FirstOrDefault(w => w.TenantId == model.EntityId);
             if (Item == null)
             {
                 // Creates new setting if none exists for the entity
                 var newSetting = new Setting
                 {
-                    EntityId = model.EntityId,
+                    TenantId = model.EntityId,
                     IsMakerCheckerEnable = model.IsMakerCheckerEnable
                 };
 
@@ -69,7 +69,7 @@ namespace EligibilityPlatform.Application.Services
         public SettingModel GetById(int entityId, int id)
         {
             // Retrieves setting by both entity ID and setting ID
-            var setting = _uow.SettingRepository.Query().First(w => w.SettingId == id && w.EntityId == entityId);
+            var setting = _uow.SettingRepository.Query().First(w => w.SettingId == id && w.TenantId == entityId);
             // Returns mapped setting model
             return new SettingModel { IsMakerCheckerEnable = setting.IsMakerCheckerEnable };
         }
@@ -82,7 +82,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task<SettingModel> GetbyEntityId(int entityId)
         {
             // Queries for setting by entity ID
-            var setting = _uow.SettingRepository.Query().FirstOrDefault(w => w.EntityId == entityId);
+            var setting = _uow.SettingRepository.Query().FirstOrDefault(w => w.TenantId == entityId);
             if (setting == null)
             {
                 // Creates default setting if none exists

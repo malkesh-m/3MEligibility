@@ -8,7 +8,7 @@ public partial class Category
 
     public string? CatDescription { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
 
@@ -20,7 +20,7 @@ public partial class Category
 
     public bool IsImport { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<Product> Products { get; set; } = [];
 }

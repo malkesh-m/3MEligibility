@@ -11,7 +11,7 @@ public partial class Erule
 
     public string Expression { get; set; } = null!;
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public string? ExpShown { get; set; }
 
@@ -37,7 +37,7 @@ public partial class Erule
 
     public string? Comment { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual EruleMaster? EruleMaster { get; set; }
 

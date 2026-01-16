@@ -6,7 +6,7 @@ public partial class Setting
 
     public bool IsMakerCheckerEnable { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 }

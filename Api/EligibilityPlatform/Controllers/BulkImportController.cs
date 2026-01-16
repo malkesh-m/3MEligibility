@@ -102,7 +102,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to download the import template for the specified list.
             /// </summary>
-            byte[] excelBytes = await _bulkImportService.DownloadTemplate(User.GetEntityId(), selectedList);
+            byte[] excelBytes = await _bulkImportService.DownloadTemplate(User.GetTenantId(), selectedList);
 
             /// <summary>
             /// Returns the template file as a downloadable Excel document.
@@ -126,7 +126,7 @@ namespace EligibilityPlatform.Controllers
             /// Validates that a file was uploaded and has content.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name ?? "";
+            var userName = User.GetUserName() ?? "";
             var createdBy = userName;
             if (file == null || file.Length == 0)
                 /// <summary>
@@ -139,7 +139,7 @@ namespace EligibilityPlatform.Controllers
             /// </summary>
             try
             {
-                var entityId = User.GetEntityId();
+                var entityId = User.GetTenantId();
                 /// <summary>
                 /// Calls the service to perform the bulk import operation.
                 /// </summary>

@@ -29,7 +29,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get()
         {
             // Retrieves the entity ID from the current user context
-            int entityId = Convert.ToInt32(User.GetEntityId());
+            int entityId = Convert.ToInt32(User.GetTenantId());
             // Retrieves all product records for the current entity
             List<ProductListModel> result = _productService.GetAll(entityId);
             // Returns success response with the retrieved data
@@ -47,7 +47,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetAllIdAndName()
         {
             // Retrieves all product IDs and names for the current entity
-            List<ProductIdAndNameModel> result = _productService.GetProductIAndName(User.GetEntityId());
+            List<ProductIdAndNameModel> result = _productService.GetProductIAndName(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -63,7 +63,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetAllName()
         {
             // Retrieves all product names for the current entity
-            List<ProductEligibleModel> result = _productService.GetProductName(User.GetEntityId());
+            List<ProductEligibleModel> result = _productService.GetProductName(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -80,7 +80,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetProductsByCategory(int id)
         {
             // Retrieves products by category for the current entity
-            var result = _productService.GetProductsByCategory(User.GetEntityId(), id);
+            var result = _productService.GetProductsByCategory(User.GetTenantId(), id);
             // Checks if any products were found for the category
             if (result.Count != 0)
             {
@@ -106,7 +106,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a product record by ID for the current entity
-            var result = _productService.GetById(User.GetEntityId(), id);
+            var result = _productService.GetById(User.GetTenantId(), id);
             // Checks if the product record was found
             if (result != null)
             {
@@ -132,10 +132,10 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(ProductAddUpdateModel product)
         {
             // Sets user information and entity ID from the current user context
-            String? UserName = User.Identity?.Name;
+            String? UserName = User.GetUserName();
             product.CreatedBy = UserName;
             product.UpdatedBy = UserName;
-            product.EntityId = User.GetEntityId();
+            product.TenantId = User.GetTenantId();
 
             // Validates the model state
             if (!ModelState.IsValid)
@@ -162,9 +162,9 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(ProductAddUpdateModel product)
         {
             // Sets user information and entity ID from the current user context
-            String? UserName = User.Identity?.Name;
+            String? UserName = User.GetUserName();
             product.UpdatedBy = UserName;
-            product.EntityId = User.GetEntityId();
+            product.TenantId = User.GetTenantId();
 
             // Validates the model state
             if (!ModelState.IsValid)
@@ -191,7 +191,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             // Deletes a product record by ID for the current entity
-            await _productService.Delete(User.GetEntityId(), id);
+            await _productService.Delete(User.GetTenantId(), id);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -208,7 +208,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> ExportInfo([FromBody] List<int> selectedProductIds)
         {
             // Exports selected product records for the current entity
-            var stream = await _productService.ExportInfo(User.GetEntityId(), selectedProductIds);
+            var stream = await _productService.ExportInfo(User.GetTenantId(), selectedProductIds);
             // Returns the exported file as a downloadable Excel document
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Product.xlsx");
         }
@@ -225,7 +225,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportInfo(IFormFile file)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
 
             // Validates that a file is provided
             if (file == null || file.Length == 0)
@@ -234,7 +234,7 @@ namespace EligibilityPlatform.Controllers
             try
             {
                 // Imports product records from the provided file
-                string resultMessage = await _productService.ImportInfo(User.GetEntityId(), file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _productService.ImportInfo(User.GetTenantId(), file.OpenReadStream(), userName ?? "");
                 // Returns success response for import operation
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
@@ -264,7 +264,7 @@ namespace EligibilityPlatform.Controllers
             }
 
             // Deletes multiple product records for the current entity
-            await _productService.RemoveMultiple(User.GetEntityId(), ids);
+            await _productService.RemoveMultiple(User.GetTenantId(), ids);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -277,7 +277,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> DownloadTemplate()
         {
             // Downloads the product import template for the current entity
-            byte[] excelBytes = await _productService.DownloadTemplate(User.GetEntityId());
+            byte[] excelBytes = await _productService.DownloadTemplate(User.GetTenantId());
             // Returns the template file as a downloadable Excel document
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Template.xlsx");
         }

@@ -71,7 +71,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(UserGroupCreateUpdateModel userGroupModel)
         {
             // Sets the created and updated by fields from the current user
-            var UserName = User.Identity?.Name;
+            var UserName = User.GetUserName();
             userGroupModel.CreatedBy = UserName;
             userGroupModel.UpdatedBy = UserName;
             // Validates the model state

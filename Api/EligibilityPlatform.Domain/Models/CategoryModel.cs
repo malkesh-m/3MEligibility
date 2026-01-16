@@ -14,7 +14,7 @@ namespace EligibilityPlatform.Domain.Models
         [RegularExpression(@"^[\u0600-\u06FFa-zA-Z0-9_\-\s]+$", ErrorMessage = "Description contains invalid characters.")]
         public string? CatDescription { get; set; } // Nullable
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
     }
     public class CategoryListModel : CategoryModel
@@ -23,7 +23,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? CreatedBy { get; set; }
         public DateTime CreatedByDateTime { get; set; }
         public string? UpdatedBy { get; set; }
-        public new int? EntityId { get; set; }
+        public new int? TenantId { get; set; }
     }
     public class CategoryCreateUpdateModel : CategoryModel
     {
@@ -60,7 +60,7 @@ namespace EligibilityPlatform.Domain.Models
 
         public string? CatDescription { get; set; }
 
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
         public string? EntityName { get; set; }
 
     }

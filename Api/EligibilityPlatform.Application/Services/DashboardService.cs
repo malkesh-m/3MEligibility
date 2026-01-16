@@ -37,7 +37,7 @@ namespace EligibilityPlatform.Application.Services
 
             // Queries evaluation history for the specified entity and year
             var data = await _uow.EvaluationHistoryRepository.Query()
-                .Where(e => e.EntityId == entityId && e.EvaluationTimeStamp.Year == selectedYear)
+                .Where(e => e.TenantId == entityId && e.EvaluationTimeStamp.Year == selectedYear)
                 // Groups by year and month
                 .GroupBy(e => new { e.EvaluationTimeStamp.Year, e.EvaluationTimeStamp.Month })
                 // Selects counts for approved and rejected outcomes
@@ -77,7 +77,7 @@ namespace EligibilityPlatform.Application.Services
             var rejectedEvaluations = await _uow.EvaluationHistoryRepository.Query()
                 .Where(e => e.Outcome != null &&
                             e.Outcome.Contains("Rejected") &&
-                            e.EntityId == entityId)
+                            e.TenantId == entityId)
                 .ToListAsync();
 
             int customerSalaryCount = 0;
@@ -130,7 +130,7 @@ namespace EligibilityPlatform.Application.Services
             filter ??= new EvaluationHistoryFilter();
 
             var query = _uow.EvaluationHistoryRepository.Query();
-            query = query.Where(e => e.EntityId == entityId);
+            query = query.Where(e => e.TenantId == entityId);
 
             if (!string.IsNullOrWhiteSpace(filter.SearchText))
             {
@@ -189,7 +189,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Gets all processing times for the entity
             var data = await _uow.EvaluationHistoryRepository.Query()
-                .Where(e => e.EntityId == entityId)
+                .Where(e => e.TenantId == entityId)
                 .Select(e => e.ProcessingTime)
                 .ToListAsync();
 
@@ -215,7 +215,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Counts all evaluation records for the entity
             return await _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.EntityId == entityId)
+                .Where(x => x.TenantId == entityId)
                 .CountAsync();
         }
 
@@ -228,7 +228,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Base query for the entity
             var query = _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.EntityId == entityId);
+                .Where(x => x.TenantId == entityId);
 
             // Gets total number of evaluations
             var total = await query.CountAsync();
@@ -252,7 +252,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Base query for the entity
             var query = _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.EntityId == entityId);
+                .Where(x => x.TenantId == entityId);
 
             // Gets total number of evaluations
             var total = await query.CountAsync();
@@ -276,7 +276,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Fetch all failure reason strings
             var allFailureText = await _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.EntityId == entityId && !string.IsNullOrEmpty(x.FailurReason))
+                .Where(x => x.TenantId == entityId && !string.IsNullOrEmpty(x.FailurReason))
                 .Select(x => x.FailurReason)
                 .ToListAsync();
 
@@ -314,11 +314,11 @@ namespace EligibilityPlatform.Application.Services
         {
             // Gets credit scores for approved evaluations
             //var scores = await _uow.EvaluationHistoryRepository.Query()
-            //    .Where(x => x.EntityId == entityId && x.OutCome!.StartsWith("Approved") && x.CreditScore != null)
+            //    .Where(x => x.TenantId == entityId && x.OutCome!.StartsWith("Approved") && x.CreditScore != null)
             //    .Select(x => x.CreditScore)
             //    .ToListAsync();
             var scores = await _uow.EvaluationHistoryRepository.Query()
-              .Where(x => x.EntityId == entityId && x.Outcome!.StartsWith("Approved"))
+              .Where(x => x.TenantId == entityId && x.Outcome!.StartsWith("Approved"))
               .Select(x => x.CreditScore)
               .ToListAsync();
 

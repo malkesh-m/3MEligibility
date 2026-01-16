@@ -29,12 +29,11 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="FactorListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Factors Screen")]
         [HttpGet("getall")]
         public IActionResult Get()
         {
             // Retrieves all factor records for the current entity
-            List<FactorListModel> result = _factorService.GetAll(User.GetEntityId());
+            List<FactorListModel> result = _factorService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved factor list
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -44,12 +43,11 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the factor.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="FactorListModel"/> if found; otherwise, not found.</returns>
-        [RequireRole("View Factors Screen")]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
             // Retrieves a factor record by ID for the current entity
-            var result = _factorService.GetById(User.GetEntityId(), id);
+            var result = _factorService.GetById(User.GetTenantId(), id);
             // Checks if the factor was found
             if (result != null)
             {
@@ -69,18 +67,17 @@ namespace EligibilityPlatform.Controllers
         /// <param name="factor">The <see cref="FactorAddUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Factor")]
         [HttpPost]
         public async Task<IActionResult> Post(FactorAddUpdateModel factor)
         {
             // Gets the current user's name
-            string? UserName = User.Identity?.Name;
+            string? UserName = User.GetUserName();
             // Sets the created by field with current user
             factor.CreatedBy = UserName;
             // Sets the updated by field with current user
             factor.UpdatedBy = UserName;
             // Sets the entity ID from current user context
-            factor.EntityId = User.GetEntityId();
+            factor.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -99,13 +96,12 @@ namespace EligibilityPlatform.Controllers
         /// <param name="factor">The <see cref="FactorAddUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Factor")]
         [HttpPut]
         public async Task<IActionResult> Put(FactorAddUpdateModel factor)
         {
             // Sets the entity ID from current user context
-            factor.EntityId = User.GetEntityId();
-            var userName = User.Identity!.Name;
+            factor.TenantId = User.GetTenantId();
+            var userName = User.GetUserName();
             factor.UpdatedBy = userName;
             // Validates the model state
             if (!ModelState.IsValid)
@@ -125,13 +121,12 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the factor to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Factor")]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
             // Deletes the factor record by ID for current entity
-            await _factorService.Delete(User.GetEntityId(), id);
+            await _factorService.Delete(User.GetTenantId(), id);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -148,7 +143,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> ExportFactors([FromBody] List<int> selectedFactorIds)
         {
             // Exports selected factors and gets the file stream
-            var stream = await _factorService.ExportFactors(User.GetEntityId(), selectedFactorIds);
+            var stream = await _factorService.ExportFactors(User.GetTenantId(), selectedFactorIds);
             // Returns the exported file as Excel document
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Factor.xlsx");
         }
@@ -165,7 +160,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportFactor(IFormFile file)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
 
             // Validates if file exists and has content
             if (file == null || file.Length == 0)
@@ -174,7 +169,7 @@ namespace EligibilityPlatform.Controllers
             try
             {
                 // Imports factors from the uploaded file stream
-                string resultMessage = await _factorService.ImportFactor(User.GetEntityId(), file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _factorService.ImportFactor(User.GetTenantId(), file.OpenReadStream(), userName ?? "");
                 // Returns success response with import result message
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
@@ -203,7 +198,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No IDs provided." });
             }
             // Deletes multiple factor records by IDs
-            await _factorService.RemoveMultiple(User.GetEntityId(), ids);
+            await _factorService.RemoveMultiple(User.GetTenantId(), ids);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -220,7 +215,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetValueByParams(int parameterId)
         {
             // Retrieves value by parameter ID for current entity
-            var result = _factorService.GetValueByParams(User.GetEntityId(), parameterId);
+            var result = _factorService.GetValueByParams(User.GetTenantId(), parameterId);
             // Checks if result is found
             if (result != null)
             {
@@ -246,7 +241,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetFactorsByConditionId(int conditionId)
         {
             // Retrieves factors by condition ID for current entity
-            var result = _factorService.GetFactorByCondition(User.GetEntityId(), conditionId);
+            var result = _factorService.GetFactorByCondition(User.GetTenantId(), conditionId);
             // Checks if result is null
             if (result == null)
             {
@@ -269,7 +264,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetFactorsByParameterId(int parameterid)
         {
             // Retrieves factors by parameter ID for current entity
-            var result = _factorService.GetFactorByparameter(User.GetEntityId(), parameterid);
+            var result = _factorService.GetFactorByparameter(User.GetTenantId(), parameterid);
             // Checks if result is null
             if (result == null)
             {
@@ -288,7 +283,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> DownloadTemplate()
         {
             // Downloads the import template Excel bytes
-            var excelBytes = await _factorService.DownloadTemplate(User.GetEntityId());
+            var excelBytes = await _factorService.DownloadTemplate(User.GetTenantId());
             // Returns the template file as Excel document
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsx");
         }

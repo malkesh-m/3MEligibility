@@ -36,7 +36,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves all categories for the current user's entity from the service.
             /// </summary>
-            List<CategoryListModel> result = _categoryService.GetAll(User.GetEntityId());
+            List<CategoryListModel> result = _categoryService.GetAll(User.GetTenantId());
 
             /// <summary>
             /// Returns successful response with the retrieved categories.
@@ -58,7 +58,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves a specific category by ID for the current user's entity from the service.
             /// </summary>
-            var result = _categoryService.GetById(User.GetEntityId(), id);
+            var result = _categoryService.GetById(User.GetTenantId(), id);
 
             /// <summary>
             /// Checks if the category was found.
@@ -94,7 +94,7 @@ namespace EligibilityPlatform.Controllers
             /// Sets the entity ID from the current user's context.
             /// </summary>
             /// 
-            category.EntityId = User.GetEntityId();
+            category.TenantId = User.GetTenantId();
 
             /// <summary>
             /// Gets the current user's name for audit tracking.
@@ -143,7 +143,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's name for audit tracking.
             /// </summary>
-            string UserName = User.Identity?.Name ?? "";
+            string UserName = User.GetUserName() ?? "";
 
             /// <summary>
             /// Sets the updated by field to the current user.
@@ -153,7 +153,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Sets the entity ID from the current user's context.
             /// </summary>
-            category.EntityId = User.GetEntityId();
+            category.TenantId = User.GetTenantId();
 
             /// <summary>
             /// Validates the model state before processing.
@@ -191,7 +191,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to delete a category for the current user's entity.
             /// </summary>
-            var message = await _categoryService.Remove(User.GetEntityId(), id);
+            var message = await _categoryService.Remove(User.GetTenantId(), id);
 
             /// <summary>
             /// Returns successful response indicating the category was deleted.
@@ -233,7 +233,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to delete multiple categories for the current user's entity.
             /// </summary>
-            var message = await _categoryService.RemoveMultiple(User.GetEntityId(), ids);
+            var message = await _categoryService.RemoveMultiple(User.GetTenantId(), ids);
 
             /// <summary>
             /// Returns successful response indicating the categories were deleted.
@@ -259,7 +259,7 @@ namespace EligibilityPlatform.Controllers
             /// Validates that a file was uploaded and has content.
             /// </summary>
             /// 
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
 
             if (file == null || file.Length == 0)
                 /// <summary>
@@ -308,7 +308,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to export categories for the current user's entity.
             /// </summary>
-            var stream = await _categoryService.ExportCategory(User.GetEntityId(), selectedCategoryIds);
+            var stream = await _categoryService.ExportCategory(User.GetTenantId(), selectedCategoryIds);
 
             /// <summary>
             /// Returns the exported file as a downloadable Excel document.

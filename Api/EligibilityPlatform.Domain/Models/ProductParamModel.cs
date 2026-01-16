@@ -16,7 +16,7 @@ namespace EligibilityPlatform.Domain.Models
         public int? DisplayOrder { get; set; }
 
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         // Optional string but max length 50 characters
         [StringLength(50, ErrorMessage = "ParamValue cannot exceed 50 characters.")]
@@ -34,7 +34,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? CreatedBy { get; set; }
         public DateTime CreatedByDateTime { get; set; }
         public string? UpdatedBy { get; set; }
-        public new int EntityId { get; set; }
+        public new int TenantId { get; set; }
 
 
     }
@@ -49,7 +49,7 @@ namespace EligibilityPlatform.Domain.Models
     {
         public int ProductId { get; set; }
         public string? ProductName { get; set; }
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
         public string? EntityName { get; set; }
         public int? ParameterId { get; set; }
         public string? ParameterName { get; set; }

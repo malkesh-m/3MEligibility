@@ -29,7 +29,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get()
         {
             // Retrieves all managed list records for the current entity
-            List<ManagedListGetModel> result = _managedListService.GetAll(User.GetEntityId());
+            List<ManagedListGetModel> result = _managedListService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -46,7 +46,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a managed list record by ID for the current entity
-            var result = _managedListService.GetById(User.GetEntityId(), id);
+            var result = _managedListService.GetById(User.GetTenantId(), id);
             // Checks if the record was found
             if (result != null)
             {
@@ -72,8 +72,8 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(ManagedListAddUpdateModel managedList)
         {
             // Sets entity ID and user information from the current user
-            managedList.EntityId = User.GetEntityId();
-            string? UserName = User.Identity?.Name;
+            managedList.TenantId = User.GetTenantId();
+            string? UserName = User.GetUserName();
             managedList.CreatedBy = UserName;
             managedList.UpdatedBy = UserName;
 
@@ -101,9 +101,9 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(ManagedListUpdateModel managedList)
         {
             // Sets user information and entity ID from the current user
-            string? UserName = User.Identity?.Name;
+            string? UserName = User.GetUserName();
             managedList.UpdatedBy = UserName;
-            managedList.EntityId = User.GetEntityId();
+            managedList.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -128,7 +128,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             // Deletes the managed list record by ID for the current entity
-            await _managedListService.Delete(User.GetEntityId(), id);
+            await _managedListService.Delete(User.GetTenantId(), id);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -151,7 +151,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No id's provided" });
             }
             // Deletes multiple managed list records
-            await _managedListService.MultipleDelete(User.GetEntityId(), ids);
+            await _managedListService.MultipleDelete(User.GetTenantId(), ids);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -168,7 +168,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> ExportLists([FromBody] List<int> selectedListIds)
         {
             // Exports selected managed lists to a stream
-            var stream = await _managedListService.ExportLists(User.GetEntityId(), selectedListIds);
+            var stream = await _managedListService.ExportLists(User.GetTenantId(), selectedListIds);
             // Returns the exported file as a downloadable Excel file
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Factor.xlsx");
         }
@@ -185,7 +185,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportList(IFormFile file)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             // Validates if file is provided and not empty
             if (file == null || file.Length == 0)
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No file uploaded." });
@@ -193,7 +193,7 @@ namespace EligibilityPlatform.Controllers
             try
             {
                 // Imports managed lists from the provided file
-                string resultMessage = await _managedListService.ImportList(User.GetEntityId(), file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _managedListService.ImportList(User.GetTenantId(), file.OpenReadStream(), userName ?? "");
                 // Returns success response with import result message
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }

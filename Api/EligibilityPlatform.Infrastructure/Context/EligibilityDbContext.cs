@@ -206,7 +206,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("Category");
 
-            entity.HasIndex(e => e.EntityId, "IX_Category_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_Category_TenantId");
 
             entity.Property(e => e.CatDescription).HasMaxLength(250);
             entity.Property(e => e.CategoryName)
@@ -215,9 +215,9 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Categories)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__Category__Entity__123EB7A3");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Categories)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__Category__Entity__123EB7A3");
         });
 
         modelBuilder.Entity<City>(entity =>
@@ -283,7 +283,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("ECards");
 
-            entity.HasIndex(e => e.EntityId, "IX_ECards_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_ECards_TenantId");
 
             entity.Property(e => e.EcardId).HasColumnName("ECardId");
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
@@ -301,9 +301,9 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Ecards)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__ECards__EntityId__160F4887");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Ecards)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__ECards__TenantId__160F4887");
         });
 
         modelBuilder.Entity<Entity>(entity =>
@@ -327,13 +327,13 @@ public partial class EligibilityDbContext : DbContext
             //    .HasForeignKey(d => d.BaseCurrencyId)
             //    .HasConstraintName("FK__Entity__BaseCurr__2E1BDC42");
 
-            entity.HasOne(d => d.City).WithMany(p => p.Entities)
-                .HasForeignKey(d => d.CityId)
-                .HasConstraintName("FK__Entity__CityId__300424B4");
+            //entity.HasOne(d => d.City).WithMany(p => p.Entities)
+            //    .HasForeignKey(d => d.CityId)
+            //    .HasConstraintName("FK__Entity__CityId__300424B4");
 
-            entity.HasOne(d => d.Country).WithMany(p => p.Entities)
-                .HasForeignKey(d => d.CountryId)
-                .HasConstraintName("FK__Entity__CountryI__2F10007B");
+            //entity.HasOne(d => d.Country).WithMany(p => p.Entities)
+            //    .HasForeignKey(d => d.CountryId)
+            //    .HasConstraintName("FK__Entity__CountryI__2F10007B");
         });
         modelBuilder.Entity<EvaluationHistory>(entity =>
         {
@@ -347,7 +347,7 @@ public partial class EligibilityDbContext : DbContext
                 .IsRequired();
             //        entity.HasIndex(e => new { e.LoanNo, e.NationalId })
             //.IsUnique();
-            entity.Property(e => e.EntityId)
+            entity.Property(e => e.TenantId)
             .ValueGeneratedNever();
         });
         modelBuilder.Entity<EruleMaster>(entity =>
@@ -356,12 +356,12 @@ public partial class EligibilityDbContext : DbContext
 
             entity.HasKey(e => e.Id);
 
-            entity.HasIndex(e => e.EntityId, "IX_ExceptionManagement_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_ExceptionManagement_TenantId");
 
             entity.Property(e => e.EruleName).HasMaxLength(50);
             entity.Property(e => e.EruleDesc).HasMaxLength(1000);
 
-            entity.HasIndex(i => new { i.EruleName, i.EntityId }).IsUnique();
+            entity.HasIndex(i => new { i.EruleName, i.TenantId }).IsUnique();
         });
 
         modelBuilder.Entity<Erule>(entity =>
@@ -370,7 +370,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("ERule");
 
-            entity.HasIndex(e => e.EntityId, "IX_ERule_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_ERule_TenantId");
 
             entity.Property(e => e.EruleId).HasColumnName("ERuleId").HasDefaultValueSql("2");
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
@@ -384,9 +384,9 @@ public partial class EligibilityDbContext : DbContext
 
             entity.HasIndex(i => new { i.EruleMasterId, i.Version }).IsUnique();
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Erules)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__ERule__EntityId__19DFD96B");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Erules)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__ERule__TenantId__19DFD96B");
 
             entity.HasOne(d => d.EruleMaster).WithMany(p => p.Erules)
                 .HasForeignKey(d => d.EruleMasterId)
@@ -413,15 +413,15 @@ public partial class EligibilityDbContext : DbContext
 
         modelBuilder.Entity<ExceptionManagement>(entity =>
         {
-            entity.HasIndex(e => e.EntityId, "IX_ExceptionManagement_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_ExceptionManagement_TenantId");
 
             entity.Property(e => e.Expression).HasDefaultValue("");
             entity.Property(e => e.FixedPercentage).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.LimitAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.VariationPercentage).HasColumnType("decimal(18, 2)");
-            entity.HasOne(d => d.Entity).WithMany(p => p.ExceptionManagements)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__ExceptionMgmt__EntityId__20DFD973").OnDelete(DeleteBehavior.Cascade); ;
+            //entity.HasOne(d => d.Entity).WithMany(p => p.ExceptionManagements)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__ExceptionMgmt__TenantId__20DFD973").OnDelete(DeleteBehavior.Cascade); ;
         });
 
      
@@ -443,7 +443,7 @@ public partial class EligibilityDbContext : DbContext
         {
             entity.HasKey(e => e.FactorId).HasName("PK__Factors__E733AADDA7D15B56");
 
-            entity.HasIndex(e => e.EntityId, "IX_Factors_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_Factors_TenantId");
 
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.FactorName).HasMaxLength(50);
@@ -457,9 +457,9 @@ public partial class EligibilityDbContext : DbContext
                 .HasForeignKey(d => d.ConditionId)
                 .HasConstraintName("FK__Factors__Conditi__4316F928");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Factors)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__Factors__EntityI__1DB06A4F");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Factors)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__Factors__EntityI__1DB06A4F");
 
             entity.HasOne(d => d.Parameter).WithMany(p => p.Factors)
                 .HasForeignKey(d => d.ParameterId)
@@ -555,7 +555,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("HistoryPC");
 
-            entity.HasIndex(e => e.EntityId, "IX_HistoryPC_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_HistoryPC_TenantId");
 
             entity.Property(e => e.CustomerId).HasMaxLength(50);
             entity.Property(e => e.Expression).HasColumnType("text");
@@ -568,9 +568,9 @@ public partial class EligibilityDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.HistoryPcs)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__HistoryPC__Entit__29221CFB");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.HistoryPcs)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__HistoryPC__Entit__29221CFB");
 
             entity.HasOne(d => d.Pcard).WithMany(p => p.HistoryPcs)
                 .HasForeignKey(d => d.PcardId)
@@ -631,16 +631,16 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("ManagedList");
 
-            entity.HasIndex(e => e.EntityId, "IX_ManagedList_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_ManagedList_TenantId");
 
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ListName).HasMaxLength(50);
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.ManagedLists)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__ManagedLi__Entit__2DE6D218");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.ManagedLists)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__ManagedLi__Entit__2DE6D218");
         });
 
         modelBuilder.Entity<MappingFunction>(entity =>
@@ -660,7 +660,7 @@ public partial class EligibilityDbContext : DbContext
         {
             entity.HasKey(e => e.NodeId).HasName("PK__Nodes__6BAE22635CDBA8E1");
 
-            entity.HasIndex(e => e.EntityId, "IX_Nodes_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_Nodes_TenantId");
 
             entity.Property(e => e.Apipassword)
                 .HasMaxLength(50)
@@ -687,9 +687,9 @@ public partial class EligibilityDbContext : DbContext
                 .HasDefaultValue("");
             entity.Property(e => e.UsernameField).HasDefaultValue("");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Nodes)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__Nodes__EntityId__2FCF1A8A");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Nodes)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__Nodes__TenantId__2FCF1A8A");
         });
 
         modelBuilder.Entity<NodeApi>(entity =>
@@ -732,10 +732,10 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("Parameter");
 
-            entity.HasIndex(e => e.EntityId, "IX_Parameter_EntityId");
-            entity.HasIndex(e => new { e.EntityId, e.ParameterName })
+            entity.HasIndex(e => e.TenantId, "IX_Parameter_TenantId");
+            entity.HasIndex(e => new { e.TenantId, e.ParameterName })
        .IsUnique()
-       .HasDatabaseName("UQ_Parameter_EntityId_ParameterName");
+       .HasDatabaseName("UQ_Parameter_TenantId_ParameterName");
 
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.FactorOrder).HasMaxLength(3);
@@ -752,9 +752,9 @@ public partial class EligibilityDbContext : DbContext
                 .HasForeignKey(d => d.DataTypeId)
                 .HasConstraintName("FK__Parameter__DataT__33D4B598");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Parameters)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__Parameter__Entit__32AB8735");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Parameters)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__Parameter__Entit__32AB8735");
 
         });
 
@@ -817,7 +817,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("PCards");
 
-            entity.HasIndex(e => e.EntityId, "IX_PCards_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_PCards_TenantId");
 
             entity.HasIndex(e => e.ProductId, "UK_PCards").IsUnique();
 
@@ -841,9 +841,9 @@ public partial class EligibilityDbContext : DbContext
                 .HasColumnName("PStatus");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Pcards)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__PCards__EntityId__395884C4");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Pcards)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__PCards__TenantId__395884C4");
 
             entity.HasOne(d => d.Product).WithOne(p => p.Pcard)
                 .HasForeignKey<Pcard>(d => d.ProductId)
@@ -875,7 +875,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("Product");
 
-            entity.HasIndex(e => e.EntityId, "IX_Product_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_Product_TenantId");
 
             entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
@@ -893,9 +893,9 @@ public partial class EligibilityDbContext : DbContext
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("FK__Product__Categor__3B40CD36");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Products)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__Product__EntityI__3C34F16F");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Products)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__Product__EntityI__3C34F16F");
         });
 
         modelBuilder.Entity<ProductCap>(entity =>
@@ -917,7 +917,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.ToTable("ProductParam");
 
-            entity.HasIndex(e => e.EntityId, "IX_ProductParam_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_ProductParam_TenantId");
 
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
@@ -975,9 +975,9 @@ public partial class EligibilityDbContext : DbContext
 
         modelBuilder.Entity<Setting>(entity =>
         {
-            entity.HasIndex(e => e.EntityId, "IX_Settings_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_Settings_TenantId");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Settings).HasForeignKey(d => d.EntityId);
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Settings).HasForeignKey(d => d.TenantId);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -986,7 +986,7 @@ public partial class EligibilityDbContext : DbContext
 
             entity.HasIndex(e => e.Email, "IX_Users_Email").IsUnique();
 
-            entity.HasIndex(e => e.EntityId, "IX_Users_EntityId");
+            entity.HasIndex(e => e.TenantId, "IX_Users_TenantId");
 
             entity.HasIndex(e => e.LoginId, "IX_Users_LoginId").IsUnique();
 
@@ -1009,9 +1009,9 @@ public partial class EligibilityDbContext : DbContext
                 .HasMaxLength(255)
                 .HasDefaultValue("");
 
-            entity.HasOne(d => d.Entity).WithMany(p => p.Users)
-                .HasForeignKey(d => d.EntityId)
-                .HasConstraintName("FK__Users__EntityId__41EDCAC5");
+            //entity.HasOne(d => d.Entity).WithMany(p => p.Users)
+            //    .HasForeignKey(d => d.TenantId)
+            //    .HasConstraintName("FK__Users__TenantId__41EDCAC5");
 
             entity.HasOne(d => d.Status).WithMany(p => p.Users)
                 .HasForeignKey(d => d.StatusId)

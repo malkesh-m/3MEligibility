@@ -20,7 +20,7 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
     /// <param name="managedListService">The managed list service instance.</param>
-    public class ListItemService(IUnitOfWork uow, IMapper mapper, IEntityService entityService, IManagedListService managedListService) : IListItemService
+    public class ListItemService(IUnitOfWork uow, IMapper mapper, /*IEntityService entityService,*/ IManagedListService managedListService) : IListItemService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -35,7 +35,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// The entity service instance.
         /// </summary>
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
 
         /// <summary>
         /// The managed list service instance.

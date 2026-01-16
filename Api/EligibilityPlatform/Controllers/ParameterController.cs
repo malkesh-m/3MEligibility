@@ -25,13 +25,12 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ParameterListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Parameters Screen")]
 
         [HttpGet("getall")]
         public IActionResult Get()
         {
             // Retrieves all parameter records for the current entity
-            List<ParameterListModel> result = _parameterService.GetAll(User.GetEntityId());
+            List<ParameterListModel> result = _parameterService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -63,7 +62,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a parameter record by ID for the current entity
-            var result = _parameterService.GetById(User.GetEntityId(), id);
+            var result = _parameterService.GetById(User.GetTenantId(), id);
             // Checks if the record was found
             if (result != null)
             {
@@ -83,16 +82,15 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameter">The parameter model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Parameter")]
 
         [HttpPost]
         public async Task<IActionResult> Post(ParameterAddUpdateModel parameter)
         {
             // Sets user information and entity ID from the current user
-            string? UserName = User.Identity?.Name;
+            string? UserName = User.GetUserName();
             parameter.CreatedBy = UserName;
             parameter.UpdatedBy = UserName;
-            parameter.EntityId = User.GetEntityId();
+            parameter.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -111,15 +109,14 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameter">The parameter model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Parameter")]
 
         [HttpPut]
         public async Task<IActionResult> Put(ParameterAddUpdateModel parameter)
         {
             // Sets user information and entity ID from the current user
-            string? UserName = User.Identity?.Name;
+            string? UserName = User.GetUserName();
             parameter.UpdatedBy = UserName;
-            parameter.EntityId = User.GetEntityId();
+            parameter.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -142,7 +139,7 @@ namespace EligibilityPlatform.Controllers
         //{
         //    try
         //    {
-        //        await _parameterService.Delete(User.GetEntityId(), id);
+        //        await _parameterService.Delete(User.GetTenantId(), id);
         //        return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         //    }
         //    catch (InvalidOperationException ex)
@@ -165,7 +162,7 @@ namespace EligibilityPlatform.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            await _parameterService.Delete(User.GetEntityId(), id);
+            await _parameterService.Delete(User.GetTenantId(), id);
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
 
@@ -182,7 +179,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> ExportParameter(int Identifier, [FromBody] List<int> selectedParameterIds)
         {
             // Exports selected parameters to a stream
-            var stream = await _parameterService.ExportParameter(User.GetEntityId(), Identifier, selectedParameterIds);
+            var stream = await _parameterService.ExportParameter(User.GetTenantId(), Identifier, selectedParameterIds);
             // Returns the exported file as a downloadable Excel file
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter.xlsx");
         }
@@ -205,7 +202,7 @@ namespace EligibilityPlatform.Controllers
             try
             {
                 // Imports customer parameters from the provided file
-                string resultMessage = await _parameterService.ImportEntities(User.GetEntityId(), file.OpenReadStream(), 1, createdBy);
+                string resultMessage = await _parameterService.ImportEntities(User.GetTenantId(), file.OpenReadStream(), 1, createdBy);
                 // Returns success response with import result message
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
@@ -228,14 +225,14 @@ namespace EligibilityPlatform.Controllers
         [HttpPost("importproduct")]
         public async Task<IActionResult> ImportParameterProduct(IFormFile file)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             // Validates if file is provided and not empty
             if (file == null || file.Length == 0)
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No file uploaded." });
             try
             {
                 // Imports product parameters from the provided file
-                string resultMessage = await _parameterService.ImportEntities(User.GetEntityId(), file.OpenReadStream(), 2, userName ?? "");
+                string resultMessage = await _parameterService.ImportEntities(User.GetTenantId(), file.OpenReadStream(), 2, userName ?? "");
                 // Returns success response with import result message
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
@@ -264,7 +261,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No IDs provided." });
             }
             // Deletes multiple parameter records
-            await _parameterService.RemoveMultiple(User.GetEntityId(), ids);
+            await _parameterService.RemoveMultiple(User.GetTenantId(), ids);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -280,7 +277,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetParametrsByProductId(int productId)
         {
             // Retrieves parameters by product ID for the current entity
-            var result = _parameterService.GetParameterByProducts(User.GetEntityId(), productId);
+            var result = _parameterService.GetParameterByProducts(User.GetTenantId(), productId);
             // Checks if parameters were found
             if (result == null)
             {
@@ -317,7 +314,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> CheckParameterComputedValue(int parameterId, string parameterValue)
         {
             // Checks the computed value of a parameter
-            var result = await _parameterService.CheckParameterComputedValue(User.GetEntityId(), parameterId, parameterValue);
+            var result = await _parameterService.CheckParameterComputedValue(User.GetTenantId(), parameterId, parameterValue);
             // Checks if the computed value was found
             if (result != null)
             {

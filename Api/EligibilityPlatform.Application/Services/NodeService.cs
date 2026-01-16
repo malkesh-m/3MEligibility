@@ -37,7 +37,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Add(NodeCreateUpdateModel model)
         {
             // Retrieves all existing nodes for the entity to check for duplicate codes
-            List<NodeListModel> results = GetAll(model.EntityId);
+            List<NodeListModel> results = GetAll(model.TenantId);
             // Checks if the provided code already exists for any node in the entity
             foreach (var result in results)
             {
@@ -69,7 +69,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int entityId, int id)
         {
             // Retrieves the specific node by entity ID and node ID
-            var nodes = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.EntityId == entityId);
+            var nodes = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == entityId);
             // Removes the node from the repository
             _uow.NodeModelRepository.Remove(nodes);
             // Commits the changes to the database
@@ -86,7 +86,7 @@ namespace EligibilityPlatform.Application.Services
             // Queries nodes filtered by entity ID and *executes* the query immediately.
             var nodesList = _uow.NodeModelRepository
                                 .Query()
-                                .Where(f => f.EntityId == entityId)
+                                .Where(f => f.TenantId == entityId)
                                 .ToList();
 
             return _mapper.Map<List<NodeListModel>>(nodesList);
@@ -100,7 +100,7 @@ namespace EligibilityPlatform.Application.Services
         public NodeListModel GetById(int entityId, int id)
         {
             // Retrieves the specific node by entity ID and node ID
-            var node = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.EntityId == entityId);
+            var node = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == entityId);
             // Maps the node to NodeListModel object
             return _mapper.Map<NodeListModel>(node);
         }
@@ -113,7 +113,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Update(NodeCreateUpdateModel model)
         {
             // Retrieves the existing node by entity ID and node ID
-            var Item = _uow.NodeModelRepository.Query().First(f => f.NodeId == model.NodeId && f.EntityId == model.EntityId);
+            var Item = _uow.NodeModelRepository.Query().First(f => f.NodeId == model.NodeId && f.TenantId == model.TenantId);
             // Maps the updated model to the existing entity
             var entity = _mapper.Map<NodeCreateUpdateModel, Node>(model, Item);
             // Sets the update timestamp to current UTC time
@@ -138,7 +138,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Checks if the node ID exists for the given entity
-                var hasvalue = await _uow.NodeModelRepository.Query().AnyAsync(item => item.EntityId == entityId && item.NodeId == id);
+                var hasvalue = await _uow.NodeModelRepository.Query().AnyAsync(item => item.TenantId == entityId && item.NodeId == id);
                 if (hasvalue == false)
                 {
                     // Throws exception if node ID is not found for the entity
@@ -150,7 +150,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Retrieves the specific node by entity ID and node ID
-                var manageitem = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.EntityId == entityId);
+                var manageitem = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == entityId);
                 if (manageitem != null)
                 {
                     // Removes the node from the repository

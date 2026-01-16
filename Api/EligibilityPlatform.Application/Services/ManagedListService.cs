@@ -19,7 +19,7 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="uow">The unit of work instance for database operations.</param>
     /// <param name="mapper">The AutoMapper instance for object mapping.</param>
     /// <param name="entityService">The entity service instance for entity operations.</param>
-    public class ManagedListService(IUnitOfWork uow, IMapper mapper, IEntityService entityService) : IManagedListService
+    public class ManagedListService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/) : IManagedListService
     {
         // The unit of work instance for database operations and transaction management
         private readonly IUnitOfWork _uow = uow;
@@ -28,7 +28,7 @@ namespace EligibilityPlatform.Application.Services
         private readonly IMapper _mapper = mapper;
 
         // The entity service instance for entity-related operations
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
 
         /// <summary>
         /// Adds a new managed list to the repository with current timestamp information.
@@ -36,7 +36,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="model">The managed list model containing data to add.</param>
         public async Task Add(ManagedListAddUpdateModel model)
         {
-            var res = _uow.ManagedListRepository.Query().Any(p => p.ListName == model.ListName && p.EntityId == model.EntityId);
+            var res = _uow.ManagedListRepository.Query().Any(p => p.ListName == model.ListName && p.TenantId == model.TenantId);
             if (res)
             {
                 // Throws exception if parameter name already exists
@@ -66,7 +66,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int entityId, int id)
         {
             // Query the repository to find the specific list by entity and list ID
-            var Item = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.EntityId == entityId);
+            var Item = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == entityId);
             // Mark the entity for removal
             _uow.ManagedListRepository.Remove(Item);
             // Save the deletion to the database
@@ -82,7 +82,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Query the repository for all lists belonging to the specified entity
             // Map the entities to get models and return as a list
-            return _mapper.Map<List<ManagedListGetModel>>(_uow.ManagedListRepository.Query().Where(f => f.EntityId == entityId));
+            return _mapper.Map<List<ManagedListGetModel>>(_uow.ManagedListRepository.Query().Where(f => f.TenantId == entityId));
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Query the repository for a specific list by entity and list ID
             // Map the entity to a get model and return it
-            return _mapper.Map<ManagedListGetModel>(_uow.ManagedListRepository.Query().First(f => f.ListId == id && f.EntityId == entityId));
+            return _mapper.Map<ManagedListGetModel>(_uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == entityId));
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Update(ManagedListUpdateModel model)
         {
 
-            var res = _uow.ManagedListRepository.Query().Any(p => p.ListName == model.ListName && p.EntityId == model.EntityId && model.ListId != p.ListId);
+            var res = _uow.ManagedListRepository.Query().Any(p => p.ListName == model.ListName && p.TenantId == model.TenantId && model.ListId != p.ListId);
             if (res)
             {
                 // Throws exception if parameter name already exists
@@ -113,7 +113,7 @@ namespace EligibilityPlatform.Application.Services
             }
 
             // Find the existing entity to update
-            var Item = _uow.ManagedListRepository.Query().First(f => f.ListId == model.ListId && f.EntityId == model.EntityId);
+            var Item = _uow.ManagedListRepository.Query().First(f => f.ListId == model.ListId && f.TenantId == model.TenantId);
             // Map the update model data onto the existing entity
             var entities = _mapper.Map<ManagedListModel, ManagedList>(model, Item);
             // Set the updated by information from the model
@@ -138,7 +138,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Find the managed list by entity ID and list ID
-                var manageitem = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.EntityId == entityId);
+                var manageitem = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == entityId);
                 // If the item exists, mark it for removal
                 if (manageitem != null)
                 {
@@ -168,13 +168,13 @@ namespace EligibilityPlatform.Application.Services
             // Create a query joining managed lists with their associated entities
             var lists = from managedlist in _uow.ManagedListRepository.Query()
                         join entity in _uow.EntityRepository.Query()
-                        on managedlist.EntityId equals entity.EntityId
-                        where managedlist.EntityId == entityId && entity.EntityId == entityId
+                        on managedlist.TenantId equals entity.EntityId
+                        where managedlist.TenantId == entityId && entity.EntityId == entityId
                         select new ManagedListModelDescription
                         {
                             ListId = managedlist.ListId,
                             ListName = managedlist.ListName,
-                            EntityId = managedlist.EntityId,
+                            TenantId = managedlist.TenantId,
                             EntityName = entity.EntityName ?? ""
                         };
 
@@ -237,7 +237,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate()
         {
             // Get all entities from the entity service
-            List<EntityModel> entities = _entityService.GetAll();
+            //List<EntityModel> entities = _entityService.GetAll();
 
             // Set the EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -265,17 +265,17 @@ namespace EligibilityPlatform.Application.Services
             // Set header for entity name reference data
             //sheet.Cells[1, 10].Value = "EntityName";
             //// Set header for entity ID reference data
-            //sheet.Cells[1, 11].Value = "EntityId";
+            //sheet.Cells[1, 11].Value = "TenantId";
 
             // Populate the entity name reference column with entity names
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityName!)], 10);
-            // Populate the entity ID reference column with entity IDs
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityId.ToString())], 11);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName!)], 10);
+            //// Populate the entity ID reference column with entity IDs
+            //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 11);
 
             // Apply dropdown validation to the EntityName column (column B)
             //ApplyDropdown(sheet, "EntityNameRange", "B", 10, 100);
 
-            //// Add VLOOKUP formula to automatically populate EntityId based on EntityName
+            //// Add VLOOKUP formula to automatically populate TenantId based on EntityName
             //AddFormula(sheet, "C", "B", 10, 11, 100);
 
             // Auto-fit all columns to content
@@ -453,7 +453,7 @@ namespace EligibilityPlatform.Application.Services
                     var ListName = worksheet.Cells[row, 1].Text;
 
                     // Extract entity ID from column 3 (C) of current row
-                    //var EntityId = worksheet.Cells[row, 3].Text;
+                    //var TenantId = worksheet.Cells[row, 3].Text;
 
                     // Validate required fields: list name must not be empty and entity ID must be numeric
                     if (string.IsNullOrWhiteSpace(ListName))
@@ -470,7 +470,7 @@ namespace EligibilityPlatform.Application.Services
                         ListName = ListName,
 
                         // Parse and set entity ID from Excel data
-                        EntityId = entityId,
+                        TenantId = entityId,
 
                         // Set created by user from method parameter
                         CreatedBy = createdBy
@@ -491,7 +491,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Check if record already exists in database with same entity ID and list name
-                    var existingEntity = await _uow.ManagedListRepository.Query().AnyAsync(p => p.EntityId == entityId && p.ListName == model.ListName);
+                    var existingEntity = await _uow.ManagedListRepository.Query().AnyAsync(p => p.TenantId == entityId && p.ListName == model.ListName);
 
                     // Skip insertion if duplicate record found
                     if (existingEntity)
@@ -502,7 +502,7 @@ namespace EligibilityPlatform.Application.Services
                     }
 
                     // Set entity ID from method parameter (overriding Excel value)
-                    model.EntityId = entityId;
+                    model.TenantId = entityId;
 
                     // Set last updated timestamp to current UTC time
                     model.UpdatedByDateTime = DateTime.UtcNow;

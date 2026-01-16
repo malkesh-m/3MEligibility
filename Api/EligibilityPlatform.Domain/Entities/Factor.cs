@@ -18,7 +18,7 @@ public partial class Factor
 
     public int? ConditionId { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
 
@@ -32,7 +32,7 @@ public partial class Factor
 
     public virtual Condition? Condition { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual Parameter? Parameter { get; set; }
 }

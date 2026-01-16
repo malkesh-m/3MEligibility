@@ -10,7 +10,7 @@ public partial class HistoryPc
 
     public int? ProductId { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public string? CustomerId { get; set; }
 
@@ -28,7 +28,7 @@ public partial class HistoryPc
 
     public DateTime UpdatedByDateTime { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<HistoryEc> HistoryEcs { get; set; } = [];
 

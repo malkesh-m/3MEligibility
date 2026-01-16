@@ -152,7 +152,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to calculate the eligible amount.
             /// </summary>
-            string result = _amountEligibilityService.AmountCalculate(User.GetEntityId(), preAmount, pcardId);
+            string result = _amountEligibilityService.AmountCalculate(User.GetTenantId(), preAmount, pcardId);
 
             /// <summary>
             /// Returns successful response with the calculated amount.

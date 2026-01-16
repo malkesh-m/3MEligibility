@@ -118,7 +118,7 @@ namespace EligibilityPlatform.Application.Services
                 PcardId = pCard?.PcardId ?? 0,
                 Expression = pCard?.Expression ?? null,
                 ProductId = pCard?.ProductId ?? 0,
-                EntityId = pCard?.EntityId ?? 0,
+                TenantId = pCard?.TenantId ?? 0,
                 UserId = userId,
                 TransReference = Guid.NewGuid().ToString()[..8],
                 TransactionDate = DateTime.Now,

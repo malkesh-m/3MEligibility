@@ -23,7 +23,7 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="dataTypeService">The data type service instance.</param>
     /// <param name="conditionService">The condition service instance.</param>
     /// <param name="entityService">The entity service instance.</param>
-    public partial class ParameterService(IUnitOfWork uow, IMapper mapper, IDataTypeService dataTypeService, IConditionService conditionService, IEntityService entityService) : IParameterService
+    public partial class ParameterService(IUnitOfWork uow, IMapper mapper, IDataTypeService dataTypeService, IConditionService conditionService/*, IEntityService entityService*/) : IParameterService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -48,7 +48,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// The entity service instance for entity operations.
         /// </summary>
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
 
         /// <summary>
         /// Adds a new parameter to the database.
@@ -59,7 +59,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Add(ParameterAddUpdateModel model)
         {
             // Checks if parameter name already exists for the entity
-            var res = _uow.ParameterRepository.Query().Any(p => p.ParameterName == model.ParameterName && p.EntityId == model.EntityId);
+            var res = _uow.ParameterRepository.Query().Any(p => p.ParameterName == model.ParameterName && p.TenantId == model.TenantId);
             if (res)
             {
                 // Throws exception if parameter name already exists
@@ -88,7 +88,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Delete(int entityId, int id)
         {
             // Retrieves the specific parameter by entity ID and parameter ID
-            var Item = _uow.ParameterRepository.Query().First(f => f.ParameterId == id && f.EntityId == entityId);
+            var Item = _uow.ParameterRepository.Query().First(f => f.ParameterId == id && f.TenantId == entityId);
             var apiParameterMap = _uow.ApiParameterMapsRepository.Query().Where(f => f.ParameterId == Item.ParameterId).ToList();
             if (apiParameterMap.Count != 0)
                 _uow.ApiParameterMapsRepository.RemoveRange(apiParameterMap);
@@ -115,7 +115,7 @@ namespace EligibilityPlatform.Application.Services
             // Queries parameters filtered by entity ID and includes computed values
             var parameters = _uow.ParameterRepository.Query()
                 .Include(x => x.ComputedValues)
-                .Where(f => f.EntityId == entityId);
+                .Where(f => f.TenantId == entityId);
             // Maps the parameters to ParameterListModel objects
             return _mapper.Map<List<ParameterListModel>>(parameters);
         }
@@ -129,7 +129,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Queries parameters with computed values and maps to custom model
             var parameters = _uow.ParameterRepository.Query()
-                .Where(f => f.EntityId == entityId)
+                .Where(f => f.TenantId == entityId)
                 .Include(x => x.ComputedValues)
                 .Select(p => new ParameterListModel
                 {
@@ -139,7 +139,7 @@ namespace EligibilityPlatform.Application.Services
                     Identifier = p.Identifier,
                     IsKyc = p.IsKyc,
                     IsRequired = p.IsRequired,
-                    EntityId = p.EntityId,
+                    TenantId = p.TenantId,
                     DataTypeId = p.DataTypeId,
                     ConditionId = p.ConditionId,
                     ValueSource = p.ValueSource,
@@ -168,7 +168,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Retrieves the specific parameter by entity ID and parameter ID with computed values
             var parameter = _uow.ParameterRepository.Query().Include(x => x.ComputedValues)
-                .First(f => f.ParameterId == id && f.EntityId == entityId);
+                .First(f => f.ParameterId == id && f.TenantId == entityId);
             // Maps the parameter to ParameterListModel object
             return _mapper.Map<ParameterListModel>(parameter);
         }
@@ -229,7 +229,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Update(ParameterAddUpdateModel model)
         {
             // Checks if parameter name already exists for another parameter in the same entity
-            var res = _uow.ParameterRepository.Query().Any(p => p.ParameterName == model.ParameterName && p.ParameterId != model.ParameterId && p.EntityId == model.EntityId);
+            var res = _uow.ParameterRepository.Query().Any(p => p.ParameterName == model.ParameterName && p.ParameterId != model.ParameterId && p.TenantId == model.TenantId);
             if (res)
             {
                 // Throws exception if parameter name already exists
@@ -239,7 +239,7 @@ namespace EligibilityPlatform.Application.Services
             // Retrieves the existing parameter with computed values
             var parameters = _uow.ParameterRepository.Query()
                 .Include(x => x.ComputedValues)
-                .FirstOrDefault(f => f.ParameterId == model.ParameterId && f.EntityId == model.EntityId) ?? throw new Exception("Parameter Not exists in this entity");
+                .FirstOrDefault(f => f.ParameterId == model.ParameterId && f.TenantId == model.TenantId) ?? throw new Exception("Parameter Not exists in this entity");
             var createdBy = parameters.CreatedBy;
             // Maps the updated model to the existing entity
             var parameterEntities = _mapper.Map<ParameterModel, Parameter>(model, parameters);
@@ -274,10 +274,10 @@ namespace EligibilityPlatform.Application.Services
                              join datatype in _uow.DataTypeRepository.Query()
                              on parameter.DataTypeId equals datatype.DataTypeId
                              join entity in _uow.EntityRepository.Query()
-                             on parameter.EntityId equals entity.EntityId
+                             on parameter.TenantId equals entity.EntityId
                              join condition in _uow.ConditionRepository.Query()
                              on parameter.ConditionId equals condition.ConditionId
-                             where parameter.EntityId == entityId && parameter.Identifier == 1
+                             where parameter.TenantId == entityId && parameter.Identifier == 1
                              select new ParameterCsvModel
                              {
                                  ParameterId = parameter.ParameterId,
@@ -286,7 +286,7 @@ namespace EligibilityPlatform.Application.Services
                                  Identifier = parameter.Identifier,
                                  IsKyc = parameter.IsKyc,
                                  IsRequired = parameter.IsRequired,
-                                 EntityId = parameter.EntityId,
+                                 TenantId = parameter.TenantId,
                                  EntityName = entity.EntityName,
                                  DataTypeId = parameter.DataTypeId,
                                  DataTypeName = datatype.DataTypeName,
@@ -303,10 +303,10 @@ namespace EligibilityPlatform.Application.Services
                              join datatype in _uow.DataTypeRepository.Query()
                              on parameter.DataTypeId equals datatype.DataTypeId
                              join entity in _uow.EntityRepository.Query()
-                             on parameter.EntityId equals entity.EntityId
+                             on parameter.TenantId equals entity.EntityId
                              join condition in _uow.ConditionRepository.Query()
                              on parameter.ConditionId equals condition.ConditionId
-                             where parameter.EntityId == entityId && parameter.Identifier == 2
+                             where parameter.TenantId == entityId && parameter.Identifier == 2
                              select new ParameterCsvModel
                              {
                                  ParameterId = parameter.ParameterId,
@@ -315,7 +315,7 @@ namespace EligibilityPlatform.Application.Services
                                  Identifier = parameter.Identifier,
                                  IsKyc = parameter.IsKyc,
                                  IsRequired = parameter.IsRequired,
-                                 EntityId = parameter.EntityId,
+                                 TenantId = parameter.TenantId,
                                  EntityName = entity.EntityName,
                                  DataTypeId = parameter.DataTypeId,
                                  DataTypeName = datatype.DataTypeName,
@@ -468,7 +468,7 @@ namespace EligibilityPlatform.Application.Services
                         DataTypeId = parsedDataTypeId,
                         Identifier = Identifier,
                         IsRequired = bool.TryParse(isMandatory, out bool isRequired) && isRequired,
-                        EntityId = entityIdStr
+                        TenantId = entityIdStr
                     };
 
                     models.Add(model);
@@ -484,7 +484,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     bool exists = await _uow.ParameterRepository.Query().AnyAsync(p =>
-                        (p.ParameterName == model.ParameterName && p.EntityId == model.EntityId)
+                        (p.ParameterName == model.ParameterName && p.TenantId == model.TenantId)
 
                        );
 
@@ -574,7 +574,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Fetch all parameters matching the provided IDs and entity
             var parameters = await _uow.ParameterRepository.Query()
-                .Where(f => ids.Contains(f.ParameterId) && f.EntityId == entityId)
+                .Where(f => ids.Contains(f.ParameterId) && f.TenantId == entityId)
                 .ToListAsync();
 
             foreach (var item in parameters)
@@ -618,7 +618,7 @@ namespace EligibilityPlatform.Application.Services
         {
             // Retrieves the product by entity ID and product ID
             var product = _uow.ProductRepository.Query()
-                .FirstOrDefault(p => p.EntityId == entityId && p.ProductId == productId);
+                .FirstOrDefault(p => p.TenantId == entityId && p.ProductId == productId);
 
             // Returns null if product not found
             if (product == null)
@@ -626,7 +626,7 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all parameters for the product's entity
             var parameters = _uow.ParameterRepository.Query()
-                .Where(p => p.EntityId == product.EntityId)
+                .Where(p => p.TenantId == product.TenantId)
                 .ToList();
 
             // Maps parameters to ParameterModel objects
@@ -642,7 +642,7 @@ namespace EligibilityPlatform.Application.Services
             // Fetches required data from services
             List<DataTypeModel> dataTypes = _dataTypeService.GetAll();
             List<ConditionModel> conditions = _conditionService.GetAll();
-            List<EntityModel> entities = _entityService.GetAll();
+            //List<EntityModel> entities = _entityService.GetAll();
 
             // Sanitizes data type names for Excel range compatibility
             dataTypes.ForEach(dataType => dataType.DataTypeName = SanitizeRangeName(dataType.DataTypeName ?? ""));
@@ -666,7 +666,7 @@ namespace EligibilityPlatform.Application.Services
             sheet.Cells[1, 19].Value = "ConditionValue";
             sheet.Cells[1, 20].Value = "ConditionId";
             sheet.Cells[1, 22].Value = "EntityName";
-            sheet.Cells[1, 23].Value = "EntityId";
+            sheet.Cells[1, 23].Value = "TenantId";
             sheet.Cells[1, 24].Value = "FactorOptions";
             sheet.Cells[1, 25].Value = "FactorOrderValues";
 
@@ -711,8 +711,8 @@ namespace EligibilityPlatform.Application.Services
             PopulateColumn(sheet, [.. dataTypes.Select(d => d.DataTypeId.ToString() ?? "")], 17);
             PopulateColumn(sheet, [.. conditions.Select(c => c.ConditionValue ?? "")], 19);
             PopulateColumn(sheet, [.. conditions.Select(c => c.ConditionId.ToString())], 20);
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 22);
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityId.ToString())], 23);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 22);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 23);
 
             // Applies dropdown validations to various columns
             ApplyDropdown(sheet, "DataTypeNameRange", "B", 16, 100);

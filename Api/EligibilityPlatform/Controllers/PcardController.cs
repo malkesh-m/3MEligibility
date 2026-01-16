@@ -29,7 +29,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get()
         {
             // Retrieves all pcard records for the current entity
-            List<PcardListModel> result = _pcardService.GetAll(User.GetEntityId());
+            List<PcardListModel> result = _pcardService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -46,7 +46,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a pcard record by ID for the current entity
-            var result = _pcardService.GetById(User.GetEntityId(), id);
+            var result = _pcardService.GetById(User.GetTenantId(), id);
             // Checks if the pcard record was found
             if (result != null)
             {
@@ -72,8 +72,8 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(PcardAddUpdateModel pcard)
         {
             // Sets entity ID and user information from the current user context
-            pcard.EntityId = User.GetEntityId();
-            string? UserName = User.Identity?.Name;
+            pcard.TenantId = User.GetTenantId();
+            string? UserName = User.GetUserName();
             pcard.CreatedBy = UserName;
             pcard.UpdatedBy = UserName;
 
@@ -109,10 +109,10 @@ namespace EligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(PcardUpdateModel pcard)
         {
-            var userName = User.Identity?.Name;
+            var userName = User.GetUserName();
             pcard.UpdatedBy = userName;
             // Sets entity ID from the current user context
-            pcard.EntityId = User.GetEntityId();
+            pcard.TenantId = User.GetTenantId();
 
             // Validates the model state
             if (!ModelState.IsValid)
@@ -139,7 +139,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             // Deletes the pcard record by ID for the current entity
-            await _pcardService.Delete(User.GetEntityId(), id);
+            await _pcardService.Delete(User.GetTenantId(), id);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -156,7 +156,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> ExportPCards([FromBody] List<int> selectedPcardIds)
         {
             // Exports selected pcard records for the current entity
-            var stream = await _pcardService.ExportPCards(User.GetEntityId(), selectedPcardIds);
+            var stream = await _pcardService.ExportPCards(User.GetTenantId(), selectedPcardIds);
             // Returns the exported file as a downloadable Excel document
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "entities.xlsx");
         }
@@ -180,7 +180,7 @@ namespace EligibilityPlatform.Controllers
             }
 
             // Deletes multiple pcard records for the current entity
-            await _pcardService.RemoveMultiple(User.GetEntityId(), ids);
+            await _pcardService.RemoveMultiple(User.GetTenantId(), ids);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -197,7 +197,7 @@ namespace EligibilityPlatform.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportPCards(IFormFile file)
         {
-            var userName = User.Identity!.Name;
+            var userName = User.GetUserName();
             // Validates that a file is provided
             if (file == null || file.Length == 0)
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No file uploaded." });
@@ -205,7 +205,7 @@ namespace EligibilityPlatform.Controllers
             try
             {
                 // Imports pcard records from the provided file
-                string resultMessage = await _pcardService.ImportPCards(User.GetEntityId(), file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _pcardService.ImportPCards(User.GetTenantId(), file.OpenReadStream(), userName ?? "");
                 // Returns success response for import operation
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
@@ -224,7 +224,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> DownloadTemplate()
         {
             // Downloads the pcard import template for the current entity
-            var excelBytes = await _pcardService.DownloadTemplate(User.GetEntityId());
+            var excelBytes = await _pcardService.DownloadTemplate(User.GetTenantId());
             // Returns the template file as a downloadable Excel document
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsm");
         }

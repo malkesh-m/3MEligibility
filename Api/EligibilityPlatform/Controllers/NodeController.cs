@@ -29,7 +29,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get()
         {
             // Retrieves all node records for the current entity
-            List<NodeListModel> result = _nodeService.GetAll(User.GetEntityId());
+            List<NodeListModel> result = _nodeService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -46,7 +46,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a node record by ID for the current entity
-            var result = _nodeService.GetById(User.GetEntityId(), id);
+            var result = _nodeService.GetById(User.GetTenantId(), id);
             // Checks if the record was found
             if (result != null)
             {
@@ -72,7 +72,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(NodeCreateUpdateModel node)
         {
             // Sets entity ID from the current user
-            node.EntityId = User.GetEntityId();
+            node.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -97,7 +97,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(NodeCreateUpdateModel node)
         {
             // Sets entity ID from the current user
-            node.EntityId = User.GetEntityId();
+            node.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -122,7 +122,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             // Deletes the node record by ID for the current entity
-            await _nodeService.Delete(User.GetEntityId(), id);
+            await _nodeService.Delete(User.GetTenantId(), id);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -145,7 +145,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No id's provided" });
             }
             // Deletes multiple node records
-            await _nodeService.MultipleDelete(User.GetEntityId(), ids);
+            await _nodeService.MultipleDelete(User.GetTenantId(), ids);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }

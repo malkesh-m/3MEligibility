@@ -54,7 +54,7 @@ namespace EligibilityPlatform.Application.Services
             /// <summary>
             /// Sets the entity ID for the evaluation history record.
             /// </summary>
-            entity.EntityId = entityId;
+            entity.TenantId = entityId;
 
             /// <summary>
             /// Adds the entity to the repository.
@@ -79,7 +79,7 @@ namespace EligibilityPlatform.Application.Services
             /// Retrieves the evaluation history entity by ID and entity ID.
             /// </summary>
             var entity = await _uow.EvaluationHistoryRepository.Query()
-                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.EntityId == entityId);
+                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == entityId);
 
             /// <summary>
             /// If the entity exists, removes it from the repository.
@@ -106,7 +106,7 @@ namespace EligibilityPlatform.Application.Services
             /// Retrieves all evaluation history entities for the specified entity ID.
             /// </summary>
             var entities = await _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.EntityId == entityId)
+                .Where(x => x.TenantId == entityId)
                 .ToListAsync();
 
             /// <summary>
@@ -127,7 +127,7 @@ namespace EligibilityPlatform.Application.Services
             /// Retrieves the evaluation history entity by ID and entity ID.
             /// </summary>
             var entity = await _uow.EvaluationHistoryRepository.Query()
-                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.EntityId == entityId);
+                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == entityId);
 
             /// <summary>
             /// Maps the entity to an evaluation history model.

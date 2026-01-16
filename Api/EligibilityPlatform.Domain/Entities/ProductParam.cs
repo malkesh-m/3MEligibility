@@ -8,7 +8,7 @@ public partial class ProductParam
 
     public int? DisplayOrder { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
 
     public string? ParamValue { get; set; }
 

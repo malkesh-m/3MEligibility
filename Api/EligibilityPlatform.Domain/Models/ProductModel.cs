@@ -23,7 +23,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? CategoryName { get; set; }
 
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         [StringLength(10, ErrorMessage = "Code cannot exceed 10 characters.")]
         public string? Code { get; set; }
@@ -52,7 +52,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? CreatedBy { get; set; }
         public DateTime CreatedByDateTime { get; set; }
         public string? UpdatedBy { get; set; }
-        public new int EntityId { get; set; }
+        public new int TenantId { get; set; }
 
     }
     public class ProductAddUpdateModel : ProductModel
@@ -69,7 +69,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? ProductName { get; set; }
         public int? CategoryId { get; set; }
         public string? CategoryName { get; set; }
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
         public string? EntityName { get; set; }
         public byte[]? ProductImage { get; set; }
         public string? Narrative { get; set; }

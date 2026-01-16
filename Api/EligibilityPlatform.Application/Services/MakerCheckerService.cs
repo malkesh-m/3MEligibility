@@ -54,7 +54,7 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="productCapAmountService">The product cap amount service instance for product cap amount operations.</param>
     public class MakerCheckerService(IUnitOfWork uow, IMapper mapper, IFactorService factorService, IParameterService parameterService,
         IApiDetailService apiDetailService, ICategoryService categoryService, ICityService cityService, IConditionService conditionService, ICountryService countryService,
-        ICurrencyService currencyService, IDataTypeService dataTypeService, IEcardService ecardService, IEntityService entityService, IEruleService eruleService, IGroupRoleService groupRoleService,
+        ICurrencyService currencyService, IDataTypeService dataTypeService, IEcardService ecardService, /*IEntityService entityService,*/ IEruleService eruleService, IGroupRoleService groupRoleService,
         IHistoryEcService historyEcService, IHistoryErService historyErService, IHistoryParameterService historyParameterService, IHistoryPcService historyPcService,
         IListItemService listItemService, IManagedListService managedListService, IMappingfunctionService mappingfunctionService, INodeApiService nodeApiService, INodeService nodeService, IParamtersMapService paramtersMapService,
         IPcardService pcardService, IProductService productService, IProductParamservice productParamservice, IUserService userService, IExceptionManagementService exceptionManagement, IProductCapService productCapService,
@@ -77,7 +77,7 @@ namespace EligibilityPlatform.Application.Services
         private readonly ICurrencyService _currencyService = currencyService;
         private readonly IDataTypeService _dataTypeService = dataTypeService;
         private readonly IEcardService _ecardService = ecardService;
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
         private readonly IEruleService _eruleService = eruleService;
         private readonly IGroupRoleService _groupRoleService = groupRoleService;
         private readonly IHistoryEcService _historyEcService = historyEcService;
@@ -337,7 +337,7 @@ namespace EligibilityPlatform.Application.Services
                         {
                             // Deserialize the JSON data containing new Factor values
                             var newValue = JsonConvert.DeserializeObject<FactorAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new Factor to the database
                             await _factorService.Add(newValue);
                         }
@@ -347,7 +347,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Factor values
                             var newValue = JsonConvert.DeserializeObject<FactorAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Factor update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Factor in the database
                             await _factorService.Update(newValue);
                         }
@@ -402,7 +402,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new Parameter values
                             var newValue = JsonConvert.DeserializeObject<ParameterAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new Parameter record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new Parameter to the database
                             await _parameterService.Add(newValue);
                         }
@@ -412,7 +412,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Parameter values
                             var newValue = JsonConvert.DeserializeObject<ParameterAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Parameter update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Parameter in the database
                             await _parameterService.Update(newValue);
                         }
@@ -437,7 +437,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new Category values
                             var newValue = JsonConvert.DeserializeObject<CategoryCreateUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new Category record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new Category to the database
                             await _categoryService.Add(newValue);
                         }
@@ -447,7 +447,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Category values
                             var newValue = JsonConvert.DeserializeObject<CategoryUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Category update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Category in the database
                             await _categoryService.Update(newValue);
                         }
@@ -627,7 +627,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new Ecard values
                             var newValue = JsonConvert.DeserializeObject<EcardAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new Ecard record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new Ecard to the database
                             await _ecardService.Add(entityId, newValue);
                         }
@@ -637,7 +637,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Ecard values
                             var newValue = JsonConvert.DeserializeObject<EcardUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Ecard update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Ecard in the database
                             await _ecardService.Update(newValue);
                         }
@@ -655,34 +655,34 @@ namespace EligibilityPlatform.Application.Services
                         break;
 
                     // Handle operations for the Entity entity
-                    case nameof(Entity):
-                        // Process Add operation for Entity
-                        if (model.ActionName == "Add")
-                        {
-                            // Deserialize the JSON data containing new Entity values
-                            var newValue = JsonConvert.DeserializeObject<CreateOrUpdateEntityModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            await _entityService.Add(newValue);
-                        }
-                        // Process Update operation for Entity
-                        else if (model.ActionName == "Update")
-                        {
-                            // Deserialize the JSON data containing updated Entity values
-                            var newValue = JsonConvert.DeserializeObject<CreateOrUpdateEntityModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Call the service to update the existing Entity in the database
-                            await _entityService.Update(newValue);
-                        }
-                        // Process Delete operation for Entity
-                        else if (model.ActionName == "Delete")
-                        {
-                            // Deserialize the JSON data containing the Entity to be deleted
-                            var newValue = JsonConvert.DeserializeObject<EntityModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Extract the Entity ID from the deserialized object
-                            var dtId = newValue.EntityId;
-                            // Call the service to delete the Entity from the database
-                            await _entityService.Delete(dtId);
-                        }
-                        // Exit the Entity case
-                        break;
+                    //case nameof(Entity):
+                    //    // Process Add operation for Entity
+                    //    if (model.ActionName == "Add")
+                    //    {
+                    //        // Deserialize the JSON data containing new Entity values
+                    //        var newValue = JsonConvert.DeserializeObject<CreateOrUpdateEntityModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
+                    //        await _entityService.Add(newValue);
+                    //    }
+                    //    // Process Update operation for Entity
+                    //    else if (model.ActionName == "Update")
+                    //    {
+                    //        // Deserialize the JSON data containing updated Entity values
+                    //        var newValue = JsonConvert.DeserializeObject<CreateOrUpdateEntityModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
+                    //        // Call the service to update the existing Entity in the database
+                    //        await _entityService.Update(newValue);
+                    //    }
+                    //    // Process Delete operation for Entity
+                    //    else if (model.ActionName == "Delete")
+                    //    {
+                    //        // Deserialize the JSON data containing the Entity to be deleted
+                    //        var newValue = JsonConvert.DeserializeObject<EntityModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
+                    //        // Extract the Entity ID from the deserialized object
+                    //        var dtId = newValue.TenantId;
+                    //        // Call the service to delete the Entity from the database
+                    //        await _entityService.Delete(dtId);
+                    //    }
+                    //    // Exit the Entity case
+                    //    break;
 
                     // Handle operations for the Erule entity
                     case nameof(Erule):
@@ -692,7 +692,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new Erule values
                             var newValue = JsonConvert.DeserializeObject<EruleCreateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new Erule record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to create the new Erule in the database
                             await _eruleService.Create(newValue);
                         }
@@ -702,7 +702,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Erule values
                             var newValue = JsonConvert.DeserializeObject<EruleUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Erule update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Erule in the database
                             await _eruleService.Update(newValue);
                         }
@@ -802,7 +802,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new HistoryPc values
                             var newValue = JsonConvert.DeserializeObject<HistoryPcModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new HistoryPc record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new HistoryPc to the database
                             await _historyPcService.Add(newValue);
                         }
@@ -812,7 +812,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated HistoryPc values
                             var newValue = JsonConvert.DeserializeObject<HistoryPcModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the HistoryPc update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing HistoryPc in the database
                             await _historyPcService.Update(newValue);
                         }
@@ -868,7 +868,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new ManagedList values
                             var newValue = JsonConvert.DeserializeObject<ManagedListAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new ManagedList record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new ManagedList to the database
                             await _managedListService.Add(newValue);
                         }
@@ -878,7 +878,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated ManagedList values
                             var newValue = JsonConvert.DeserializeObject<ManagedListUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the ManagedList update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing ManagedList in the database
                             await _managedListService.Update(newValue);
                         }
@@ -965,7 +965,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new Node values
                             var newValue = JsonConvert.DeserializeObject<NodeCreateUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new Node record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new Node to the database
                             await _nodeService.Add(newValue);
                         }
@@ -975,7 +975,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Node values
                             var newValue = JsonConvert.DeserializeObject<NodeCreateUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Node update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Node in the database
                             await _nodeService.Update(newValue);
                         }
@@ -1033,7 +1033,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new Pcard values
                             var newValue = JsonConvert.DeserializeObject<PcardAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new Pcard record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new Pcard to the database
                             await _pcardService.Add(newValue);
                         }
@@ -1043,7 +1043,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Pcard values
                             var newValue = JsonConvert.DeserializeObject<PcardUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Pcard update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Pcard in the database
                             await _pcardService.Update(newValue);
                         }
@@ -1068,7 +1068,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing new Product values
                             var newValue = JsonConvert.DeserializeObject<ProductAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the new Product record
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new Product to the database
                             await _productService.Add(newValue);
                         }
@@ -1078,7 +1078,7 @@ namespace EligibilityPlatform.Application.Services
                             // Deserialize the JSON data containing updated Product values
                             var newValue = JsonConvert.DeserializeObject<ProductAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
                             // Set the entity ID for the Product update
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing Product in the database
                             await _productService.Update(newValue);
                         }
@@ -1102,7 +1102,7 @@ namespace EligibilityPlatform.Application.Services
                         {
                             // Deserialize the JSON data containing new ProductParam values
                             var newValue = JsonConvert.DeserializeObject<ProductParamAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new ProductParam to the database
                             await _productParamservice.Add(newValue);
                         }
@@ -1111,7 +1111,7 @@ namespace EligibilityPlatform.Application.Services
                         {
                             // Deserialize the JSON data containing updated ProductParam values
                             var newValue = JsonConvert.DeserializeObject<ProductParamAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing ProductParam in the database
                             await _productParamservice.Update(newValue);
                         }
@@ -1135,7 +1135,7 @@ namespace EligibilityPlatform.Application.Services
                         {
                             // Deserialize the JSON data containing new User values
                             var newValue = JsonConvert.DeserializeObject<UserAddModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to add the new User to the database with profile file
                             await _userService.Add(newValue.UserProfileFile, newValue, newValue.UserName);
                         }
@@ -1144,7 +1144,7 @@ namespace EligibilityPlatform.Application.Services
                         {
                             // Deserialize the JSON data containing updated User values
                             var newValue = JsonConvert.DeserializeObject<UserEditModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            newValue.EntityId = entityId;
+                            newValue.TenantId = entityId;
                             // Call the service to update the existing User in the database with profile file
                             await _userService.Update(newValue.UserProfileFile, newValue, newValue.UserName);
                         }
@@ -1302,7 +1302,7 @@ namespace EligibilityPlatform.Application.Services
                                 ["EruleId"] = jObj["Id"],
                                 ["EruleName"] = jObj["EruleName"],
                                 ["Description"] = jObj["EruleDesc"],
-                                ["EntityId"] = jObj["EntityId"],
+                                ["TenantId"] = jObj["TenantId"],
                                 ["IsActive"] = jObj["IsActive"],
                                 ["CreatedBy"] = jObj["CreatedBy"],
                                 //["UpdatedBy"] = jObj["UpdatedBy"]
@@ -1326,7 +1326,7 @@ namespace EligibilityPlatform.Application.Services
                                 ["EruleId"] = jObj["Id"],
                                 ["Name"] = jObj["EruleName"],
                                 ["Description"] = jObj["EruleDesc"],
-                                ["EntityId"] = jObj["EntityId"],
+                                ["TenantId"] = jObj["TenantId"],
                                 ["IsActive"] = jObj["IsActive"],
                                 ["CreatedBy"] = jObj["CreatedBy"],
                                 ["UpdatedBy"] = jObj["UpdatedBy"]

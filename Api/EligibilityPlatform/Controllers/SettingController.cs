@@ -31,7 +31,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves a specific setting by ID for the current entity
-            SettingModel result = _settingService.GetById(User.GetEntityId(), id);
+            SettingModel result = _settingService.GetById(User.GetTenantId(), id);
             // Returns success response with the setting data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -48,7 +48,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> GetbyEntityId()
         {
             // Retrieves all settings for the current entity
-            SettingModel result = await _settingService.GetbyEntityId(User.GetEntityId());
+            SettingModel result = await _settingService.GetbyEntityId(User.GetTenantId());
             // Returns success response with the entity settings
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -67,7 +67,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(SettingModel setting)
         {
             // Sets the entity ID from the current user context
-            setting.EntityId = User.GetEntityId();
+            setting.EntityId = User.GetTenantId();
 
             // Validates the model state
             if (!ModelState.IsValid)

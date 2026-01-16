@@ -21,11 +21,11 @@ namespace EligibilityPlatform.Application.Services
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
-    public class CategoryService(IUnitOfWork uow, IMapper mapper, IEntityService entityService) : ICategoryService
+    public class CategoryService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/) : ICategoryService
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
-        private readonly IEntityService _entityService = entityService;
+        //private readonly IEntityService _entityService = entityService;
 
         /// <summary>
         /// Retrieves all categories from the database for a specific entity.
@@ -35,7 +35,7 @@ namespace EligibilityPlatform.Application.Services
         public List<CategoryListModel> GetAll(int entityId)
         {
             // Queries categories filtered by entity ID and converts to list
-            var categories = _uow.CategoryRepository.Query().Where(w => w.EntityId == entityId).ToList();
+            var categories = _uow.CategoryRepository.Query().Where(w => w.TenantId == entityId).ToList();
             // Maps category entities to CategoryListModel objects
             return _mapper.Map<List<CategoryListModel>>(categories);
         }
@@ -49,7 +49,7 @@ namespace EligibilityPlatform.Application.Services
         public CategoryListModel GetById(int entityId, int id)
         {
             // Finds the first category matching both entity ID and category ID
-            var category = _uow.CategoryRepository.Query().First(f => f.EntityId == entityId && f.CategoryId == id);
+            var category = _uow.CategoryRepository.Query().First(f => f.TenantId == entityId && f.CategoryId == id);
             // Maps the category entity to CategoryListModel object
             return _mapper.Map<CategoryListModel>(category);
         }
@@ -61,7 +61,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Add(CategoryCreateUpdateModel category)
         {
             var productName = _uow.CategoryRepository.Query()
-         .Any(f => f.EntityId == category.EntityId && f.CategoryName == category.CategoryName);
+         .Any(f => f.TenantId == category.TenantId && f.CategoryName == category.CategoryName);
 
             // Throws an exception if the code already exists.
             if (productName)
@@ -87,7 +87,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task Update(CategoryUpdateModel category)
         {
             var productName = _uow.CategoryRepository.Query()
-    .Any(f => f.EntityId == category.EntityId && f.CategoryName == category.CategoryName && category.CategoryId != f.CategoryId);
+    .Any(f => f.TenantId == category.TenantId && f.CategoryName == category.CategoryName && category.CategoryId != f.CategoryId);
 
             // Throws an exception if the code already exists.
             if (productName)
@@ -114,7 +114,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task<string> Remove(int entityId, int id)
         {
             // Finds the category matching both entity ID and category ID
-            var item = _uow.CategoryRepository.Query().First(f => f.EntityId == entityId && f.CategoryId == id);
+            var item = _uow.CategoryRepository.Query().First(f => f.TenantId == entityId && f.CategoryId == id);
             var existingProduct = _uow.ProductRepository.Query().Any(p => p.CategoryId == id);
             string message = "";
             if (existingProduct)
@@ -147,13 +147,13 @@ namespace EligibilityPlatform.Application.Services
             try
             {
                 var products = _uow.ProductRepository.Query()
-                                                     .Where(p => p.EntityId == entityId)
+                                                     .Where(p => p.TenantId == entityId)
                                                      .ToList();
 
                 foreach (var id in ids)
                 {
                     var category = _uow.CategoryRepository.Query()
-                                    .FirstOrDefault(c => c.EntityId == entityId && c.CategoryId == id);
+                                    .FirstOrDefault(c => c.TenantId == entityId && c.CategoryId == id);
 
                     if (category == null)
                         continue;
@@ -212,14 +212,14 @@ namespace EligibilityPlatform.Application.Services
             // Creates a query joining categories with entities
             var categories = from category in _uow.CategoryRepository.Query()
                              join entity in _uow.EntityRepository.Query()
-                             on category.EntityId equals entity.EntityId
+                             on category.TenantId equals entity.EntityId
                              where entity.EntityId == entityId
                              select new CategoryCsvModel
                              {
                                  CategoryId = category.CategoryId,
                                  CategoryName = category.CategoryName,
                                  CatDescription = category.CatDescription,
-                                 EntityId = category.EntityId,
+                                 TenantId = category.TenantId,
                                  EntityName = entity.EntityName
                              };
 
@@ -314,10 +314,10 @@ namespace EligibilityPlatform.Application.Services
                     // Gets category description from column 2
                     var CatDescription = worksheet.Cells[row, 2].Text;
                     // Gets entity ID from column 4
-                    var EntityId = worksheet.Cells[row, 4].Text;
+                    var TenantId = worksheet.Cells[row, 4].Text;
 
                     // Validates required fields are present and valid
-                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) || !int.TryParse(EntityId, out _))
+                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) || !int.TryParse(TenantId, out _))
                     {
                         // Increments skipped records count
                         skippedRecordsCount++;
@@ -330,7 +330,7 @@ namespace EligibilityPlatform.Application.Services
                     {
                         CategoryName = CategoryName,
                         CatDescription = CatDescription,
-                        EntityId = int.Parse(EntityId),
+                        TenantId = int.Parse(TenantId),
                         CreatedBy = createdBy
                     };
                     // Adds the model to the list
@@ -347,7 +347,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if a category with same name and entity ID already exists
-                    var existingEntity = await _uow.CategoryRepository.Query().AnyAsync(p => p.CategoryName == model.CategoryName && p.EntityId == model.EntityId);
+                    var existingEntity = await _uow.CategoryRepository.Query().AnyAsync(p => p.CategoryName == model.CategoryName && p.TenantId == model.TenantId);
                     if (existingEntity)
                     {
                         // Increments duplicate records count
@@ -384,7 +384,7 @@ namespace EligibilityPlatform.Application.Services
                 }
                 if (dublicatedRecordsCount > 0)
                 {
-                    resultMessage += $" {dublicatedRecordsCount} record with the same CategoryName and EntityId already exists.";
+                    resultMessage += $" {dublicatedRecordsCount} record with the same CategoryName and TenantId already exists.";
                 }
             }
             catch (Exception ex)
@@ -437,7 +437,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate()
         {
             // Gets all entities from the entity service
-            List<EntityModel> entities = _entityService.GetAll();
+            //List<EntityModel> entities = _entityService.GetAll();
 
             // Sets the EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -447,7 +447,7 @@ namespace EligibilityPlatform.Application.Services
             var sheet = package.Workbook.Worksheets.Add("Category");
 
             // Defines column headers
-            string[] headers = ["CategoryName*", "CatDescription*", "EntityName*", "EntityId*", "Field Description"];
+            string[] headers = ["CategoryName*", "CatDescription*", "EntityName*", "TenantId*", "Field Description"];
             // Sets headers in the first row
             for (int i = 0; i < headers.Length; i++)
             {
@@ -464,19 +464,19 @@ namespace EligibilityPlatform.Application.Services
             // Sets header for entity name reference data in column 10
             sheet.Cells[1, 10].Value = "EntityName";
             // Sets header for entity ID reference data in column 11
-            sheet.Cells[1, 11].Value = "EntityId";
+            sheet.Cells[1, 11].Value = "TenantId";
 
             // Populates column 10 with entity names
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 10);
-            // Populates column 11 with entity IDs
-            PopulateColumn(sheet, [.. entities.Select(e => e.EntityId.ToString())], 11);
+            //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 10);
+            //// Populates column 11 with entity IDs
+            //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 11);
 
             // Applies dropdown validation to column C using data from column 10
             ApplyDropdown(sheet, "EntityNameRange", "C", 10, 100);
             // Adds formula to column D to lookup entity ID based on entity name
             AddFormula(sheet, "D", "C", 10, 11, 100);
 
-            // Hides column 4 (EntityId) from view
+            // Hides column 4 (TenantId) from view
             sheet.Column(4).Hidden = true;
 
             // Auto-fits all columns to content

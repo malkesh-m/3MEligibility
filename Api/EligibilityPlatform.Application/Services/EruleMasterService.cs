@@ -37,10 +37,10 @@ namespace EligibilityPlatform.Application.Services
         /// Adds a new EruleMaster record for the specified entity.
         /// </summary>
         /// <param name="model">The EruleMaster create/update model.</param>
-        /// <param name="EntityId">The entity ID.</param>
-        public async Task Add(EruleMasterCreateUpodateModel model, int EntityId)
+        /// <param name="TenantId">The entity ID.</param>
+        public async Task Add(EruleMasterCreateUpodateModel model, int TenantId)
         {
-            var existingRule = _uow.EruleMasterRepository.Query().Any(r => r.EruleName == model.EruleName && r.EntityId == model.EntityId);
+            var existingRule = _uow.EruleMasterRepository.Query().Any(r => r.EruleName == model.EruleName && r.TenantId == model.TenantId);
             if (existingRule)
             {
                 throw new Exception("Rule with this name already exists");
@@ -54,7 +54,7 @@ namespace EligibilityPlatform.Application.Services
             // Sets the creation timestamp to current time
             entity.CreatedByDateTime = DateTime.Now;
             // Sets the entity ID for the rule
-            entity.EntityId = EntityId;
+            entity.TenantId = TenantId;
             // Sets the created by user from the model
             entity.CreatedBy = model.CreatedBy;
             // Sets the updated by user from the model
@@ -71,24 +71,24 @@ namespace EligibilityPlatform.Application.Services
         /// Edits an existing EruleMaster record for the specified entity.
         /// </summary>
         /// <param name="model">The EruleMaster create/update model.</param>
-        /// <param name="EntityId">The entity ID.</param>
-        public async Task Edit(EruleMasterCreateUpodateModel model, int EntityId)
+        /// <param name="TenantId">The entity ID.</param>
+        public async Task Edit(EruleMasterCreateUpodateModel model, int TenantId)
         {
-            var existingRule = _uow.EruleMasterRepository.Query().Any(r => r.EruleName == model.EruleName && r.EntityId == EntityId && model.EruleId != r.Id);
+            var existingRule = _uow.EruleMasterRepository.Query().Any(r => r.EruleName == model.EruleName && r.TenantId == TenantId && model.EruleId != r.Id);
             if (existingRule)
             {
                 throw new Exception("Rule with this name already exists");
             }
             // Retrieves the existing entity by ID and entity ID
             var entity = _uow.EruleMasterRepository.Query()
-                .FirstOrDefault(p => p.Id == model.EruleId && p.EntityId == EntityId) ?? throw new Exception("Original rule not found.");
+                .FirstOrDefault(p => p.Id == model.EruleId && p.TenantId == TenantId) ?? throw new Exception("Original rule not found.");
 
             // Maps the model properties to the existing entity
             _mapper.Map(model, entity);
             // Sets the update timestamp to current time
             entity.UpdatedByDateTime = DateTime.Now;
             // Sets the entity ID for the rule
-            entity.EntityId = EntityId;
+            entity.TenantId = TenantId;
             // Sets the updated by user from the model
             entity.UpdatedBy = model.UpdatedBy;
             // Sets the rule description from the model
@@ -112,7 +112,7 @@ namespace EligibilityPlatform.Application.Services
         public async Task<List<EruleMasterListModel>> GetAll(int entityId)
         {
             // Retrieves all entities for the specified entity ID
-            var entities = await _uow.EruleMasterRepository.Query().Where(p => p.EntityId == entityId).ToListAsync();
+            var entities = await _uow.EruleMasterRepository.Query().Where(p => p.TenantId == entityId).ToListAsync();
 
             // Maps the entities to list model and returns
             return _mapper.Map<List<EruleMasterListModel>>(entities);
@@ -129,7 +129,7 @@ namespace EligibilityPlatform.Application.Services
             // Retrieves the entity by ID and entity ID
             var entity = await _uow.EruleMasterRepository
                                    .Query()
-                                   .Where(p => p.Id == id && p.EntityId == entityId).FirstAsync();
+                                   .Where(p => p.Id == id && p.TenantId == entityId).FirstAsync();
             // Maps the entity to model and returns
             return _mapper.Map<EruleMasterModel>(entity);
         }
@@ -152,7 +152,7 @@ namespace EligibilityPlatform.Application.Services
             var resultMessage = "";
 
             // Retrieves all eCards for the entity
-            var eCards = _uow.EcardRepository.Query().Where(f => f.EntityId == entityId);
+            var eCards = _uow.EcardRepository.Query().Where(f => f.TenantId == entityId);
 
             // Initializes collections for tracking deleted and not deleted rules
             var notDeletedRules = new HashSet<string>();  // Use HashSet to avoid duplicates
@@ -164,7 +164,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var id in ids)
                 {
                     // Retrieves the rule by ID and entity ID
-                    var item = _uow.EruleMasterRepository.Query().First(f => f.Id == id && f.EntityId == entityId);
+                    var item = _uow.EruleMasterRepository.Query().First(f => f.Id == id && f.TenantId == entityId);
 
                     // Checks if the rule is being used in any eCard
                     var isInUse = eCards.Any(card => card.Expression.Contains(id.ToString()));

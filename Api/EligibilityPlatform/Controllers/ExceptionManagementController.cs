@@ -29,7 +29,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult GetAll()
         {
             // Retrieves all exception management records for the current entity
-            var data = _exceptionManagement.GetAll(User.GetEntityId());
+            var data = _exceptionManagement.GetAll(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = data });
         }
@@ -46,7 +46,7 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get(int id)
         {
             // Retrieves specific exception management record by ID for the current entity
-            var result = _exceptionManagement.GetById(User.GetEntityId(), id);
+            var result = _exceptionManagement.GetById(User.GetTenantId(), id);
             if (result != null)
             {
                 // Returns success response with the found record data
@@ -71,7 +71,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(ExceptionManagementCreateOrUpdateModel managementModel)
         {
             // Sets the current user as the creator of the record
-            managementModel.CreatedBy = User.Identity?.Name;
+            managementModel.CreatedBy = User.GetUserName();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -79,7 +79,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
             // Adds the new exception management record
-            await _exceptionManagement.Add(User.GetEntityId(), managementModel);
+            await _exceptionManagement.Add(User.GetTenantId(), managementModel);
             // Returns success response indicating record was created
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
@@ -96,7 +96,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Put(ExceptionManagementCreateOrUpdateModel managementModel)
         {
             // Sets the current user as the updater of the record
-            managementModel.CreatedBy = User.Identity?.Name;
+            managementModel.CreatedBy = User.GetUserName();
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -104,7 +104,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
             // Updates the existing exception management record
-            await _exceptionManagement.Update(User.GetEntityId(), managementModel);
+            await _exceptionManagement.Update(User.GetTenantId(), managementModel);
             // Returns success response indicating record was updated
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
@@ -121,7 +121,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Delete([FromQuery] int id)
         {
             // Deletes the exception management record by ID for the current entity
-            await _exceptionManagement.Delete(User.GetEntityId(), id);
+            await _exceptionManagement.Delete(User.GetTenantId(), id);
             // Returns success response indicating record was deleted
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }

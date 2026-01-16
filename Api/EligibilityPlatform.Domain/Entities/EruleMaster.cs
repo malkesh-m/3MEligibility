@@ -17,13 +17,13 @@ namespace EligibilityPlatform.Domain.Entities
 
         public string? UpdatedBy { get; set; }
 
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         public DateTime? UpdatedByDateTime { get; set; }
 
         public bool IsActive { get; set; }
-        [ForeignKey("EntityId")]
-        public virtual Entity? Entity { get; set; }
+        //[ForeignKey("EntityId")]
+        //public virtual Entity? Entity { get; set; }
 
         public virtual ICollection<Erule> Erules { get; set; } = [];
     }

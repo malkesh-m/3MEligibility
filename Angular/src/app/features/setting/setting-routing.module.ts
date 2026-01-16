@@ -26,9 +26,9 @@ import { LogsComponent } from './Audit/logs/logs.component';
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '', component: SettingComponent },
-  { path: 'entity', component: EntityComponent,canActivate: [roleGuard], data: { requiredRoleId: 9 } },
-  { path: 'factors', component: FactorsComponent, canActivate: [roleGuard], data: { requiredRoleId: 8 } },
-  { path: 'parameters', component: ParametersComponent, canActivate: [roleGuard], data: { requiredRoleId: 10 } },
+  { path: 'entity', component: EntityComponent ,canActivate: [roleGuard], data: { requiredRoleId: 9 } },
+  { path: 'factors', component: FactorsComponent/*, canActivate: [roleGuard], data: { requiredRoleId: 8 } */},
+  { path: 'parameters', component: ParametersComponent /*, canActivate: [roleGuard], data: { requiredRoleId: 10 }*/ },
   { path: 'lists', component: ListsComponent },
 
   {

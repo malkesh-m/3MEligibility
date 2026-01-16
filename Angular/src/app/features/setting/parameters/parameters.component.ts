@@ -306,9 +306,9 @@ export class ParametersComponent {
   }
 
   submitEditForm(): void {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
+    // this.authService.currentUser$.subscribe((user) => {
+    //   this.loggedInUser = user;
+    // });
     if (this.expressionForm.invalid) {
       this._snackBar.open('Please fill out all required fields!', 'Close', { duration: 2000 });
       this.expressionForm.markAllAsTouched();
@@ -341,8 +341,8 @@ export class ParametersComponent {
     };
     if (this.isEditMode) {
       // Edit mode
-      payload.createdBy = this.createdBy;
-      payload.updatedBy = this.loggedInUser.user.userName;
+      // payload.createdBy = this.createdBy;
+      // payload.updatedBy = this.loggedInUser.user.userName;
       this.parameterService.updateParameter(payload).subscribe({
         next: (response) => {
           this._snackBar.open(response.message, 'Okay', {
@@ -365,8 +365,8 @@ export class ParametersComponent {
       });
     } else {
       // Add mode
-      payload.createdBy = this.loggedInUser.user.userName;
-      payload.updatedBy = this.loggedInUser.user.userName;
+      // payload.createdBy = this.loggedInUser.user.userName;
+      // payload.updatedBy = this.loggedInUser.user.userName;
       this.parameterService.addParameter(payload).subscribe({
         next: (response) => {
           this._snackBar.open(response.message, 'Okay', {

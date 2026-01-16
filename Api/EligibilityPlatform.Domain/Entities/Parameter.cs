@@ -14,7 +14,7 @@ public partial class Parameter
 
     public bool IsRequired { get; set; }
 
-    public int EntityId { get; set; }
+    public int TenantId { get; set; }
     public bool IsMandatory { get; set; }
 
     public int? DataTypeId { get; set; }
@@ -43,7 +43,7 @@ public partial class Parameter
 
     public virtual DataType? DataType { get; set; }
 
-    public virtual Entity? Entity { get; set; }
+    //public virtual Entity? Entity { get; set; }
 
     //public virtual ICollection<ExceptionParameter> ExceptionParameters { get; set; } = new List<ExceptionParameter>();
 

@@ -70,7 +70,7 @@ namespace EligibilityPlatform.Application.Services
                 // Sets the product ID.
                 ProductId = pCard.ProductId,
                 // Sets the entity ID.
-                EntityId = pCard.EntityId,
+                TenantId = pCard.TenantId,
                 // Sets the user ID who performed validation.
                 UserId = userId,
                 // Generates a unique transaction reference (first 8 chars of GUID).

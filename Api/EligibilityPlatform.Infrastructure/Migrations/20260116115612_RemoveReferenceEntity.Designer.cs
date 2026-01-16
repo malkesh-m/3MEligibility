@@ -4,6 +4,7 @@ using EligibilityPlatform.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EligibilityPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(EligibilityDbContext))]
-    partial class EligibilityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260116115612_RemoveReferenceEntity")]
+    partial class RemoveReferenceEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -325,6 +328,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsImport")
                         .HasColumnType("tinyint(1)");
 
@@ -342,6 +348,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("CategoryId")
                         .HasName("PK__Category__19093A0B94173D4F");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Category_TenantId");
 
@@ -516,6 +524,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasDefaultValue("")
                         .HasColumnName("ECardName");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Expression")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -542,6 +553,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("EcardId")
                         .HasName("PK__ECards__B49054664FE04CEA");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_ECards_TenantId");
 
@@ -610,6 +623,10 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.HasKey("EntityId")
                         .HasName("PK__Entity__9C892F9DF2DF4E0E");
 
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("CountryId");
+
                     b.ToTable("Entity", (string)null);
                 });
 
@@ -632,6 +649,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
 
                     b.Property<int>("EruleMasterId")
                         .HasColumnType("int");
@@ -674,6 +694,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("EruleId")
                         .HasName("PK__ERule__5A54BCF376F1F4DF");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex("EruleMasterId", "Version")
                         .IsUnique();
@@ -801,6 +823,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ExceptionName")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -843,6 +868,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("ExceptionManagementId");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_ExceptionManagement_TenantId")
                         .HasDatabaseName("IX_ExceptionManagement_TenantId1");
@@ -893,6 +920,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("FactorName")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
@@ -931,6 +961,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasName("PK__Factors__E733AADDA7D15B56");
 
                     b.HasIndex("ConditionId");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex("ParameterId");
 
@@ -1103,6 +1135,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Expression")
                         .HasColumnType("text");
 
@@ -1145,6 +1180,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("TranId")
                         .HasName("PK__HistoryP__F70897C964A130ED");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex("PcardId");
 
@@ -1386,6 +1423,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsImport")
                         .HasColumnType("tinyint(1)");
 
@@ -1407,6 +1447,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("ListId")
                         .HasName("PK__ManagedL__E3832805A9F28A9F");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_ManagedList_TenantId");
 
@@ -1490,6 +1532,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Headers")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1558,6 +1603,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("NodeId")
                         .HasName("PK__Nodes__6BAE22635CDBA8E1");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Nodes_TenantId");
 
@@ -1687,6 +1734,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.Property<int?>("DataTypeId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("FactorOrder")
                         .HasMaxLength(3)
                         .HasColumnType("varchar(3)");
@@ -1738,6 +1788,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.HasIndex("ConditionId");
 
                     b.HasIndex("DataTypeId");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex("TenantId", "ParameterName")
                         .IsUnique()
@@ -1847,6 +1899,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Expression")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1895,6 +1950,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.HasKey("PcardId")
                         .HasName("PK__PCards__55754A82B7BE54A4");
 
+                    b.HasIndex("EntityId");
+
                     b.HasIndex(new[] { "TenantId" }, "IX_PCards_TenantId");
 
                     b.HasIndex(new[] { "ProductId" }, "UK_PCards")
@@ -1929,6 +1986,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsImport")
                         .HasColumnType("tinyint(1)");
@@ -1969,6 +2029,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasName("PK__Product__B40CC6CD145C7B63");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Product_TenantId");
 
@@ -2212,6 +2274,9 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("SettingId"));
 
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsMakerCheckerEnable")
                         .HasColumnType("tinyint(1)");
 
@@ -2219,6 +2284,8 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("SettingId");
+
+                    b.HasIndex("EntityId");
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Settings_TenantId");
 
@@ -2519,6 +2586,13 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.Navigation("DataType");
                 });
 
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("EntityId");
+                });
+
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.City", b =>
                 {
                     b.HasOne("EligibilityPlatform.Domain.Entities.Country", "Country")
@@ -2529,8 +2603,34 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.Navigation("Country");
                 });
 
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Ecard", b =>
+                {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Ecards")
+                        .HasForeignKey("EntityId");
+                });
+
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Entity", b =>
+                {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId");
+
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId");
+
+                    b.Navigation("City");
+
+                    b.Navigation("Country");
+                });
+
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Erule", b =>
                 {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Erules")
+                        .HasForeignKey("EntityId");
+
                     b.HasOne("EligibilityPlatform.Domain.Entities.EruleMaster", "EruleMaster")
                         .WithMany("Erules")
                         .HasForeignKey("EruleMasterId")
@@ -2539,6 +2639,13 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .HasConstraintName("FK__ERule__EruleMasterId__33EED56C");
 
                     b.Navigation("EruleMaster");
+                });
+
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.ExceptionManagement", b =>
+                {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("ExceptionManagements")
+                        .HasForeignKey("EntityId");
                 });
 
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.ExceptionProduct", b =>
@@ -2566,6 +2673,10 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .WithMany("Factors")
                         .HasForeignKey("ConditionId")
                         .HasConstraintName("FK__Factors__Conditi__4316F928");
+
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Factors")
+                        .HasForeignKey("EntityId");
 
                     b.HasOne("EligibilityPlatform.Domain.Entities.Parameter", "Parameter")
                         .WithMany("Factors")
@@ -2663,6 +2774,10 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.HistoryPc", b =>
                 {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("HistoryPcs")
+                        .HasForeignKey("EntityId");
+
                     b.HasOne("EligibilityPlatform.Domain.Entities.Pcard", "Pcard")
                         .WithMany("HistoryPcs")
                         .HasForeignKey("PcardId")
@@ -2731,6 +2846,20 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.Navigation("Maker");
                 });
 
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.ManagedList", b =>
+                {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("ManagedLists")
+                        .HasForeignKey("EntityId");
+                });
+
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Node", b =>
+                {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Nodes")
+                        .HasForeignKey("EntityId");
+                });
+
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.NodeApi", b =>
                 {
                     b.HasOne("EligibilityPlatform.Domain.Entities.Node", "Node")
@@ -2752,6 +2881,10 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .WithMany("Parameters")
                         .HasForeignKey("DataTypeId")
                         .HasConstraintName("FK__Parameter__DataT__33D4B598");
+
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Parameters")
+                        .HasForeignKey("EntityId");
 
                     b.Navigation("Condition");
 
@@ -2806,6 +2939,10 @@ namespace EligibilityPlatform.Infrastructure.Migrations
 
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Pcard", b =>
                 {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Pcards")
+                        .HasForeignKey("EntityId");
+
                     b.HasOne("EligibilityPlatform.Domain.Entities.Product", "Product")
                         .WithOne("Pcard")
                         .HasForeignKey("EligibilityPlatform.Domain.Entities.Pcard", "ProductId")
@@ -2820,6 +2957,10 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .HasConstraintName("FK__Product__Categor__3B40CD36");
+
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Products")
+                        .HasForeignKey("EntityId");
 
                     b.Navigation("Category");
                 });
@@ -2864,10 +3005,17 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Setting", b =>
+                {
+                    b.HasOne("EligibilityPlatform.Domain.Entities.Entity", null)
+                        .WithMany("Settings")
+                        .HasForeignKey("EntityId");
+                });
+
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.User", b =>
                 {
                     b.HasOne("EligibilityPlatform.Domain.Entities.Entity", "Entity")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("EntityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2980,6 +3128,35 @@ namespace EligibilityPlatform.Infrastructure.Migrations
                     b.Navigation("HistoryEcs");
 
                     b.Navigation("HistoryErs");
+                });
+
+            modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Entity", b =>
+                {
+                    b.Navigation("Categories");
+
+                    b.Navigation("Ecards");
+
+                    b.Navigation("Erules");
+
+                    b.Navigation("ExceptionManagements");
+
+                    b.Navigation("Factors");
+
+                    b.Navigation("HistoryPcs");
+
+                    b.Navigation("ManagedLists");
+
+                    b.Navigation("Nodes");
+
+                    b.Navigation("Parameters");
+
+                    b.Navigation("Pcards");
+
+                    b.Navigation("Products");
+
+                    b.Navigation("Settings");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("EligibilityPlatform.Domain.Entities.Erule", b =>

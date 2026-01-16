@@ -17,7 +17,7 @@ namespace EligibilityPlatform.Domain.Models
         public required string Expression { get; set; }
 
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         [StringLength(2000, ErrorMessage = "ExpShown cannot exceed 2000 characters.")]
         public string? ExpShown { get; set; }

@@ -28,7 +28,7 @@ namespace EligibilityPlatform.Domain.Models
         public bool IsRequired { get; set; }
 
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         [Required(ErrorMessage = "DataTypeId is required.")]
         public int? DataTypeId { get; set; }
@@ -54,7 +54,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? CreatedBy { get; set; }
         public DateTime CreatedByDateTime { get; set; }
         public string? UpdatedBy { get; set; }
-        public new int? EntityId { get; set; }
+        public new int? TenantId { get; set; }
         public string DataType { get; set; } = string.Empty;
 
     }
@@ -81,7 +81,7 @@ namespace EligibilityPlatform.Domain.Models
 
         public bool IsRequired { get; set; }
 
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
         public string? EntityName { get; set; }
         public int? DataTypeId { get; set; }
         public string? DataTypeName { get; set; }

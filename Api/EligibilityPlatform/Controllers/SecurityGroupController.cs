@@ -80,7 +80,7 @@ namespace EligibilityPlatform.Controllers
         public async Task<IActionResult> Post(SecurityGroupUpdateModel securityGroupModel)
         {
             // Sets the created and updated by fields with the current user's name
-            var UserName = User.Identity?.Name;
+            var UserName = User.GetUserName();
             securityGroupModel.CreatedBy = UserName;
             securityGroupModel.UpdatedBy = UserName;
 

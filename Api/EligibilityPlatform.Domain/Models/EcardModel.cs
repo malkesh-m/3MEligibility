@@ -18,7 +18,7 @@ namespace EligibilityPlatform.Domain.Models
         public string? Expression { get; set; }
 
         [JsonIgnore]
-        public int EntityId { get; set; }
+        public int TenantId { get; set; }
 
         public string? Expshown { get; set; }
 
