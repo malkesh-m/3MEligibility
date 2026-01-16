@@ -20,6 +20,13 @@ namespace EligibilityPlatform
                 ? int.Parse(userIdClaim.Value)
                 : throw new Exception("EntityId claim not found.");
         }
+        public static int GetTenantId(this ClaimsPrincipal user)
+        {
+            var userIdClaim = user?.FindFirst("tenant_id");
+            return userIdClaim != null
+                ? int.Parse(userIdClaim.Value)
+                : throw new Exception("TenantId claim not found.");
+        }
 
         /// <summary>
         /// Retrieves the UserId claim from the current <see cref="ClaimsPrincipal"/>.

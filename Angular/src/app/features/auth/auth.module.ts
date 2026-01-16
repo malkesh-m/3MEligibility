@@ -17,7 +17,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SharedModule } from '../../shared/shared.module';
-import { KeycloakService } from '../../core/services/auth/keycloak-init-service.service';
 import { CallbackComponent } from './callback/callback.component';
 
 

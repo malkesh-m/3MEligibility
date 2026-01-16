@@ -45,7 +45,6 @@ export class OidcAuthService {
 
     async init(): Promise<boolean> {
         try {
-            console.log('🔵 Initializing OIDC Auth Service');
 
             // Check if user is already authenticated
             this.currentUser = await this.userManager.getUser();
