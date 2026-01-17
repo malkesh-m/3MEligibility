@@ -139,11 +139,11 @@ namespace EligibilityPlatform.Controllers
             /// </summary>
             try
             {
-                var entityId = User.GetTenantId();
+                var tenantId = User.GetTenantId();
                 /// <summary>
                 /// Calls the service to perform the bulk import operation.
                 /// </summary>
-                string resultMessage = await _bulkImportService.BulkImport(file.OpenReadStream(), file.FileName, createdBy, entityId);
+                string resultMessage = await _bulkImportService.BulkImport(file.OpenReadStream(), file.FileName, createdBy, tenantId);
 
                 /// <summary>
                 /// Returns successful response with the import result message.

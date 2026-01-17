@@ -29,9 +29,9 @@ namespace EligibilityPlatform.Controllers
         public IActionResult Get()
         {
             // Retrieves the entity ID from the current user context
-            int entityId = Convert.ToInt32(User.GetTenantId());
+            int tenantId = Convert.ToInt32(User.GetTenantId());
             // Retrieves all product records for the current entity
-            List<ProductListModel> result = _productService.GetAll(entityId);
+            List<ProductListModel> result = _productService.GetAll(tenantId);
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }

@@ -297,12 +297,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Validates an entity based on the provided type and key values.
         /// </summary>
-        /// <param name="entityIdStr">The entity ID as a string.</param>
+        /// <param name="tenantIdStr">The entity ID as a string.</param>
         /// <param name="entities">The entities to use in validation.</param>
         /// <param name="keyValues">The key-value pairs for validation.</param>
         /// <param name="type">The type of validation.</param>
         /// <returns>The ValidationResult of the entity validation.</returns>
-        private ValidationResult ValidateEntity(string entityIdStr, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
+        private ValidationResult ValidateEntity(string tenantIdStr, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
         {
             // Initializes list for validation details.
             var validationDetails = new List<ValidationDetail>();
@@ -315,7 +315,7 @@ namespace EligibilityPlatform.Application.Services
                     // Casts entities to Ecard list.
                     var list = (IEnumerable<Ecard>)entities;
                     // Finds the ECard by ID.
-                    var eCard = list.FirstOrDefault(x => x.EcardId == int.Parse(entityIdStr));
+                    var eCard = list.FirstOrDefault(x => x.EcardId == int.Parse(tenantIdStr));
                     // If ECard found, validates it.
                     if (eCard != null)
                     {
@@ -331,7 +331,7 @@ namespace EligibilityPlatform.Application.Services
 
                 case "Card":
                     // Validates rule directly by ID.
-                    var cardResult = ValidateRule(int.Parse(entityIdStr), keyValues);
+                    var cardResult = ValidateRule(int.Parse(tenantIdStr), keyValues);
                     // Sets validation result.
                     isValidationPassed = cardResult.IsValidationPassed;
                     // Adds validation details.
@@ -347,7 +347,7 @@ namespace EligibilityPlatform.Application.Services
                     {
                         // Splits entity string by condition value (spaces removed).
                         var conditionValue = (condition.ConditionValue ?? "").Replace(" ", "").ToLower();
-                        var entityStr = entityIdStr.Replace(" ", "").ToLower();
+                        var entityStr = tenantIdStr.Replace(" ", "").ToLower();
 
                         // Split entity string by condition value
                         var facts = entityStr.Split([conditionValue], StringSplitOptions.None);

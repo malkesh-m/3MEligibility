@@ -98,13 +98,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes a Pcard record by its entity ID and Pcard ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The Pcard ID to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Find Pcard by ID and entity
-            var Item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == entityId);
+            var Item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == tenantId);
             // Remove entity from repository
             _uow.PcardRepository.Remove(Item);
             // Commit changes to database
@@ -114,12 +114,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all Pcard records for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of PcardListModel representing all records for the entity.</returns>
-        public List<PcardListModel> GetAll(int entityId)
+        public List<PcardListModel> GetAll(int tenantId)
         {
             // Get Pcards by entity ID
-            var pcard = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
+            var pcard = _uow.PcardRepository.Query().Where(f => f.TenantId == tenantId);
             // Map entities to models and return
             return _mapper.Map<List<PcardListModel>>(pcard);
         }
@@ -127,13 +127,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets a Pcard record by its entity ID and Pcard ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The Pcard ID to retrieve.</param>
         /// <returns>The PcardListModel for the specified entity and Pcard ID.</returns>
-        public PcardListModel GetById(int entityId, int id)
+        public PcardListModel GetById(int tenantId, int id)
         {
             // Find Pcard by ID and entity
-            var pcard = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == entityId);
+            var pcard = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == tenantId);
             // Map entity to model and return
             return _mapper.Map<PcardListModel>(pcard);
         }
@@ -175,10 +175,10 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Exports selected Pcard records to an Excel file.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="selectedPcardIds">A list of selected Pcard IDs to export.</param>
         /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportPCards(int entityId, List<int> selectedPcardIds)
+        public async Task<Stream> ExportPCards(int tenantId, List<int> selectedPcardIds)
         {
             // Query Pcards with joins to related entities
             var Pcards = from pcard in _uow.PcardRepository.Query()
@@ -187,7 +187,7 @@ namespace EligibilityPlatform.Application.Services
                          join entity in _uow.EntityRepository.Query()
                          on pcard.TenantId equals entity.EntityId into entityGroup
                          from entity in entityGroup.DefaultIfEmpty() // LEFT JOINs
-                         where pcard.TenantId == entityId && product.TenantId == entityId && entity.EntityId == entityId
+                         where pcard.TenantId == tenantId && product.TenantId == tenantId && entity.EntityId == tenantId
                          select new PcardCsvModel
                          {
                              PcardId = pcard.PcardId,
@@ -254,10 +254,10 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports Pcard records from a CSV file into the database.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="fileStream">The file stream containing the CSV data to import.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task ImportEntities(int entityId, Stream fileStream)
+        public async Task ImportEntities(int tenantId, Stream fileStream)
         {
             // Create stream reader
             using var reader = new StreamReader(fileStream);
@@ -270,7 +270,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var model in models)
             {
                 // Set entity ID
-                model.TenantId = entityId;
+                model.TenantId = tenantId;
                 // Map model to entity
                 var entity = _mapper.Map<Pcard>(model);
                 // Add entity to repository
@@ -284,16 +284,16 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Removes multiple Pcard records by their IDs for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="ids">A list of Pcard IDs to remove.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task RemoveMultiple(int entityId, List<int> ids)
+        public async Task RemoveMultiple(int tenantId, List<int> ids)
         {
             // Process each ID
             foreach (var id in ids)
             {
                 // Find Pcard by ID and entity
-                var item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == entityId);
+                var item = _uow.PcardRepository.Query().First(f => f.PcardId == id && f.TenantId == tenantId);
                 if (item != null)
                 {
                     // Remove entity from repository
@@ -307,11 +307,11 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports Pcard records from an Excel file into the database.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="fileStream">The file stream containing the Excel data to import.</param>
         /// <param name="createdBy">The user who is performing the import operation.</param>
         /// <returns>A task that represents the asynchronous operation, with a string message describing the result.</returns>
-        public async Task<string> ImportPCards(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportPCards(int tenantId, Stream fileStream, string createdBy)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -410,7 +410,7 @@ namespace EligibilityPlatform.Application.Services
                         CreatedBy = createdBy,
                         UpdatedBy = createdBy,
                         ProductId = productId,
-                        TenantId = entityId
+                        TenantId = tenantId
                     });
                 }
 
@@ -549,13 +549,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Downloads an Excel template for Pcard records.
         /// </summary>
-        /// <param name="entityId">The entity ID for which to generate the template.</param>
+        /// <param name="tenantId">The entity ID for which to generate the template.</param>
         /// <returns>A task that represents the asynchronous operation, with the Excel file as a byte array.</returns>
-        public async Task<byte[]> DownloadTemplate(int entityId)
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Fetch all ecards and products for the entity
-            List<EcardListModel> ecard = _ecardService.GetAll(entityId);
-            List<ProductListModel> product = _productService.GetAll(entityId);
+            List<EcardListModel> ecard = _ecardService.GetAll(tenantId);
+            List<ProductListModel> product = _productService.GetAll(tenantId);
 
             // Set EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

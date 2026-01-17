@@ -108,14 +108,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Calculates the eligible amount based on entity, pre-amount, and PCard ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="Preamount">The pre-amount value as a string.</param>
         /// <param name="pcardId">The PCard ID.</param>
         /// <returns>The calculated eligible amount as a string.</returns>
-        public string AmountCalculate(int entityId, string Preamount, int pcardId)
+        public string AmountCalculate(int tenantId, string Preamount, int pcardId)
         {
             // Retrieves PCard by entity ID and PCard ID
-            var pcard = _pcardService.GetById(entityId, pcardId);
+            var pcard = _pcardService.GetById(tenantId, pcardId);
             // Validates if PCard exists
             if (pcard == null)
             {

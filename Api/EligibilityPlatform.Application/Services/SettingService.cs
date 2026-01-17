@@ -63,13 +63,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets a setting by entity ID and setting ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The setting ID.</param>
         /// <returns>The SettingModel for the specified entity and setting ID.</returns>
-        public SettingModel GetById(int entityId, int id)
+        public SettingModel GetById(int tenantId, int id)
         {
             // Retrieves setting by both entity ID and setting ID
-            var setting = _uow.SettingRepository.Query().First(w => w.SettingId == id && w.TenantId == entityId);
+            var setting = _uow.SettingRepository.Query().First(w => w.SettingId == id && w.TenantId == tenantId);
             // Returns mapped setting model
             return new SettingModel { IsMakerCheckerEnable = setting.IsMakerCheckerEnable };
         }
@@ -77,16 +77,16 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets a setting by entity ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task representing the asynchronous operation, with the SettingModel for the specified entity.</returns>
-        public async Task<SettingModel> GetbyEntityId(int entityId)
+        public async Task<SettingModel> GetbyEntityId(int tenantId)
         {
             // Queries for setting by entity ID
-            var setting = _uow.SettingRepository.Query().FirstOrDefault(w => w.TenantId == entityId);
+            var setting = _uow.SettingRepository.Query().FirstOrDefault(w => w.TenantId == tenantId);
             if (setting == null)
             {
                 // Creates default setting if none exists
-                var settings = new SettingModel { IsMakerCheckerEnable = false, EntityId = entityId };
+                var settings = new SettingModel { IsMakerCheckerEnable = false, EntityId = tenantId };
                 // Persists the default setting
                 await Update(settings);
                 // Returns the default setting

@@ -84,14 +84,14 @@ namespace EligibilityPlatform.Application.Services
         /// Deletes an existing factor record from the database by its ID.
         /// Retrieves the factor by its ID and entity ID, removes it, and commits the changes asynchronously.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the factor.</param>
+        /// <param name="tenantId">The entity ID associated with the factor.</param>
         /// <param name="id">The ID of the factor record to be deleted.</param>
         /// <returns>A Task representing the asynchronous delete operation.</returns>
         /// <exception cref="Exception">Thrown when the factor record is not found or an error occurs during the delete operation.</exception>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Retrieves the factor by ID and entity ID
-            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == entityId);
+            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == tenantId);
             // Removes the factor from the repository
             _uow.FactorRepository.Remove(factors);
             // Commits the changes to the database
@@ -102,12 +102,12 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves all factor records from the database for a specific entity.
         /// Maps the data to a list of FactorListModel objects for easier presentation.
         /// </summary>
-        /// <param name="entityId">The entity ID to filter factor records.</param>
+        /// <param name="tenantId">The entity ID to filter factor records.</param>
         /// <returns>A list of FactorListModel objects containing all factor records for the specified entity.</returns>
-        public List<FactorListModel> GetAll(int entityId)
+        public List<FactorListModel> GetAll(int tenantId)
         {
             // Retrieves all factors for the specified entity
-            var factors = _uow.FactorRepository.Query().Where(f => f.TenantId == entityId);
+            var factors = _uow.FactorRepository.Query().Where(f => f.TenantId == tenantId);
             // Maps the factors to FactorListModel objects
             return _mapper.Map<List<FactorListModel>>(factors);
         }
@@ -116,14 +116,14 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves a specific factor record by its ID and entity ID.
         /// Maps the retrieved entity to a FactorListModel object for better presentation.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the factor.</param>
+        /// <param name="tenantId">The entity ID associated with the factor.</param>
         /// <param name="id">The ID of the factor record to retrieve.</param>
         /// <returns>The FactorListModel object representing the factor record with the specified ID.</returns>
         /// <exception cref="Exception">Thrown when the factor record is not found.</exception>
-        public FactorListModel GetById(int entityId, int id)
+        public FactorListModel GetById(int tenantId, int id)
         {
             // Retrieves the factor by ID and entity ID
-            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == entityId);
+            var factors = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == tenantId);
             // Maps the factor to FactorListModel object
             return _mapper.Map<FactorListModel>(factors);
         }
@@ -165,11 +165,11 @@ namespace EligibilityPlatform.Application.Services
         /// and writes the resulting data to an Excel worksheet. 
         /// The Excel file is returned as a stream.
         /// </summary>
-        /// <param name="entityId">The entity ID to filter factor records.</param>
+        /// <param name="tenantId">The entity ID to filter factor records.</param>
         /// <param name="selectedFactorIds">List of selected factor IDs to filter the data (if provided).</param>
         /// <returns>A Task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
         /// <exception cref="Exception">Thrown when any error occurs during the export process.</exception>
-        public async Task<Stream> ExportFactors(int entityId, List<int> selectedFactorIds)
+        public async Task<Stream> ExportFactors(int tenantId, List<int> selectedFactorIds)
         {
             // Creates a query joining Factor, Parameter, Condition, and Entity tables
             var factors = from factor in _uow.FactorRepository.Query()
@@ -183,7 +183,7 @@ namespace EligibilityPlatform.Application.Services
                           //on factor.TenantId equals entity.TenantId into entityGroup
                           //from entity in entityGroup.DefaultIfEmpty() // LEFT JOIN
 
-                          where factor.TenantId == entityId && parameter.TenantId == entityId
+                          where factor.TenantId == tenantId && parameter.TenantId == tenantId
                           select new FactorModelDescription
                           {
                               FactorId = factor.FactorId,
@@ -255,11 +255,11 @@ namespace EligibilityPlatform.Application.Services
         /// Reads the data from the uploaded CSV file, maps each record to a Factor entity, and adds them to the database.
         /// Commits the changes asynchronously.
         /// </summary>
-        /// <param name="entityId">The entity ID to associate with imported factors.</param>
+        /// <param name="tenantId">The entity ID to associate with imported factors.</param>
         /// <param name="fileStream">The file stream containing the CSV data to be imported.</param>
         /// <returns>A Task that represents the asynchronous operation.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during the import process.</exception>
-        public async Task ImportEntities(int entityId, Stream fileStream)
+        public async Task ImportEntities(int tenantId, Stream fileStream)
         {
             // Creates a stream reader to read the file stream
             using var reader = new StreamReader(fileStream);
@@ -276,7 +276,7 @@ namespace EligibilityPlatform.Application.Services
                 // Resets the FactorId to 0 for new entities
                 entity.FactorId = 0;
                 // Sets the entity ID
-                entity.TenantId = entityId;
+                entity.TenantId = tenantId;
                 // Adds the entity to the repository
                 _uow.FactorRepository.Add(entity);
             }
@@ -290,17 +290,17 @@ namespace EligibilityPlatform.Application.Services
         /// Iterates over the provided list of factor IDs, retrieves each factor record, and removes it from the database.
         /// Commits the changes asynchronously.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the factors.</param>
+        /// <param name="tenantId">The entity ID associated with the factors.</param>
         /// <param name="ids">A list of factor IDs to be removed.</param>
         /// <returns>A Task that represents the asynchronous operation.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during the removal process.</exception>
-        public async Task RemoveMultiple(int entityId, List<int> ids)
+        public async Task RemoveMultiple(int tenantId, List<int> ids)
         {
             // Iterates through each ID in the list
             foreach (var id in ids)
             {
                 // Retrieves the factor by ID and entity ID
-                var item = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == entityId);
+                var item = _uow.FactorRepository.Query().First(f => f.FactorId == id && f.TenantId == tenantId);
                 // Checks if the item exists
                 if (item != null)
                 {
@@ -316,15 +316,15 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves a list of values based on the provided parameter ID.
         /// Queries the database to find factors associated with the given parameter ID and returns the concatenated values of `Value1` and `Value2`.
         /// </summary>
-        /// <param name="entityId">The entity ID to filter factors.</param>
+        /// <param name="tenantId">The entity ID to filter factors.</param>
         /// <param name="parameterId">The ID of the parameter used to filter the factors.</param>
         /// <returns>A list of concatenated values of `Value1` and `Value2` for the matching factors.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during the data retrieval process.</exception>
-        public List<string> GetValueByParams(int entityId, int parameterId)
+        public List<string> GetValueByParams(int tenantId, int parameterId)
         {
             // Queries factors by entity ID and parameter ID
             var values = _uow.FactorRepository.Query()
-                                     .Where(f => f.TenantId == entityId && f.ParameterId == parameterId)
+                                     .Where(f => f.TenantId == tenantId && f.ParameterId == parameterId)
                                      // Concatenates Value1 and Value2 with separator
                                      .Select(f =>
                                          (f.Value1 ?? string.Empty) +
@@ -340,16 +340,16 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves a list of factor records based on the provided condition ID.
         /// Queries the database to find all factors that match the given condition ID and maps them to a list of FactorModel.
         /// </summary>
-        /// <param name="entityId">The entity ID to filter factors.</param>
+        /// <param name="tenantId">The entity ID to filter factors.</param>
         /// <param name="conditionId">The ID of the condition used to filter the factors.</param>
         /// <returns>A list of FactorModel representing the factors that match the given condition ID.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during the data retrieval process.</exception>
-        public List<FactorModel> GetFactorByCondition(int entityId, int conditionId)
+        public List<FactorModel> GetFactorByCondition(int tenantId, int conditionId)
         {
             // Queries factors by entity ID and condition ID
             var factors = _uow.FactorRepository
                      .Query()
-                     .Where(factor => factor.TenantId == entityId && factor.ConditionId == conditionId)
+                     .Where(factor => factor.TenantId == tenantId && factor.ConditionId == conditionId)
                      // Converts results to list
                      .ToList();
             // Maps factors to FactorModel objects
@@ -360,14 +360,14 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves a list of factor records based on the provided parameter ID.
         /// Queries the database to find all factors that match the given parameter ID and maps them to a list of FactorModel.
         /// </summary>
-        /// <param name="entityId">The entity ID to filter factors.</param>
+        /// <param name="tenantId">The entity ID to filter factors.</param>
         /// <param name="parameterId">The ID of the parameter used to filter the factors.</param>
         /// <returns>A list of FactorModel representing the factors that match the given parameter ID.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during the data retrieval process.</exception>
-        public List<FactorModel> GetFactorByparameter(int entityId, int parameterId)
+        public List<FactorModel> GetFactorByparameter(int tenantId, int parameterId)
         {
             // Queries factors by entity ID and parameter ID
-            var factors = _uow.FactorRepository.Query().Where(factor => factor.TenantId == entityId && factor.ParameterId == parameterId).ToList();
+            var factors = _uow.FactorRepository.Query().Where(factor => factor.TenantId == tenantId && factor.ParameterId == parameterId).ToList();
             // Maps factors to FactorModel objects
             return _mapper.Map<List<FactorModel>>(factors);
         }
@@ -377,12 +377,12 @@ namespace EligibilityPlatform.Application.Services
         /// Reads data from the uploaded Excel file, checks for required fields, skips invalid records, and maps valid records to factor entities.
         /// Adds non-duplicate records to the database and commits the changes asynchronously.
         /// </summary>
-        /// <param name="entityId">The entity ID to associate with imported factors.</param>
+        /// <param name="tenantId">The entity ID to associate with imported factors.</param>
         /// <param name="fileStream">The file stream containing the Excel data to be imported.</param>
         /// <param name="createdBy">The user who is performing the import operation.</param>
         /// <returns>A Task that represents the asynchronous operation, with a string message describing the result of the import process.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during the import process.</exception>
-        public async Task<string> ImportFactor(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportFactor(int tenantId, Stream fileStream, string createdBy)
         {
             // Sets the Excel package license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -491,7 +491,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if a factor with the same properties already exists
-                    var existingEntity = await _uow.FactorRepository.Query().AnyAsync(p => p.TenantId == entityId && p.FactorName == model.FactorName && p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && p.ConditionId == model.ConditionId && p.Value1 == model.Value1);
+                    var existingEntity = await _uow.FactorRepository.Query().AnyAsync(p => p.TenantId == tenantId && p.FactorName == model.FactorName && p.ParameterId == model.ParameterId && p.ConditionId == model.ConditionId && p.ConditionId == model.ConditionId && p.Value1 == model.Value1);
                     if (existingEntity)
                     {
                         // Increments duplicated records counter
@@ -500,7 +500,7 @@ namespace EligibilityPlatform.Application.Services
                         continue;
                     }
                     // Sets the entity ID
-                    model.TenantId = entityId;
+                    model.TenantId = tenantId;
                     // Sets the update timestamp to current UTC time
                     // Sets the creation timestamp to current UTC time
                     model.CreatedByDateTime = DateTime.UtcNow;
@@ -585,14 +585,14 @@ namespace EligibilityPlatform.Application.Services
         /// </summary>
         /// <returns>A Task representing the asynchronous operation, with the Excel file as a byte array.</returns>
         /// <exception cref="Exception">Thrown when an error occurs during template generation.</exception>
-        public async Task<byte[]> DownloadTemplate(int entityId)
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Retrieves all parameters for the specified entity
-            List<ParameterListModel> parameterList = _parameterService.GetAll(entityId);
+            List<ParameterListModel> parameterList = _parameterService.GetAll(tenantId);
             // Retrieves all conditions
             List<ConditionModel> conditionsList = _conditionService.GetAll();
             // Retrieves all managed lists for the specified entity
-            List<ManagedListGetModel> managedList = _managedListService.GetAll(entityId);
+            List<ManagedListGetModel> managedList = _managedListService.GetAll(tenantId);
 
             // Sanitizes parameter names for Excel range compatibility
             parameterList.ForEach(dataType => dataType.ParameterName = SanitizeRangeName(dataType.ParameterName ?? ""));

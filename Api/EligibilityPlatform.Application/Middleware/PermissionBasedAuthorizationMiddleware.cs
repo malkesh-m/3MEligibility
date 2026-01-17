@@ -84,17 +84,17 @@ namespace EligibilityPlatform.Application.Middleware
                 {
                     // Create scoped service provider to check permissions
                     using var scope = _serviceScopeFactory.CreateScope();
-                    var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-                    var hasPermission = await userService.UserHasPermission(user!, controllerName ?? "", actionName ?? "");
+                    //var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+                    //var hasPermission = await userService.UserHasPermission(user!, controllerName ?? "", actionName ?? "");
 
-                    if (!hasPermission)
-                    {
-                        _logger.LogWarning(
-                            "User {User} does NOT have permission for {Controller}/{Action} (403)",
-                            userName, controllerName, actionName
-                        );
+                    //if (!hasPermission)
+                    //{
+                    //    _logger.LogWarning(
+                    //        "User {User} does NOT have permission for {Controller}/{Action} (403)",
+                    //        userName, controllerName, actionName
+                    //    );
 
-                    }
+                    //}
 
                     // Continue the request normally
                     await _next(context);

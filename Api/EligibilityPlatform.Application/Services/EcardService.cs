@@ -32,12 +32,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Adds a new Ecard to the database.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the Ecard.</param>
+        /// <param name="tenantId">The entity ID associated with the Ecard.</param>
         /// <param name="model">The EcardAddUpdateModel object to be added.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Add(int entityId, EcardAddUpdateModel model)
+        public async Task Add(int tenantId, EcardAddUpdateModel model)
         {
-            var existingCard = _uow.EcardRepository.Query().Any(p => p.EcardName == model.EcardName && p.TenantId == entityId);
+            var existingCard = _uow.EcardRepository.Query().Any(p => p.EcardName == model.EcardName && p.TenantId == tenantId);
             if (existingCard)
             {
                 throw new Exception("Ecard with this name already exists");
@@ -45,7 +45,7 @@ namespace EligibilityPlatform.Application.Services
             // Maps the model to Ecard entity
             var ecardEntites = _mapper.Map<Ecard>(model);
             // Sets the entity ID for the Ecard
-            ecardEntites.TenantId = entityId;
+            ecardEntites.TenantId = tenantId;
             // Sets the update timestamp to current UTC time
             ecardEntites.UpdatedByDateTime = DateTime.UtcNow;
             // Sets the creation timestamp to current UTC time
@@ -59,15 +59,15 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes an Ecard from the database based on the provided ID.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the Ecard.</param>
+        /// <param name="tenantId">The entity ID associated with the Ecard.</param>
         /// <param name="id">The ID of the Ecard to be deleted.</param>
         /// <returns>A string message indicating the result of the operation.</returns>
-        public async Task<string> Delete(int entityId, int id)
+        public async Task<string> Delete(int tenantId, int id)
         {
             // Initializes the result message
             var resultMessage = "";
             // Retrieves all PCards for the specified entity
-            var pCards = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
+            var pCards = _uow.PcardRepository.Query().Where(f => f.TenantId == tenantId);
             try
             {
                 // Checks if the Ecard is being used in any PCard
@@ -81,7 +81,7 @@ namespace EligibilityPlatform.Application.Services
                 }
 
                 // Retrieves the Ecard entity by ID from the repository
-                var Item = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.TenantId == entityId);
+                var Item = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.TenantId == tenantId);
                 // Removes the Ecard entity from the repository
                 _uow.EcardRepository.Remove(Item);
                 // Commits the changes to the database
@@ -100,12 +100,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves all the Ecards from the database for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID to filter Ecards.</param>
+        /// <param name="tenantId">The entity ID to filter Ecards.</param>
         /// <returns>A list of EcardListModel objects representing all the Ecards.</returns>
-        public List<EcardListModel> GetAll(int entityId)
+        public List<EcardListModel> GetAll(int tenantId)
         {
             // Retrieves all Ecard entities for the specified entity ID
-            var ecards = _uow.EcardRepository.Query().Where(f => f.TenantId == entityId);
+            var ecards = _uow.EcardRepository.Query().Where(f => f.TenantId == tenantId);
             // Maps the Ecard entities to EcardListModel objects and returns the list
             return _mapper.Map<List<EcardListModel>>(ecards);
         }
@@ -113,13 +113,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves a specific Ecard by its ID.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the Ecard.</param>
+        /// <param name="tenantId">The entity ID associated with the Ecard.</param>
         /// <param name="id">The ID of the Ecard to be retrieved.</param>
         /// <returns>An EcardListModel object representing the Ecard with the specified ID.</returns>
-        public EcardListModel GetById(int entityId, int id)
+        public EcardListModel GetById(int tenantId, int id)
         {
             // Retrieves the Ecard entity by ID from the repository
-            var ecards = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.TenantId == entityId);
+            var ecards = _uow.EcardRepository.Query().First(f => f.EcardId == id && f.TenantId == tenantId);
             // Maps the Ecard entity to EcardListModel object and returns it
             return _mapper.Map<EcardListModel>(ecards);
         }
@@ -152,10 +152,10 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Removes multiple Ecard entries from the database.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the Ecards.</param>
+        /// <param name="tenantId">The entity ID associated with the Ecards.</param>
         /// <param name="ids">A list of Ecard IDs to be removed.</param>
         /// <returns>A string message indicating the result of the operation.</returns>
-        public async Task<string> RemoveMultiple(int entityId, List<int> ids)
+        public async Task<string> RemoveMultiple(int tenantId, List<int> ids)
         {
             // Initializes the result message
             var resultMessage = "";
@@ -164,7 +164,7 @@ namespace EligibilityPlatform.Application.Services
             // Initializes a collection for successfully deleted rules
             var deletedRules = new List<int>();
             // Retrieves all PCards for the specified entity
-            var pCards = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
+            var pCards = _uow.PcardRepository.Query().Where(f => f.TenantId == tenantId);
             try
             {
                 // Processes each Ecard ID for deletion
@@ -225,7 +225,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports a batch of Ecard entries from an Excel file.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the Ecards.</param>
+        /// <param name="tenantId">The entity ID associated with the Ecards.</param>
         /// <param name="fileStream">A stream representing the uploaded Excel file.</param>
         /// <param name="createdBy">The name of the user who created the records.</param>
         /// <returns>A string message indicating the result of the import operation.</returns>
@@ -308,7 +308,7 @@ namespace EligibilityPlatform.Application.Services
 
             return finalExpr;
         }
-        public async Task<string> ImportECard(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportECard(int tenantId, Stream fileStream, string createdBy)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using var package = new ExcelPackage(fileStream);
@@ -345,7 +345,7 @@ namespace EligibilityPlatform.Application.Services
 
                     models.Add(new EcardListModel
                     {
-                        TenantId = entityId,
+                        TenantId = tenantId,
                         EcardName = EcardName,
                         EcardDesc = EcardDesc,
                         Expshown = ExpressionShown,
@@ -368,7 +368,7 @@ namespace EligibilityPlatform.Application.Services
 
                     // Duplicate check
                     var exists = await _uow.EcardRepository.Query()
-                        .AnyAsync(p => p.TenantId == entityId &&
+                        .AnyAsync(p => p.TenantId == tenantId &&
                                        p.EcardName == model.EcardName &&
                                        p.EcardDesc == model.EcardDesc);
 
@@ -434,12 +434,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Downloads a template for importing Ecard data.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the template.</param>
+        /// <param name="tenantId">The entity ID associated with the template.</param>
         /// <returns>A byte array representing the Excel template file.</returns>
-        public async Task<byte[]> DownloadTemplate(int entityId)
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Fetches all Erule data for the specified entity
-            List<EruleMasterListModel> erule = await _eruleMasterService.GetAll(entityId);
+            List<EruleMasterListModel> erule = await _eruleMasterService.GetAll(tenantId);
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using var package = new ExcelPackage();
@@ -573,14 +573,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Exports selected Ecard data to an Excel file.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the Ecards.</param>
+        /// <param name="tenantId">The entity ID associated with the Ecards.</param>
         /// <param name="selectedEcardIds">A list of selected Ecard IDs to be exported.</param>
         /// <returns>A stream containing the Excel file with the Ecard data.</returns>
-        public async Task<Stream> ExportECard(int entityId, List<int> selectedEcardIds)
+        public async Task<Stream> ExportECard(int tenantId, List<int> selectedEcardIds)
         {
             // Queries Ecard entities for the specified entity ID
             var Ecards = from ecard in _uow.EcardRepository.Query()
-                         where ecard.TenantId == entityId
+                         where ecard.TenantId == tenantId
                          select new EcardModelDescription
                          {
                              EcardId = ecard.EcardId,

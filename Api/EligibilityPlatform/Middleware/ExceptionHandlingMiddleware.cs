@@ -1,7 +1,7 @@
 ﻿using EligibilityPlatform.Domain.Models;
 using EligibilityPlatform.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
-namespace EligibilityPlatform
+namespace Middleware
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ExceptionHandlingMiddleware"/> class.

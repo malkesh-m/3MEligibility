@@ -29,6 +29,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="FactorListModel"/> objects.</returns>
         /// 
+        [RequireRole("View Factors Screen")]
+
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -43,6 +45,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the factor.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="FactorListModel"/> if found; otherwise, not found.</returns>
+        [RequireRole("View Factors Screen")]
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -67,6 +71,8 @@ namespace EligibilityPlatform.Controllers
         /// <param name="factor">The <see cref="FactorAddUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
+        [RequireRole("Add new Factor")]
+
         [HttpPost]
         public async Task<IActionResult> Post(FactorAddUpdateModel factor)
         {
@@ -96,6 +102,9 @@ namespace EligibilityPlatform.Controllers
         /// <param name="factor">The <see cref="FactorAddUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
+
+        [RequireRole("Edit Factor")]
+
         [HttpPut]
         public async Task<IActionResult> Put(FactorAddUpdateModel factor)
         {
@@ -121,6 +130,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the factor to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
+        [RequireRole("Delete Factor")]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)

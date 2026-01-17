@@ -12,10 +12,10 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Retrieves all eligible products and their amounts for a specific entity based on provided criteria.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity to retrieve eligible products for.</param>
+        /// <param name="tenantId">The unique identifier of the entity to retrieve eligible products for.</param>
         /// <param name="keyValues">A dictionary of key-value pairs containing validation and filtering parameters.</param>
         /// <returns>An <see cref="EligibleAmountResults"/> object containing the eligible products and their amounts.</returns>
-        EligibleAmountResults GetAllEligibleProducts(int entityId, Dictionary<int, object> keyValues);
+        EligibleAmountResults GetAllEligibleProducts(int tenantId, Dictionary<int, object> keyValues);
         Task<BREIntegrationResponses> ProcessBREIntegration(Dictionary<string, object> KeyValues, int EntityId, string? RequestId);
         Task<object> CallMOZNApi(MOZNRequest request, EvaluationHistory evaluation);
         Task<object> CallFLIPApi(string nationalId, EvaluationHistory evaluation);

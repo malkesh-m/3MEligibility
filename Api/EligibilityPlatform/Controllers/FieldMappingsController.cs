@@ -24,7 +24,7 @@ namespace EligibilityPlatform.Controllers
       /// <param name="apiParametersService">The API parameters service.</param>
     [Route("api/fieldmappings")]
     [ApiController]
-    public partial class FieldMappingsController(INodeApiService nodeApiService, INodeService nodeService, IApiClientService apiClientService, IConfiguration configuration, IUserService userService, IApiParametersService apiParametersService) : ControllerBase
+    public partial class FieldMappingsController(INodeApiService nodeApiService, INodeService nodeService, IApiClientService apiClientService, IConfiguration configuration, /*IUserService userService,*/ IApiParametersService apiParametersService) : ControllerBase
     {
         /// <summary>
         /// The node API service instance.
@@ -49,7 +49,7 @@ namespace EligibilityPlatform.Controllers
         /// <summary>
         /// The user service instance.
         /// </summary>
-        private readonly IUserService _userService = userService;
+        //private readonly IUserService _userService = userService;
 
         /// <summary>
         /// The API parameters service instance.
@@ -81,129 +81,129 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="request">The suggest field mappings request.</param>
         /// <returns>A list of suggested field mappings.</returns>
-        [HttpPost("suggest")]
-        public async Task<ActionResult<IEnumerable<SuggestedFieldMapping>>> SuggestFieldMappings(SuggestFieldMappingsRequest request)
-        {
-            try
-            {
-                // Validates that the request object is not null
-                if (request == null)
-                {
-                    // Returns a bad request response if the request is null
-                    return BadRequest("Request cannot be null");
-                }
+        //[HttpPost("suggest")]
+        //public async Task<ActionResult<IEnumerable<SuggestedFieldMapping>>> SuggestFieldMappings(SuggestFieldMappingsRequest request)
+        //{
+        //    try
+        //    {
+        //        // Validates that the request object is not null
+        //        if (request == null)
+        //        {
+        //            // Returns a bad request response if the request is null
+        //            return BadRequest("Request cannot be null");
+        //        }
 
-                // Retrieves the mapping configuration using the provided mapping configuration ID
-                var mappingConfiguration = _nodeApiService.GetById(request.MappingConfigurationId);
+        //        // Retrieves the mapping configuration using the provided mapping configuration ID
+        //        var mappingConfiguration = _nodeApiService.GetById(request.MappingConfigurationId);
 
-                // Checks if the mapping configuration was found
-                if (mappingConfiguration == null)
-                {
-                    // Returns a not found response when mapping configuration doesn't exist
-                    return NotFound("Mapping configuration not found");
-                }
+        //        // Checks if the mapping configuration was found
+        //        if (mappingConfiguration == null)
+        //        {
+        //            // Returns a not found response when mapping configuration doesn't exist
+        //            return NotFound("Mapping configuration not found");
+        //        }
 
-                // Retrieves the API configuration associated with the mapping configuration
-                var apiConfiguration = _nodeService.GetById(User.GetTenantId(), mappingConfiguration.NodeId ?? 0);
+        //        // Retrieves the API configuration associated with the mapping configuration
+        //        var apiConfiguration = _nodeService.GetById(User.GetTenantId(), mappingConfiguration.NodeId ?? 0);
 
-                // Validates that the API configuration exists
-                if (apiConfiguration == null)
-                {
-                    // Returns a not found response when API configuration doesn't exist
-                    return NotFound("API configuration not found");
-                }
+        //        // Validates that the API configuration exists
+        //        if (apiConfiguration == null)
+        //        {
+        //            // Returns a not found response when API configuration doesn't exist
+        //            return NotFound("API configuration not found");
+        //        }
 
-                // Initializes an empty token string for API authentication
-                var token = string.Empty;
+        //        // Initializes an empty token string for API authentication
+        //        var token = string.Empty;
 
-                // Checks if the API configuration has username credentials for authentication
-                if (apiConfiguration.ApiuserName != null)
-                {
-                    // Authenticates the user using the API configuration credentials
-                    var user = await _userService.AuthenticateUser(apiConfiguration.ApiuserName, apiConfiguration.Apipassword!);
+        //        // Checks if the API configuration has username credentials for authentication
+        //        if (apiConfiguration.ApiuserName != null)
+        //        {
+        //            // Authenticates the user using the API configuration credentials
+        //            var user = await _userService.AuthenticateUser(apiConfiguration.ApiuserName, apiConfiguration.Apipassword!);
 
-                    // Generates a JWT token for the authenticated user
-                    token = GenerateToken(user!);
-                }
+        //            // Generates a JWT token for the authenticated user
+        //            token = GenerateToken(user!);
+        //        }
 
-                // Handles GET request body processing to replace URL parameters
-                if (!string.IsNullOrEmpty(request.RequestBody) && mappingConfiguration.HttpMethodType == "GET")
-                {
-                    // Parses the JSON request body into a dictionary for parameter extraction
-                    var parsedRequestBody = JsonConvert.DeserializeObject<Dictionary<string, object>>(request.RequestBody);
+        //        // Handles GET request body processing to replace URL parameters
+        //        if (!string.IsNullOrEmpty(request.RequestBody) && mappingConfiguration.HttpMethodType == "GET")
+        //        {
+        //            // Parses the JSON request body into a dictionary for parameter extraction
+        //            var parsedRequestBody = JsonConvert.DeserializeObject<Dictionary<string, object>>(request.RequestBody);
 
-                    // Checks if the request body contains an 'id' parameter
-                    if (parsedRequestBody!.TryGetValue("id", out object? value))
-                    {
-                        // Extracts the id value from the request body
-                        var idValue = value.ToString();
+        //            // Checks if the request body contains an 'id' parameter
+        //            if (parsedRequestBody!.TryGetValue("id", out object? value))
+        //            {
+        //                // Extracts the id value from the request body
+        //                var idValue = value.ToString();
 
-                        // Replaces {id} placeholder in the endpoint URL with the extracted id
-                        mappingConfiguration.Apiname = mappingConfiguration.Apiname!.Replace("{id}", idValue);
-                    }
-                }
+        //                // Replaces {id} placeholder in the endpoint URL with the extracted id
+        //                mappingConfiguration.Apiname = mappingConfiguration.Apiname!.Replace("{id}", idValue);
+        //            }
+        //        }
 
                 // Fetches sample data from the external API
-                dynamic sampleData = await _apiClientService.FetchSampleResponseAsync(
-                    apiConfiguration,
-                    mappingConfiguration.Apiname!,
-                    mappingConfiguration.HttpMethodType!,
-                    token,
-                    request.RequestBody);
+        //        dynamic sampleData = await _apiClientService.FetchSampleResponseAsync(
+        //            apiConfiguration,
+        //            mappingConfiguration.Apiname!,
+        //            mappingConfiguration.HttpMethodType!,
+        //            token,
+        //            request.RequestBody);
 
-                // Converts the sample data to JToken for easier manipulation
-                JToken tokenData = (JToken)sampleData;
+        //        // Converts the sample data to JToken for easier manipulation
+        //        JToken tokenData = (JToken)sampleData;
 
-                // Extracts wildcard paths from the sample JSON data
-                List<string> paths = ExtractPathsWithWildcard(tokenData);
+        //        // Extracts wildcard paths from the sample JSON data
+        //        List<string> paths = ExtractPathsWithWildcard(tokenData);
 
-                // Creates suggested field mappings collection
-                var suggestions = new List<SuggestedFieldMapping>();
+        //        // Creates suggested field mappings collection
+        //        var suggestions = new List<SuggestedFieldMapping>();
 
-                // Iterates through each extracted path to create field mapping suggestions
-                foreach (var path in paths)
-                {
-                    // Extracts sample value from the path
-                    var value = ExtractValueFromPath(sampleData, path);
+        //        // Iterates through each extracted path to create field mapping suggestions
+        //        foreach (var path in paths)
+        //        {
+        //            // Extracts sample value from the path
+        //            var value = ExtractValueFromPath(sampleData, path);
 
-                    // Determines data type based on the extracted value
-                    var dataType = DetermineDataType(value);
+        //            // Determines data type based on the extracted value
+        //            var dataType = DetermineDataType(value);
 
-                    // Creates and adds a new suggested field mapping
-                    suggestions.Add(new SuggestedFieldMapping
-                    {
-                        SourcePath = path,
-                        TargetField = SuggestTargetFieldName(path),
-                        DataType = DetermineDataType(value),
-                        SampleValue = value?.ToString() ?? ""
-                    });
-                }
+        //            // Creates and adds a new suggested field mapping
+        //            suggestions.Add(new SuggestedFieldMapping
+        //            {
+        //                SourcePath = path,
+        //                TargetField = SuggestTargetFieldName(path),
+        //                DataType = DetermineDataType(value),
+        //                SampleValue = value?.ToString() ?? ""
+        //            });
+        //        }
 
-                // Deletes existing API parameters for this mapping configuration
-                await _apiParametersService.DeleteByApiIdAsync(request.MappingConfigurationId);
+        //        // Deletes existing API parameters for this mapping configuration
+        //        await _apiParametersService.DeleteByApiIdAsync(request.MappingConfigurationId);
 
-                // Converts suggestions to API parameter models
-                var apiParameters = suggestions.Select(s => new ApiParametersCreateUpdateModel
-                {
-                    ParameterName = s.TargetField ?? "",
-                    ParameterType = s.DataType,
-                    ParameterDirection = "",
-                    IsRequired = false,
-                    ApiId = request.MappingConfigurationId
-                }).ToList();
+        //        // Converts suggestions to API parameter models
+        //        var apiParameters = suggestions.Select(s => new ApiParametersCreateUpdateModel
+        //        {
+        //            ParameterName = s.TargetField ?? "",
+        //            ParameterType = s.DataType,
+        //            ParameterDirection = "",
+        //            IsRequired = false,
+        //            ApiId = request.MappingConfigurationId
+        //        }).ToList();
 
-                // Adds the new API parameters to the database
-                await _apiParametersService.AddRange(apiParameters);
+        //        // Adds the new API parameters to the database
+        //        await _apiParametersService.AddRange(apiParameters);
 
-                // Returns success response with the suggested field mappings
-                return Ok(suggestions);
-            }
-            catch (Exception ex)
-            {
-                // Returns internal server error response with exception details
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error suggesting field mappings: {ex.Message}");
-            }
-        }
+        //        // Returns success response with the suggested field mappings
+        //        return Ok(suggestions);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Returns internal server error response with exception details
+        //        return StatusCode(StatusCodes.Status500InternalServerError, $"Error suggesting field mappings: {ex.Message}");
+        //    }
+        //}
 
         #region Helper Methods
 
@@ -431,7 +431,7 @@ namespace EligibilityPlatform.Controllers
                 new(ClaimTypes.Name, user.UserName),
                 new(ClaimTypes.Email, user.Email ?? string.Empty),
                 new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new("EntityId", user.EntityId.ToString())
+                //new("EntityId", user.EntityId.ToString())
             };
 
             // Adds role claim if user has security group

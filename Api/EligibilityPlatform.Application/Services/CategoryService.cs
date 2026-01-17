@@ -30,12 +30,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves all categories from the database for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>List of CategoryListModel objects.</returns>
-        public List<CategoryListModel> GetAll(int entityId)
+        public List<CategoryListModel> GetAll(int tenantId)
         {
             // Queries categories filtered by entity ID and converts to list
-            var categories = _uow.CategoryRepository.Query().Where(w => w.TenantId == entityId).ToList();
+            var categories = _uow.CategoryRepository.Query().Where(w => w.TenantId == tenantId).ToList();
             // Maps category entities to CategoryListModel objects
             return _mapper.Map<List<CategoryListModel>>(categories);
         }
@@ -43,13 +43,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves a category by its unique identifier for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The category ID.</param>
         /// <returns>A CategoryModel object.</returns>
-        public CategoryListModel GetById(int entityId, int id)
+        public CategoryListModel GetById(int tenantId, int id)
         {
             // Finds the first category matching both entity ID and category ID
-            var category = _uow.CategoryRepository.Query().First(f => f.TenantId == entityId && f.CategoryId == id);
+            var category = _uow.CategoryRepository.Query().First(f => f.TenantId == tenantId && f.CategoryId == id);
             // Maps the category entity to CategoryListModel object
             return _mapper.Map<CategoryListModel>(category);
         }
@@ -109,12 +109,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Removes a category from the database by ID for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The category ID.</param>
-        public async Task<string> Remove(int entityId, int id)
+        public async Task<string> Remove(int tenantId, int id)
         {
             // Finds the category matching both entity ID and category ID
-            var item = _uow.CategoryRepository.Query().First(f => f.TenantId == entityId && f.CategoryId == id);
+            var item = _uow.CategoryRepository.Query().First(f => f.TenantId == tenantId && f.CategoryId == id);
             var existingProduct = _uow.ProductRepository.Query().Any(p => p.CategoryId == id);
             string message = "";
             if (existingProduct)
@@ -136,9 +136,9 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Removes multiple categories from the database for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="ids">List of category IDs to remove.</param>
-        public async Task<string> RemoveMultiple(int entityId, List<int> ids)
+        public async Task<string> RemoveMultiple(int tenantId, List<int> ids)
         {
             var resultMessage = "";
             var notDeletedCategories = new HashSet<string>();  // names not deleted
@@ -147,13 +147,13 @@ namespace EligibilityPlatform.Application.Services
             try
             {
                 var products = _uow.ProductRepository.Query()
-                                                     .Where(p => p.TenantId == entityId)
+                                                     .Where(p => p.TenantId == tenantId)
                                                      .ToList();
 
                 foreach (var id in ids)
                 {
                     var category = _uow.CategoryRepository.Query()
-                                    .FirstOrDefault(c => c.TenantId == entityId && c.CategoryId == id);
+                                    .FirstOrDefault(c => c.TenantId == tenantId && c.CategoryId == id);
 
                     if (category == null)
                         continue;
@@ -204,16 +204,16 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Exports selected categories to an Excel file for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="selectedCategoryIds">List of category IDs to export.</param>
         /// <returns>A Stream containing the Excel file.</returns>
-        public async Task<Stream> ExportCategory(int entityId, List<int> selectedCategoryIds)
+        public async Task<Stream> ExportCategory(int tenantId, List<int> selectedCategoryIds)
         {
             // Creates a query joining categories with entities
             var categories = from category in _uow.CategoryRepository.Query()
                              join entity in _uow.EntityRepository.Query()
                              on category.TenantId equals entity.EntityId
-                             where entity.EntityId == entityId
+                             where entity.EntityId == tenantId
                              select new CategoryCsvModel
                              {
                                  CategoryId = category.CategoryId,
@@ -274,11 +274,11 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports categories from an uploaded Excel file for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="fileStream">The file stream containing category data.</param>
         /// <param name="createdBy">User who performed the import.</param>
         /// <returns>A message indicating the result of the import.</returns>
-        public async Task<string> ImportCategory(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportCategory(int tenantId, Stream fileStream, string createdBy)
         {
             // Sets the EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

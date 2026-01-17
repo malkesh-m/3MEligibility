@@ -4,6 +4,7 @@ using EligibilityPlatform.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EligibilityPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(EligibilityDbContext))]
-    partial class EligibilityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260117095231_ChangeTable_User")]
+    partial class ChangeTable_User
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -419,12 +419,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Downloads an Excel template for list items.
         /// </summary>
-        /// <param name="entityId">The entity ID for which to generate the template.</param>
+        /// <param name="tenantId">The entity ID for which to generate the template.</param>
         /// <returns>A task that represents the asynchronous operation, with the Excel file as a byte array.</returns>
-        public async Task<byte[]> DownloadTemplate(int entityId)
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Gets all managed lists for the specified entity
-            List<ManagedListGetModel> listItem = managedListService.GetAll(entityId);
+            List<ManagedListGetModel> listItem = managedListService.GetAll(tenantId);
 
             // Sets EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

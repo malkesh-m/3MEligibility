@@ -63,13 +63,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes a node by its entity ID and node ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The node ID to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Retrieves the specific node by entity ID and node ID
-            var nodes = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == entityId);
+            var nodes = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == tenantId);
             // Removes the node from the repository
             _uow.NodeModelRepository.Remove(nodes);
             // Commits the changes to the database
@@ -79,14 +79,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all nodes for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of NodeListModel representing all nodes for the entity.</returns>
-        public List<NodeListModel> GetAll(int entityId)
+        public List<NodeListModel> GetAll(int tenantId)
         {
             // Queries nodes filtered by entity ID and *executes* the query immediately.
             var nodesList = _uow.NodeModelRepository
                                 .Query()
-                                .Where(f => f.TenantId == entityId)
+                                .Where(f => f.TenantId == tenantId)
                                 .ToList();
 
             return _mapper.Map<List<NodeListModel>>(nodesList);
@@ -94,13 +94,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets a node by its entity ID and node ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The node ID to retrieve.</param>
         /// <returns>The NodeListModel for the specified entity and node ID.</returns>
-        public NodeListModel GetById(int entityId, int id)
+        public NodeListModel GetById(int tenantId, int id)
         {
             // Retrieves the specific node by entity ID and node ID
-            var node = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == entityId);
+            var node = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == tenantId);
             // Maps the node to NodeListModel object
             return _mapper.Map<NodeListModel>(node);
         }
@@ -128,17 +128,17 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes multiple nodes by their IDs for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="ids">A list of node IDs to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="Exception">Thrown when one or more provided node IDs are not found for the entity.</exception>
-        public async Task MultipleDelete(int entityId, List<int> ids)
+        public async Task MultipleDelete(int tenantId, List<int> ids)
         {
             // Validates that all provided node IDs exist for the entity
             foreach (var id in ids)
             {
                 // Checks if the node ID exists for the given entity
-                var hasvalue = await _uow.NodeModelRepository.Query().AnyAsync(item => item.TenantId == entityId && item.NodeId == id);
+                var hasvalue = await _uow.NodeModelRepository.Query().AnyAsync(item => item.TenantId == tenantId && item.NodeId == id);
                 if (hasvalue == false)
                 {
                     // Throws exception if node ID is not found for the entity
@@ -150,7 +150,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Retrieves the specific node by entity ID and node ID
-                var manageitem = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == entityId);
+                var manageitem = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == tenantId);
                 if (manageitem != null)
                 {
                     // Removes the node from the repository

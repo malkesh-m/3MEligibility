@@ -27,17 +27,17 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets the evaluation summary by month for a given entity and year.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="year">The year to filter by (optional).</param>
         /// <returns>A list of <see cref="PassFailSummaryModel"/> representing the summary.</returns>
-        public async Task<List<PassFailSummaryModel>> GetEvaluationSummaryByMonthAsync(int entityId, int? year = null)
+        public async Task<List<PassFailSummaryModel>> GetEvaluationSummaryByMonthAsync(int tenantId, int? year = null)
         {
             // Uses current year if no year is specified
             int selectedYear = year ?? DateTime.Now.Year;
 
             // Queries evaluation history for the specified entity and year
             var data = await _uow.EvaluationHistoryRepository.Query()
-                .Where(e => e.TenantId == entityId && e.EvaluationTimeStamp.Year == selectedYear)
+                .Where(e => e.TenantId == tenantId && e.EvaluationTimeStamp.Year == selectedYear)
                 // Groups by year and month
                 .GroupBy(e => new { e.EvaluationTimeStamp.Year, e.EvaluationTimeStamp.Month })
                 // Selects counts for approved and rejected outcomes
@@ -70,14 +70,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets the breakdown of failure reasons for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of <see cref="FailureReasonSummaryModel"/> representing the breakdown.</returns>
-        public async Task<List<FailureReasonSummaryModel>> GetFailureReasonBreakdownAsync(int entityId)
+        public async Task<List<FailureReasonSummaryModel>> GetFailureReasonBreakdownAsync(int tenantId)
         {
             var rejectedEvaluations = await _uow.EvaluationHistoryRepository.Query()
                 .Where(e => e.Outcome != null &&
                             e.Outcome.Contains("Rejected") &&
-                            e.TenantId == entityId)
+                            e.TenantId == tenantId)
                 .ToListAsync();
 
             int customerSalaryCount = 0;
@@ -123,14 +123,14 @@ namespace EligibilityPlatform.Application.Services
         /// Gets the evaluation history for a given entity and filter.
         /// </summary>
         /// <param name="filter">The filter to apply.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of <see cref="EvaluationHistoryModel"/> representing the history.</returns>
-        public async Task<(List<EvaluationHistoryModel> Data, int TotalCount)> GetEvaluationHistoryAsync(EvaluationHistoryFilter filter, int entityId)
+        public async Task<(List<EvaluationHistoryModel> Data, int TotalCount)> GetEvaluationHistoryAsync(EvaluationHistoryFilter filter, int tenantId)
         {
             filter ??= new EvaluationHistoryFilter();
 
             var query = _uow.EvaluationHistoryRepository.Query();
-            query = query.Where(e => e.TenantId == entityId);
+            query = query.Where(e => e.TenantId == tenantId);
 
             if (!string.IsNullOrWhiteSpace(filter.SearchText))
             {
@@ -183,13 +183,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets the processing time distribution for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of <see cref="ProcessingTimeBucketModel"/> representing the distribution.</returns>
-        public async Task<List<ProcessingTimeBucketModel>> GetProcessingTimeDistributionAsync(int entityId)
+        public async Task<List<ProcessingTimeBucketModel>> GetProcessingTimeDistributionAsync(int tenantId)
         {
             // Gets all processing times for the entity
             var data = await _uow.EvaluationHistoryRepository.Query()
-                .Where(e => e.TenantId == entityId)
+                .Where(e => e.TenantId == tenantId)
                 .Select(e => e.ProcessingTime)
                 .ToListAsync();
 
@@ -209,26 +209,26 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets the number of customers evaluated for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The number of customers evaluated.</returns>
-        public async Task<int> GetCustomersEvaluatedAsync(int entityId)
+        public async Task<int> GetCustomersEvaluatedAsync(int tenantId)
         {
             // Counts all evaluation records for the entity
             return await _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.TenantId == entityId)
+                .Where(x => x.TenantId == tenantId)
                 .CountAsync();
         }
 
         /// <summary>
         /// Gets the approval rate for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The approval rate as a percentage.</returns>
-        public async Task<double> GetApprovalRateAsync(int entityId)
+        public async Task<double> GetApprovalRateAsync(int tenantId)
         {
             // Base query for the entity
             var query = _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.TenantId == entityId);
+                .Where(x => x.TenantId == tenantId);
 
             // Gets total number of evaluations
             var total = await query.CountAsync();
@@ -246,13 +246,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets the rejection rate for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The rejection rate as a percentage.</returns>
-        public async Task<double> GetRejectionRateAsync(int entityId)
+        public async Task<double> GetRejectionRateAsync(int tenantId)
         {
             // Base query for the entity
             var query = _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.TenantId == entityId);
+                .Where(x => x.TenantId == tenantId);
 
             // Gets total number of evaluations
             var total = await query.CountAsync();
@@ -270,13 +270,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets the top failure reason for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The top failure reason as a string.</returns>
-        public async Task<string?> GetTopFailureReasonAsync(int entityId)
+        public async Task<string?> GetTopFailureReasonAsync(int tenantId)
         {
             // Fetch all failure reason strings
             var allFailureText = await _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.TenantId == entityId && !string.IsNullOrEmpty(x.FailurReason))
+                .Where(x => x.TenantId == tenantId && !string.IsNullOrEmpty(x.FailurReason))
                 .Select(x => x.FailurReason)
                 .ToListAsync();
 
@@ -308,17 +308,17 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets the average approved score for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The average approved score.</returns>
-        public async Task<double> GetAverageApprovedScoreAsync(int entityId)
+        public async Task<double> GetAverageApprovedScoreAsync(int tenantId)
         {
             // Gets credit scores for approved evaluations
             //var scores = await _uow.EvaluationHistoryRepository.Query()
-            //    .Where(x => x.TenantId == entityId && x.OutCome!.StartsWith("Approved") && x.CreditScore != null)
+            //    .Where(x => x.TenantId == tenantId && x.OutCome!.StartsWith("Approved") && x.CreditScore != null)
             //    .Select(x => x.CreditScore)
             //    .ToListAsync();
             var scores = await _uow.EvaluationHistoryRepository.Query()
-              .Where(x => x.TenantId == entityId && x.Outcome!.StartsWith("Approved"))
+              .Where(x => x.TenantId == tenantId && x.Outcome!.StartsWith("Approved"))
               .Select(x => x.CreditScore)
               .ToListAsync();
 

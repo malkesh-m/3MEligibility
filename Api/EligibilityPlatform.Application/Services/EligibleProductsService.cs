@@ -38,7 +38,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves all eligible products for a given entity based on provided key-value parameters.
         /// </summary>
-        /// <param name="entityId">The ID of the entity for which to retrieve eligible products.</param>
+        /// <param name="tenantId">The ID of the entity for which to retrieve eligible products.</param>
         /// <param name="keyValues">A dictionary of parameter IDs and their corresponding values used for eligibility evaluation.</param>
         /// <returns>An <see cref="EligibleAmountResults"/> object containing eligible products with their amounts and validation details.</returns>
         /// <remarks>
@@ -51,7 +51,7 @@ namespace EligibilityPlatform.Application.Services
         /// </remarks>
         /// 
 
-        public EligibleAmountResults GetAllEligibleProducts(int entityId, Dictionary<int, object> keyValues)
+        public EligibleAmountResults GetAllEligibleProducts(int tenantId, Dictionary<int, object> keyValues)
         {
             // Starts a stopwatch to measure execution time
             var stopwatch = Stopwatch.StartNew();
@@ -60,7 +60,7 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all products for the specified entity from the repository
             var allProducts = _uow.ProductRepository.Query()
-                 .Where(p => p.TenantId == entityId).Select(p => new Product
+                 .Where(p => p.TenantId == tenantId).Select(p => new Product
                  {
                      ProductId = p.ProductId,
                      ProductName = p.ProductName,
@@ -75,7 +75,7 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all product caps for the specified entity from the repository
             var productCap = _uow.ProductCapRepository.Query()
-                .Where(p => p.Product.TenantId == entityId)
+                .Where(p => p.Product.TenantId == tenantId)
                 .ToList();
 
             // Retrieves exception products with their related data for the specified entity
@@ -116,24 +116,24 @@ namespace EligibilityPlatform.Application.Services
            .ToList();
 
             // Processes business rules and card validations to determine valid products
-            var (validProductIds, ruleResults) = ProcessRulesAndCards(entityId, keyValues);
+            var (validProductIds, ruleResults) = ProcessRulesAndCards(tenantId, keyValues);
 
             // Retrieves products that don't have associated PCARD configurations
-            var nonPCardEligibilityResults = GetNonPCardProducts(allProducts, entityId);
+            var nonPCardEligibilityResults = GetNonPCardProducts(allProducts, tenantId);
 
             // Identifies products that failed PCARD validation
             var pcardFailProducts = GetFailedPCardProducts(
                 allProducts,
                 validProductIds,
                 ruleResults,
-                entityId);
+                tenantId);
             var exceptionRules = _uow.ExceptionManagementRepository.Query();
             // Checks for products with exception handling
-            var exceptionHandledProducts = CheckProductWithException(entityId, keyValues, exceptionRules);
+            var exceptionHandledProducts = CheckProductWithException(tenantId, keyValues, exceptionRules);
 
             // Processes eligible and non-eligible products based on validation results
             var (eligibleProducts, nonEligibleProducts) = ProcessEligibleProducts(
-                entityId,
+                tenantId,
                 allProducts,
                 productCap,
                 validProductIds,
@@ -219,27 +219,27 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Processes business rules and card validations to determine which products are valid based on the provided parameters.
         /// </summary>
-        /// <param name="entityId">The ID of the entity for which to process rules.</param>
+        /// <param name="tenantId">The ID of the entity for which to process rules.</param>
         /// <param name="keyValues">A dictionary of parameter IDs and their corresponding values.</param>
         /// <returns>A tuple containing valid product IDs and rule validation results.</returns>
-        private (List<int?> validProductIds, List<RuleResult> ruleResults) ProcessRulesAndCards(int entityId, Dictionary<int, object> keyValues)
+        private (List<int?> validProductIds, List<RuleResult> ruleResults) ProcessRulesAndCards(int tenantId, Dictionary<int, object> keyValues)
         {
             // Retrieves rules that match the provided key values
-            var matchedRules = GetMatchRules(entityId, keyValues);
+            var matchedRules = GetMatchRules(tenantId, keyValues);
             // Validates the matched rules against the provided values
-            var ruleResults = ValidateERules(entityId, matchedRules, keyValues);
+            var ruleResults = ValidateERules(tenantId, matchedRules, keyValues);
             // Extracts rule IDs from the validation results
             var ruleIds = ruleResults.Select(r => r.RuleID).ToList();
 
             // Retrieves ECARDs associated with the validated rules
-            var eCards = GetEcardByEruleId(entityId, ruleIds);
+            var eCards = GetEcardByEruleId(tenantId, ruleIds);
             // Validates the ECARDs against the rule results
             var eCardResults = ValidateEcards(eCards, ruleResults);
             // Extracts ECARD IDs from the validation results
             var eCardIds = eCardResults.Select(r => r.EcardID).ToList();
 
             // Retrieves PCARD IDs associated with the validated ECARDs
-            var pCardIds = GetPcardIdByEcards(entityId, eCardIds);
+            var pCardIds = GetPcardIdByEcards(tenantId, eCardIds);
             // Validates the PCARDs against the ECARD results
             var pCardResults = ValidatePcards(pCardIds, eCardResults);
             // Extracts valid PCARD IDs from the validation results
@@ -258,13 +258,13 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves products that do not have associated PCARD configurations.
         /// </summary>
         /// <param name="allProducts">The complete list of products to filter.</param>
-        /// <param name="entityId">The ID of the entity for which to retrieve products.</param>
+        /// <param name="tenantId">The ID of the entity for which to retrieve products.</param>
         /// <returns>A list of <see cref="ProductEligibilityResult"/> objects for products without PCARDs.</returns>
-        private List<ProductEligibilityResult> GetNonPCardProducts(List<Product> allProducts, int entityId)
+        private List<ProductEligibilityResult> GetNonPCardProducts(List<Product> allProducts, int tenantId)
         {
             // Retrieves all product IDs that have associated PCARD configurations
             var productsWithPcard = _uow.PcardRepository.Query()
-                .Where(pc => pc.Product!.TenantId == entityId)
+                .Where(pc => pc.Product!.TenantId == tenantId)
                 .Select(pc => pc.ProductId)
                 .Distinct()
                 .ToList();
@@ -290,17 +290,17 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="allProducts">The complete list of products to evaluate.</param>
         /// <param name="validProductIds">Product IDs that passed validation.</param>
         /// <param name="ruleResults">Results from rule validation.</param>
-        /// <param name="entityId">The ID of the entity for which to evaluate products.</param>
+        /// <param name="tenantId">The ID of the entity for which to evaluate products.</param>
         /// <returns>A list of <see cref="ProductEligibilityResult"/> objects for products that failed PCARD validation.</returns>
         private List<ProductEligibilityResult> GetFailedPCardProducts(
             List<Product> allProducts,
             List<int?> validProductIds,
             List<RuleResult> ruleResults,
-            int entityId)
+            int tenantId)
         {
             // Retrieves all product IDs that have PCARD configurations for the entity
             var productIdsWithPcard = _uow.PcardRepository.Query()
-                .Where(p => p.Product != null && p.Product.TenantId == entityId)
+                .Where(p => p.Product != null && p.Product.TenantId == tenantId)
                 .Select(p => p.ProductId)
                 .Distinct()
                 .ToList();
@@ -324,12 +324,12 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all PCARDs for the entity
             var allPcards = _uow.PcardRepository.Query()
-                .Where(p => p.ProductId != null && p.Product!.TenantId == entityId)
+                .Where(p => p.ProductId != null && p.Product!.TenantId == tenantId)
                 .ToList();
 
             // Retrieves all ECARDs for the entity
             var allEcards = _uow.EcardRepository.Query()
-                .Where(e => e.TenantId == entityId)
+                .Where(e => e.TenantId == tenantId)
                 .ToList();
 
             // Creates eligibility results for failed products with appropriate error messages
@@ -354,7 +354,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Processes products to determine their eligibility status and amounts based on various criteria.
         /// </summary>
-        /// <param name="entityId">The ID of the entity for which to process products.</param>
+        /// <param name="tenantId">The ID of the entity for which to process products.</param>
         /// <param name="allProducts">The complete list of products to evaluate.</param>
         /// <param name="productCap">Product cap information for eligibility calculations.</param>
         /// <param name="validProductIds">Product IDs that passed initial validation.</param>
@@ -365,7 +365,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="keyValues">A dictionary of parameter IDs and their corresponding values.</param>
         /// <returns>A tuple containing eligible and non-eligible product results.</returns>
         private (List<ProductEligibilityResult> eligibleProducts, List<ProductEligibilityResult> nonEligibleProducts) ProcessEligibleProducts(
-            int entityId,
+            int tenantId,
             List<Product> allProducts,
             List<ProductCap> productCap,
             List<int?> validProductIds,
@@ -413,12 +413,12 @@ namespace EligibilityPlatform.Application.Services
 
             // Retrieves all PCARDs for the entity
             var allPcards = _uow.PcardRepository.Query()
-                .Where(p => p.Product!.TenantId == entityId)
+                .Where(p => p.Product!.TenantId == tenantId)
                 .ToList();
 
             // Retrieves all ECARDs for the entity
             var allEcards = _uow.EcardRepository.Query()
-                .Where(e => e.TenantId == entityId)
+                .Where(e => e.TenantId == tenantId)
                 .ToList();
 
             // Creates eligibility results for non-eligible products with appropriate error messages
@@ -832,19 +832,19 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Checks products against exception rules to determine special eligibility handling.
         /// </summary>
-        /// <param name="entityId">The ID of the entity for which to check exceptions.</param>
+        /// <param name="tenantId">The ID of the entity for which to check exceptions.</param>
         /// <param name="keyValues">A dictionary of parameter IDs and their corresponding values.</param>
         /// <param name="exceptionProducts">The list of exception products to evaluate.</param>
         /// <returns>A list of <see cref="ProductEligibilityResult"/> objects for products processed through exceptions.</returns>
         public IEnumerable<ProductEligibilityResult> CheckProductWithException(
-       int entityId,
+       int tenantId,
        Dictionary<int, object> keyValues,
        IEnumerable<ExceptionManagement> exceptionRules
       )
         {
             var results = new List<ProductEligibilityResult>();
             var factors = _uow.FactorRepository.Query()
-                .Where(f => f.TenantId == entityId)
+                .Where(f => f.TenantId == tenantId)
                 .ToList();
 
             int score = GetScore(keyValues);
@@ -862,7 +862,7 @@ namespace EligibilityPlatform.Application.Services
                 var keys = ExtractKeysFromExpression(rule.Expression, factors);
                 if (keys.Any(k => !keyValues.ContainsKey(k))) continue;
 
-                var validation = ProcessExpression(entityId, rule.Expression, factors, keyValues, "Rule");
+                var validation = ProcessExpression(tenantId, rule.Expression, factors, keyValues, "Rule");
                 if (!validation.IsValidationPassed) continue;
 
                 double ruleEligibilityPercent = validation.ValidationDetails.Count != 0
@@ -962,11 +962,11 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Validates a collection of eligibility rules against provided key values.
         /// </summary>
-        /// <param name="entityId">The ID of the entity to validate rules for.</param>
+        /// <param name="tenantId">The ID of the entity to validate rules for.</param>
         /// <param name="erules">The collection of eligibility rules to validate.</param>
         /// <param name="keyValues">The dictionary of key-value pairs containing parameter values for validation.</param>
         /// <returns>A list of RuleResult objects containing validation results for each rule.</returns>
-        public List<RuleResult> ValidateERules(int entityId, List<Erule> erules, Dictionary<int, object> keyValues)
+        public List<RuleResult> ValidateERules(int tenantId, List<Erule> erules, Dictionary<int, object> keyValues)
         {
             ValidationResult result = new();
             List<RuleResult> ruleResults = [];
@@ -979,7 +979,7 @@ namespace EligibilityPlatform.Application.Services
                 /// <summary>
                 /// Validates a specific rule against the provided key values.
                 /// </summary>
-                var validateRuleResults = ValidateRule(entityId, rule.EruleId, keyValues);
+                var validateRuleResults = ValidateRule(tenantId, rule.EruleId, keyValues);
 
                 /// <summary>
                 /// Removes duplicate validation details by grouping on key properties and selecting the first occurrence.
@@ -1044,15 +1044,15 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves Pcards that match the given Ecard IDs based on their expression evaluation.
         /// </summary>
-        /// <param name="entityId">The ID of the entity to filter Pcards.</param>
+        /// <param name="tenantId">The ID of the entity to filter Pcards.</param>
         /// <param name="ecardIds">The list of Ecard IDs to evaluate in Pcard expressions.</param>
         /// <returns>A list of Pcards whose expressions evaluate to true with the given Ecard IDs.</returns>
-        public List<Pcard> GetPcardIdByEcards(int entityId, List<int> ecardIds)
+        public List<Pcard> GetPcardIdByEcards(int tenantId, List<int> ecardIds)
         {
             /// <summary>
             /// Retrieves all Pcards for the specified entity.
             /// </summary>
-            var allPcards = _uow.PcardRepository.Query().Where(f => f.TenantId == entityId);
+            var allPcards = _uow.PcardRepository.Query().Where(f => f.TenantId == tenantId);
             var matchedPcards = new List<Pcard>();
 
             foreach (var pcard in allPcards)
@@ -1191,15 +1191,15 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves Ecards that reference the given rule IDs in their expressions.
         /// </summary>
-        /// <param name="entityId">The ID of the entity to filter Ecards.</param>
+        /// <param name="tenantId">The ID of the entity to filter Ecards.</param>
         /// <param name="ruleIds">The list of rule IDs to evaluate in Ecard expressions.</param>
         /// <returns>A list of Ecards whose expressions evaluate to true with the given rule IDs.</returns>
-        public List<Ecard> GetEcardByEruleId(int entityId, List<int> ruleIds)
+        public List<Ecard> GetEcardByEruleId(int tenantId, List<int> ruleIds)
         {
             /// <summary>
             /// Retrieves all Ecards for the specified entity.
             /// </summary>
-            var allEcards = _uow.EcardRepository.Query().Where(f => f.TenantId == entityId);
+            var allEcards = _uow.EcardRepository.Query().Where(f => f.TenantId == tenantId);
             var matchedEcards = new List<Ecard>();
 
             foreach (var ecard in allEcards)
@@ -1352,13 +1352,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Processes an expression by evaluating nested expressions and then the final expression.
         /// </summary>
-        /// <param name="entityId">The ID of the entity being validated.</param>
+        /// <param name="tenantId">The ID of the entity being validated.</param>
         /// <param name="expression">The expression to process.</param>
         /// <param name="entities">The collection of entities used in validation.</param>
         /// <param name="keyValues">The dictionary of key-value pairs for validation.</param>
         /// <param name="type">The type of expression processing ("ECard", "Card", or "Rule").</param>
         /// <returns>A ValidationResult containing the outcome of expression evaluation.</returns>
-        private ValidationResult ProcessExpression(int entityId, string expression, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
+        private ValidationResult ProcessExpression(int tenantId, string expression, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
         {
             var validationDetails = new List<ValidationDetail>();
 
@@ -1373,7 +1373,7 @@ namespace EligibilityPlatform.Application.Services
             while (expression.Contains('('))
             {
                 var innerMostExpression = GetInnerMostExpression(expression);
-                var innerResult = ProcessExpression(entityId, innerMostExpression, entities, keyValues, type);
+                var innerResult = ProcessExpression(tenantId, innerMostExpression, entities, keyValues, type);
 
                 /// <summary>
                 /// Replaces the inner expression with its boolean result ("true" or "false").
@@ -1385,7 +1385,7 @@ namespace EligibilityPlatform.Application.Services
             /// <summary>
             /// Evaluates the final processed expression.
             /// </summary>
-            var finalResult = EvaluateExpression(entityId, expression, entities, keyValues, type);
+            var finalResult = EvaluateExpression(tenantId, expression, entities, keyValues, type);
             validationDetails.AddRange(finalResult.ValidationDetails);
 
             var errorMessages = validationDetails
@@ -1432,13 +1432,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Evaluates a boolean expression by splitting into OR and AND components.
         /// </summary>
-        /// <param name="entityId">The ID of the entity being validated.</param>
+        /// <param name="tenantId">The ID of the entity being validated.</param>
         /// <param name="expression">The expression to evaluate.</param>
         /// <param name="entities">The collection of entities used in validation.</param>
         /// <param name="keyValues">The dictionary of key-value pairs for validation.</param>
         /// <param name="type">The type of expression evaluation ("ECard", "Card", or "Rule").</param>
         /// <returns>A ValidationResult containing the evaluation outcome.</returns>
-        private ValidationResult EvaluateExpression(int entityId, string expression, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
+        private ValidationResult EvaluateExpression(int tenantId, string expression, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
         {
             var validationDetails = new List<ValidationDetail>();
             var Errors = new List<string>();
@@ -1478,7 +1478,7 @@ namespace EligibilityPlatform.Application.Services
                     /// <summary>
                     /// Validates the entity component of the expression.
                     /// </summary>
-                    var result = ValidateEntity(entityId, andPart, entities, keyValues, type);
+                    var result = ValidateEntity(tenantId, andPart, entities, keyValues, type);
                     andList.Add(result.IsValidationPassed);
                     validationDetails.AddRange(result.ValidationDetails);
                     Errors.AddRange(result.ErrorMessage ?? []);
@@ -1538,13 +1538,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Validates an entity component of an expression based on its type.
         /// </summary>
-        /// <param name="entityId">The ID of the entity being validated.</param>
-        /// <param name="entityIdStr">The entity identifier string to validate.</param>
+        /// <param name="tenantId">The ID of the entity being validated.</param>
+        /// <param name="tenantIdStr">The entity identifier string to validate.</param>
         /// <param name="entities">The collection of entities used in validation.</param>
         /// <param name="keyValues">The dictionary of key-value pairs for validation.</param>
         /// <param name="type">The type of entity validation ("ECard", "Card", or "Rule").</param>
         /// <returns>A ValidationResult containing the validation outcome.</returns>
-        private ValidationResult ValidateEntity(int entityId, string entityIdStr, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
+        private ValidationResult ValidateEntity(int tenantId, string tenantIdStr, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
         {
             var validationDetails = new List<ValidationDetail>();
             var isValidationPassed = false;
@@ -1569,10 +1569,10 @@ namespace EligibilityPlatform.Application.Services
                     /// Validates an ECard entity.
                     /// </summary>
                     var list = (IEnumerable<Ecard>)entities;
-                    var eCard = list.FirstOrDefault(x => x.EcardId == int.Parse(entityIdStr));
+                    var eCard = list.FirstOrDefault(x => x.EcardId == int.Parse(tenantIdStr));
                     if (eCard != null)
                     {
-                        var validateCardResult = ValidateCard(entityId, eCard, keyValues);
+                        var validateCardResult = ValidateCard(tenantId, eCard, keyValues);
                         isValidationPassed = validateCardResult.IsValidationPassed;
                         validationDetails.AddRange(validateCardResult.ValidationDetails);
                     }
@@ -1582,7 +1582,7 @@ namespace EligibilityPlatform.Application.Services
                     /// <summary>
                     /// Validates a Card entity by rule ID.
                     /// </summary>
-                    var cardResult = ValidateRule(entityId, int.Parse(entityIdStr), keyValues);
+                    var cardResult = ValidateRule(tenantId, int.Parse(tenantIdStr), keyValues);
                     isValidationPassed = cardResult.IsValidationPassed;
                     validationDetails.AddRange(cardResult.ValidationDetails);
                     break;
@@ -1594,7 +1594,7 @@ namespace EligibilityPlatform.Application.Services
                         /// </summary>
                         var conditions = _uow.ConditionRepository.GetAll();
 
-                        var normalizedEntityStr = entityIdStr
+                        var normalizedEntityStr = tenantIdStr
                             .Replace(" ", "")
                             .ToLowerInvariant();
 
@@ -1736,27 +1736,27 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Validates an ECard by processing its expression.
         /// </summary>
-        /// <param name="entityId">The ID of the entity being validated.</param>
+        /// <param name="tenantId">The ID of the entity being validated.</param>
         /// <param name="card">The ECard to validate.</param>
         /// <param name="keyValues">The dictionary of key-value pairs for validation.</param>
         /// <returns>A ValidationResult containing the validation outcome.</returns>
-        private ValidationResult ValidateCard(int entityId, Ecard card, Dictionary<int, object> keyValues)
+        private ValidationResult ValidateCard(int tenantId, Ecard card, Dictionary<int, object> keyValues)
         {
-            return ProcessExpression(entityId, card.Expression, [], keyValues, "Card");
+            return ProcessExpression(tenantId, card.Expression, [], keyValues, "Card");
         }
 
         /// <summary>
         /// Validates a rule by processing its expression.
         /// </summary>
-        /// <param name="entityId">The ID of the entity being validated.</param>
+        /// <param name="tenantId">The ID of the entity being validated.</param>
         /// <param name="ruleId">The ID of the rule to validate.</param>
         /// <param name="keyValues">The dictionary of key-value pairs for validation.</param>
         /// <returns>A ValidationResult containing the validation outcome.</returns>
-        private ValidationResult ValidateRule(int entityId, int ruleId, Dictionary<int, object> keyValues)
+        private ValidationResult ValidateRule(int tenantId, int ruleId, Dictionary<int, object> keyValues)
         {
-            var rule = _uow.EruleRepository.Query().First(f => f.EruleId == ruleId && f.TenantId == entityId);
-            var factors = _uow.FactorRepository.Query().Where(f => f.TenantId == entityId);
-            return ProcessExpression(entityId, rule.Expression, factors, keyValues, "Rule");
+            var rule = _uow.EruleRepository.Query().First(f => f.EruleId == ruleId && f.TenantId == tenantId);
+            var factors = _uow.FactorRepository.Query().Where(f => f.TenantId == tenantId);
+            return ProcessExpression(tenantId, rule.Expression, factors, keyValues, "Rule");
         }
 
         /// <summary>
@@ -2047,10 +2047,10 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves rules that match all required parameter keys in the provided key values.
         /// </summary>
-        /// <param name="entityId">The ID of the entity to filter rules.</param>
+        /// <param name="tenantId">The ID of the entity to filter rules.</param>
         /// <param name="keyValues">The dictionary of key-value pairs to match against rule requirements.</param>
         /// <returns>A list of rules where all required parameters are present in the key values.</returns>
-        private List<Erule> GetMatchRules(int entityId, Dictionary<int, object> keyValues)
+        private List<Erule> GetMatchRules(int tenantId, Dictionary<int, object> keyValues)
         {
             var now = DateTime.Now;
 
@@ -2058,7 +2058,7 @@ namespace EligibilityPlatform.Application.Services
             /// Retrieves active rules valid for the current time.
             /// </summary>
             var eRules = _uow.EruleRepository.Query()
-         .Where(f => f.TenantId == entityId
+         .Where(f => f.TenantId == tenantId
                      && f.EruleMaster != null
                      && f.EruleMaster.IsActive
                      && (f.ValidFrom <= now && (!f.ValidTo.HasValue || f.ValidTo >= now)))
@@ -2069,7 +2069,7 @@ namespace EligibilityPlatform.Application.Services
             /// Retrieves all factors for the entity to resolve FactorName to ParameterId.
             /// </summary>
             var factors = _uow.FactorRepository.Query()
-                .Where(f => f.TenantId == entityId && f.ParameterId.HasValue)
+                .Where(f => f.TenantId == tenantId && f.ParameterId.HasValue)
                 .ToList();
 
             var matchRules = new List<Erule>();
@@ -2497,7 +2497,7 @@ namespace EligibilityPlatform.Application.Services
             }
         }
 
-        private BREIntegrationResponses? ValidateListTypeParameters(Dictionary<string, object> keyValues, int entityId, string requestId)
+        private BREIntegrationResponses? ValidateListTypeParameters(Dictionary<string, object> keyValues, int tenantId, string requestId)
         {
             var listTypeParameters = (
                 from f in _uow.FactorRepository.Query()
@@ -2505,7 +2505,7 @@ namespace EligibilityPlatform.Application.Services
                     on f.ParameterId equals p.ParameterId
                 join c in _uow.ConditionRepository.Query()
                     on f.ConditionId equals c.ConditionId
-                where f.TenantId == entityId
+                where f.TenantId == tenantId
                       && (
                             c.ConditionValue!.ToLower() == "in list" ||
                             c.ConditionValue.ToLower() == "not in list"
@@ -2623,7 +2623,7 @@ namespace EligibilityPlatform.Application.Services
                     }
                 }
                 var factor = _uow.FactorRepository.Query()
-                    .FirstOrDefault(f => f.TenantId == entityId && f.ParameterId ==
+                    .FirstOrDefault(f => f.TenantId == tenantId && f.ParameterId ==
                         _uow.ParameterRepository.Query().First(p => p.ParameterName == param).ParameterId);
 
                 var listName = factor?.Value1?.Trim();

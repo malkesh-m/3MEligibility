@@ -32,12 +32,12 @@ namespace EligibilityPlatform.Application.Services
         /// Maps the incoming model to the corresponding entity and sets the created and updated timestamps.
         /// Validates that Start Date and End Date are provided for temporary exceptions.
         /// </summary>
-        /// <param name="entityId">The entity ID to associate with the exception.</param>
+        /// <param name="tenantId">The entity ID to associate with the exception.</param>
         /// <param name="model">The model containing the data to be added to the ExceptionManagement entity.</param>
         /// <returns>A Task representing the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException">Thrown when Start Date and End Date are not provided for temporary exceptions.</exception>
         /// <exception cref="Exception">Thrown when an error occurs during the add operation.</exception>
-        public async Task Add(int entityId, ExceptionManagementCreateOrUpdateModel model)
+        public async Task Add(int tenantId, ExceptionManagementCreateOrUpdateModel model)
         {
             // Validates that temporary exceptions have both start and end dates specified
             if (model.IsTemporary == true)
@@ -54,7 +54,7 @@ namespace EligibilityPlatform.Application.Services
             entity.CreatedByDateTime = DateTime.Now;
             entity.UpdatedByDateTime = DateTime.Now;
             // Associates the exception with the specified entity ID
-            entity.TenantId = entityId;
+            entity.TenantId = tenantId;
 
             // Processes and adds associated products if any are specified in the model
             if (model.ProductId != null && model.ProductId.Count != 0)
@@ -76,14 +76,14 @@ namespace EligibilityPlatform.Application.Services
         /// Deletes an existing exception management record from the database by its ID.
         /// Retrieves the record by its ID and entity ID, removes it, and commits the changes asynchronously.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the exception.</param>
+        /// <param name="tenantId">The entity ID associated with the exception.</param>
         /// <param name="id">The ID of the exception management record to be deleted.</param>
         /// <returns>A Task representing the asynchronous delete operation.</returns>
         /// <exception cref="Exception">Thrown when the exception record is not found or an error occurs during the delete operation.</exception>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Queries the repository to find the exception by ID and entity ID
-            var exception = _uow.ExceptionManagementRepository.Query().First(f => f.ExceptionManagementId == id && f.TenantId == entityId);
+            var exception = _uow.ExceptionManagementRepository.Query().First(f => f.ExceptionManagementId == id && f.TenantId == tenantId);
             if (exception != null)
             {
 
@@ -102,12 +102,12 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves all exception management records from the database for a specific entity.
         /// Maps the data to a list of ExceptionManagementListModel objects for easier presentation.
         /// </summary>
-        /// <param name="entityId">The entity ID to filter exception records.</param>
+        /// <param name="tenantId">The entity ID to filter exception records.</param>
         /// <returns>A list of ExceptionManagementListModel objects containing all exception management records for the specified entity.</returns>
-        public List<ExceptionManagementListModel> GetAll(int entityId)
+        public List<ExceptionManagementListModel> GetAll(int tenantId)
         {
             // Filters exceptions by the specified entity ID
-            var exceptions = _uow.ExceptionManagementRepository.Query().Where(f => f.TenantId == entityId);
+            var exceptions = _uow.ExceptionManagementRepository.Query().Where(f => f.TenantId == tenantId);
             // Maps the entity collection to a list of view models using AutoMapper
             return _mapper.Map<List<ExceptionManagementListModel>>(exceptions);
         }
@@ -116,17 +116,17 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves a specific exception management record by its ID and entity ID.
         /// Includes associated exception products and maps the retrieved entity to an ExceptionManagementGetModel object.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the exception.</param>
+        /// <param name="tenantId">The entity ID associated with the exception.</param>
         /// <param name="id">The ID of the exception management record to retrieve.</param>
         /// <returns>The ExceptionManagementGetModel object representing the exception management record with the specified ID.</returns>
         /// <exception cref="Exception">Thrown when the exception record is not found.</exception>
-        public ExceptionManagementGetModel GetById(int entityId, int id)
+        public ExceptionManagementGetModel GetById(int tenantId, int id)
         {
             // Queries the repository for the specific exception, including related products via eager loading
             var exception = _uow.ExceptionManagementRepository
                 .Query()
                 .Include(e => e.ExceptionProducts)
-                .First(f => f.ExceptionManagementId == id && f.TenantId == entityId);
+                .First(f => f.ExceptionManagementId == id && f.TenantId == tenantId);
 
             // Maps the entity to the detailed view model
             var model = _mapper.Map<ExceptionManagementGetModel>(exception);
@@ -142,14 +142,14 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves the record by its ID and entity ID, updates associated products, 
         /// maps the updated data from the provided model, and saves the changes asynchronously.
         /// </summary>
-        /// <param name="entityId">The entity ID associated with the exception.</param>
+        /// <param name="tenantId">The entity ID associated with the exception.</param>
         /// <param name="model">The model containing the updated data for the exception management record.</param>
         /// <returns>A Task representing the asynchronous update operation.</returns>
         /// <exception cref="Exception">Thrown when the exception record is not found or an error occurs during the update operation.</exception>
-        public async Task Update(int entityId, ExceptionManagementCreateOrUpdateModel model)
+        public async Task Update(int tenantId, ExceptionManagementCreateOrUpdateModel model)
         {
             // Retrieves the existing exception entity from the repository
-            var entity = _uow.ExceptionManagementRepository.Query().FirstOrDefault(f => f.ExceptionManagementId == model.ExceptionManagementId && f.TenantId == entityId);
+            var entity = _uow.ExceptionManagementRepository.Query().FirstOrDefault(f => f.ExceptionManagementId == model.ExceptionManagementId && f.TenantId == tenantId);
 
             // Fetches all existing exception products associated with this exception
             var exceptionProducts = _uow.ExceptionProductRepository.Query()
@@ -192,7 +192,7 @@ namespace EligibilityPlatform.Application.Services
             // Updates the timestamp to reflect when this modification occurred
             entity!.UpdatedByDateTime = DateTime.Now;
             // Ensures the entity ID remains consistent with the update request
-            model.TenantId = entityId;
+            model.TenantId = tenantId;
             // Maps updated values from model to existing entity using AutoMapper
             _uow.ExceptionManagementRepository.Update(_mapper.Map<ExceptionManagementCreateOrUpdateModel, ExceptionManagement>(model, entity));
             // Commits all changes (entity update and product relationships) to the database

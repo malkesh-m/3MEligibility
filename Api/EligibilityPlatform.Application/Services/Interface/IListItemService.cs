@@ -67,8 +67,8 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Downloads a template file for list item import.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity for which to download the template.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to download the template.</param>
         /// <returns>A task that represents the asynchronous operation, containing a byte array with the template file data.</returns>
-        Task<byte[]> DownloadTemplate(int entityId);
+        Task<byte[]> DownloadTemplate(int tenantId);
     }
 }

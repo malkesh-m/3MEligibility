@@ -11,17 +11,17 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Retrieves all managed lists for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity for which to retrieve managed lists.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to retrieve managed lists.</param>
         /// <returns>A list of <see cref="ManagedListGetModel"/> objects containing all managed lists for the specified entity.</returns>
-        List<ManagedListGetModel> GetAll(int entityId);
+        List<ManagedListGetModel> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific managed list by its identifier and entity identifier.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity associated with the managed list.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the managed list.</param>
         /// <param name="id">The unique identifier of the managed list to retrieve.</param>
         /// <returns>The <see cref="ManagedListGetModel"/> with the specified ID and entity ID.</returns>
-        ManagedListGetModel GetById(int entityId, int id);
+        ManagedListGetModel GetById(int tenantId, int id);
 
         /// <summary>
         /// Adds a new managed list.
@@ -40,27 +40,27 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Deletes a managed list by its identifier and entity identifier.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity associated with the managed list.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the managed list.</param>
         /// <param name="id">The unique identifier of the managed list to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Delete(int entityId, int id);
+        Task Delete(int tenantId, int id);
 
         /// <summary>
         /// Deletes multiple managed lists in a single operation for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity associated with the managed lists.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the managed lists.</param>
         /// <param name="ids">A list of unique identifiers of the managed lists to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task MultipleDelete(int entityId, List<int> ids);
+        Task MultipleDelete(int tenantId, List<int> ids);
 
         /// <summary>
         /// Imports managed lists from a file stream for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity for which to import managed lists.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to import managed lists.</param>
         /// <param name="fileStream">The stream containing the managed list data to import.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, containing a status message string.</returns>
-        Task<string> ImportList(int entityId, Stream fileStream, string createdBy);
+        Task<string> ImportList(int tenantId, Stream fileStream, string createdBy);
 
         /// <summary>
         /// Downloads a template file for managed list import.
@@ -71,9 +71,9 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Exports managed lists to a stream for the selected list IDs and specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity for which to export managed lists.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to export managed lists.</param>
         /// <param name="selectedListIds">A list of managed list IDs to export.</param>
         /// <returns>A task that represents the asynchronous operation, containing a stream with the exported managed list data.</returns>
-        Task<Stream> ExportLists(int entityId, List<int> selectedListIds);
+        Task<Stream> ExportLists(int tenantId, List<int> selectedListIds);
     }
 }

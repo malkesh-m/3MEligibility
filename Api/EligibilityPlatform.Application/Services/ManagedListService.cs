@@ -61,12 +61,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes a specific managed list by entity ID and list ID.
         /// </summary>
-        /// <param name="entityId">The ID of the entity that owns the list.</param>
+        /// <param name="tenantId">The ID of the entity that owns the list.</param>
         /// <param name="id">The ID of the list to delete.</param>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Query the repository to find the specific list by entity and list ID
-            var Item = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == entityId);
+            var Item = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == tenantId);
             // Mark the entity for removal
             _uow.ManagedListRepository.Remove(Item);
             // Save the deletion to the database
@@ -76,26 +76,26 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves all managed lists for a specific entity.
         /// </summary>
-        /// <param name="entityId">The ID of the entity to retrieve lists for.</param>
+        /// <param name="tenantId">The ID of the entity to retrieve lists for.</param>
         /// <returns>A list of managed list models for the specified entity.</returns>
-        public List<ManagedListGetModel> GetAll(int entityId)
+        public List<ManagedListGetModel> GetAll(int tenantId)
         {
             // Query the repository for all lists belonging to the specified entity
             // Map the entities to get models and return as a list
-            return _mapper.Map<List<ManagedListGetModel>>(_uow.ManagedListRepository.Query().Where(f => f.TenantId == entityId));
+            return _mapper.Map<List<ManagedListGetModel>>(_uow.ManagedListRepository.Query().Where(f => f.TenantId == tenantId));
         }
 
         /// <summary>
         /// Retrieves a specific managed list by entity ID and list ID.
         /// </summary>
-        /// <param name="entityId">The ID of the entity that owns the list.</param>
+        /// <param name="tenantId">The ID of the entity that owns the list.</param>
         /// <param name="id">The ID of the list to retrieve.</param>
         /// <returns>The managed list model for the specified IDs.</returns>
-        public ManagedListGetModel GetById(int entityId, int id)
+        public ManagedListGetModel GetById(int tenantId, int id)
         {
             // Query the repository for a specific list by entity and list ID
             // Map the entity to a get model and return it
-            return _mapper.Map<ManagedListGetModel>(_uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == entityId));
+            return _mapper.Map<ManagedListGetModel>(_uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == tenantId));
         }
 
         /// <summary>
@@ -130,15 +130,15 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes multiple managed lists by their IDs for a given entity.
         /// </summary>
-        /// <param name="entityId">The ID of the entity that owns the lists.</param>
+        /// <param name="tenantId">The ID of the entity that owns the lists.</param>
         /// <param name="ids">The list of managed list IDs to delete.</param>
-        public async Task MultipleDelete(int entityId, List<int> ids)
+        public async Task MultipleDelete(int tenantId, List<int> ids)
         {
             // Iterate through each ID in the provided list
             foreach (var id in ids)
             {
                 // Find the managed list by entity ID and list ID
-                var manageitem = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == entityId);
+                var manageitem = _uow.ManagedListRepository.Query().First(f => f.ListId == id && f.TenantId == tenantId);
                 // If the item exists, mark it for removal
                 if (manageitem != null)
                 {
@@ -160,16 +160,16 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Exports selected managed lists to an Excel file stream.
         /// </summary>
-        /// <param name="entityId">The ID of the entity to export lists for.</param>
+        /// <param name="tenantId">The ID of the entity to export lists for.</param>
         /// <param name="selectedListIds">The list of specific list IDs to export, or null for all lists.</param>
         /// <returns>A stream containing the Excel file with exported data.</returns>
-        public async Task<Stream> ExportLists(int entityId, List<int> selectedListIds)
+        public async Task<Stream> ExportLists(int tenantId, List<int> selectedListIds)
         {
             // Create a query joining managed lists with their associated entities
             var lists = from managedlist in _uow.ManagedListRepository.Query()
                         join entity in _uow.EntityRepository.Query()
                         on managedlist.TenantId equals entity.EntityId
-                        where managedlist.TenantId == entityId && entity.EntityId == entityId
+                        where managedlist.TenantId == tenantId && entity.EntityId == tenantId
                         select new ManagedListModelDescription
                         {
                             ListId = managedlist.ListId,
@@ -379,11 +379,11 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports managed lists from an uploaded Excel file.
         /// </summary>
-        /// <param name="entityId">The entity ID that will own the imported lists.</param>
+        /// <param name="tenantId">The entity ID that will own the imported lists.</param>
         /// <param name="fileStream">The stream containing the Excel file data.</param>
         /// <param name="createdBy">The username of the user performing the import.</param>
         /// <returns>A message indicating the result of the import operation.</returns>
-        public async Task<string> ImportList(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportList(int tenantId, Stream fileStream, string createdBy)
         {
             // Set EPPlus license context to non-commercial to avoid licensing issues
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -470,7 +470,7 @@ namespace EligibilityPlatform.Application.Services
                         ListName = ListName,
 
                         // Parse and set entity ID from Excel data
-                        TenantId = entityId,
+                        TenantId = tenantId,
 
                         // Set created by user from method parameter
                         CreatedBy = createdBy
@@ -491,7 +491,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Check if record already exists in database with same entity ID and list name
-                    var existingEntity = await _uow.ManagedListRepository.Query().AnyAsync(p => p.TenantId == entityId && p.ListName == model.ListName);
+                    var existingEntity = await _uow.ManagedListRepository.Query().AnyAsync(p => p.TenantId == tenantId && p.ListName == model.ListName);
 
                     // Skip insertion if duplicate record found
                     if (existingEntity)
@@ -502,7 +502,7 @@ namespace EligibilityPlatform.Application.Services
                     }
 
                     // Set entity ID from method parameter (overriding Excel value)
-                    model.TenantId = entityId;
+                    model.TenantId = tenantId;
 
                     // Set last updated timestamp to current UTC time
                     model.UpdatedByDateTime = DateTime.UtcNow;

@@ -181,7 +181,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="id">The ID of the rule to be deleted.</param>
         /// <returns>A string indicating whether the rule was deleted or why it could not be deleted.</returns>
         /// <exception cref="Exception">Throws an exception if an error occurs during the deletion process.</exception>
-        public async Task<string> Delete(int entityId, int id)
+        public async Task<string> Delete(int tenantId, int id)
         {
             // Initializes the result message
             var resultMessage = "";
@@ -224,11 +224,11 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves all rules from the system and maps them to a list of `EruleModel` objects.
         /// </summary>
         /// <returns>A list of `EruleModel` objects representing all the rules in the system.</returns>
-        public List<EruleListModel> GetAll(int entityId)
+        public List<EruleListModel> GetAll(int tenantId)
         {
             // Performs a join between EruleMaster and Erule repositories
-            var rules = (from master in _uow.EruleMasterRepository.Query().Where(f => f.TenantId == entityId)
-                         join rule in _uow.EruleRepository.Query().Where(f => f.TenantId == entityId)
+            var rules = (from master in _uow.EruleMasterRepository.Query().Where(f => f.TenantId == tenantId)
+                         join rule in _uow.EruleRepository.Query().Where(f => f.TenantId == tenantId)
                              on master.Id equals rule.EruleMasterId into gj
                          from rule in gj.DefaultIfEmpty()
                          select new { master, rule })
@@ -264,10 +264,10 @@ namespace EligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The ID of the rule to be retrieved.</param>
         /// <returns>An `EruleModel` object representing the rule with the given ID.</returns>
-        public EruleListModel GetById(int entityId, int id)
+        public EruleListModel GetById(int tenantId, int id)
         {
             // Retrieves the rule by ID and entity ID
-            var erule = _uow.EruleRepository.Query().FirstOrDefault(f => f.EruleId == id && f.TenantId == entityId);
+            var erule = _uow.EruleRepository.Query().FirstOrDefault(f => f.EruleId == id && f.TenantId == tenantId);
 
             // Maps the rule to list model
             var model = _mapper.Map<EruleListModel>(erule);
@@ -335,29 +335,29 @@ namespace EligibilityPlatform.Application.Services
         /// Retrieves all rules by EruleMaster ID and entity ID.
         /// </summary>
         /// <param name="eruleMasterId">The EruleMaster ID.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of EruleListModel objects.</returns>
-        public async Task<List<EruleListModel>> GetAllByEruleMasterId(int eruleMasterId, int entityId)
+        public async Task<List<EruleListModel>> GetAllByEruleMasterId(int eruleMasterId, int tenantId)
         {
             // Retrieves and maps rules by EruleMaster ID and entity ID
             return _mapper.Map<List<EruleListModel>>(await _uow.EruleRepository.Query()
-                .Where(x => x.TenantId == entityId && x.EruleMasterId == eruleMasterId).ToListAsync());
+                .Where(x => x.TenantId == tenantId && x.EruleMasterId == eruleMasterId).ToListAsync());
         }
 
         /// <summary>
         /// Publishes a draft rule by assigning the next version number and marking it as not a draft.
         /// </summary>
         /// <param name="draftEruleId">ID of the draft rule to publish.</param>
-        /// <param name="entityId">Entity ID associated with the rule.</param>
-        public async Task PublishDraftAsync(int draftEruleId, int entityId)
+        /// <param name="tenantId">Entity ID associated with the rule.</param>
+        public async Task PublishDraftAsync(int draftEruleId, int tenantId)
         {
             // Retrieves the draft rule by ID and publication status
             var draftRule = _uow.EruleRepository.Query()
-                .FirstOrDefault(x => x.EruleId == draftEruleId && x.IsPublished == true && x.TenantId == entityId) ?? throw new Exception("Draft rule not found.");
+                .FirstOrDefault(x => x.EruleId == draftEruleId && x.IsPublished == true && x.TenantId == tenantId) ?? throw new Exception("Draft rule not found.");
 
             // Gets the maximum version for the entity
             var maxVersion = _uow.EruleRepository.Query()
-               .Where(x => x.TenantId == entityId)
+               .Where(x => x.TenantId == tenantId)
                .Max(x => x.Version);
 
             // Marks the rule as published
@@ -380,13 +380,13 @@ namespace EligibilityPlatform.Application.Services
         /// Updates the active status of a specific rule based on EruleId and TenantId.
         /// </summary>
         /// <param name="eruleId">The ID of the rule to update.</param>
-        /// <param name="entityId">The Entity ID associated with the rule.</param>
+        /// <param name="tenantId">The Entity ID associated with the rule.</param>
         /// <param name="isActive">New status to set for IsActive.</param>
-        public async Task UpdateStatusAsync(int eruleId, int entityId, bool isActive)
+        public async Task UpdateStatusAsync(int eruleId, int tenantId, bool isActive)
         {
             // Retrieves the rule by ID and entity ID
             var rule = _uow.EruleRepository.Query()
-                .FirstOrDefault(x => x.EruleId == eruleId && x.TenantId == entityId) ?? throw new Exception("Rule not found.");
+                .FirstOrDefault(x => x.EruleId == eruleId && x.TenantId == tenantId) ?? throw new Exception("Rule not found.");
 
             // Sets update timestamp to current UTC time
             rule.UpdatedByDateTime = DateTime.UtcNow;
@@ -405,13 +405,13 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="ids">A list of rule IDs to be deleted.</param>
         /// <returns>A string indicating whether the rules were deleted or why they could not be deleted.</returns>
         /// <exception cref="Exception">Throws an exception if an error occurs during the deletion process.</exception>
-        public async Task<string> RemoveMultiple(int entityId, List<int> ids)
+        public async Task<string> RemoveMultiple(int tenantId, List<int> ids)
         {
             // Initializes the result message
             var resultMessage = "";
 
             // Retrieves all eCards for the entity
-            var eCards = _uow.EcardRepository.Query().Where(f => f.TenantId == entityId);
+            var eCards = _uow.EcardRepository.Query().Where(f => f.TenantId == tenantId);
 
             // Initializes collections for tracking deleted and not deleted rules
             var notDeletedRules = new HashSet<string>();  // Use HashSet to avoid duplicates
@@ -423,7 +423,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var id in ids)
                 {
                     // Retrieves the rule by ID and entity ID
-                    var item = _uow.EruleRepository.Query().First(f => f.EruleId == id && f.TenantId == entityId);
+                    var item = _uow.EruleRepository.Query().First(f => f.EruleId == id && f.TenantId == tenantId);
 
                     // Checks if the rule is being used in any eCard
                     var isInUse = eCards.Any(card => card.Expression.Contains(id.ToString()));
@@ -485,12 +485,12 @@ namespace EligibilityPlatform.Application.Services
         /// Imports data from an Excel file, validates the contents, and inserts the valid records into the database.
         /// It skips records with missing required fields, handles duplicate records, and counts the number of inserted, skipped, and duplicate records.
         /// </summary>
-        /// <param name="entityId">The entity identifier for which rules are being imported.</param>
+        /// <param name="tenantId">The entity identifier for which rules are being imported.</param>
         /// <param name="fileStream">The stream of the uploaded Excel file.</param>
         /// <param name="createdBy">The username or identifier of the person who created the records.</param>
         /// <returns>A string message indicating the result of the import operation, including counts of inserted, skipped, and duplicated records.</returns>
         /// <exception cref="Exception">Throws an exception if an error occurs during the import process.</exception>
-        public async Task<string> ImportErule(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportErule(int tenantId, Stream fileStream, string createdBy)
         {
             // Sets the ExcelPackage license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -554,7 +554,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if an entity with the same ExpShown already exists
-                    var existingEntity = await _uow.EruleRepository.Query().AnyAsync(x => x.TenantId == entityId && x.ExpShown == model.ExpShown);
+                    var existingEntity = await _uow.EruleRepository.Query().AnyAsync(x => x.TenantId == tenantId && x.ExpShown == model.ExpShown);
 
                     // If entity already exists
                     if (existingEntity)
@@ -566,7 +566,7 @@ namespace EligibilityPlatform.Application.Services
                     }
 
                     // Sets the TenantId property
-                    model.TenantId = entityId;
+                    model.TenantId = tenantId;
                     // Sets the UpdatedByDateTime property to current UTC time
                     model.UpdatedByDateTime = DateTime.UtcNow;
                     // Sets the CreatedByDateTime property to current UTC time
@@ -648,17 +648,17 @@ namespace EligibilityPlatform.Application.Services
         /// Downloads an Excel template that contains predefined headers, drop-down lists, and formulas for user input.
         /// It also populates the template with necessary values from external services such as parameters, conditions, and factors.
         /// </summary>
-        /// <param name="entityId">The entity identifier for which the template is being generated.</param>
+        /// <param name="tenantId">The entity identifier for which the template is being generated.</param>
         /// <returns>A byte array representing the Excel template file.</returns>
         /// <exception cref="Exception">Throws an exception if an error occurs during template generation.</exception>
-        public async Task<byte[]> DownloadTemplate(int entityId)
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Fetches all parameters for the specified entity
-            List<ParameterListModel> parameter = _parameterService.GetAll(entityId);
+            List<ParameterListModel> parameter = _parameterService.GetAll(tenantId);
             // Fetches all conditions
             List<ConditionModel> conditions = _conditionService.GetAll();
             // Fetches all factors for the specified entity
-            List<FactorListModel> factors = _factorService.GetAll(entityId);
+            List<FactorListModel> factors = _factorService.GetAll(tenantId);
 
             // Sets the ExcelPackage license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -761,14 +761,14 @@ namespace EligibilityPlatform.Application.Services
             // Returns the Excel package as a byte array
             return await Task.FromResult(package.GetAsByteArray());
         }
-        public async Task<byte[]> DownloadTemplateEruleMaster(int entityId)
+        public async Task<byte[]> DownloadTemplateEruleMaster(int tenantId)
         {
             // Fetches all parameters for the specified entity
-            _ = _parameterService.GetAll(entityId);
+            _ = _parameterService.GetAll(tenantId);
             // Fetches all conditions
             _ = _conditionService.GetAll();
             // Fetches all factors for the specified entity
-            _ = _factorService.GetAll(entityId);
+            _ = _factorService.GetAll(tenantId);
 
             // Sets the ExcelPackage license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -1055,7 +1055,7 @@ namespace EligibilityPlatform.Application.Services
                 validation.Error = "Please select a valid option.";
             }
         }
-        public async Task<string> ImportEruleMaster(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportEruleMaster(int tenantId, Stream fileStream, string createdBy)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using var package = new ExcelPackage(fileStream);
@@ -1109,7 +1109,7 @@ namespace EligibilityPlatform.Application.Services
                     string isActiveStr = worksheet.Cells[row, 3].Text.Trim();
 
                     // Excel-level duplicate prevention
-                    string excelKey = $"{ruleName?.ToLower()}_{entityId}";
+                    string excelKey = $"{ruleName?.ToLower()}_{tenantId}";
                     if (excelDuplicateCheck.Contains(excelKey))
                     {
                         skipped++;
@@ -1138,7 +1138,7 @@ namespace EligibilityPlatform.Application.Services
                         EruleName = ruleName,
                         EruleDesc = ruleDesc,
                         IsActive = isActive,
-                        TenantId = entityId,
+                        TenantId = tenantId,
                         CreatedBy = createdBy,
                         CreatedByDateTime = DateTime.UtcNow,
                         UpdatedBy = createdBy,
@@ -1152,7 +1152,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     bool exists = await _uow.EruleMasterRepository.Query()
-                        .AnyAsync(x => x.TenantId == entityId && x.EruleName == model.EruleName);
+                        .AnyAsync(x => x.TenantId == tenantId && x.EruleName == model.EruleName);
 
                     if (exists)
                     {
@@ -1191,14 +1191,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Exports a list of selected eRules from the database into an Excel file, with each rule's details in a separate row.
         /// </summary>
-        /// <param name="entityId">The entity identifier for which rules are being exported.</param>
+        /// <param name="tenantId">The entity identifier for which rules are being exported.</param>
         /// <param name="selectedEruleIds">A list of eRule IDs to be exported.</param>
         /// <returns>A stream containing the Excel file with the selected eRules.</returns>
         /// <exception cref="Exception">Throws an exception if an error occurs during the export process.</exception>
-        public async Task<Stream> ExportErule(int entityId, List<int> selectedEruleIds)
+        public async Task<Stream> ExportErule(int tenantId, List<int> selectedEruleIds)
         {
             // Queries the eRules for the specified entity
-            var Erules = from erule in _uow.EruleRepository.Query().Where(f => f.TenantId == entityId)
+            var Erules = from erule in _uow.EruleRepository.Query().Where(f => f.TenantId == tenantId)
                          select new EruleModelDescription
                          {
                              EruleId = erule.EruleId,

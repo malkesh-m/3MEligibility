@@ -82,13 +82,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes a parameter by its entity ID and parameter ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The parameter ID to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Retrieves the specific parameter by entity ID and parameter ID
-            var Item = _uow.ParameterRepository.Query().First(f => f.ParameterId == id && f.TenantId == entityId);
+            var Item = _uow.ParameterRepository.Query().First(f => f.ParameterId == id && f.TenantId == tenantId);
             var apiParameterMap = _uow.ApiParameterMapsRepository.Query().Where(f => f.ParameterId == Item.ParameterId).ToList();
             if (apiParameterMap.Count != 0)
                 _uow.ApiParameterMapsRepository.RemoveRange(apiParameterMap);
@@ -108,14 +108,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all parameters for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ParameterListModel representing all parameters for the entity.</returns>
-        public List<ParameterListModel> GetAll(int entityId)
+        public List<ParameterListModel> GetAll(int tenantId)
         {
             // Queries parameters filtered by entity ID and includes computed values
             var parameters = _uow.ParameterRepository.Query()
                 .Include(x => x.ComputedValues)
-                .Where(f => f.TenantId == entityId);
+                .Where(f => f.TenantId == tenantId);
             // Maps the parameters to ParameterListModel objects
             return _mapper.Map<List<ParameterListModel>>(parameters);
         }
@@ -123,13 +123,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all parameters for a specific entity by entity ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ParameterListModel for the specified entity.</returns>
-        public List<ParameterListModel> GetByEntityId(int entityId)
+        public List<ParameterListModel> GetByEntityId(int tenantId)
         {
             // Queries parameters with computed values and maps to custom model
             var parameters = _uow.ParameterRepository.Query()
-                .Where(f => f.TenantId == entityId)
+                .Where(f => f.TenantId == tenantId)
                 .Include(x => x.ComputedValues)
                 .Select(p => new ParameterListModel
                 {
@@ -161,14 +161,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets a parameter by its entity ID and parameter ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The parameter ID to retrieve.</param>
         /// <returns>The ParameterListModel for the specified entity and parameter ID.</returns>
-        public ParameterListModel GetById(int entityId, int id)
+        public ParameterListModel GetById(int tenantId, int id)
         {
             // Retrieves the specific parameter by entity ID and parameter ID with computed values
             var parameter = _uow.ParameterRepository.Query().Include(x => x.ComputedValues)
-                .First(f => f.ParameterId == id && f.TenantId == entityId);
+                .First(f => f.ParameterId == id && f.TenantId == tenantId);
             // Maps the parameter to ParameterListModel object
             return _mapper.Map<ParameterListModel>(parameter);
         }
@@ -176,11 +176,11 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Checks the computed value for a parameter.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="parameterId">The parameter ID.</param>
         /// <param name="parameterValue">The value to check.</param>
         /// <returns>A task representing the asynchronous operation, with the computed value as a string if found.</returns>
-        public async Task<string?> CheckParameterComputedValue(int entityId, int parameterId, string parameterValue)
+        public async Task<string?> CheckParameterComputedValue(int tenantId, int parameterId, string parameterValue)
         {
             // Retrieves the parameter with computed values by parameter ID
             var parameter = await _uow.ParameterRepository.Query().Include(x => x.ComputedValues)
@@ -257,11 +257,11 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Exports selected parameters to an Excel file.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="Identifier">The identifier for the parameter type.</param>
         /// <param name="selectedParameterIds">A list of selected parameter IDs to export.</param>
         /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportParameter(int entityId, int Identifier, [FromBody] List<int> selectedParameterIds)
+        public async Task<Stream> ExportParameter(int tenantId, int Identifier, [FromBody] List<int> selectedParameterIds)
         {
             IQueryable<ParameterCsvModel> parameters;
             var sheetName = "";
@@ -277,7 +277,7 @@ namespace EligibilityPlatform.Application.Services
                              on parameter.TenantId equals entity.EntityId
                              join condition in _uow.ConditionRepository.Query()
                              on parameter.ConditionId equals condition.ConditionId
-                             where parameter.TenantId == entityId && parameter.Identifier == 1
+                             where parameter.TenantId == tenantId && parameter.Identifier == 1
                              select new ParameterCsvModel
                              {
                                  ParameterId = parameter.ParameterId,
@@ -306,7 +306,7 @@ namespace EligibilityPlatform.Application.Services
                              on parameter.TenantId equals entity.EntityId
                              join condition in _uow.ConditionRepository.Query()
                              on parameter.ConditionId equals condition.ConditionId
-                             where parameter.TenantId == entityId && parameter.Identifier == 2
+                             where parameter.TenantId == tenantId && parameter.Identifier == 2
                              select new ParameterCsvModel
                              {
                                  ParameterId = parameter.ParameterId,
@@ -374,12 +374,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports parameter records from an Excel file into the database.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="fileStream">The file stream containing the Excel data to import.</param>
         /// <param name="Identifier">The identifier for the parameter type.</param>
         /// <param name="createdBy">The user who is performing the import operation.</param>
         /// <returns>A task that represents the asynchronous operation, with a string message describing the result.</returns>
-        public async Task<string> ImportEntities(int entityId, Stream fileStream, int Identifier, string createdBy)
+        public async Task<string> ImportEntities(int tenantId, Stream fileStream, int Identifier, string createdBy)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using var package = new ExcelPackage(fileStream);
@@ -436,13 +436,13 @@ namespace EligibilityPlatform.Application.Services
                 {
                     var parameterName = worksheet.Cells[row, 1].Text?.Trim();
                     var dataTypeId = worksheet.Cells[row, 3].Text?.Trim();
-                    var entityIdStr = entityId;
+                    var tenantIdStr = tenantId;
                     var isMandatory = worksheet.Cells[row, 4].Text?.Trim();
 
                     // inside loop
 
 
-                    string excelKey = $"{parameterName?.ToLower()}_{entityIdStr}";
+                    string excelKey = $"{parameterName?.ToLower()}_{tenantIdStr}";
 
                     if (excelDuplicateCheck.Contains(excelKey))
                     {
@@ -468,7 +468,7 @@ namespace EligibilityPlatform.Application.Services
                         DataTypeId = parsedDataTypeId,
                         Identifier = Identifier,
                         IsRequired = bool.TryParse(isMandatory, out bool isRequired) && isRequired,
-                        TenantId = entityIdStr
+                        TenantId = tenantIdStr
                     };
 
                     models.Add(model);
@@ -567,14 +567,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Removes multiple parameters by their IDs for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="ids">A list of parameter IDs to remove.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task RemoveMultiple(int entityId, List<int> ids)
+        public async Task RemoveMultiple(int tenantId, List<int> ids)
         {
             // Fetch all parameters matching the provided IDs and entity
             var parameters = await _uow.ParameterRepository.Query()
-                .Where(f => ids.Contains(f.ParameterId) && f.TenantId == entityId)
+                .Where(f => ids.Contains(f.ParameterId) && f.TenantId == tenantId)
                 .ToListAsync();
 
             foreach (var item in parameters)
@@ -611,14 +611,14 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets parameters by product for a specific entity and product ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="productId">The product ID.</param>
         /// <returns>A list of ParameterModel for the specified entity and product ID.</returns>
-        public List<ParameterModel>? GetParameterByProducts(int entityId, int productId)
+        public List<ParameterModel>? GetParameterByProducts(int tenantId, int productId)
         {
             // Retrieves the product by entity ID and product ID
             var product = _uow.ProductRepository.Query()
-                .FirstOrDefault(p => p.TenantId == entityId && p.ProductId == productId);
+                .FirstOrDefault(p => p.TenantId == tenantId && p.ProductId == productId);
 
             // Returns null if product not found
             if (product == null)

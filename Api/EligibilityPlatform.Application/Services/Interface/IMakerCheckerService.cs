@@ -31,10 +31,10 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Updates an existing maker-checker record for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity associated with the maker-checker record.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the maker-checker record.</param>
         /// <param name="model">The <see cref="MakerCheckerModel"/> containing the updated maker-checker details.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Update(int entityId, MakerCheckerModel model);
+        Task Update(int tenantId, MakerCheckerModel model);
 
         /// <summary>
         /// Removes a maker-checker record by its identifier.

@@ -16,52 +16,52 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Retrieves evaluation summary data grouped by month for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <param name="year">The optional year filter for the summary data.</param>
         /// <returns>A list of <see cref="PassFailSummaryModel"/> objects containing monthly evaluation summaries.</returns>
-        Task<List<PassFailSummaryModel>> GetEvaluationSummaryByMonthAsync(int entityId, int? year = null);
+        Task<List<PassFailSummaryModel>> GetEvaluationSummaryByMonthAsync(int tenantId, int? year = null);
 
         /// <summary>
         /// Retrieves failure reason breakdown for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="FailureReasonSummaryModel"/> objects containing failure reason statistics.</returns>
-        Task<List<FailureReasonSummaryModel>> GetFailureReasonBreakdownAsync(int entityId);
+        Task<List<FailureReasonSummaryModel>> GetFailureReasonBreakdownAsync(int tenantId);
 
         /// <summary>
         /// Retrieves evaluation history data based on the specified filter for a specific entity.
         /// </summary>
         /// <param name="filter">The <see cref="EvaluationHistoryFilter"/> containing filter criteria.</param>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="EvaluationHistoryModel"/> objects containing evaluation history data.</returns>
-        Task<(List<EvaluationHistoryModel> Data, int TotalCount)> GetEvaluationHistoryAsync(EvaluationHistoryFilter filter, int entityId);
+        Task<(List<EvaluationHistoryModel> Data, int TotalCount)> GetEvaluationHistoryAsync(EvaluationHistoryFilter filter, int tenantId);
 
         /// <summary>
         /// Retrieves processing time distribution data for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="ProcessingTimeBucketModel"/> objects containing processing time distribution data.</returns>
-        Task<List<ProcessingTimeBucketModel>> GetProcessingTimeDistributionAsync(int entityId);
+        Task<List<ProcessingTimeBucketModel>> GetProcessingTimeDistributionAsync(int tenantId);
         /// <summary>
         /// Gets the total number of customers evaluated for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>The total number of customers evaluated.</returns>
-        Task<int> GetCustomersEvaluatedAsync(int entityId);
+        Task<int> GetCustomersEvaluatedAsync(int tenantId);
 
         /// <summary>
         /// Gets the approval rate percentage for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>The approval rate as a percentage.</returns>
-        Task<double> GetApprovalRateAsync(int entityId);
+        Task<double> GetApprovalRateAsync(int tenantId);
 
         /// <summary>
         /// Gets the rejection rate percentage for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>The rejection rate as a percentage.</returns>
-        Task<double> GetRejectionRateAsync(int entityId);
+        Task<double> GetRejectionRateAsync(int tenantId);
 
         /// <summary>
         /// Gets the average processing time across all evaluations.
@@ -72,17 +72,17 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Gets the top failure reason for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>The description of the top failure reason.</returns>
-        Task<string?> GetTopFailureReasonAsync(int entityId);
+        Task<string?> GetTopFailureReasonAsync(int tenantId);
         Task<List<IntegrationApiEvaluationModel>> ApiEvaluationHistory(int evaluationHistoryId);
 
 
         /// <summary>
         /// Gets the average approved score for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>The average score of approved evaluations.</returns>
-        Task<double> GetAverageApprovedScoreAsync(int entityId);
+        Task<double> GetAverageApprovedScoreAsync(int tenantId);
     }
 }

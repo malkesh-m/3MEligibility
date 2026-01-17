@@ -107,12 +107,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all EruleMaster records for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of EruleMasterListModel.</returns>
-        public async Task<List<EruleMasterListModel>> GetAll(int entityId)
+        public async Task<List<EruleMasterListModel>> GetAll(int tenantId)
         {
             // Retrieves all entities for the specified entity ID
-            var entities = await _uow.EruleMasterRepository.Query().Where(p => p.TenantId == entityId).ToListAsync();
+            var entities = await _uow.EruleMasterRepository.Query().Where(p => p.TenantId == tenantId).ToListAsync();
 
             // Maps the entities to list model and returns
             return _mapper.Map<List<EruleMasterListModel>>(entities);
@@ -122,14 +122,14 @@ namespace EligibilityPlatform.Application.Services
         /// Gets an EruleMaster record by its ID and entity ID.
         /// </summary>
         /// <param name="id">The EruleMaster ID.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The EruleMasterModel.</returns>
-        public async Task<EruleMasterModel> GetById(int id, int entityId)
+        public async Task<EruleMasterModel> GetById(int id, int tenantId)
         {
             // Retrieves the entity by ID and entity ID
             var entity = await _uow.EruleMasterRepository
                                    .Query()
-                                   .Where(p => p.Id == id && p.TenantId == entityId).FirstAsync();
+                                   .Where(p => p.Id == id && p.TenantId == tenantId).FirstAsync();
             // Maps the entity to model and returns
             return _mapper.Map<EruleMasterModel>(entity);
         }
@@ -146,13 +146,13 @@ namespace EligibilityPlatform.Application.Services
 
             return GlobalcConstants.Deleted; // return success message
         }
-        public async Task<string> RemoveMultiple(int entityId, List<int> ids)
+        public async Task<string> RemoveMultiple(int tenantId, List<int> ids)
         {
             // Initializes the result message
             var resultMessage = "";
 
             // Retrieves all eCards for the entity
-            var eCards = _uow.EcardRepository.Query().Where(f => f.TenantId == entityId);
+            var eCards = _uow.EcardRepository.Query().Where(f => f.TenantId == tenantId);
 
             // Initializes collections for tracking deleted and not deleted rules
             var notDeletedRules = new HashSet<string>();  // Use HashSet to avoid duplicates
@@ -164,7 +164,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var id in ids)
                 {
                     // Retrieves the rule by ID and entity ID
-                    var item = _uow.EruleMasterRepository.Query().First(f => f.Id == id && f.TenantId == entityId);
+                    var item = _uow.EruleMasterRepository.Query().First(f => f.Id == id && f.TenantId == tenantId);
 
                     // Checks if the rule is being used in any eCard
                     var isInUse = eCards.Any(card => card.Expression.Contains(id.ToString()));

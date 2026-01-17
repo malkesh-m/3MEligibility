@@ -226,11 +226,11 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves the entity ID from the current user context.
             /// </summary>
-            int entityId = User.GetTenantId();
+            int tenantId = User.GetTenantId();
             /// <summary>
             /// Publishes the draft erule and returns a success response.
             /// </summary>
-            await _eruleService.PublishDraftAsync(draftEruleId, entityId);
+            await _eruleService.PublishDraftAsync(draftEruleId, tenantId);
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
 
@@ -249,11 +249,11 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves the entity ID from the current user context.
             /// </summary>
-            int entityId = User.GetTenantId();
+            int tenantId = User.GetTenantId();
             /// <summary>
             /// Updates the erule status and returns a success response.
             /// </summary>
-            await _eruleService.UpdateStatusAsync(eruleId, entityId, isActive);
+            await _eruleService.UpdateStatusAsync(eruleId, tenantId, isActive);
             return Ok(new ResponseModel { IsSuccess = true, Message = "Status updated successfully." });
         }
 

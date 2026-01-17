@@ -988,26 +988,26 @@ public partial class EligibilityDbContext : DbContext
 
             entity.HasIndex(e => e.TenantId, "IX_Users_TenantId");
 
-            entity.HasIndex(e => e.LoginId, "IX_Users_LoginId").IsUnique();
+            entity.HasIndex(e => e.KeycloakUserId, "IX_Users_KeycloakUserId").IsUnique();
 
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .HasDefaultValue("");
-            entity.Property(e => e.Issuspended).HasColumnName("issuspended");
-            entity.Property(e => e.LastLoginDate).HasColumnType("datetime");
-            entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-            entity.Property(e => e.LoginId)
+            //entity.Property(e => e.Issuspended).HasColumnName("issuspended");
+            entity.Property(e => e.LastLoginAt).HasColumnType("datetime");
+            //entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.KeycloakUserId)
                 .HasMaxLength(50)
                 .HasDefaultValue("");
-            entity.Property(e => e.MimeType).HasMaxLength(20);
+            //entity.Property(e => e.MimeType).HasMaxLength(20);
             entity.Property(e => e.Phone).HasMaxLength(50);
-            entity.Property(e => e.SuspentionDate).HasColumnType("datetime");
+            //entity.Property(e => e.SuspentionDate).HasColumnType("datetime");
             entity.Property(e => e.UserName)
                 .HasMaxLength(50)
                 .HasDefaultValue("");
-            entity.Property(e => e.UserPassword)
-                .HasMaxLength(255)
-                .HasDefaultValue("");
+            //entity.Property(e => e.UserPassword)
+            //    .HasMaxLength(255)
+            //    .HasDefaultValue("");
 
             //entity.HasOne(d => d.Entity).WithMany(p => p.Users)
             //    .HasForeignKey(d => d.TenantId)

@@ -17,25 +17,25 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Retrieves all evaluation history records for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity for which to retrieve evaluation history records.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to retrieve evaluation history records.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of <see cref="EvaluationHistoryModel"/> objects.</returns>
-        Task<List<EvaluationHistoryModel>> GetAll(int entityId);
+        Task<List<EvaluationHistoryModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific evaluation history record by its identifier and entity identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the evaluation history record to retrieve.</param>
-        /// <param name="entityId">The unique identifier of the entity associated with the evaluation history record.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the evaluation history record.</param>
         /// <returns>A task that represents the asynchronous operation, containing the <see cref="EvaluationHistoryModel"/> with the specified ID and entity ID.</returns>
-        Task<EvaluationHistoryModel> GetById(int id, int entityId);
+        Task<EvaluationHistoryModel> GetById(int id, int tenantId);
 
         /// <summary>
         /// Adds a new evaluation history record for a specific entity.
         /// </summary>
         /// <param name="model">The <see cref="EvaluationHistoryModel"/> containing the evaluation history details to add.</param>
-        /// <param name="entityId">The unique identifier of the entity for which to add the evaluation history record.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to add the evaluation history record.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Add(EvaluationHistoryModel model, int entityId);
+        Task Add(EvaluationHistoryModel model, int tenantId);
 
         /// <summary>
         /// Updates an existing evaluation history record.
@@ -48,8 +48,8 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// Deletes an evaluation history record by its identifier and entity identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the evaluation history record to delete.</param>
-        /// <param name="entityId">The unique identifier of the entity associated with the evaluation history record.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the evaluation history record.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Delete(int id, int entityId);
+        Task Delete(int id, int tenantId);
     }
 }

@@ -11,10 +11,10 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Downloads a template file for bulk import based on the specified entity and list.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity for which to download the template.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to download the template.</param>
         /// <param name="selectedList">The specific list or type of template to download.</param>
         /// <returns>A byte array containing the template file data.</returns>
-        Task<byte[]> DownloadTemplate(int entityId, string selectedList);
+        Task<byte[]> DownloadTemplate(int tenantId, string selectedList);
 
         /// <summary>
         /// Downloads a previously imported file by its document identifier.
@@ -30,7 +30,7 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <param name="fileName">The name of the file being imported.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import operation.</param>
         /// <returns>A string containing the result or status of the import operation.</returns>
-        Task<string> BulkImport(Stream fileStream, string fileName, string createdBy, int entityId);
+        Task<string> BulkImport(Stream fileStream, string fileName, string createdBy, int tenantId);
 
         /// <summary>
         /// Retrieves all import history records.

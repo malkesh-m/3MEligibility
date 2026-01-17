@@ -21,7 +21,7 @@ namespace EligibilityPlatform.Application.Services
     public class AuthenticationService(
         IHttpClientFactory httpClientFactory,
         ILogger<AuthenticationService> logger,
-        IUserService userService, IConfiguration configuration) : IAuthenticationService
+      /*  IUserService userService,*/ IConfiguration configuration) : IAuthenticationService
     {
         /// <summary>
         /// The HTTP client factory instance for creating HTTP clients.
@@ -36,7 +36,7 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// The user service instance for user-related operations.
         /// </summary>
-        private readonly IUserService _userService = userService;
+        //private readonly IUserService _userService = userService;
         /// <summary>
         /// The user service instance for configuration-related operations.
         /// </summary>

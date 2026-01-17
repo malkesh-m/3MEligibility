@@ -132,7 +132,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="fileName">The name of the uploaded file.</param>
         /// <param name="createdBy">The user who initiated the import.</param>
         /// <returns>A summary of the import results as a string.</returns>
-        public async Task<string> BulkImport(Stream fileStream, string fileName, string createdBy, int entityId)
+        public async Task<string> BulkImport(Stream fileStream, string fileName, string createdBy, int tenantId)
         {
             // Sets the EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -178,7 +178,7 @@ namespace EligibilityPlatform.Application.Services
                     //    results.Add(await ImportEntities(worksheet, createdBy));
                     //    break;
                     case "lists":
-                        results.Add(await ImportList(worksheet, createdBy, entityId));
+                        results.Add(await ImportList(worksheet, createdBy, tenantId));
                         break;
                     case "listitem":
                         results.Add(await ImportListIteams(worksheet, createdBy));
@@ -187,10 +187,10 @@ namespace EligibilityPlatform.Application.Services
                     //    results.Add(await ImportParameterCustomer( worksheet, 1, createdBy));
                     //    break;
                     case "parameter":
-                        results.Add(await ImportParameterProduct(worksheet, 2, createdBy, entityId));
+                        results.Add(await ImportParameterProduct(worksheet, 2, createdBy, tenantId));
                         break;
                     case "factors":
-                        results.Add(await ImportFactor(worksheet, createdBy, entityId));
+                        results.Add(await ImportFactor(worksheet, createdBy, tenantId));
                         break;
                     case "category":
                         results.Add(await ImportCategory(worksheet, createdBy));
@@ -202,13 +202,13 @@ namespace EligibilityPlatform.Application.Services
                         results.Add(await ImportDetails(worksheet, createdBy));
                         break;
                     case "erules":
-                        results.Add(await ImportEruleMaster(worksheet, createdBy, entityId));
+                        results.Add(await ImportEruleMaster(worksheet, createdBy, tenantId));
                         break;
                     case "ecards":
-                        results.Add(await ImportECard(worksheet, entityId, createdBy));
+                        results.Add(await ImportECard(worksheet, tenantId, createdBy));
                         break;
                     case "streamcards":
-                        results.Add(await ImportPCard(worksheet, entityId, createdBy));
+                        results.Add(await ImportPCard(worksheet, tenantId, createdBy));
                         break;
                     default:
                         results.Add($"Skipped unrecognized sheet: {sheetName}");
@@ -439,7 +439,7 @@ namespace EligibilityPlatform.Application.Services
         /// A task that represents the asynchronous operation, returning a summary message 
         /// about the number of records inserted, skipped, or marked as duplicates.
         /// </returns>
-        public async Task<string> ImportList(ExcelWorksheet worksheet, string createdBy, int entityId)
+        public async Task<string> ImportList(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             // Gets the number of data rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -509,7 +509,7 @@ namespace EligibilityPlatform.Application.Services
                         // Sets the list name
                         ListName = ListName,
                         // Parses and sets entity ID
-                        TenantId = entityId,
+                        TenantId = tenantId,
                         // Sets the created by user
                         CreatedBy = createdBy,
                         UpdatedBy = createdBy
@@ -782,7 +782,7 @@ namespace EligibilityPlatform.Application.Services
                         // Marks parameter as required
                         IsRequired = true,
                         // Parses and sets entity ID
-                        TenantId = int.TryParse(TenantId, out int entityId) ? entityId : 0,
+                        TenantId = int.TryParse(TenantId, out int tenantId) ? tenantId : 0,
                         // Parses and sets condition ID (nullable)
                         ConditionId = int.TryParse(ConditionId, out int conditionId) ? conditionId : null,
                         // Sets the factor order
@@ -850,7 +850,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="Identifier">The identifier for the parameter type.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportParameterProduct(ExcelWorksheet worksheet, int Identifier, string createdBy, int entityId)
+        public async Task<string> ImportParameterProduct(ExcelWorksheet worksheet, int Identifier, string createdBy, int tenantId)
         {
             // Gets the number of data rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -910,7 +910,7 @@ namespace EligibilityPlatform.Application.Services
                     var parameterName = worksheet.Cells[row, 1].Text?.Trim();
                     var dataTypeId = worksheet.Cells[row, 3].Text?.Trim();
                     var isMandatory = worksheet.Cells[row, 4].Text?.Trim();
-                    string excelKey = $"{parameterName?.ToLower()}_{entityId}";
+                    string excelKey = $"{parameterName?.ToLower()}_{tenantId}";
 
                     if (excelDuplicateCheck.Contains(excelKey))
                     {
@@ -944,7 +944,7 @@ namespace EligibilityPlatform.Application.Services
                         // Sets the created by user
                         CreatedBy = createdBy,
                         // Parses and sets entity ID
-                        TenantId = entityId,
+                        TenantId = tenantId,
                         // Parses and sets condition ID (nullable)
                         IsRequired = bool.TryParse(isMandatory, out bool isRequired) && isRequired,
                     };
@@ -1004,7 +1004,7 @@ namespace EligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the factor data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportFactor(ExcelWorksheet worksheet, string createdBy, int entityId)
+        public async Task<string> ImportFactor(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -1115,7 +1115,7 @@ namespace EligibilityPlatform.Application.Services
                         // Skips insertion for duplicate records
                         continue;
                     }
-                    model.TenantId = entityId;
+                    model.TenantId = tenantId;
                     // Sets creation timestamp to current UTC time
                     model.CreatedByDateTime = DateTime.UtcNow;
                     // Sets first update timestamp to current UTC time
@@ -1240,7 +1240,7 @@ namespace EligibilityPlatform.Application.Services
                         // Sets category description from Excel data
                         CatDescription = CatDescription,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        TenantId = int.TryParse(TenantId, out int entityId) ? entityId : 0,
+                        TenantId = int.TryParse(TenantId, out int tenantId) ? tenantId : 0,
                         // Sets creator identifier
                         CreatedBy = createdBy
                     };
@@ -1403,7 +1403,7 @@ namespace EligibilityPlatform.Application.Services
                         // Parses and sets category ID, defaults to 0 if invalid
                         CategoryId = int.TryParse(CategoryId, out int categoryId) ? categoryId : 0,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        TenantId = int.TryParse(TenantId, out int entityId) ? entityId : 0,
+                        TenantId = int.TryParse(TenantId, out int tenantId) ? tenantId : 0,
                         // Converts image URL to byte array if provided, otherwise null
                         ProductImage = await SafeLoadImage(imageUrl),
                         // Sets narrative from Excel data
@@ -1570,7 +1570,7 @@ namespace EligibilityPlatform.Application.Services
                     // Reads product ID from column 2
                     var productId = worksheet.Cells[row, 2].Text;
                     // Reads entity ID from column 4
-                    var entityId = worksheet.Cells[row, 4].Text;
+                    var tenantId = worksheet.Cells[row, 4].Text;
                     // Reads parameter ID from column 6
                     var parameterId = worksheet.Cells[row, 6].Text;
                     // Reads parameter value from column 7
@@ -1581,7 +1581,7 @@ namespace EligibilityPlatform.Application.Services
                     var IsRequired = worksheet.Cells[row, 9].Text;
 
                     // Check if required fields are empty or invalid
-                    if (!int.TryParse(productId, out _) || !int.TryParse(entityId, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
+                    if (!int.TryParse(productId, out _) || !int.TryParse(tenantId, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1595,7 +1595,7 @@ namespace EligibilityPlatform.Application.Services
                         // Parses and sets product ID, defaults to 0 if invalid
                         ProductId = int.TryParse(productId, out int ProductId) ? ProductId : 0,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        TenantId = int.TryParse(entityId, out int TenantId) ? TenantId : 0,
+                        TenantId = int.TryParse(tenantId, out int TenantId) ? TenantId : 0,
                         // Parses and sets parameter ID, defaults to 0 if invalid
                         ParameterId = int.TryParse(parameterId, out int ParameterId) ? ParameterId : 0,
                         // Sets parameter value from Excel data
@@ -1671,7 +1671,7 @@ namespace EligibilityPlatform.Application.Services
             return resultMessage;
         }
 
-        public async Task<string> ImportEruleMaster(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportEruleMaster(int tenantId, Stream fileStream, string createdBy)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using var package = new ExcelPackage(fileStream);
@@ -1725,7 +1725,7 @@ namespace EligibilityPlatform.Application.Services
                     string isActiveStr = worksheet.Cells[row, 3].Text.Trim();
 
                     // Excel-level duplicate prevention
-                    string excelKey = $"{ruleName?.ToLower()}_{entityId}";
+                    string excelKey = $"{ruleName?.ToLower()}_{tenantId}";
                     if (excelDuplicateCheck.Contains(excelKey))
                     {
                         skipped++;
@@ -1754,7 +1754,7 @@ namespace EligibilityPlatform.Application.Services
                         EruleName = ruleName,
                         EruleDesc = ruleDesc,
                         IsActive = isActive,
-                        TenantId = entityId,
+                        TenantId = tenantId,
                         CreatedBy = createdBy,
                         CreatedByDateTime = DateTime.UtcNow,
                         UpdatedBy = createdBy,
@@ -1768,7 +1768,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     bool exists = await _uow.EruleMasterRepository.Query()
-                        .AnyAsync(x => x.TenantId == entityId && x.EruleName == model.EruleName);
+                        .AnyAsync(x => x.TenantId == tenantId && x.EruleName == model.EruleName);
 
                     if (exists)
                     {
@@ -1804,7 +1804,7 @@ namespace EligibilityPlatform.Application.Services
             }
         }
 
-        public async Task<string> ImportEruleMaster(ExcelWorksheet worksheet, string createdBy, int entityId)
+        public async Task<string> ImportEruleMaster(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             if (worksheet == null)
                 return "Invalid file format. Worksheet not found.";
@@ -1879,7 +1879,7 @@ namespace EligibilityPlatform.Application.Services
 
                     var master = new EruleMaster
                     {
-                        TenantId = entityId,
+                        TenantId = tenantId,
                         EruleName = ruleName,
                         EruleDesc = ruleDesc,
                         IsActive = isActive,
@@ -2052,7 +2052,7 @@ namespace EligibilityPlatform.Application.Services
             return resultMessage;
         }
 
-        public async Task<string> ImportECard(ExcelWorksheet worksheet, int entityId, string createdBy)
+        public async Task<string> ImportECard(ExcelWorksheet worksheet, int tenantId, string createdBy)
         {
             int rowCount = GetRowCount(worksheet);
             var models = new List<EcardListModel>();
@@ -2107,7 +2107,7 @@ namespace EligibilityPlatform.Application.Services
 
                     models.Add(new EcardListModel
                     {
-                        TenantId = entityId,
+                        TenantId = tenantId,
                         EcardName = EcardName,
                         EcardDesc = EcardDesc,
                         Expshown = ExpressionShown,
@@ -2132,7 +2132,7 @@ namespace EligibilityPlatform.Application.Services
                     // Duplicate check
                     var exists = await _uow.EcardRepository.Query()
                         .AnyAsync(p =>
-                            p.TenantId == entityId &&
+                            p.TenantId == tenantId &&
                             p.EcardName == model.EcardName &&
                             p.EcardDesc == model.EcardDesc
                         );
@@ -2548,7 +2548,7 @@ namespace EligibilityPlatform.Application.Services
             return resultMessage;
         }
 
-        public async Task<string> ImportPCard(ExcelWorksheet worksheet, int entityId, string createdBy)
+        public async Task<string> ImportPCard(ExcelWorksheet worksheet, int tenantId, string createdBy)
         {
             int rowCount = GetRowCount(worksheet);
             var models = new List<PcardListModel>();
@@ -2646,7 +2646,7 @@ namespace EligibilityPlatform.Application.Services
                         CreatedBy = createdBy,
                         UpdatedBy = createdBy,
                         ProductId = productId,
-                        TenantId = entityId
+                        TenantId = tenantId
                     };
 
                     models.Add(model);
@@ -2804,10 +2804,10 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Downloads an Excel template for bulk import.
         /// </summary>
-        /// <param name="entityId">The entity ID for which to generate the template.</param>
+        /// <param name="tenantId">The entity ID for which to generate the template.</param>
         /// <param name="selectedList">The selected list type.</param>
         /// <returns>A byte array containing the template file.</returns>
-        public async Task<byte[]> DownloadTemplate(int entityId, string selectedList)
+        public async Task<byte[]> DownloadTemplate(int tenantId, string selectedList)
         {
             // Retrieves all countries from service
             List<CountryModel> countries = _countryService.GetAll();
@@ -2819,31 +2819,31 @@ namespace EligibilityPlatform.Application.Services
             //List<EntityModel> entities = _entityService.GetAll();
 
             // Retrieves all erules for the specified entity
-            List<EruleListModel> erule = _eruleService.GetAll(entityId);
+            List<EruleListModel> erule = _eruleService.GetAll(tenantId);
 
             // Retrieves all parameters for the specified entity
-            List<ParameterListModel> parameters = _parameterService.GetAll(entityId);
+            List<ParameterListModel> parameters = _parameterService.GetAll(tenantId);
 
             // Retrieves all conditions from service
             List<ConditionModel> conditions = _conditionService.GetAll();
 
             // Retrieves all factors for the specified entity
-            List<FactorListModel> factors = _factorService.GetAll(entityId);
+            List<FactorListModel> factors = _factorService.GetAll(tenantId);
 
             // Retrieves all managed list items for the specified entity
-            List<ManagedListGetModel> listItem = _managedListService.GetAll(entityId);
+            List<ManagedListGetModel> listItem = _managedListService.GetAll(tenantId);
 
             // Retrieves all data types from service
             List<DataTypeModel> dataTypes = _dataTypeService.GetAll();
 
             // Retrieves all ecards for the specified entity
-            List<EcardListModel> ecard = _ecardService.GetAll(entityId);
+            List<EcardListModel> ecard = _ecardService.GetAll(tenantId);
 
             // Retrieves all products for the specified entity
-            List<ProductListModel> product = _productService.GetAll(entityId);
+            List<ProductListModel> product = _productService.GetAll(tenantId);
 
             // Retrieves all categories for the specified entity
-            List<CategoryListModel> categories = _categoryService.GetAll(entityId);
+            List<CategoryListModel> categories = _categoryService.GetAll(tenantId);
 
             // Sets EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -4810,14 +4810,14 @@ namespace EligibilityPlatform.Application.Services
             {
                 // Retrieve cell values for validation
                 var listName = worksheet.Cells[row, 1].Text;
-                var entityIdText = worksheet.Cells[row, 3].Text;
+                var tenantIdText = worksheet.Cells[row, 3].Text;
 
                 // Initialize list to track error fields
                 List<string> errorFields = [];
 
                 // Validate required fields and data types
                 if (string.IsNullOrWhiteSpace(listName)) errorFields.Add("ListName");
-                if (string.IsNullOrWhiteSpace(entityIdText) || !int.TryParse(entityIdText, out _)) errorFields.Add("TenantId");
+                if (string.IsNullOrWhiteSpace(tenantIdText) || !int.TryParse(tenantIdText, out _)) errorFields.Add("TenantId");
 
                 // Check if any errors were found
                 if (errorFields.Count > 0)
@@ -5194,7 +5194,7 @@ namespace EligibilityPlatform.Application.Services
             for (int row = 2; row <= rowCount; row++)
             {
                 var productId = worksheet.Cells[row, 2].Text;
-                var entityId = worksheet.Cells[row, 4].Text;
+                var tenantId = worksheet.Cells[row, 4].Text;
                 var parameterId = worksheet.Cells[row, 6].Text;
                 var paramValue = worksheet.Cells[row, 7].Text;
                 var DisplayOrder = worksheet.Cells[row, 8].Text;
@@ -5203,7 +5203,7 @@ namespace EligibilityPlatform.Application.Services
                 List<string> errorFields = [];
 
                 if (string.IsNullOrWhiteSpace(productId) || !int.TryParse(productId, out _)) errorFields.Add("productId");
-                if (string.IsNullOrWhiteSpace(entityId) || !int.TryParse(entityId, out _)) errorFields.Add("entityId");
+                if (string.IsNullOrWhiteSpace(tenantId) || !int.TryParse(tenantId, out _)) errorFields.Add("tenantId");
                 if (string.IsNullOrWhiteSpace(parameterId) || !int.TryParse(parameterId, out _)) errorFields.Add("parameterId");
                 if (string.IsNullOrWhiteSpace(paramValue)) errorFields.Add("paramValue");
                 if (string.IsNullOrWhiteSpace(DisplayOrder)) errorFields.Add("DisplayOrder");

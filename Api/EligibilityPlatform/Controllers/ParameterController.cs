@@ -82,6 +82,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameter">The parameter model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
+        [RequireRole("Add new Parameter")]
 
         [HttpPost]
         public async Task<IActionResult> Post(ParameterAddUpdateModel parameter)
@@ -109,6 +110,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameter">The parameter model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
+        [RequireRole("Edit Parameter")]
 
         [HttpPut]
         public async Task<IActionResult> Put(ParameterAddUpdateModel parameter)

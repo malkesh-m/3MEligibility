@@ -99,7 +99,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's name for audit tracking.
             /// </summary>
-            string? UserName = User?.Identity?.Name;
+            string? UserName = User.GetUserName();
 
             /// <summary>
             /// Sets the created and updated by fields to the current user.
@@ -143,7 +143,7 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's name for audit tracking.
             /// </summary>
-            string UserName = User.GetUserName() ?? "";
+            string UserName = User.GetUserName() ;
 
             /// <summary>
             /// Sets the updated by field to the current user.
@@ -245,7 +245,7 @@ namespace EligibilityPlatform.Controllers
         /// <summary>
         /// Imports categories from a file for the specified entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="file">The file to import.</param>
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
@@ -253,7 +253,7 @@ namespace EligibilityPlatform.Controllers
         [RequireRole("Import Category")]
 
         [HttpPost("import")]
-        public async Task<IActionResult> ImportCategory(int entityId, IFormFile file)
+        public async Task<IActionResult> ImportCategory(int tenantId, IFormFile file)
         {
             /// <summary>
             /// Validates that a file was uploaded and has content.
@@ -275,7 +275,7 @@ namespace EligibilityPlatform.Controllers
                 /// <summary>
                 /// Calls the service to import categories from the file.
                 /// </summary>
-                string resultMessage = await _categoryService.ImportCategory(entityId, file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _categoryService.ImportCategory(tenantId, file.OpenReadStream(), userName ?? "");
 
                 /// <summary>
                 /// Returns successful response with the import result message.

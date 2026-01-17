@@ -35,6 +35,7 @@ namespace EligibilityPlatform.Controllers
         [HttpGet("monthly-summary")]
         public async Task<IActionResult> GetMonthlySummary(int? year = null)
         {
+            var subId = User.GetUserSubId();
             /// <summary>
             /// Calls the service to retrieve monthly evaluation summary for the current user's entity.
             /// </summary>
@@ -58,12 +59,12 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's entity ID.
             /// </summary>
-            var entityId = User.GetTenantId();
+            var tenantId = User.GetTenantId();
 
             /// <summary>
             /// Calls the service to retrieve failure reason breakdown for the entity.
             /// </summary>
-            var data = await _dashboardService.GetFailureReasonBreakdownAsync(entityId);
+            var data = await _dashboardService.GetFailureReasonBreakdownAsync(tenantId);
 
             /// <summary>
             /// Returns successful response with the failure reason breakdown data.

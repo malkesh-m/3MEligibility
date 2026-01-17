@@ -107,12 +107,12 @@ namespace EligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's entity ID.
             /// </summary>
-            var entityId = User.GetTenantId();
+            var tenantId = User.GetTenantId();
 
             /// <summary>
             /// Calls the service to add a new e-card record for the entity.
             /// </summary>
-            await _ecardService.Add(entityId, ecard);
+            await _ecardService.Add(tenantId, ecard);
 
             /// <summary>
             /// Returns successful response indicating the e-card record was created.

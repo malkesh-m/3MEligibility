@@ -16,35 +16,35 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Retrieves all Erule master records for a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity for which to retrieve Erule master records.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to retrieve Erule master records.</param>
         /// <returns>A list of <see cref="EruleMasterListModel"/> objects containing all Erule master records for the specified entity.</returns>
-        Task<List<EruleMasterListModel>> GetAll(int entityId);
+        Task<List<EruleMasterListModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific Erule master record by its identifier and entity identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the Erule master record to retrieve.</param>
-        /// <param name="entityId">The unique identifier of the entity associated with the Erule master record.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the Erule master record.</param>
         /// <returns>The <see cref="EruleMasterModel"/> with the specified ID and entity ID.</returns>
-        Task<EruleMasterModel> GetById(int id, int entityId);
+        Task<EruleMasterModel> GetById(int id, int tenantId);
 
         /// <summary>
         /// Adds a new Erule master record for a specific entity.
         /// </summary>
         /// <param name="model">The <see cref="EruleMasterCreateUpodateModel"/> containing the Erule master details to add.</param>
-        /// <param name="entityId">The unique identifier of the entity for which to add the Erule master record.</param>
+        /// <param name="tenantId">The unique identifier of the entity for which to add the Erule master record.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Add(EruleMasterCreateUpodateModel model, int entityId);
+        Task Add(EruleMasterCreateUpodateModel model, int tenantId);
 
         /// <summary>
         /// Updates an existing Erule master record for a specific entity.
         /// </summary>
         /// <param name="model">The <see cref="EruleMasterCreateUpodateModel"/> containing the updated Erule master details.</param>
-        /// <param name="entityId">The unique identifier of the entity associated with the Erule master record.</param>
+        /// <param name="tenantId">The unique identifier of the entity associated with the Erule master record.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Edit(EruleMasterCreateUpodateModel model, int entityId);
+        Task Edit(EruleMasterCreateUpodateModel model, int tenantId);
         Task<string> Delete(int id);
-        Task<string> RemoveMultiple(int entityId, List<int> ids);
+        Task<string> RemoveMultiple(int tenantId, List<int> ids);
 
 
     }

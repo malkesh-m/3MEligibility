@@ -37,27 +37,27 @@ namespace EligibilityPlatform.Infrastructure.Repository
         /// </summary>
         /// <param name="token">The reset password token to search for.</param>
         /// <returns>The <see cref="User"/> entity with the specified reset token, or null if not found.</returns>
-        public async Task<User?> GetByResetToken(string token)
-        {
-            // Queries the Users DbSet to find the first user with matching password reset token
-            // Compares the ResetPasswordToken property with the provided token value
-            // Returns null if no user is found with the specified reset token
+        //public async Task<User?> GetByResetToken(string token)
+        //{
+        //    // Queries the Users DbSet to find the first user with matching password reset token
+        //    // Compares the ResetPasswordToken property with the provided token value
+        //    // Returns null if no user is found with the specified reset token
 
-            return await _context.Users
-                .FirstOrDefaultAsync(user => user.ResetPasswordToken == token);
-        }
+        //    return await _context.Users
+        //        .FirstOrDefaultAsync(user => user.ResetPasswordToken == token);
+        //}
 
-        /// <summary>
-        /// Retrieves a user by their profile picture.
-        /// </summary>
-        /// <param name="UserPicture">The user picture byte array to search for.</param>
-        /// <returns>The <see cref="User"/> entity with the specified profile picture, or null if not found.</returns>
-        public async Task<User?> GetByImage(byte[]? UserPicture)
-        {
-            // Queries the Users DbSet to find the first user with matching profile picture bytes
-            // Compares the UserPicture byte array with the provided image data
-            // Returns null if no user is found with the specified profile picture
-            return await _context.Users.FirstOrDefaultAsync(user => user.UserPicture == UserPicture);
-        }
+        ///// <summary>
+        ///// Retrieves a user by their profile picture.
+        ///// </summary>
+        ///// <param name="UserPicture">The user picture byte array to search for.</param>
+        ///// <returns>The <see cref="User"/> entity with the specified profile picture, or null if not found.</returns>
+        //public async Task<User?> GetByImage(byte[]? UserPicture)
+        //{
+        //    // Queries the Users DbSet to find the first user with matching profile picture bytes
+        //    // Compares the UserPicture byte array with the provided image data
+        //    // Returns null if no user is found with the specified profile picture
+        //    return await _context.Users.FirstOrDefaultAsync(user => user.UserPicture == UserPicture);
+        //}
     }
 }

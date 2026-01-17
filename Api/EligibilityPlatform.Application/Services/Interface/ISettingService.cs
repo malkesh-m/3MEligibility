@@ -25,16 +25,16 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Retrieves a specific setting record by its identifier within a specific entity.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <param name="id">The unique identifier of the setting record to retrieve.</param>
         /// <returns>The <see cref="SettingModel"/> with the specified ID within the given entity.</returns>
-        SettingModel GetById(int entityId, int id);
+        SettingModel GetById(int tenantId, int id);
 
         /// <summary>
         /// Retrieves setting records associated with a specific entity identifier.
         /// </summary>
-        /// <param name="entityId">The unique identifier of the entity.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>A task that represents the asynchronous operation, containing the <see cref="SettingModel"/> associated with the specified entity.</returns>
-        Task<SettingModel> GetbyEntityId(int entityId);
+        Task<SettingModel> GetbyEntityId(int tenantId);
     }
 }

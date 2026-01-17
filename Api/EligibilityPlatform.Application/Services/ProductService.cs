@@ -90,13 +90,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes a product by its entity ID and product ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The product ID to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Retrieves the product entity by ID and entity ID.
-            var Item = _uow.ProductRepository.Query().First(f => f.ProductId == id && f.TenantId == entityId);
+            var Item = _uow.ProductRepository.Query().First(f => f.ProductId == id && f.TenantId == tenantId);
 
             // Removes the product entity from the repository.
             _uow.ProductRepository.Remove(Item);
@@ -108,13 +108,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all products for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ProductListModel representing all products for the entity.</returns>
-        public List<ProductListModel> GetAll(int entityId)
+        public List<ProductListModel> GetAll(int tenantId)
         {
             // Retrieves products filtered by entity ID and includes category information.
             var products = _uow.ProductRepository.Query().Include(i => i.Category)
-                .Where(f => f.TenantId == entityId)
+                .Where(f => f.TenantId == tenantId)
                 .Select(s => new ProductListModel
                 {
                     // Maps product properties to the list model.
@@ -142,13 +142,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets product IDs and names for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ProductIdAndNameModel for the specified entity.</returns>
-        public List<ProductIdAndNameModel> GetProductIAndName(int entityId)
+        public List<ProductIdAndNameModel> GetProductIAndName(int tenantId)
         {
             // Retrieves product IDs and names filtered by entity ID.
             var products = _uow.ProductRepository.Query()
-                .Where(w => w.TenantId == entityId)
+                .Where(w => w.TenantId == tenantId)
                 .Select(s => new ProductIdAndNameModel
                 {
                     // Maps product ID, name, and image to the model.
@@ -165,13 +165,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets product names for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ProductEligibleModel for the specified entity.</returns>
-        public List<ProductEligibleModel> GetProductName(int entityId)
+        public List<ProductEligibleModel> GetProductName(int tenantId)
         {
             // Retrieves product IDs and names filtered by entity ID.
             var products = _uow.ProductRepository.Query()
-                .Where(w => w.TenantId == entityId)
+                .Where(w => w.TenantId == tenantId)
                 .Select(s => new ProductEligibleModel
                 {
                     // Maps product ID and name to the model.
@@ -187,13 +187,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets products by category for a specific entity and category ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="categoryId">The category ID.</param>
         /// <returns>A list of ProductModel for the specified entity and category ID.</returns>
-        public List<ProductModel> GetProductsByCategory(int entityId, int categoryId)
+        public List<ProductModel> GetProductsByCategory(int tenantId, int categoryId)
         {
             // Retrieves products filtered by entity ID and category ID.
-            var products = _uow.ProductRepository.Query().Where(x => x.TenantId == entityId && x.CategoryId == categoryId);
+            var products = _uow.ProductRepository.Query().Where(x => x.TenantId == tenantId && x.CategoryId == categoryId);
 
             // Maps the product entities to models and returns.
             return _mapper.Map<List<ProductModel>>(products);
@@ -202,13 +202,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets a product by its entity ID and product ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The product ID to retrieve.</param>
         /// <returns>The ProductListModel for the specified entity and product ID.</returns>
-        public ProductListModel GetById(int entityId, int id)
+        public ProductListModel GetById(int tenantId, int id)
         {
             // Retrieves products filtered by entity ID and product ID.
-            var products = _uow.ProductRepository.Query().Where(w => w.ProductId == id && w.TenantId == entityId);
+            var products = _uow.ProductRepository.Query().Where(w => w.ProductId == id && w.TenantId == tenantId);
 
             // Maps the product entity to a list model and returns.
             return _mapper.Map<ProductListModel>(products);
@@ -262,16 +262,16 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Removes multiple products by their IDs for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="ids">A list of product IDs to remove.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task RemoveMultiple(int entityId, List<int> ids)
+        public async Task RemoveMultiple(int tenantId, List<int> ids)
         {
             // Iterates through each product ID to remove.
             foreach (var id in ids)
             {
                 // Retrieves the product entity by ID and entity ID.
-                var products = _uow.ProductRepository.Query().First(w => w.ProductId == id && w.TenantId == entityId);
+                var products = _uow.ProductRepository.Query().First(w => w.ProductId == id && w.TenantId == tenantId);
 
                 // Removes the product entity if it exists.
                 if (products != null)
@@ -287,10 +287,10 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Exports product information to an Excel file.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="selectedProductIds">A list of selected product IDs to export.</param>
         /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportInfo(int entityId, List<int> selectedProductIds)
+        public async Task<Stream> ExportInfo(int tenantId, List<int> selectedProductIds)
         {
             // Queries product information with joins to category and entity tables.
             var infos = from product in _uow.ProductRepository.Query()
@@ -299,7 +299,7 @@ namespace EligibilityPlatform.Application.Services
                         join entity in _uow.EntityRepository.Query()
                         on product.TenantId equals entity.EntityId into entityGroup
                         from entity in entityGroup.DefaultIfEmpty() // LEFT JOIN
-                        where product.TenantId == entityId && category.TenantId == entityId
+                        where product.TenantId == tenantId && category.TenantId == tenantId
                         select new ProductDescription
                         {
                             // Maps product information to the description model.
@@ -374,10 +374,10 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports product entities from a CSV file into the database.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="fileStream">The file stream containing the CSV data to import.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task ImportEntities(int entityId, Stream fileStream)
+        public async Task ImportEntities(int tenantId, Stream fileStream)
         {
             // Creates a stream reader for the file stream.
             using var reader = new StreamReader(fileStream);
@@ -390,7 +390,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var model in models)
             {
                 // Sets the entity ID for the model.
-                model.TenantId = entityId;
+                model.TenantId = tenantId;
 
                 // Maps the model to a product entity.
                 var entity = _mapper.Map<Product>(model);
@@ -406,11 +406,11 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Imports product information from an Excel file into the database.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="fileStream">The file stream containing the Excel data to import.</param>
         /// <param name="createdBy">The user who is performing the import operation.</param>
         /// <returns>A task that represents the asynchronous operation, with a string message describing the result.</returns>
-        public async Task<string> ImportInfo(int entityId, Stream fileStream, string createdBy)
+        public async Task<string> ImportInfo(int tenantId, Stream fileStream, string createdBy)
         {
             // Sets the EPPlus license context to non-commercial.
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -655,15 +655,15 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Downloads an Excel template for product information.
         /// </summary>
-        /// <param name="entityId">The entity ID for which to generate the template.</param>
+        /// <param name="tenantId">The entity ID for which to generate the template.</param>
         /// <returns>A task that represents the asynchronous operation, with the Excel file as a byte array.</returns>
-        public async Task<byte[]> DownloadTemplate(int entityId)
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Fetches all entities from the entity service.
             //List<EntityModel> entities = _entityService.GetAll();
 
             // Fetches all categories for the specified entity from the category service.
-            List<CategoryListModel> categories = _categoryService.GetAll(entityId);
+            List<CategoryListModel> categories = _categoryService.GetAll(tenantId);
 
             // Sets the EPPlus license context to non-commercial.
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

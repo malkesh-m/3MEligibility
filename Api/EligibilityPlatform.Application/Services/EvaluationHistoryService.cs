@@ -37,9 +37,9 @@ namespace EligibilityPlatform.Application.Services
         /// Adds a new evaluation history record for the specified entity.
         /// </summary>
         /// <param name="model">The evaluation history model to add.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Add(EvaluationHistoryModel model, int entityId)
+        public async Task Add(EvaluationHistoryModel model, int tenantId)
         {
             /// <summary>
             /// Maps the evaluation history model to an entity.
@@ -54,7 +54,7 @@ namespace EligibilityPlatform.Application.Services
             /// <summary>
             /// Sets the entity ID for the evaluation history record.
             /// </summary>
-            entity.TenantId = entityId;
+            entity.TenantId = tenantId;
 
             /// <summary>
             /// Adds the entity to the repository.
@@ -71,15 +71,15 @@ namespace EligibilityPlatform.Application.Services
         /// Deletes an evaluation history record by its ID and entity ID.
         /// </summary>
         /// <param name="id">The evaluation history ID.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int id, int entityId)
+        public async Task Delete(int id, int tenantId)
         {
             /// <summary>
             /// Retrieves the evaluation history entity by ID and entity ID.
             /// </summary>
             var entity = await _uow.EvaluationHistoryRepository.Query()
-                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == entityId);
+                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == tenantId);
 
             /// <summary>
             /// If the entity exists, removes it from the repository.
@@ -98,15 +98,15 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all evaluation history records for a given entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of evaluation history models.</returns>
-        public async Task<List<EvaluationHistoryModel>> GetAll(int entityId)
+        public async Task<List<EvaluationHistoryModel>> GetAll(int tenantId)
         {
             /// <summary>
             /// Retrieves all evaluation history entities for the specified entity ID.
             /// </summary>
             var entities = await _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.TenantId == entityId)
+                .Where(x => x.TenantId == tenantId)
                 .ToListAsync();
 
             /// <summary>
@@ -119,15 +119,15 @@ namespace EligibilityPlatform.Application.Services
         /// Gets an evaluation history record by its ID and entity ID.
         /// </summary>
         /// <param name="id">The evaluation history ID.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The evaluation history model.</returns>
-        public async Task<EvaluationHistoryModel> GetById(int id, int entityId)
+        public async Task<EvaluationHistoryModel> GetById(int id, int tenantId)
         {
             /// <summary>
             /// Retrieves the evaluation history entity by ID and entity ID.
             /// </summary>
             var entity = await _uow.EvaluationHistoryRepository.Query()
-                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == entityId);
+                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == tenantId);
 
             /// <summary>
             /// Maps the entity to an evaluation history model.

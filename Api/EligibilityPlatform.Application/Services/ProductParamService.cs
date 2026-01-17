@@ -93,15 +93,15 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all product parameters for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task representing the asynchronous operation, with a list of ProductParamListModel.</returns>
-        public async Task<List<ProductParamListModel>> GetAll(int entityId)
+        public async Task<List<ProductParamListModel>> GetAll(int tenantId)
         {
             // Queries product parameters with joins to product and parameter tables
             var productParams = from pp in _uow.ProductParamRepository.Query()
                                 join p in _uow.ProductRepository.Query() on pp.ProductId equals p.ProductId
                                 join param in _uow.ParameterRepository.Query() on pp.ParameterId equals param.ParameterId
-                                where pp.TenantId == entityId
+                                where pp.TenantId == tenantId
                                 select new ProductParamListModel
                                 {
                                     CreatedBy = pp.CreatedBy,
@@ -127,12 +127,12 @@ namespace EligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="productId">The product ID.</param>
         /// <param name="parameterId">The parameter ID.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The ProductParamListModel for the specified IDs.</returns>
-        public ProductParamListModel GetById(int productId, int parameterId, int entityId)
+        public ProductParamListModel GetById(int productId, int parameterId, int tenantId)
         {
             // Finds the product parameter by composite key
-            var product = _uow.ProductParamRepository.Query().FirstOrDefault(pp => pp.ProductId == productId && pp.ParameterId == parameterId && pp.TenantId == entityId);
+            var product = _uow.ProductParamRepository.Query().FirstOrDefault(pp => pp.ProductId == productId && pp.ParameterId == parameterId && pp.TenantId == tenantId);
             // Maps the entity to list model and returns
             return _mapper.Map<ProductParamListModel>(product);
         }
@@ -141,15 +141,15 @@ namespace EligibilityPlatform.Application.Services
         /// Gets a product parameter by product ID and entity ID.
         /// </summary>
         /// <param name="productId">The product ID.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>The ProductParamListModel for the specified product and entity ID.</returns>
-        public ProductParamListModel GetByProductId(int productId, int entityId)
+        public ProductParamListModel GetByProductId(int productId, int tenantId)
         {
             // Queries product parameter with joins to product and parameter tables
             var product = (from pp in _uow.ProductParamRepository.Query()
                            join p in _uow.ProductRepository.Query() on pp.ProductId equals p.ProductId
                            join param in _uow.ParameterRepository.Query() on pp.ParameterId equals param.ParameterId
-                           where pp.ProductId == productId && pp.TenantId == entityId
+                           where pp.ProductId == productId && pp.TenantId == tenantId
                            select new ProductParamListModel
                            {
                                ProductId = pp.ProductId,
@@ -198,12 +198,12 @@ namespace EligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="productId">The product ID.</param>
         /// <param name="parameterId">The parameter ID.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int productId, int parameterId, int entityId)
+        public async Task Delete(int productId, int parameterId, int tenantId)
         {
             // Finds the product parameter to delete
-            var Item = await _uow.ProductParamRepository.Query().FirstOrDefaultAsync(pm => pm.ProductId == productId && pm.ParameterId == parameterId && pm.TenantId == entityId);
+            var Item = await _uow.ProductParamRepository.Query().FirstOrDefaultAsync(pm => pm.ProductId == productId && pm.ParameterId == parameterId && pm.TenantId == tenantId);
             // Removes the entity from the repository
             if (Item != null)
             {
@@ -218,15 +218,15 @@ namespace EligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="productIds">A list of product IDs.</param>
         /// <param name="parameterIds">A list of parameter IDs.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task MultipleDelete(List<int> productIds, List<int> parameterIds, int entityId)
+        public async Task MultipleDelete(List<int> productIds, List<int> parameterIds, int tenantId)
         {
             // Finds all product parameters matching the criteria
             var items = _uow.ProductParamRepository.Query()
                 .Where(pm => productIds.Contains(pm.ProductId)
                           && parameterIds.Contains(pm.ParameterId)
-                          && pm.TenantId == entityId)
+                          && pm.TenantId == tenantId)
                 .ToList();
 
             // Removes the range of entities from the repository
@@ -240,9 +240,9 @@ namespace EligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="fileStream">The file stream containing the Excel data to import.</param>
         /// <param name="createdBy">The user who is performing the import operation.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task that represents the asynchronous operation, with a string message describing the result.</returns>
-        public async Task<string> ImportDetails(Stream fileStream, string createdBy, int entityId)
+        public async Task<string> ImportDetails(Stream fileStream, string createdBy, int tenantId)
         {
             // Sets the EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -278,7 +278,7 @@ namespace EligibilityPlatform.Application.Services
                     // Gets product ID from cell
                     var productId = worksheet.Cells[row, 2].Text;
                     // Gets entity ID from cell
-                    var entityIdFromFile = worksheet.Cells[row, 4].Text;
+                    var tenantIdFromFile = worksheet.Cells[row, 4].Text;
                     // Gets parameter ID from cell
                     var parameterId = worksheet.Cells[row, 6].Text;
                     // Gets parameter value from cell
@@ -289,7 +289,7 @@ namespace EligibilityPlatform.Application.Services
                     var IsRequired = worksheet.Cells[row, 9].Text;
 
                     // Check if required fields are empty
-                    if (!int.TryParse(productId, out _) || !int.TryParse(entityIdFromFile, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
+                    if (!int.TryParse(productId, out _) || !int.TryParse(tenantIdFromFile, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -301,7 +301,7 @@ namespace EligibilityPlatform.Application.Services
                     var model = new ProductParam
                     {
                         ProductId = int.TryParse(productId, out int ProductId) ? ProductId : 0,
-                        TenantId = int.TryParse(entityIdFromFile, out int TenantId) ? TenantId : 0,
+                        TenantId = int.TryParse(tenantIdFromFile, out int TenantId) ? TenantId : 0,
                         ParameterId = int.TryParse(parameterId, out int ParameterId) ? ParameterId : 0,
                         ParamValue = paramValue,
                         CreatedBy = createdBy,
@@ -316,7 +316,7 @@ namespace EligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Checks if a duplicate record exists
-                    var existingEntity = await _uow.ProductParamRepository.Query().AnyAsync(p => p.ProductId == model.ProductId && p.ParameterId == model.ParameterId && p.TenantId == entityId);
+                    var existingEntity = await _uow.ProductParamRepository.Query().AnyAsync(p => p.ProductId == model.ProductId && p.ParameterId == model.ParameterId && p.TenantId == tenantId);
                     // Validates if entity already exists
                     if (existingEntity)
                     {
@@ -404,18 +404,18 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Downloads an Excel template for product parameters.
         /// </summary>
-        /// <param name="entityId">The entity ID for which to generate the template.</param>
+        /// <param name="tenantId">The entity ID for which to generate the template.</param>
         /// <returns>A task that represents the asynchronous operation, with the Excel file as a byte array.</returns>
-        public async Task<byte[]> DownloadTemplate(int entityId)
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Gets all entities
             //List<EntityModel> entities = _entityService.GetAll();
             // Gets all products for the entity
-            List<ProductListModel> product = _productService.GetAll(entityId);
+            List<ProductListModel> product = _productService.GetAll(tenantId);
             // Gets all parameters for the entity
-            List<ParameterListModel> parameters = _parameterService.GetAll(entityId);
+            List<ParameterListModel> parameters = _parameterService.GetAll(tenantId);
             // Gets all factors for the entity
-            List<FactorListModel> factors = _factorService.GetAll(entityId);
+            List<FactorListModel> factors = _factorService.GetAll(tenantId);
 
             // Sets the EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -664,9 +664,9 @@ namespace EligibilityPlatform.Application.Services
         /// Exports product parameter details to an Excel file.
         /// </summary>
         /// <param name="selectedProductIds">A list of selected product IDs to export.</param>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportDetails(List<int> selectedProductIds, int entityId)
+        public async Task<Stream> ExportDetails(List<int> selectedProductIds, int tenantId)
         {
             // Queries product details with joins to related tables
             var productDetails = from productParam in _uow.ProductParamRepository.Query()
@@ -680,7 +680,7 @@ namespace EligibilityPlatform.Application.Services
                                  on productParam.TenantId equals entity.EntityId into entityGroup
                                  from entity in entityGroup.DefaultIfEmpty()
 
-                                 where productParam.TenantId == entityId
+                                 where productParam.TenantId == tenantId
 
                                  select new ProductParamDescription
                                  {

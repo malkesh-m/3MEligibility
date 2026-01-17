@@ -62,17 +62,17 @@ namespace EligibilityPlatform.Infrastructure.Repository
             // Creates a LINQ query to join user groups with users and entities
             var query = (from ug in _context.UserGroups
                          join u in _context.Users on ug.UserId equals u.UserId
-                         join e in _context.Entities on u.EntityId equals e.EntityId into entityGroup
-                         from e in entityGroup.DefaultIfEmpty()
+                         //join e in _context.Entities on u.EntityId equals e.EntityId into entityGroup
+                         //from e in entityGroup.DefaultIfEmpty()
                          where ug.GroupId == groupId
                          select new UserInfo
                          {
                              UserId = u.UserId,
                              GroupId = groupId,
                              UserName = string.IsNullOrEmpty(u.UserName) ? "" : u.UserName,
-                             LoginId = string.IsNullOrEmpty(u.LoginId) ? "" : u.LoginId,
+                             //LoginId = string.IsNullOrEmpty(u.LoginId) ? "" : u.LoginId,
                              Email = string.IsNullOrEmpty(u.Email) ? "" : u.Email,
-                             EntityName = e != null && !string.IsNullOrEmpty(e.EntityName) ? e.EntityName : ""
+                             //EntityName = e != null && !string.IsNullOrEmpty(e.EntityName) ? e.EntityName : ""
                          }).ToList();
 
             // Returns the list of UserInfo objects

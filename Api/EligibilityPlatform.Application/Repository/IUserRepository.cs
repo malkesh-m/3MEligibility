@@ -20,13 +20,13 @@ namespace EligibilityPlatform.Application.Repository
         /// </summary>
         /// <param name="token">The reset token associated with the user.</param>
         /// <returns>A task that represents the asynchronous operation, containing the <see cref="User"/> entity if found.</returns>
-        Task<User?> GetByResetToken(string token);
+        //Task<User?> GetByResetToken(string token);
 
-        /// <summary>
-        /// Retrieves a user by their profile image.
-        /// </summary>
-        /// <param name="UserPicture">The byte array representing the user's profile picture.</param>
-        /// <returns>A task that represents the asynchronous operation, containing the <see cref="User"/> entity if found.</returns>
-        Task<User?> GetByImage(byte[]? UserPicture);
+        ///// <summary>
+        ///// Retrieves a user by their profile image.
+        ///// </summary>
+        ///// <param name="UserPicture">The byte array representing the user's profile picture.</param>
+        ///// <returns>A task that represents the asynchronous operation, containing the <see cref="User"/> entity if found.</returns>
+        //Task<User?> GetByImage(byte[]? UserPicture);
     }
 }

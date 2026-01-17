@@ -46,13 +46,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes a HistoryPc record by its entity ID and transaction ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The transaction ID of the HistoryPc record to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int entityId, int id)
+        public async Task Delete(int tenantId, int id)
         {
             // Retrieves the HistoryPc record by entity ID and transaction ID
-            var Item = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == entityId);
+            var Item = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == tenantId);
             // Removes the record from the repository
             _uow.HistoryPcRepository.Remove(Item);
             // Commits the changes to the database
@@ -62,12 +62,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all HistoryPc records for a specific entity.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of HistoryPcModel representing all records for the entity.</returns>
-        public List<HistoryPcModel> GetAll(int entityId)
+        public List<HistoryPcModel> GetAll(int tenantId)
         {
             // Retrieves all HistoryPc records for the specified entity
-            var HistoriPcs = _uow.HistoryPcRepository.Query().Where(f => f.TenantId == entityId);
+            var HistoriPcs = _uow.HistoryPcRepository.Query().Where(f => f.TenantId == tenantId);
             // Maps the records to HistoryPcModel objects
             return _mapper.Map<List<HistoryPcModel>>(HistoriPcs);
         }
@@ -75,13 +75,13 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Gets a HistoryPc record by its entity ID and transaction ID.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The transaction ID of the HistoryPc record to retrieve.</param>
         /// <returns>The HistoryPcModel for the specified entity and transaction ID.</returns>
-        public HistoryPcModel GetById(int entityId, int id)
+        public HistoryPcModel GetById(int tenantId, int id)
         {
             // Retrieves the specific HistoryPc record by entity ID and transaction ID
-            var city = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == entityId);
+            var city = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == tenantId);
             // Maps the record to HistoryPcModel object
             return _mapper.Map<HistoryPcModel>(city);
         }
@@ -106,16 +106,16 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Deletes multiple HistoryPc records for a specific entity by their transaction IDs.
         /// </summary>
-        /// <param name="entityId">The entity ID.</param>
+        /// <param name="tenantId">The entity ID.</param>
         /// <param name="ids">A list of transaction IDs to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task MultipleDelete(int entityId, List<int> ids)
+        public async Task MultipleDelete(int tenantId, List<int> ids)
         {
             // Validates that all provided IDs exist for the given entity
             foreach (var id in ids)
             {
                 // Checks if the record exists in the database
-                var hasvalue = await _uow.HistoryPcRepository.Query().AnyAsync(item => item.TranId == id && item.TenantId == entityId);
+                var hasvalue = await _uow.HistoryPcRepository.Query().AnyAsync(item => item.TranId == id && item.TenantId == tenantId);
                 // Throws exception if any ID is not found
                 if (hasvalue == false)
                 {
@@ -127,7 +127,7 @@ namespace EligibilityPlatform.Application.Services
             foreach (var id in ids)
             {
                 // Retrieves each record by entity ID and transaction ID
-                var historypcitem = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == entityId);
+                var historypcitem = _uow.HistoryPcRepository.Query().First(f => f.TranId == id && f.TenantId == tenantId);
                 // Removes the record if found
                 if (historypcitem != null)
                 {

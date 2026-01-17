@@ -266,12 +266,12 @@ namespace EligibilityPlatform.Application.Services
         /// <summary>
         /// Validates an entity based on its type.
         /// </summary>
-        /// <param name="entityIdStr">The entity ID string.</param>
+        /// <param name="tenantIdStr">The entity ID string.</param>
         /// <param name="entities">A collection of entities.</param>
         /// <param name="keyValues">A dictionary of key-value pairs.</param>
         /// <param name="type">The type of entity.</param>
         /// <returns>A <see cref="ValidationResult"/>.</returns>
-        private ValidationResult ValidateEntity(string entityIdStr, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
+        private ValidationResult ValidateEntity(string tenantIdStr, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
         {
             // Initializes list for validation details
             var validationDetails = new List<ValidationDetail>();
@@ -285,7 +285,7 @@ namespace EligibilityPlatform.Application.Services
                     // Casts entities to Ecard collection
                     var list = (IEnumerable<Ecard>)entities;
                     // Finds Ecard by ID
-                    var eCard = list.FirstOrDefault(x => x.EcardId == int.Parse(entityIdStr));
+                    var eCard = list.FirstOrDefault(x => x.EcardId == int.Parse(tenantIdStr));
                     if (eCard != null)
                     {
                         // Validates the Ecard
@@ -299,7 +299,7 @@ namespace EligibilityPlatform.Application.Services
 
                 case "Card":
                     // Validates rule by ID
-                    var cardResult = ValidateRule(int.Parse(entityIdStr), keyValues);
+                    var cardResult = ValidateRule(int.Parse(tenantIdStr), keyValues);
                     // Sets validation result
                     isValidationPassed = cardResult.IsValidationPassed;
                     // Adds validation details
@@ -313,7 +313,7 @@ namespace EligibilityPlatform.Application.Services
                     foreach (var condition in conditions.OrderByDescending(c => c?.ConditionValue?.Length))
                     {
                         // Splits entity ID string by condition value
-                        var facts = entityIdStr.Split([condition.ConditionValue ?? "".ToLower().Replace(" ", "")], StringSplitOptions.None);
+                        var facts = tenantIdStr.Split([condition.ConditionValue ?? "".ToLower().Replace(" ", "")], StringSplitOptions.None);
 
                         // Checks if split resulted in two parts
                         if (facts.Length == 2)

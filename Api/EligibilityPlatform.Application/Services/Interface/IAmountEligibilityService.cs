@@ -45,10 +45,10 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// <summary>
         /// Calculates the eligible amount based on entity ID, pre-amount, and PCard ID.
         /// </summary>
-        /// <param name="entityId">The ID of the entity.</param>
+        /// <param name="tenantId">The ID of the entity.</param>
         /// <param name="Preamount">The pre-amount value to calculate from.</param>
         /// <param name="pcardId">The ID of the PCard.</param>
         /// <returns>A string representing the calculated eligible amount.</returns>
-        string AmountCalculate(int entityId, string Preamount, int pcardId);
+        string AmountCalculate(int tenantId, string Preamount, int pcardId);
     }
 }
