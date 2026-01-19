@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -28,7 +30,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="pageSize">The page size for pagination (default is 10).</param>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="AuditModel"/> objects.</returns>
         /// 
-        [RequireRole("View Audit Screen")]
+        [Authorize(Policy = Permissions.Audit.View)]
 
         [HttpGet("getall")]
         public async Task<IActionResult> Get(int pageIndex = 0, int pageSize = 10)
@@ -49,7 +51,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the audit record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="AuditModel"/> if found; otherwise, a not found result.</returns>
-        [RequireRole("View Audit Screen")]
+        [Authorize(Policy = Permissions.Audit.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -84,8 +86,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="audit">The <see cref="AuditModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Audit")]
-
+        [Authorize(Policy = Permissions.Audit.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(AuditCreateUpdateModel audit)
         {
@@ -120,9 +121,9 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="audit">The <see cref="AuditModel"/> to update.</param>
         /// 
-        [RequireRole("Edit Audit")]
+        [Authorize(Policy = Permissions.Audit.Edit)]
 
-        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// <returns>An <see cref="I    ActionResult"/> indicating the result of the operation.</returns>
         [HttpPut]
         public async Task<IActionResult> Put(AuditCreateUpdateModel audit)
         {
@@ -158,7 +159,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the audit record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Audit")]
+        [Authorize(Policy = Permissions.Audit.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -180,7 +181,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the audit records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Audit")]
+        [Authorize(Policy = Permissions.Audit.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)

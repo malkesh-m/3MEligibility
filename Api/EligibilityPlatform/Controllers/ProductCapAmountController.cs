@@ -1,7 +1,9 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -25,7 +27,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="ProductCapAmountAddModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Max Amount")]
+        [Authorize(Policy = Permissions.ProductCapAmount.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ProductCapAmountAddModel model)
@@ -41,7 +43,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of product cap amount records.</returns>
         /// 
-        [RequireRole("View Max Amount")]
+        [Authorize(Policy = Permissions.ProductCapAmount.View)]
 
         [HttpGet("getall")]
         public IActionResult GetAll()
@@ -58,7 +60,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="ProductCapAmountUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Max Amount")]
+        [Authorize(Policy = Permissions.ProductCapAmount.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Update(ProductCapAmountUpdateModel model)
@@ -75,7 +77,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the product cap amount record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Max Amount")]
+        [Authorize(Policy = Permissions.ProductCapAmount.Delete)]
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -92,7 +94,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The product ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the product cap amount record if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Max Amount")]
+        [Authorize(Policy = Permissions.ProductCapAmount.View)]
 
         [HttpGet("getbyproductid/{id}")]
         public async Task<IActionResult> GetByProductId(int id)

@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -25,7 +27,7 @@ namespace EligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the setting data.</returns>
         /// <response code="200">Returns the setting data successfully.</response>
         /// 
-        [RequireRole("View Maker Checker Config")]
+        [Authorize(Policy = Permissions.MakerCheckerConfig.View)]
 
         [HttpGet("getbyid")]
         public IActionResult Get(int id)
@@ -42,7 +44,7 @@ namespace EligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the settings for the entity.</returns>
         /// <response code="200">Returns the entity settings successfully.</response>
         /// 
-        [RequireRole("View Maker Checker Config")]
+        [Authorize(Policy = Permissions.MakerCheckerConfig.View)]
 
         [HttpGet("getbyentityid")]
         public async Task<IActionResult> GetbyEntityId()
@@ -61,7 +63,7 @@ namespace EligibilityPlatform.Controllers
         /// <response code="200">Returns when the settings are updated successfully.</response>
         /// <response code="400">Returned when the model state is invalid or validation fails.</response>
         /// 
-        [RequireRole("Edit Maker-Checker")]
+        [Authorize(Policy = Permissions.MakerCheckerConfig.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(SettingModel setting)

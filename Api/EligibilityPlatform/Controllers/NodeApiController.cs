@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="NodeApiListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.NodeApi.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -33,7 +35,7 @@ namespace EligibilityPlatform.Controllers
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
-        [RequireRole("Edit API")]
+        [Authorize(Policy = Permissions.NodeApi.Edit)]
 
         [HttpPut("updatestatus")]
         public async Task<IActionResult> UpdateStatusAsync(int Apiid, bool Isactive)
@@ -49,7 +51,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the node API record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="NodeApiListModel"/> if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.NodeApi.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -75,7 +77,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="nodeApi">The <see cref="NodeApiCreateOrUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new API")]
+        [Authorize(Policy = Permissions.NodeApi.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(NodeApiCreateOrUpdateModel nodeApi)
@@ -101,8 +103,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="nodeApi">The <see cref="NodeApiCreateOrUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit API")]
-
+        [Authorize(Policy = Permissions.NodeApi.Edit)]
         [HttpPut]
         public async Task<IActionResult> Put(NodeApiCreateOrUpdateModel nodeApi)
         {
@@ -127,7 +128,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the node API record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete API")]
+        [Authorize(Policy = Permissions.NodeApi.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -144,7 +145,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the node API records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete API")]
+        [Authorize(Policy = Permissions.NodeApi.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
@@ -168,7 +169,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="nodeid">The node ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the binary XML data if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.NodeApi.View)]
 
         [HttpGet("getbinaryxmlbyid")]
         public IActionResult GetBinaryXmlbyId(int id, int nodeid)

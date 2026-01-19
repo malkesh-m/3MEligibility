@@ -1,5 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -37,7 +39,10 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves an API response by its unique identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the API response.</param>
-        /// <returns>An <see cref="IActionResult"/> containing the API response if found; otherwise, not found.</returns>
+        /// <returns>An <see cref="IActionResult"/>
+        /// containing the API response if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.ApiResponses.View)]
+
         [HttpGet("id")]
         public IActionResult Getbyid(int id)
         {
@@ -68,6 +73,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="model">The <see cref="ApiResponsesCreateUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ApiResponses.Create)]
+
         [HttpPost]
         public async Task<IActionResult> Post(ApiResponsesCreateUpdateModel model)
         {
@@ -98,6 +105,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="model">The <see cref="ApiResponsesCreateUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ApiResponses.Edit)]
+
         [HttpPut]
         public async Task<IActionResult> Update(ApiResponsesCreateUpdateModel model)
         {
@@ -128,6 +137,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the API response to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ApiResponses.Delete)]
+
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {

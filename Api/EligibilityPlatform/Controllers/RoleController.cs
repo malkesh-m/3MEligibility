@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of roles.</returns>
         /// 
-        [RequireRole("View Roles Screen")]
+        [Authorize(Policy = Permissions.Role.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -40,7 +42,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the role.</param>
         /// <returns>An <see cref="IActionResult"/> containing the role if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Roles Screen")]
+        [Authorize(Policy = Permissions.Role.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -66,8 +68,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="roleModel">The role model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Role")]
-
+        [Authorize(Policy = Permissions.Role.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(RoleCreateUpdateModel roleModel)
         {
@@ -93,7 +94,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="roleModel">The role model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Role")]
+        [Authorize(Policy = Permissions.Role.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(RoleCreateUpdateModel roleModel)
@@ -118,8 +119,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the role to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Role")]
-
+        [Authorize(Policy = Permissions.Role.Delete)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {

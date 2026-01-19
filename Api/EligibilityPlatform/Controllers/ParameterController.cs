@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -25,7 +26,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ParameterListModel"/> objects.</returns>
         /// 
-
+        [Authorize(Policy = Permissions.Parameter.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -56,7 +57,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the parameter record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="ParameterListModel"/> if found; otherwise, not found.</returns>
-        [RequireRole("View Parameters Screen")]
+        [Authorize(Policy = Permissions.Parameter.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -82,7 +83,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameter">The parameter model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Parameter")]
+        [Authorize(Policy = Permissions.Parameter.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ParameterAddUpdateModel parameter)
@@ -110,7 +111,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameter">The parameter model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Parameter")]
+        [Authorize(Policy = Permissions.Parameter.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(ParameterAddUpdateModel parameter)
@@ -159,7 +160,7 @@ namespace EligibilityPlatform.Controllers
         //    }
         //}
 
-        [RequireRole("Delete Parameter")]
+        [Authorize(Policy = Permissions.Parameter.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -175,7 +176,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedParameterIds">The list of selected parameter IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export Parameters")]
+        [Authorize(Policy = Permissions.Parameter.Export)]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportParameter(int Identifier, [FromBody] List<int> selectedParameterIds)
@@ -193,7 +194,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Parameters")]
+        [Authorize(Policy = Permissions.Parameter.Import)]
 
         [HttpPost("importcustomer")]
         public async Task<IActionResult> ImportParameterCustomer(IFormFile file, string createdBy)
@@ -222,7 +223,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Parameters")]
+        [Authorize(Policy = Permissions.Parameter.Import)]
 
         [HttpPost("importproduct")]
         public async Task<IActionResult> ImportParameterProduct(IFormFile file)
@@ -251,7 +252,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the parameter records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Parameter")]
+        [Authorize(Policy = Permissions.Parameter.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
@@ -274,7 +275,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="productId">The product ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the parameters if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Parameters Screen")]
+        [Authorize(Policy = Permissions.Parameter.View)]
         [HttpGet("getparametersbyproductid")]
         public IActionResult GetParametrsByProductId(int productId)
         {
@@ -310,7 +311,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameterValue">The parameter value to check.</param>
         /// <returns>An <see cref="IActionResult"/> containing the computed value if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("CheckParameterComputedValue")]
+        [Authorize(Policy = Permissions.Parameter.CheckComputedValue)]
 
         [HttpGet("check-parameter-computed-value/{parameterId}/{parameterValue}")]
         public async Task<IActionResult> CheckParameterComputedValue(int parameterId, string parameterValue)

@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -28,8 +30,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of API details.</returns>
         ///  [HttpPost("TestApi")]
-        [RequireRole("View Integration screen")]
-
+        [Authorize(Policy = Permissions.ApiDetails.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -49,6 +50,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the API detail.</param>
         /// <returns>An <see cref="IActionResult"/> containing the API detail if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.ApiDetails.View)]
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -82,7 +85,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="apiDetail">The API detail model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new API Details")]
+        [Authorize(Policy = Permissions.ApiDetails.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(ApiDetailCreateotUpdateModel apiDetail)
         {
@@ -108,6 +111,8 @@ namespace EligibilityPlatform.Controllers
             /// </summary>
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
+        [Authorize(Policy = Permissions.ApiDetails.View)]
+
         [HttpGet("getallendpoints")]
         public async Task<IActionResult> GetallEndpoints()
         {
@@ -141,7 +146,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="apiDetail">The API detail model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit API Details")]
+        [Authorize(Policy = Permissions.ApiDetails.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(ApiDetailCreateotUpdateModel apiDetail)
@@ -174,7 +179,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the API detail to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete API Details")]
+        [Authorize(Policy = Permissions.ApiDetails.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -196,7 +201,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the API details to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete API Details")]
+        [Authorize(Policy = Permissions.ApiDetails.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)

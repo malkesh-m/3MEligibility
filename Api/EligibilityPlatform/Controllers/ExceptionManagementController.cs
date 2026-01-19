@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the exception management records.</returns>
         /// 
-        [RequireRole("View Exception Screen")]
+        [Authorize(Policy = Permissions.Exception.View)]
 
         [HttpGet("getall")]
         public IActionResult GetAll()
@@ -40,7 +42,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the exception management record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the record if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Exception Screen")]
+        [Authorize(Policy = Permissions.Exception.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -65,7 +67,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="managementModel">The exception management model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Exception")]
+        [Authorize(Policy = Permissions.Exception.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ExceptionManagementCreateOrUpdateModel managementModel)
@@ -90,7 +92,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="managementModel">The exception management model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Exception")]
+        [Authorize(Policy = Permissions.Exception.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(ExceptionManagementCreateOrUpdateModel managementModel)
@@ -115,7 +117,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the exception management record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Exception")]
+        [Authorize(Policy = Permissions.Exception.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete([FromQuery] int id)

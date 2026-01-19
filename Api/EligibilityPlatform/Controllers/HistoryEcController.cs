@@ -1,5 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -24,6 +26,7 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all history EC records.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="HistoryEcModel"/> objects.</returns>
+        [Authorize(Policy = Permissions.HistoryEc.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -38,6 +41,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the history EC record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="HistoryEcModel"/> if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.HistoryEc.View)]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -61,6 +65,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="history">The <see cref="HistoryEcModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.HistoryEc.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(HistoryEcModel history)
         {
@@ -81,6 +86,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="history">The <see cref="HistoryEcModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.HistoryEc.Edit)]
         [HttpPut]
         public async Task<IActionResult> Put(HistoryEcModel history)
         {
@@ -101,6 +107,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the history EC record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.HistoryEc.Delete)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -115,6 +122,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="ids">The list of unique identifiers of the history EC records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.HistoryEc.Delete)]
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
         {

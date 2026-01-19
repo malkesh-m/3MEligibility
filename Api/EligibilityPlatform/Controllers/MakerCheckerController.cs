@@ -1,4 +1,5 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Enums;
 using EligibilityPlatform.Domain.Models;
@@ -26,8 +27,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing all maker checker records.</returns>
         /// 
-        [RequireRole("View Checker Screen")]
-
+        [Authorize(Policy = Permissions.MakerChecker.View)]
         [HttpGet("getall")]
         public IActionResult GetAll()
         {
@@ -43,7 +43,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the maker checker record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the record if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Checker Screen")]
+        [Authorize(Policy = Permissions.MakerChecker.View)]
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
@@ -68,6 +68,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="model">The maker checker model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.MakerChecker.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(MakerCheckerAddUpdateModel model)
         {
@@ -95,7 +96,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The maker checker model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Maker-Checker")]
+        [Authorize(Policy = Permissions.MakerChecker.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(MakerCheckerModel model)
@@ -118,6 +119,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the maker checker record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.MakerChecker.Delete)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -135,8 +137,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="Comment">An optional comment for the status update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Maker-Checker")]
-
+        [Authorize(Policy = Permissions.MakerChecker.Edit)]
         [HttpPut("statusupdate")]
         public async Task<IActionResult> StatusUpdate(int id, string statusName, string? Comment)
         {
@@ -168,6 +169,7 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all maker checker statuses.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing all maker checker statuses.</returns>
+        [Authorize(Policy = Permissions.MakerChecker.View)]
         [HttpGet("getmakercheckerstatuses")]
         public IActionResult GetMakerCheckerStatuses()
         {

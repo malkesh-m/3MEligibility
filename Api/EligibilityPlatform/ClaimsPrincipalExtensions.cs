@@ -53,7 +53,7 @@ namespace EligibilityPlatform
         /// <exception cref="Exception">Thrown when the UserId claim is not found.</exception>
         public static int GetUserId(this ClaimsPrincipal user)
         {
-            var userIdClaim = user?.FindFirst("UserId");
+            var userIdClaim = user?.FindFirst("user_id");
             return userIdClaim != null
                 ? int.Parse(userIdClaim.Value)
                 : throw new Exception("UserId claim not found.");

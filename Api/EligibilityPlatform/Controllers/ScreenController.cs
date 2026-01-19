@@ -1,5 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -21,6 +23,7 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all screens.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of screens.</returns>
+        [Authorize(Policy = Permissions.Screen.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -35,6 +38,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the screen.</param>
         /// <returns>An <see cref="IActionResult"/> containing the screen if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.Screen.View)]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -58,6 +62,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="screenModel">The screen model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.Screen.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(ScreenModel screenModel)
         {
@@ -78,6 +83,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="screenModel">The screen model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.Screen.Edit)]
         [HttpPut]
         public async Task<IActionResult> Put(ScreenModel screenModel)
         {
@@ -98,6 +104,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the screen to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.Screen.Delete)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -112,6 +119,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="ids">The list of unique identifiers of the screens to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.Screen.Delete)]
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
         {

@@ -16,5 +16,5 @@ public partial class UserGroup
 
     public virtual SecurityGroup Group { get; set; } = null!;
 
-    public virtual User User { get; set; } = null!;
+    //public virtual User User { get; set; } = null!;
 }

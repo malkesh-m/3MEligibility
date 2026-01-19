@@ -1,5 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -25,6 +27,7 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all product parameters for the current entity.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of product parameters.</returns>
+        [Authorize(Policy = Permissions.Product.View)]
         [HttpGet("getall")]
         public async Task<IActionResult> Get()
         {
@@ -37,6 +40,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="product">The product parameter model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ProductParam.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(ProductParamAddUpdateModel product)
         {
@@ -66,6 +70,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="productId">The product ID.</param>
         /// <param name="parameterId">The parameter ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the product parameter if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.ProductParam.Create)]
         [HttpGet("getbyid")]
         public IActionResult Get(int productId, int parameterId)
         {
@@ -89,6 +94,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="productId">The product ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the product parameter if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.ProductParam.View)]
         [HttpGet("getbyproductid")]
         public IActionResult Get(int productId)
         {
@@ -112,6 +118,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="product">The product parameter model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ProductParam.Edit)]
         [HttpPut]
         public async Task<IActionResult> Put(ProductParamAddUpdateModel product)
         {
@@ -141,6 +148,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="productId">The product ID.</param>
         /// <param name="parameterId">The parameter ID.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ProductParam.Delete)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int productId, int parameterId)
         {
@@ -156,6 +164,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="productIds">The list of product IDs.</param>
         /// <param name="parameterIds">The list of parameter IDs.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ProductParam.Delete)]
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete([FromQuery] List<int> productIds, [FromQuery] List<int> parameterIds)
         {
@@ -172,6 +181,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="selectedProductIds">The list of selected product IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
+        [Authorize(Policy = Permissions.ProductParam.Export)]
         [HttpPost("export")]
         public async Task<IActionResult> ExportDetails([FromBody] List<int> selectedProductIds)
         {
@@ -200,6 +210,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="file">The file to import.</param>
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
+        [Authorize(Policy = Permissions.ProductParam.Import)]
         [HttpPost("import")]
         public async Task<IActionResult> ImportDetails(IFormFile file, string createdBy)
         {

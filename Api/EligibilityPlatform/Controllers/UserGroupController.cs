@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of user groups.</returns>
         /// 
-        [RequireRole("View Groups Screen")]
+        [Authorize(Policy = Permissions.UserGroup.View)]
 
         [HttpGet(Name = "getall")]
         public IActionResult GetAll()
@@ -39,7 +41,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the user group.</param>
         /// <returns>An <see cref="IActionResult"/> containing the user group if found; otherwise, not found.</returns>
-        [RequireRole("View Groups Screen")]
+        [Authorize(Policy = Permissions.UserGroup.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -65,7 +67,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="userGroupModel">The user group model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("add group user")]
+        [Authorize(Policy = Permissions.UserGroup.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(UserGroupCreateUpdateModel userGroupModel)
@@ -92,7 +94,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the user group to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("delete groupuser")]
+        [Authorize(Policy = Permissions.UserGroup.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -110,7 +112,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="groupId">The group ID.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("delete groupuser")]
+        [Authorize(Policy = Permissions.UserGroup.Delete)]
 
         [HttpDelete("deletebyuseridandgroupid")]
         public async Task<IActionResult> Delete(int userId, int groupId)

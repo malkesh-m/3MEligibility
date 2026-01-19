@@ -37,7 +37,7 @@ public partial class User
 
     public virtual UserStatus? Status { get; set; }
 
-    public virtual ICollection<UserGroup> UserGroups { get; set; } = [];
+    //public virtual ICollection<UserGroup> UserGroups { get; set; } = [];
 
     public virtual ICollection<SecurityGroup> Groups { get; set; } = [];
 

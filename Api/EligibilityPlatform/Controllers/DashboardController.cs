@@ -1,9 +1,11 @@
-﻿using EligibilityPlatform.Application.Attributes;
+﻿using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using EligibilityPlatform.Application.Attributes;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EligibilityPlatform.Controllers
 {
@@ -31,7 +33,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="year">The year to filter the summary (optional).</param>
         /// <returns>An <see cref="IActionResult"/> containing the monthly summary.</returns>
         /// 
-
+        [Authorize(Policy =Permissions.Dashboard.View)]
         [HttpGet("monthly-summary")]
         public async Task<IActionResult> GetMonthlySummary(int? year = null)
         {
@@ -52,6 +54,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the failure reason breakdown.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("failure-reasons")]
         public async Task<IActionResult> GetFailureReasonBreakdown()
@@ -77,6 +80,9 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="filter">The evaluation history filter.</param>
         /// <returns>An <see cref="IActionResult"/> containing the evaluation history.</returns>
+        /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
+
         [HttpPost("evaluation-history")]
         public async Task<IActionResult> GetEvaluationHistory([FromBody] EvaluationHistoryFilter filter)
         {
@@ -95,6 +101,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the processing time distribution.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("processing-time-distribution")]
         public async Task<IActionResult> GetProcessingTimeDistribution()
@@ -118,6 +125,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the number of customers evaluated.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("customers-evaluated")]
         public async Task<IActionResult> GetCustomersEvaluated()
@@ -131,6 +139,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the approval rate.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("approval-rate")]
         public async Task<IActionResult> GetApprovalRate()
@@ -144,6 +153,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the rejection rate.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("rejection-rate")]
         public async Task<IActionResult> GetRejectionRate()
@@ -157,6 +167,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the top failure reason.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("top-failure-reason")]
         public async Task<IActionResult> GetTopFailureReason()
@@ -170,6 +181,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the average approved score.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("avg-approved-score")]
         public async Task<IActionResult> GetAvgApprovedScore()
@@ -183,6 +195,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the average processing time.</returns>
         /// 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("avg-processing-time")]
         public async Task<IActionResult> GetAvgProcessingTime()
@@ -191,6 +204,7 @@ namespace EligibilityPlatform.Controllers
             /// </summary>
             => Ok(await _dashboardService.GetAverageProcessingTimeAsync());
 
+        [Authorize(Policy = Permissions.Dashboard.View)]
 
         [HttpGet("apievaluationhistory")]
         public async Task<IActionResult> ApiEvaluationHistory(int EvaluationHistoryId)

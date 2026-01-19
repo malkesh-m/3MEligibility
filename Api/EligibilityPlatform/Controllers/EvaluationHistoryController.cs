@@ -1,6 +1,8 @@
-﻿using EligibilityPlatform.Application.Services;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +25,8 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all evaluation history records for the current entity.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of evaluation history records.</returns>
+        [Authorize(Policy = Permissions.EvaluationHistory.View)]
+
         [HttpGet("getall")]
         public async Task<IActionResult> GetAll()
         {
@@ -37,6 +41,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the evaluation history record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the record if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.EvaluationHistory.View)]
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -59,6 +65,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="model">The evaluation history model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.EvaluationHistory.Create)]
+
         [HttpPost]
         public async Task<IActionResult> Add(EvaluationHistoryModel model)
         {
@@ -75,6 +83,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="model">The evaluation history model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.EvaluationHistory.Edit)]
+
         [HttpPut]
         public async Task<IActionResult> Update(EvaluationHistoryModel model)
         {
@@ -89,6 +99,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the evaluation history record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.EvaluationHistory.Delete)]
+
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {

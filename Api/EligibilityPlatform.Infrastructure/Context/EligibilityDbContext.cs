@@ -1031,10 +1031,10 @@ public partial class EligibilityDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UserGroup__Group__40058253");
 
-            entity.HasOne(d => d.User).WithMany(p => p.UserGroups)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserGroup__UserI__40F9A68C");
+            //entity.HasOne(d => d.User).WithMany(p => p.UserGroups)
+            //    .HasForeignKey(d => d.UserId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__UserGroup__UserI__40F9A68C");
         });
 
         modelBuilder.Entity<UserStatus>(entity =>

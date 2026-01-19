@@ -1,9 +1,11 @@
 ﻿using Azure.Identity;
 using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Entities;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -28,7 +30,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="EruleListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Rules Screen")]
+        [Authorize(Policy = Permissions.Rule.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -45,7 +47,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the erule.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="EruleListModel"/> if found; otherwise, not found.</returns>
-        [RequireRole("View Rules Screen")]
+        [Authorize(Policy = Permissions.Rule.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -76,7 +78,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="EruleCreateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Rule")]
+        [Authorize(Policy = Permissions.Rule.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(EruleCreateModel model)
@@ -109,7 +111,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="EruleMasterCreateUpodateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Rule")]
+        [Authorize(Policy = Permissions.Rule.Create)]
 
         [HttpPost("adderulemaster")]
         public async Task<IActionResult> AddEruleMaster(EruleMasterCreateUpodateModel model)
@@ -143,7 +145,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="erule">The <see cref="EruleUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Rule")]
+        [Authorize(Policy = Permissions.Rule.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(EruleUpdateModel erule)
@@ -175,7 +177,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="erule">The <see cref="EruleMasterCreateUpodateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Rule")]
+        [Authorize(Policy = Permissions.Rule.Edit)]
 
         [HttpPut("editerulemaster")]
         public async Task<IActionResult> EditEruleMaster(EruleMasterCreateUpodateModel erule)
@@ -204,7 +206,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="EruleMasterId">The erule master ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the erule records.</returns>
         /// 
-        [RequireRole("View Rules Screen")]
+        [Authorize(Policy = Permissions.Rule.View)]
 
         [HttpGet("getbyerulemasterid")]
         public async Task<IActionResult> GetByEruleMasterId(int EruleMasterId)
@@ -220,6 +222,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="draftEruleId">The draft erule ID.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        
         [HttpPut("publish-draft")]
         public async Task<IActionResult> UpdateDraft(int draftEruleId)
         {
@@ -241,7 +244,9 @@ namespace EligibilityPlatform.Controllers
         /// <param name="isActive">The new status value.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Rule")]
+        [Authorize(Policy = Permissions.Rule.Edit)]
+
+        [RequirePermission("Edit Rule")]
 
         [HttpPut("updatestatus")]
         public async Task<IActionResult> UpdateStatus(int eruleId, bool isActive)
@@ -263,7 +268,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the erule to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Rule")]
+        [Authorize(Policy = Permissions.Rule.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -291,7 +296,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the erules to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Rule")]
+        [Authorize(Policy = Permissions.Rule.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
@@ -327,7 +332,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Rule")]
+        [Authorize(Policy = Permissions.Rule.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportErule(IFormFile file, string createdBy)
@@ -353,7 +358,7 @@ namespace EligibilityPlatform.Controllers
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = ex.Message });
             }
         }
-        [RequireRole("Import Rule")]
+        [Authorize(Policy = Permissions.Rule.Import)]
 
         [HttpPost("importerulemaster")]
         public async Task<IActionResult> ImportEruleMaster(IFormFile file)
@@ -411,7 +416,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedEruleIds">The list of selected erule IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export Rule")]
+        [Authorize(Policy = Permissions.Rule.Export)]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportERule([FromBody] List<int> selectedEruleIds)
@@ -423,7 +428,7 @@ namespace EligibilityPlatform.Controllers
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "rules.xlsx");
         }
 
-        [RequireRole("Delete Rule")]
+        [Authorize(Policy = Permissions.Rule.Delete)]
 
         [HttpDelete("deleteerulemaster")]
         public async Task<IActionResult> DeleteRule(int id)
@@ -437,7 +442,7 @@ namespace EligibilityPlatform.Controllers
             });
         }
 
-        [RequireRole("Delete Rule")]
+        [Authorize(Policy = Permissions.Rule.Delete)]
 
         [HttpDelete("multipledeleteerulemaster")]
         public async Task<IActionResult> DeleteMultipleMaster([FromBody] List<int> ids)

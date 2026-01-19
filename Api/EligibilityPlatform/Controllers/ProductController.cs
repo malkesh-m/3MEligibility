@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ProductListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Products Screen")]
+        [Authorize(Policy = Permissions.Product.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -41,7 +43,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ProductIdAndNameModel"/> objects.</returns>
         /// 
-        [RequireRole("View Products Screen")]
+        [Authorize(Policy = Permissions.Product.View)]
+
 
         [HttpGet("getallidandhname")]
         public IActionResult GetAllIdAndName()
@@ -57,8 +60,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ProductEligibleModel"/> objects.</returns>
         /// 
-        [RequireRole("View Products Screen")]
-
+        [Authorize(Policy = Permissions.Product.View)]
         [HttpGet("getallname")]
         public IActionResult GetAllName()
         {
@@ -74,7 +76,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The category ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the products if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Products Screen")]
+        [Authorize(Policy = Permissions.Product.View)]
 
         [HttpGet("getproductsbycategory/{id}")]
         public IActionResult GetProductsByCategory(int id)
@@ -100,7 +102,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the product record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="ProductListModel"/> if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Products Screen")]
+        [Authorize(Policy = Permissions.Product.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -126,7 +128,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="product">The product model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Info")]
+        [Authorize(Policy = Permissions.Product.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ProductAddUpdateModel product)
@@ -156,7 +158,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="product">The product model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Info")]
+        [Authorize(Policy = Permissions.Product.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(ProductAddUpdateModel product)
@@ -185,7 +187,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the product record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Info")]
+        [Authorize(Policy = Permissions.Product.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -202,8 +204,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedProductIds">The list of selected product IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export Info")]
-
+        [Authorize(Policy = Permissions.Product.Export)]
         [HttpPost("export")]
         public async Task<IActionResult> ExportInfo([FromBody] List<int> selectedProductIds)
         {
@@ -220,7 +221,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Info")]
+        [Authorize(Policy = Permissions.Product.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportInfo(IFormFile file)
@@ -251,7 +252,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the product records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Info")]
+        [Authorize(Policy = Permissions.Product.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)

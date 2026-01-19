@@ -1,5 +1,7 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -24,7 +26,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="keyValues">The key values for validation.</param>
         /// <returns>An <see cref="IActionResult"/> containing the validation result.</returns>
         /// 
-        [RequireRole("Validate Rule")]
+        [Authorize(Policy = Permissions.Validator.Rule)]
 
         [HttpPost("validateerule")]
         public IActionResult ValidateRule(int ruleId, Dictionary<int, object> keyValues)
@@ -42,7 +44,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="keyValues">The key values for validation.</param>
         /// <returns>An <see cref="IActionResult"/> containing the validation result.</returns>
         /// 
-        [RequireRole("Validate Rule")]
+        [Authorize(Policy = Permissions.Validator.Rule)]
 
         [HttpPost("validateformerule")]
         public IActionResult ValidateFormErule(string expreesion, Dictionary<int, object> keyValues)
@@ -60,7 +62,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="keyValues">The key values for validation.</param>
         /// <returns>An <see cref="IActionResult"/> containing the validation result.</returns>
         /// 
-        [RequireRole("Validate Card")]
+        [Authorize(Policy = Permissions.Validator.ECard)]
 
         [HttpPost("validateecard")]
         public async Task<IActionResult> ValidateECard(int eCardId, Dictionary<int, object> keyValues)
@@ -78,7 +80,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="keyValues">The key values for validation.</param>
         /// <returns>An <see cref="IActionResult"/> containing the validation result.</returns>
         /// 
-        [RequireRole("Validate Card")]
+        [Authorize(Policy = Permissions.Validator.ECard)]
 
         [HttpPost("validateformecard")]
         public IActionResult ValidateFormECard(string expreesion, Dictionary<int, object> keyValues)
@@ -96,7 +98,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="keyValues">The key values for validation.</param>
         /// <returns>An <see cref="IActionResult"/> containing the validation result.</returns>
         /// 
-        [RequireRole("Validate Product Card")]
+        [Authorize(Policy = Permissions.Validator.PCard)]
 
         [HttpPost("validatepcard")]
         public async Task<IActionResult> ValidatePCards(int pCardId, Dictionary<int, object> keyValues)
@@ -114,7 +116,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="keyValues">The key values for validation.</param>
         /// <returns>An <see cref="IActionResult"/> containing the validation result.</returns>
         /// 
-        [RequireRole("Validate Product Card")]
+        [Authorize(Policy = Permissions.Validator.PCard)]
 
         [HttpPost("validateformpcard")]
         public async Task<IActionResult> ValidateFormPCard(string expreesion, Dictionary<int, object> keyValues)

@@ -1,5 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -21,6 +23,7 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all user statuses.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of user statuses.</returns>
+        [Authorize(Policy = Permissions.UserStatus.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -35,6 +38,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the user status.</param>
         /// <returns>An <see cref="IActionResult"/> containing the user status if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.UserStatus.View)]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -58,6 +62,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="userStatusModel">The user status model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.UserStatus.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(UserStatusAddModel userStatusModel)
         {
@@ -78,6 +83,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="userStatusModel">The user status model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.UserStatus.Edit)]
         [HttpPut]
         public async Task<IActionResult> Put(UserStatusAddModel userStatusModel)
         {
@@ -98,6 +104,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the user status to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.UserStatus.Delete)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -112,6 +119,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="ids">The list of unique identifiers of the user statuses to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.UserStatus.Delete)]
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
         {

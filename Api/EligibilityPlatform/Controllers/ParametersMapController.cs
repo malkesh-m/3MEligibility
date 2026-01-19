@@ -1,5 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -21,6 +23,7 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all parameter mappings.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the list of parameter mappings.</returns>
+        [Authorize(Policy = Permissions.ParametersMap.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -37,6 +40,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="nodeId">The node ID.</param>
         /// <param name="parameterId">The parameter ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the parameter mapping if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.ParametersMap.View)]
         [HttpGet("getbyid")]
         public IActionResult Get(int apiId, int nodeId, int parameterId)
         {
@@ -60,6 +64,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="paramtersMap">The parameter mapping model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ParametersMap.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(ParamtersMapModel paramtersMap)
         {
@@ -80,6 +85,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="paramtersMap">The parameter mapping model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ParametersMap.Edit)]
         [HttpPut]
         public async Task<IActionResult> Put(ParamtersMapModel paramtersMap)
         {
@@ -102,6 +108,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="nodeId">The node ID.</param>
         /// <param name="parameterId">The parameter ID.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.ParametersMap.Delete)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int apiId, int nodeId, int parameterId)
         {

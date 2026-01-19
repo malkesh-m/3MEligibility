@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -26,8 +28,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="GroupRoleModel"/> objects.</returns>
         /// 
-        [RequireRole("View Roles Screen")]
-
+        [Authorize(Policy = Permissions.GroupRole.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -43,8 +44,8 @@ namespace EligibilityPlatform.Controllers
         /// <param name="groupRoleModel">The <see cref="GroupRoleModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        //[RequireRole("Add Group Role")]
-
+        //[RequirePermission("Add Group Role")]
+        [Authorize(Policy = Permissions.GroupRole.Create)]
         [HttpPost]
         public async Task<IActionResult> Post(GroupRoleModel groupRoleModel)
         {
@@ -66,7 +67,8 @@ namespace EligibilityPlatform.Controllers
         /// <param name="groupRoleModel">The <see cref="GroupRoleModel"/> to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Group Role")]
+        [Authorize(Policy = Permissions.GroupRole.Delete)]
+        [RequirePermission("Delete Group Role")]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(GroupRoleModel groupRoleModel)
@@ -89,7 +91,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="groupId">The group ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the assigned roles if found; otherwise, not found.</returns>
         /// 
-
+        [Authorize(Policy = Permissions.GroupRole.View)]
         [HttpGet("getassignedrolesbygroupid")]
         public async Task<IActionResult> GetAssignedRolesByGroupId(int groupId)
         {
@@ -113,6 +115,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="groupId">The group ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the unassigned roles if found; otherwise, not found.</returns>
+        [Authorize(Policy = Permissions.GroupRole.View)]
         [HttpGet("getunassignedrolesbygroupid")]
         public async Task<IActionResult> GetUnAssignedRolesByGroupId(int groupId)
         {

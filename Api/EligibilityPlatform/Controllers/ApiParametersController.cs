@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -26,7 +28,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing all API parameters.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.ApiParameters.View)]
 
         [HttpGet]
         public IActionResult Getall()
@@ -43,7 +45,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the API parameter.</param>
         /// <returns>An <see cref="IActionResult"/> containing the API parameter if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.ApiParameters.View)]
 
         [HttpGet("id")]
         public IActionResult Getbyid(int id)
@@ -76,7 +78,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="ApiParametersCreateUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Api Parameters")]
+        [Authorize(Policy = Permissions.ApiParameters.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ApiParametersCreateUpdateModel model)
@@ -98,7 +100,7 @@ namespace EligibilityPlatform.Controllers
                 }
             });
         }
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.ApiParameterMaps.View)]
 
         [HttpGet("getById")]
         public async Task<IActionResult> GetByApiId(int id)
@@ -131,7 +133,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="ApiParametersCreateUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Api Parameters")]
+        [Authorize(Policy = Permissions.ApiParameters.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Update(ApiParametersCreateUpdateModel model)
@@ -164,7 +166,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the API parameter to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Api Parameters")]
+        [Authorize(Policy = Permissions.ApiParameters.Delete)]
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -180,7 +182,7 @@ namespace EligibilityPlatform.Controllers
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
 
-        [RequireRole("Delete Api Parameters")]
+        [Authorize(Policy = Permissions.ApiParameters.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple(List<int> ids)

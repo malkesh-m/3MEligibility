@@ -54,7 +54,7 @@
 //        /// </summary>
 //        /// <param name="id">The unique identifier of the entity.</param>
 //        /// <returns>An <see cref="IActionResult"/> containing the <see cref="EntityModel"/> if found; otherwise, not found.</returns>
-//        [RequireRole("View Entities Screen")]
+//        [RequirePermission("View Entities Screen")]
 
 //        [HttpGet("{id}")]
 //        public IActionResult Get(int id)
@@ -85,7 +85,7 @@
 //        /// <param name="model">The <see cref="CreateOrUpdateEntityModel"/> to add.</param>
 //        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
 //        /// 
-//        [RequireRole("Add new Entity")]
+//        [RequirePermission("Add new Entity")]
 //        //[AllowAnonymous]
 //        [HttpPost]
 //        public async Task<IActionResult> Post(CreateOrUpdateEntityModel model)
@@ -114,7 +114,7 @@
 //        /// <param name="model">The <see cref="CreateOrUpdateEntityModel"/> to update.</param>
 //        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
 //        /// 
-//        [RequireRole("Edit Entity")]
+//        [RequirePermission("Edit Entity")]
 
 //        [HttpPut]
 //        public async Task<IActionResult> Put(CreateOrUpdateEntityModel model)
@@ -142,7 +142,7 @@
 //        /// <param name="id">The unique identifier of the entity to delete.</param>
 //        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
 //        /// 
-//        [RequireRole("Delete Entity")]
+//        [RequirePermission("Delete Entity")]
 
 //        [HttpDelete]
 //        public async Task<IActionResult> Delete(int id)
@@ -161,7 +161,7 @@
 //        /// <param name="createdBy">The creator of the import.</param>
 //        /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
 //        /// 
-//        [RequireRole("Import Entity")]
+//        [RequirePermission("Import Entity")]
 
 //        [HttpPost("import")]
 //        public async Task<IActionResult> ImportEntities(IFormFile file)
@@ -196,7 +196,7 @@
 //        /// <param name="selectedEntityIds">The list of selected entity IDs to export.</param>
 //        /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
 //        /// 
-//        [RequireRole("Export Entity")]
+//        [RequirePermission("Export Entity")]
 
 //        [HttpPost("export")]
 //        public async Task<IActionResult> ExportEntities([FromBody] List<int> selectedEntityIds)
@@ -228,7 +228,7 @@
 //        /// <param name="ids">The list of unique identifiers of the entities to delete.</param>
 //        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
 //        /// 
-//        [RequireRole("Delete Entity")]
+//        [RequirePermission("Delete Entity")]
 
 //        [HttpDelete("multipledelete")]
 //        public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)

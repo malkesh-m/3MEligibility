@@ -1,5 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -25,6 +27,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="AppSetting">The <see cref="AppSettingModel"/> containing updated settings. Always pass 1 for AppSettingId.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the update operation.</returns>
+        [Authorize(Policy = Permissions.AppSetting.Edit)]
+
         [HttpPut]
         public async Task<IActionResult> Put(AppSettingModel AppSetting)
         {

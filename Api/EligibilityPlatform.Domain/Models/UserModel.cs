@@ -45,25 +45,44 @@ namespace EligibilityPlatform.Domain.Models
         public bool? Issuspended { get; set; }
 
     }
-
+    public class ApiResponse<T>
+    {
+        public T Data { get; set; } = default!;
+        public List<string> Messages { get; set; } = [];
+        public bool Succeeded { get; set; }
+    }
     public class UserGetModel
     {
-        public int UserId { get; set; }
-        public string UserName { get; set; } = "";
-        public string LoginId { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string? Phone { get; set; }
-        public int EntityId { get; set; }
+        public int Id { get; set; }
+        public int TenantId { get; set; }
 
-        public byte[]? UserPicture { get; set; }
-        public bool? Issuspended { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
-        public int? StatusId { get; set; }
-        public string? EntityName { get; set; }
-        public string? StatusName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
-        public List<GroupModel> Groups { get; set; } = [];
-        public DateTime UpdatedByDateTime { get; set; }
+        public string Email { get; set; } = string.Empty;
+
+        public bool IsActive { get; set; }
+
+        public string PhotoURL { get; set; } = string.Empty;
+
+        public string? MobileNo { get; set; }
+
+        public int CountryId { get; set; }
+
+        public int StateId { get; set; }
+
+        public int? CityId { get; set; }
+
+        public int LanguageId { get; set; }
+
+        public int TimeZoneId { get; set; }
+
+        public int GenderId { get; set; }
+
+        public string Culture { get; set; } = string.Empty;
+
+        public string DisplayName { get; set; } = string.Empty;
     }
 
     public class UserAddModel : UserModel

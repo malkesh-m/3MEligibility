@@ -179,9 +179,9 @@ namespace EligibilityPlatform
             CreateMap<ProductParam, ProductParamAddUpdateModel>().ReverseMap();
 
             // Configures custom mapping from User entity to UserGetModel with navigation properties
-            CreateMap<User, UserGetModel>()
-                //.ForMember(dest => dest.EntityName, opt => opt.MapFrom(src => src.Entity!.EntityName)) // Maps Entity navigation property to EntityName
-                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status!.StatusName)); // Maps Status navigation property to StatusName
+            CreateMap<User, UserGetModel>().ReverseMap();
+            //.ForMember(dest => dest.EntityName, opt => opt.MapFrom(src => src.Entity!.EntityName)) // Maps Entity navigation property to EntityName
+            //.ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status!.StatusName)); // Maps Status navigation property to StatusName
 
             // Configures bidirectional mapping between ExceptionManagement entity and ExceptionManagementListModel
             CreateMap<ExceptionManagement, ExceptionManagementListModel>().ReverseMap();

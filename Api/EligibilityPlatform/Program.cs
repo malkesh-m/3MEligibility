@@ -2,12 +2,14 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using EligibilityPlatform;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Middleware;
 using EligibilityPlatform.Application.Repository;
 using EligibilityPlatform.Application.Services;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Application.UnitOfWork;
 using EligibilityPlatform.Domain.Models;
+using EligibilityPlatform.Infrastructure.Authorization;
 using EligibilityPlatform.Infrastructure.Context;
 using EligibilityPlatform.Infrastructure.Middleware;
 using EligibilityPlatform.Infrastructure.Repository;
@@ -15,6 +17,7 @@ using EligibilityPlatform.Infrastructure.UnitOfWork;
 using EligibilityPlatform.Middleware;
 using EligibilityPlatform.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -105,7 +108,7 @@ builder.Services.AddScoped<IParamtersMapService, ParamtersMapService>();
 builder.Services.AddScoped<IPcardService, PcardService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductParamservice, ProductParamService>();
-//builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISecurityGroupService, SecurityGroupService>();
 builder.Services.AddScoped<IUserGroupService, UserGroupService>();
 builder.Services.AddScoped<IScreenService, ScreenService>();
@@ -142,6 +145,8 @@ builder.Services.AddScoped<IProductCapAmountService, ProductCapAmountService>();
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<INodeApiRepository, NodeApiRepository>();
 builder.Services.AddScoped<ILdapService, LdapService>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 //builder.Services.AddScoped<IDynamicApiService, DynamicApiService>();
 
 // Also register other repositories if needed
@@ -167,6 +172,17 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var permission in Permissions.GetRegisteredPermissions())
+    {
+        options.AddPolicy(permission, policy =>
+        {
+            policy.Requirements.Add(
+                new PermissionRequirement(permission));
+        });
+    }
+});
 
 builder.Services.AddSwaggerGen(swagger =>
 {
@@ -176,7 +192,16 @@ builder.Services.AddSwaggerGen(swagger =>
         Title = "3MEligibility Platform API",
     });
 });
+builder.Services.AddHttpClient("MIdentityAPI", (sp, client) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = config["MIdentityAPI:BaseURL"];
 
+    if (string.IsNullOrEmpty(baseUrl))
+        throw new InvalidOperationException("MIdentityAPI BaseURL is not configured.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -242,7 +267,6 @@ builder.Services.AddRateLimiter(options =>
         {
             return RateLimitPartition.GetNoLimiter(string.Empty); // no rate limit
         }
-        // CRITICAL: Combine IP + UserID for tracking (prevents VPN/proxy bypass)
         var userId = httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var userIdentifier = userId != null
             ? $"user-{userId}"
@@ -266,7 +290,6 @@ builder.Services.AddRateLimiter(options =>
             });
         }
 
-        // 2. PASSWORD RESET ENDPOINTS - Prevent account takeover
         if (path.StartsWithSegments("/api/user/forgotpassword") ||
             path.StartsWithSegments("/api/user/resetpassword") ||
             path.StartsWithSegments("/api/user/requestresetpassword"))
@@ -365,9 +388,9 @@ app.UseHttpsRedirection();
 //app.UsePathBase("/api");
 app.UseCors("AllowAll");
 app.UseAuthentication();
-app.UseMiddleware<UserSyncMiddleware>();
+//app.UseMiddleware<UserSyncMiddleware>();
 
-app.UseMiddleware<RoleBasedAuthorizationMiddleware>();
+//app.UseMiddleware<RoleBasedAuthorizationMiddleware>();
 app.UseAuthorization();
 app.UseRateLimiter();
 

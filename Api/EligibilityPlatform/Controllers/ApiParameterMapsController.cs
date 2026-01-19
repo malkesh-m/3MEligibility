@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -26,7 +28,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing all API parameter maps.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.ApiParameterMaps.View)]
 
         [HttpGet]
         public IActionResult Getall()
@@ -43,7 +45,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the API parameter map.</param>
         /// <returns>An <see cref="IActionResult"/> containing the API parameter map if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.ApiParameterMaps.View)]
 
         [HttpGet("id")]
         public IActionResult Getbyid(int id)
@@ -76,7 +78,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="ApiParameterCreateUpdateMapModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Api ParametersMap")]
+        [Authorize(Policy = Permissions.ApiParameterMaps.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ApiParameterCreateUpdateMapModel model)
@@ -109,8 +111,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The <see cref="ApiParameterCreateUpdateMapModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Api ParametersMap")]
-
+        [Authorize(Policy = Permissions.ApiParameterMaps.Edit)]
         [HttpPut]
         public async Task<IActionResult> Update(ApiParameterCreateUpdateMapModel model)
         {
@@ -135,7 +136,7 @@ namespace EligibilityPlatform.Controllers
             /// </summary>
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.ApiParameterMaps.View)]
 
         [HttpGet("getbyapi/{apiId}")]
         public IActionResult GetByApi(int apiId)
@@ -157,7 +158,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the API parameter map to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Api ParametersMap")]
+        [Authorize(Policy = Permissions.ApiParameterMaps.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)

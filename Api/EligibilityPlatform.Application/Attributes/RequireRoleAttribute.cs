@@ -1,33 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EligibilityPlatform.Application.Services.Inteface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-
+using Microsoft.Extensions.DependencyInjection;
 namespace EligibilityPlatform.Application.Attributes
 {
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class RequireRoleAttribute(string role) : System.Attribute, IAuthorizationFilter
+    public class RequirePermissionAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        private readonly string _role = role;
+        private readonly string _permission;
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public RequirePermissionAttribute(string permission)
         {
-            if (context.HttpContext.Items["Roles"] is not List<string> roles || !roles.Contains(_role, StringComparer.OrdinalIgnoreCase))
+            _permission = permission;
+        }
+
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+        {
+            // Assume user ID is in Claims
+            var userIdClaim = context.HttpContext.User.FindFirst("user_id")?.Value;
+            if (!int.TryParse(userIdClaim, out var userId))
             {
-                context.Result = new JsonResult(new
-                {
-                    message = "You do not have permission to perform this action."
-                })
-                {
-                    StatusCode = StatusCodes.Status403Forbidden
-                };
+                context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = 401 };
+                return;
+            }
+
+            // Resolve service
+            var service = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+            var permissions = await service.GetUserPermissionsAsync(userId);
+
+            if (!permissions.Contains(_permission))
+            {
+                context.Result = new JsonResult(new { message = "You do not have permission to perform this action." })
+                { StatusCode = StatusCodes.Status403Forbidden };
             }
         }
     }
 }
-

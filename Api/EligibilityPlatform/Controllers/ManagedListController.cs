@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of managed list records.</returns>
         /// 
-        [RequireRole("View Lists Screen")]
+        [Authorize(Policy = Permissions.ManagedList.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -40,7 +42,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the managed list record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the record if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Lists Screen")]
+        [Authorize(Policy = Permissions.ManagedList.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -66,7 +68,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="managedList">The managed list model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Lists")]
+        [Authorize(Policy = Permissions.ManagedList.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ManagedListAddUpdateModel managedList)
@@ -95,7 +97,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="managedList">The managed list model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Lists")]
+        [Authorize(Policy = Permissions.ManagedList.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(ManagedListUpdateModel managedList)
@@ -122,7 +124,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the managed list record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Lists")]
+        [Authorize(Policy = Permissions.ManagedList.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -139,7 +141,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the managed list records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Lists")]
+        [Authorize(Policy = Permissions.ManagedList.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
@@ -162,7 +164,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedListIds">The list of selected managed list IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export Lists")]
+        [Authorize(Policy = Permissions.ManagedList.Export)]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportLists([FromBody] List<int> selectedListIds)
@@ -180,7 +182,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Lists")]
+        [Authorize(Policy = Permissions.ManagedList.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportList(IFormFile file)

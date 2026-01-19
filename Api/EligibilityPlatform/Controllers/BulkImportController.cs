@@ -1,4 +1,5 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Entities;
 using EligibilityPlatform.Domain.Models;
@@ -29,7 +30,7 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all import document history records.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ImportDocument"/> objects or not found if none exist.</returns>
-        [RequireRole("View Bulk Import Screen")]
+        [Authorize(Policy = Permissions.BulkImport.View)]
 
         [HttpGet("getAll")]
         public IActionResult Get()
@@ -62,7 +63,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The document ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the file or not found if it does not exist.</returns>
         /// 
-        [RequireRole("Download Bulk Import")]
+        [Authorize(Policy = Permissions.BulkImport.DownloadImportedFile)]
 
         [HttpPost("download")]
         public async Task<IActionResult> GetimportedFile([FromForm] int id)
@@ -117,7 +118,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Bulk Import")]
+        [Authorize(Policy = Permissions.BulkImport.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> BulkImport(IFormFile file)

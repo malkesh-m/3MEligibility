@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="NodeListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.Node.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -40,7 +42,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the node record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="NodeListModel"/> if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Integration screen")]
+        [Authorize(Policy = Permissions.Node.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -66,7 +68,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="node">The node model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Node")]
+        [Authorize(Policy = Permissions.Node.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(NodeCreateUpdateModel node)
@@ -91,7 +93,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="node">The node model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Node")]
+        [Authorize(Policy = Permissions.Node.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(NodeCreateUpdateModel node)
@@ -116,7 +118,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the node record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Node")]
+        [Authorize(Policy = Permissions.Node.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -133,8 +135,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the node records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Node")]
-
+        [Authorize(Policy = Permissions.Node.Delete)]
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
         {

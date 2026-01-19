@@ -1,5 +1,6 @@
 ﻿using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -24,6 +25,8 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all condition records.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ConditionModel"/> objects.</returns>
+        [Authorize(Policy = "Permissions.Condition.View")]
+
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -43,6 +46,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the condition.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="ConditionModel"/> if found.</returns>
+        [Authorize(Policy = "Permissions.Condition.View")]
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -62,6 +67,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="condition">The <see cref="ConditionModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Condition.Create")]
+
         [HttpPost]
         public async Task<IActionResult> Post(ConditionModel condition)
         {
@@ -92,6 +99,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="condition">The <see cref="ConditionModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Condition.Edit")]
+
         [HttpPut]
         public async Task<IActionResult> Put(ConditionModel condition)
         {
@@ -122,6 +131,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the condition to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Condition.Delete")]
+
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -141,6 +152,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="ids">The list of unique identifiers of the conditions to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Condition.Delete")]
+
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
         {

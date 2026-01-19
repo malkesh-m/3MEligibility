@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing all product cap records.</returns>
         /// 
-        [RequireRole("View Max Percentage")]
+        [Authorize(Policy = Permissions.ProductCap.View)]
 
         [HttpGet("getall")]
         public IActionResult GetAll()
@@ -40,7 +42,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the product cap record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the record if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Max Percentage")]
+        [Authorize(Policy = Permissions.ProductCap.View)]
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
@@ -66,7 +68,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The product ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the product cap records if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Max Percentage")]
+        [Authorize(Policy = Permissions.ProductCap.View)]
 
         [HttpGet("getbyproductid/{id}")]
         public async Task<IActionResult> GetByProductId(int id)
@@ -92,7 +94,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The product cap model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Max Percentage")]
+        [Authorize(Policy = Permissions.ProductCap.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Add(ProductCapModel model)
@@ -109,7 +111,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="model">The product cap model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Max Percentage")]
+        [Authorize(Policy = Permissions.ProductCap.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Update(ProductCapModel model)
@@ -125,7 +127,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the product cap record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [RequireRole("Delete Max Percentage")]
+        [Authorize(Policy = Permissions.ProductCap.Delete)]
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

@@ -1,6 +1,7 @@
 ﻿using EligibilityPlatform.Application.Attributes;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -28,7 +29,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="CategoryListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Products Screen")]
+        [Authorize(Policy = "Permissions.Category.View")]
 
         [HttpGet("getall")]
         public IActionResult GetAll()
@@ -50,7 +51,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the category.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="CategoryListModel"/> if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Products Screen")]
+        [Authorize(Policy = "Permissions.Category.View")]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -85,7 +86,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="category">The <see cref="CategoryCreateUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Category")]
+        [Authorize(Policy = "Permissions.Category.Create")]
 
         [HttpPost]
         public async Task<IActionResult> Post(CategoryCreateUpdateModel category)
@@ -135,7 +136,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="category">The <see cref="CategoryUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Category")]
+        [Authorize(Policy = "Permissions.Category.Edit")]
 
         [HttpPut]
         public async Task<IActionResult> Put(CategoryUpdateModel category)
@@ -183,7 +184,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the category to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Category")]
+        [Authorize(Policy = "Permissions.Category.Delete")]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -215,7 +216,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the categories to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Category")]
+        [Authorize(Policy = "Permissions.Category.Delete")]
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
@@ -250,7 +251,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Category")]
+        [Authorize(Policy = "Permissions.Category.Import")]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportCategory(int tenantId, IFormFile file)
@@ -300,7 +301,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedCategoryIds">The list of selected category IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export Category")]
+        [Authorize(Policy = "Permissions.Category.Export")]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportCategory([FromBody] List<int> selectedCategoryIds)

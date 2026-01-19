@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -23,7 +25,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="PcardListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Product Cards Screen")]
+        [Authorize(Policy = Permissions.PCard.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -40,7 +42,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the pcard record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="PcardListModel"/> if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Product Cards Screen")]
+        [Authorize(Policy = Permissions.PCard.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -66,7 +68,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="pcard">The pcard model to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add Product Card")]
+        [Authorize(Policy = Permissions.PCard.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(PcardAddUpdateModel pcard)
@@ -104,7 +106,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="pcard">The pcard model to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit Product Card")]
+        [Authorize(Policy = Permissions.PCard.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(PcardUpdateModel pcard)
@@ -133,7 +135,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the pcard record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Product Card")]
+        [Authorize(Policy = Permissions.PCard.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -150,7 +152,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedPcardIds">The list of selected pcard IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export Product Card")]
+        [Authorize(Policy = Permissions.PCard.Export)]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportPCards([FromBody] List<int> selectedPcardIds)
@@ -167,7 +169,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the pcard records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Product Card")]
+        [Authorize(Policy = Permissions.PCard.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
@@ -192,7 +194,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import Product Card")]
+        [Authorize(Policy = Permissions.PCard.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportPCards(IFormFile file)

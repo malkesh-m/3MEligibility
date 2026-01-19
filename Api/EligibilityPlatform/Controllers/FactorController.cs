@@ -1,4 +1,5 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Entities;
 using EligibilityPlatform.Domain.Models;
@@ -29,7 +30,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="FactorListModel"/> objects.</returns>
         /// 
-        [RequireRole("View Factors Screen")]
+        [Authorize(Policy = Permissions.Factor.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -45,7 +46,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the factor.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="FactorListModel"/> if found; otherwise, not found.</returns>
-        [RequireRole("View Factors Screen")]
+        [Authorize(Policy = Permissions.Factor.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -71,7 +72,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="factor">The <see cref="FactorAddUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Add new Factor")]
+        [Authorize(Policy = Permissions.Factor.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(FactorAddUpdateModel factor)
@@ -103,7 +104,7 @@ namespace EligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
 
-        [RequireRole("Edit Factor")]
+        [Authorize(Policy = Permissions.Factor.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(FactorAddUpdateModel factor)
@@ -130,7 +131,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the factor to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Factor")]
+        [Authorize(Policy = Permissions.Factor.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -147,7 +148,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedFactorIds">The list of selected factor IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export Factors")]
+        [Authorize(Policy = Permissions.Factor.Export)]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportFactors([FromBody] List<int> selectedFactorIds)
@@ -165,7 +166,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import factor")]
+        [Authorize(Policy = Permissions.Factor.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportFactor(IFormFile file)
@@ -196,7 +197,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the factors to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete Factor")]
+        [Authorize(Policy = Permissions.Factor.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
@@ -219,7 +220,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameterId">The parameter ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the value if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Factors Screen")]
+        [Authorize(Policy = Permissions.Factor.View)]
 
         [HttpGet("getvaluebyparameterid")]
         public IActionResult GetValueByParams(int parameterId)
@@ -245,8 +246,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="conditionId">The condition ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the factors if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Factors Screen")]
-
+        [Authorize(Policy = Permissions.Factor.View)]
         [HttpGet("getfactorsbyconditionid")]
         public IActionResult GetFactorsByConditionId(int conditionId)
         {
@@ -268,7 +268,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="parameterid">The parameter ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the factors if found; otherwise, not found.</returns>
         /// 
-        [RequireRole("View Factors Screen")]
+        [Authorize(Policy = Permissions.Factor.View)]
 
         [HttpGet("getfactorsbyparameterid")]
         public IActionResult GetFactorsByParameterId(int parameterid)

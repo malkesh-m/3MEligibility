@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -26,7 +28,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ListItemModel"/> objects.</returns>
         /// 
-        [RequireRole("View Lists Screen")]
+        [Authorize(Policy = Permissions.ListItem.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -43,7 +45,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the list item record.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="ListItemModel"/> if found; otherwise, not found.</returns>
 
-        [RequireRole("View Lists Screen")]
+        [Authorize(Policy = Permissions.ListItem.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -68,7 +70,7 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="listItem">The <see cref="ListItemModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [RequireRole("Add new List Items")]
+        [Authorize(Policy = Permissions.ListItem.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(ListItemCreateUpdateModel listItem)
@@ -95,7 +97,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="listItem">The <see cref="ListItemModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Edit List Items")]
+        [Authorize(Policy = Permissions.ListItem.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(ListItemCreateUpdateModel listItem)
@@ -121,7 +123,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the list item record to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete List Items")]
+        [Authorize(Policy = Permissions.ListItem.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -138,7 +140,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the list item records to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [RequireRole("Delete List Items")]
+        [Authorize(Policy = Permissions.ListItem.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
@@ -161,7 +163,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="selectedListItemIds">The list of selected list item IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [RequireRole("Export List Items")]
+        [Authorize(Policy = Permissions.ListItem.Export)]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportListIteam([FromBody] List<int> selectedListItemIds)
@@ -179,7 +181,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [RequireRole("Import List Items")]
+        [Authorize(Policy = Permissions.ListItem.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportListIteams(IFormFile file)

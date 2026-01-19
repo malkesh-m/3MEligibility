@@ -1,5 +1,6 @@
 ﻿using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -24,6 +25,8 @@ namespace EligibilityPlatform.Controllers
         /// Retrieves all currency records.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="CurrencyModel"/> objects.</returns>
+        [Authorize(Policy = "Permissions.Currency.View")]
+
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -43,6 +46,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the currency.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="CurrencyModel"/> if found; otherwise, not found.</returns>
+        [Authorize(Policy = "Permissions.Currency.View")]
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -75,6 +80,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="currency">The <see cref="CurrencyModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Currency.Create")]
+
         [HttpPost]
         public async Task<IActionResult> Post(CurrencyModel currency)
         {
@@ -105,6 +112,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="currency">The <see cref="CurrencyModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Currency.Edit")]
+
         [HttpPut]
         public async Task<IActionResult> Put(CurrencyModel currency)
         {
@@ -135,6 +144,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the currency to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Currency.Delete")]
+
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -154,6 +165,8 @@ namespace EligibilityPlatform.Controllers
         /// </summary>
         /// <param name="ids">The list of unique identifiers of the currencies to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = "Permissions.Currency.Delete")]
+
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
         {

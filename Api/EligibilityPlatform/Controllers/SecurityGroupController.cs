@@ -1,6 +1,8 @@
 ﻿using EligibilityPlatform.Application.Attributes;
+using EligibilityPlatform.Application.Constants;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EligibilityPlatform.Controllers
@@ -27,8 +29,7 @@ namespace EligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the list of security groups with success status.</returns>
         /// <response code="200">Returns the list of security groups successfully.</response>
         /// 
-        [RequireRole("View Groups Screen")]
-
+        [Authorize(Policy = Permissions.Group.View)]
         [HttpGet("getall")]
         public IActionResult Get()
         {
@@ -46,7 +47,7 @@ namespace EligibilityPlatform.Controllers
         /// <response code="200">Returns the security group data successfully.</response>
         /// <response code="404">Returned when the security group with the specified ID is not found.</response>
         /// 
-        [RequireRole("View Groups Screen")]
+        [Authorize(Policy = Permissions.Group.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -74,7 +75,7 @@ namespace EligibilityPlatform.Controllers
         /// <response code="200">Returns when the security group is created successfully.</response>
         /// <response code="400">Returned when the model state is invalid or validation fails.</response>
         /// 
-        [RequireRole("add groups")]
+        [Authorize(Policy = Permissions.Group.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(SecurityGroupUpdateModel securityGroupModel)
@@ -104,7 +105,7 @@ namespace EligibilityPlatform.Controllers
         /// <response code="200">Returns when the security group is updated successfully.</response>
         /// <response code="400">Returned when the model state is invalid or validation fails.</response>
         /// 
-        [RequireRole("edit group")]
+        [Authorize(Policy = Permissions.Group.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(SecurityGroupUpdateModel securityGroupModel)
@@ -128,7 +129,7 @@ namespace EligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> indicating the result of the deletion operation.</returns>
         /// <response code="200">Returns when the security group is deleted successfully or when validation prevents deletion.</response>
         /// 
-        [RequireRole("delete group")]
+        [Authorize(Policy = Permissions.Group.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -177,7 +178,7 @@ namespace EligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the security groups to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the bulk deletion operation.</returns>
         /// <response code="200">Returns when all security groups are deleted successfully or when validation prevents deletion.</response>
-        [RequireRole("delete group")]
+        [Authorize(Policy = Permissions.Group.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)

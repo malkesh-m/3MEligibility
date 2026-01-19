@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3MEligibilityPlatform", "3MEligibilityPlatform.csproj", "{3C4A5D5F-5869-455D-863A-15F12B21EB0F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EligibilityPlatform", "EligibilityPlatform.csproj", "{3C4A5D5F-5869-455D-863A-15F12B21EB0F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3MEligibilityPlatform.Application", "..\EligibilityPlatform.Application\3MEligibilityPlatform.Application.csproj", "{0ACD38E5-7886-4519-858C-DAB60F53F5DB}"
 EndProject
