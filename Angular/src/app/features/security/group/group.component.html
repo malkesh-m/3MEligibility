@@ -14,7 +14,7 @@
         <div class="d-flex align-items-center ms-3">
             <button appUseractivity="User Click on Add button"
               [componentName]="'GroupComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" *ngIf="getAddPermission()">
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" >
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
         </div>
@@ -118,10 +118,10 @@
                         [(ngModel)]="searchGroup" name="searchGroup" (input)="filterGroupNames()" required />
                     <div *ngIf="filteredGroupNames.length > 0" class="mt-2">
                         <div *ngFor="let group of filteredGroupNames; trackBy: trackByUserId">
-                            <label *ngIf="group.userName">
-                                <input type="checkbox" [(ngModel)]="group.selected" name="group{{ group.userId }}"
-                                    (change)="onGroupSelectionChange(group.userId)" />
-                                {{ group.userName }}
+                            <label *ngIf="group.displayName">
+                                <input type="checkbox" [(ngModel)]="group.selected" name="group{{ group.id }}"
+                                    (change)="onGroupSelectionChange(group.id)" />
+                                {{ group.displayName }}
                             </label>
                         </div>
                     </div>
@@ -163,13 +163,13 @@
         <ng-container matColumnDef="userName">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.userName }} </td>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.displayName }} </td>
         </ng-container>
 
-        <ng-container matColumnDef="loginId">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Login ID' | translate }}
+        <ng-container matColumnDef="mobileNo">
+            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Mobile No' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.loginId }} </td>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.mobileNo }} </td>
         </ng-container>
 
         <ng-container matColumnDef="email">

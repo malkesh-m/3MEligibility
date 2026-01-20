@@ -28,7 +28,7 @@ namespace EligibilityPlatform.Application.Repository
         /// </summary>
         /// <param name="groupId">The unique identifier of the group.</param>
         /// <returns>A list of <see cref="UserInfo"/> objects associated with the specified group.</returns>
-        List<UserInfo> GetUserByGroupId(int groupId);
+        List<UserInfo> GetUserByGroupId(int groupId,ApiResponse<List<UserGetModel>> users);
 
         /// <summary>
         /// Removes a specific user from a group asynchronously.

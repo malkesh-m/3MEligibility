@@ -4,15 +4,10 @@ using System.Security.Claims;
 
 namespace EligibilityPlatform.Infrastructure.Authorization
 {
-    public sealed class PermissionAuthorizationHandler
-        : AuthorizationHandler<PermissionRequirement>
+    public sealed class PermissionAuthorizationHandler(IUserService userService)
+                : AuthorizationHandler<PermissionRequirement>
     {
-        private readonly IUserService _userService;
-
-        public PermissionAuthorizationHandler(IUserService userService)
-        {
-            _userService = userService;
-        }
+        private readonly IUserService _userService = userService;
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,

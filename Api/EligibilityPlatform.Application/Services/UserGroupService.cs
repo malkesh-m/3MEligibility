@@ -65,10 +65,10 @@ namespace EligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The group ID.</param>
         /// <returns>A list of UserInfo for the specified group ID.</returns>
-        public List<UserInfo> GetUserByGroupId(int id)
+        public List<UserInfo> GetUserByGroupId(int id, ApiResponse<List<UserGetModel>> users)
         {
             // Retrieves users belonging to the specified group ID
-            var userGroups = _uow.UserGroupRepository.GetUserByGroupId(id);
+            var userGroups = _uow.UserGroupRepository.GetUserByGroupId(id,users);
             // Returns the list of user information
             return userGroups;
         }

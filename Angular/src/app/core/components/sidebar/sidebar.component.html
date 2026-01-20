@@ -70,7 +70,7 @@
       </mat-expansion-panel>
 
       <!-- Security Section -->
-      <mat-expansion-panel *ngIf="hasPermission(4)" [expanded]="step() === 3" (opened)="setStep(3)" hideToggle>
+      <mat-expansion-panel  [expanded]="step() === 3" (opened)="setStep(3)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">security</mat-icon>
@@ -78,9 +78,9 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission(70)" mat-list-item routerLink="security/user">{{ 'Users' | translate }}</a>
-          <a *ngIf="hasPermission(71)" mat-list-item routerLink="security/group">{{ 'Groups' | translate }}</a>
-          <a *ngIf="hasPermission(72)" mat-list-item routerLink="security/role">{{ 'Roles' | translate }}</a>
+          <a  mat-list-item routerLink="security/user">{{ 'Users' | translate }}</a>
+          <a  mat-list-item routerLink="security/group">{{ 'Groups' | translate }}</a>
+          <a  mat-list-item routerLink="security/role">{{ 'Roles' | translate }}</a>
         </mat-nav-list>
       </mat-expansion-panel>
 

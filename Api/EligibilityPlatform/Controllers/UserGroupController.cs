@@ -16,10 +16,10 @@ namespace EligibilityPlatform.Controllers
     /// <param name="userGroupService">The user group service.</param>
     [Route("api/usergroup")]
     [ApiController]
-    public class UserGroupController(IUserGroupService userGroupService) : ControllerBase
+    public class UserGroupController(IUserGroupService userGroupService,IUserService userService) : ControllerBase
     {
         private readonly IUserGroupService _userGroupService = userGroupService;
-
+        private readonly IUserService _userService = userService;
         /// <summary>
         /// Retrieves all user groups.
         /// </summary>
@@ -44,10 +44,12 @@ namespace EligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.UserGroup.View)]
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
+            var tenantId = User.GetTenantId();
+            var users = await _userService.GetAll(tenantId);
             // Retrieves a specific user group by its ID
-            var result = _userGroupService.GetUserByGroupId(id);
+            var result = _userGroupService.GetUserByGroupId(id,users);
             // Checks if the user group was found
             if (result != null)
             {

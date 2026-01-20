@@ -25,17 +25,17 @@ export interface AssignedUserRecord {
 }
 
 export interface UserRecord{
-  userId: number | null;
-  userName: string;
-  loginId: string;
-  userPassword: string;
+  id: number | null;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
+  mobileNo: string;
   userPicture?: string;
   userProfileFile?: string;
-  entityId: number;
+  tenantId: number;
   entitylocation?: string;
   selected: boolean;
+  displayName: string;
 }
 
 export interface requestBody {
@@ -58,7 +58,7 @@ export class GroupComponent implements OnInit {
   formVisible = false;
   isEditMode = false;
   displayedColumns: string[] = ['groupName', 'groupDesc', 'actions'];
-  assignedUserColumns: string[] = ['userName', 'email', 'loginId', 'entityName', 'actions'];
+  assignedUserColumns: string[] = ['userName', 'email', 'mobileNo', 'actions'];
 
   records: GroupRecord[] = [];
   userRecords: UserRecord[] = [];
@@ -76,7 +76,7 @@ export class GroupComponent implements OnInit {
   activeTab: string = 'group';
   selectedGroupName: string | null = null;
   filteredGroupNames: UserRecord[] = [];
-  requestBody: { userId: number | null; groupId: string | null } = { userId: null, groupId: null };
+  requestBody: { id: number | null; groupId: string | null } = { id: null, groupId: null };
   private _snackBar = inject(MatSnackBar);
   UnassignedUser: boolean = false;
   recordMessage: string = 'Please select group to view assigned user list';
@@ -174,8 +174,9 @@ export class GroupComponent implements OnInit {
       selectedUsers.forEach(user => {
         const payload = {
           groupId: this.selectedGroupName,
-          userId: user.userId
+          userId: user.id
         };
+        console.log('Assigning user with payload:', payload);
 
         this.groupService.addUsers(payload).subscribe({
           next: (response) => {
@@ -270,7 +271,7 @@ export class GroupComponent implements OnInit {
       }
     } else if (this.activeTab === 'assignedUser') {
       const isUserAssigned = this.assignedUserDataSource.data.some((item: any) =>
-        item.userId === this.requestBody.userId && item.groupId === parseInt(this.requestBody.groupId!)
+        item.id === this.requestBody.id && item.groupId === parseInt(this.requestBody.groupId!)
       );
       if (isUserAssigned) {
         this._snackBar.open('User is already assigned to this group.', 'Okay', {
@@ -326,7 +327,7 @@ export class GroupComponent implements OnInit {
     const query = this.searchGroup.toLowerCase().trim();
     if (query) {
       this.filteredGroupNames = this.userRecords.filter(group =>
-        group.userName.toLowerCase().startsWith(query)
+        group.displayName.toLowerCase().startsWith(query)
       );
     } else {
       this.filteredGroupNames = [];
@@ -334,8 +335,8 @@ export class GroupComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onGroupSelectionChange(userId: number | null) {
-    this.requestBody.userId = userId;
+  onGroupSelectionChange(id: number | null) {
+    this.requestBody.id = id;
     this.requestBody.groupId = this.selectedGroupName;
   }
 
@@ -416,12 +417,13 @@ export class GroupComponent implements OnInit {
     this.groupService.getAssignedUserbyId(parseInt(groupId)).subscribe({
       next: (response) => {
         this.assignedUserDataSource.data = response.data.map((item: any) => ({
-          userId:item.userId,
+          id:item.id,
           groupId:item.groupId,
-          userName: item.userName,
+          displayName: item.userName,
           loginId: item.loginId,
           email: item.email,
-          entityName: item.entityName
+          entityName: item.entityName,
+          mobileNo: item.mobileNo
         }));
         this.assignedUserData = this.assignedUserDataSource.data;
         if(this.assignedUserDataSource.data.length === 0){
@@ -477,17 +479,17 @@ export class GroupComponent implements OnInit {
     this.userService.getUsersList().subscribe({
       next: (response) => {
         this.userdataSource.data = response.data.map((item: any) => ({
-          userId: item.userId,
-          userName: item.userName,
-          loginId: item.loginId,
-          userPassword: item.userPassword,
+          id: item.userId,
+          firstName: item.firstName,
+          lastName: item.lastName,
           email: item.email,
-          phone: item.phone,
+          mobileNo: item.mobileNo,
           userPicture: item.userPicture,
           userProfileFile: item.userProfileFile,
-          entityId: item.entityId,
+          tenantId: item.tenantId,
           selected: false,
           entitylocation: item.entitylocation,
+          displayName: item.displayName,
         }));
         this.userRecords = response.data;
       },

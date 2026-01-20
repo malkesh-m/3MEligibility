@@ -66,7 +66,7 @@ namespace EligibilityPlatform.Domain.Models
 
         public string PhotoURL { get; set; } = string.Empty;
 
-        public string? MobileNo { get; set; }
+        public string MobileNo { get; set; } = string.Empty;
 
         public int CountryId { get; set; }
 

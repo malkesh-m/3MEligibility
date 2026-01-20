@@ -10,9 +10,9 @@ import { roleGuard } from '../../core/guards/role/role.guard';
 const routes: Routes = [
   {path: '', redirectTo: 'user', pathMatch: 'full' },
   { path: '', component: SecurityComponent },
-  { path: 'user', component: UserComponent,canActivate: [roleGuard], data: { requiredRoleId: 70 } },
-  { path: 'group', component: GroupComponent,canActivate: [roleGuard], data: { requiredRoleId: 71 }},
-  { path: 'role', component: RoleComponent,canActivate: [roleGuard], data: { requiredRoleId: 72 }},
+  { path: 'user', component: UserComponent},
+  { path: 'group', component: GroupComponent},
+  { path: 'role', component: RoleComponent},
   { path: 'userprofile', component: UserprofileComponent }
 ];
 

@@ -19,7 +19,7 @@ namespace EligibilityPlatform.Application.Services.Inteface
         /// </summary>
         /// <param name="id">The unique identifier of the group.</param>
         /// <returns>A list of <see cref="UserInfo"/> objects associated with the specified group.</returns>
-        List<UserInfo> GetUserByGroupId(int id);
+        List<UserInfo> GetUserByGroupId(int id,ApiResponse<List<UserGetModel>> users);
 
         /// <summary>
         /// Adds a new user group record.
