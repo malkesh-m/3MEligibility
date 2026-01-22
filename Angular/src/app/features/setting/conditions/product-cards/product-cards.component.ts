@@ -733,8 +733,8 @@ export class ProductCardsComponent implements OnInit {
   }
 
   addNewProductCard(payload: any) {
-    payload.createdBy = this.loggedInUser.user.userName;
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.createdBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     this.productsCardService.addProductCard(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {
@@ -758,7 +758,7 @@ export class ProductCardsComponent implements OnInit {
 
   updateProductCard(payload: any) {
    
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     this.productsCardService.updateProductCard(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {

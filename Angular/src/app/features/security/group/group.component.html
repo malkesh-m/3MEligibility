@@ -94,10 +94,10 @@
                     <mat-icon appUseractivity="User Click on Edit button"
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'"class="clickable-icon" color="primary" (click)="editRecord(list)"
-                        *ngIf="hasPermission(48)" matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+                        matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
                     <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'GroupComponent'"
-              [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteRecord(list)" *ngIf="hasPermission(47)"
+              [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteRecord(list)" 
                         matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
                 </td>
             </ng-container>
@@ -160,6 +160,7 @@
 <div *ngIf="activeTab === 'assignedUser'">
    
     <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="assignedUserDataSource" matSort>
+
         <ng-container matColumnDef="userName">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }}
             </th>
@@ -190,7 +191,7 @@
                 <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'" class="clickable-icon"  color="warn" (click)="deleteAssignedUserRecord(entity)"
-                    *ngIf="hasPermission(46)" matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+                     matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
             </td>
         </ng-container>
 

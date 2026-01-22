@@ -366,13 +366,13 @@
             <td class="cellStyling" mat-cell *matCellDef="let element">
                 <button appUseractivity="User Click on Edit button"
               [componentName]="'FactorComponent'"
-              [actionType]="'ButtonClick'" mat-icon-button color="primary" matTooltip="{{ 'Edit' | translate }}" (click)="editRecord(element)" *ngIf="hasPermission(24)"
+              [actionType]="'ButtonClick'" mat-icon-button color="primary" matTooltip="{{ 'Edit' | translate }}" (click)="editRecord(element)" 
                     aria-label="Edit">
                     <mat-icon>edit</mat-icon>
                 </button>
                 <button appUseractivity="User Click on Delete button"
               [componentName]="'FactorComponent'"
-              [actionType]="'ButtonClick'" mat-icon-button color="warn" matTooltip="{{ 'Delete' | translate }}" (click)="deleteFactor(element)" *ngIf="hasPermission(23)"
+              [actionType]="'ButtonClick'" mat-icon-button color="warn" matTooltip="{{ 'Delete' | translate }}" (click)="deleteFactor(element)"
                     aria-label="Delete">
                     <mat-icon>delete</mat-icon>
                 </button>

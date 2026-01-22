@@ -25,7 +25,7 @@ export class ListsComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   parameters: any[] = [];
-  displayedColumns: string[] = ['select', 'listName', 'entityName','createdBy','updatedBy', 'actions'];
+  displayedColumns: string[] = ['select', 'listName','createdBy','updatedBy', 'actions'];
   listItemdisplayedColumns: string[] = ['select','code', 'listName', 'itemName','createdBy','updatedBy', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
   listItemDataSource = new MatTableDataSource<any>([]);
@@ -75,7 +75,7 @@ export class ListsComponent {
   ) { }
 
   ngOnInit(): void {
-    this.fetchEntities();
+    // this.fetchEntities();
     this.fetchLists();
   }
 
@@ -293,8 +293,8 @@ export class ListsComponent {
 
     if (this.activeTab === 'lists') {
       if (this.isEditMode) {
-        this.formData.createdBy = this.formData.createdBy;
-        this.formData.updatedBy = this.loggedInUser.user.userName;
+        // this.formData.createdBy = this.formData.createdBy;
+        // this.formData.updatedBy = this.loggedInUser.user.userName;
         this.listsService.updateLists(this.formData).subscribe({
           next: (response) => {
             this.formVisible = false;
@@ -312,8 +312,8 @@ export class ListsComponent {
             });          }
         });
       } else {
-        this.formData.createdBy = this.loggedInUser.user.userName;
-        this.formData.updatedBy = this.loggedInUser.user.userName;
+        // this.formData.createdBy = this.loggedInUser.user.userName;
+        // this.formData.updatedBy = this.loggedInUser.user.userName;
      
 
         this.listsService.addLists(this.formData).subscribe({
@@ -337,8 +337,8 @@ export class ListsComponent {
 
     } else if (this.activeTab === 'listItems') {
       if (this.listItemisEditMode) {
-        this.listItemFormData.createdBy = this.listItemFormData.createdBy;
-        this.listItemFormData.updatedBy = this.loggedInUser.user.userName;
+        // this.listItemFormData.createdBy = this.listItemFormData.createdBy;
+        // this.listItemFormData.updatedBy = this.loggedInUser.user.userName;
         this.listsService.updateListsItem(this.listItemFormData).subscribe({
           next: (response) => {
             this.listItemFormVisible = false;
@@ -356,8 +356,8 @@ export class ListsComponent {
             });          }
         });
       } else {
-        this.listItemFormData.createdBy = this.loggedInUser.user.userName;
-        this.listItemFormData.updatedBy = this.loggedInUser.user.userName;
+        // this.listItemFormData.createdBy = this.loggedInUser.user.userName;
+        // this.listItemFormData.updatedBy = this.loggedInUser.user.userName;
         this.listItemFormData.entityId = 0;
         this.listsService.addListsItem(this.listItemFormData).subscribe({
           next: (response) => {

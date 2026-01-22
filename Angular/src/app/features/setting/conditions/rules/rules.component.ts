@@ -849,8 +849,7 @@ export class RulesComponent {
     });
  
     payload.eruleName = payload.name.trim()
-    payload.createdBy = this.loggedInUser.user.userName;
-    payload.updatedBy = this.loggedInUser.user.userName;
+
     this.ruleService.addNewEruleMaster(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {
@@ -880,8 +879,7 @@ export class RulesComponent {
     const formValue = this.expressionForm.value;
     payload.eruleMasterId = formValue.eruleMasterId
  
-    payload.createdBy = this.loggedInUser.user.userName;
-    payload.updatedBy = this.loggedInUser.user.userName;
+
     payload.validFrom = formValue.validFrom ? new Date(formValue.validFrom).toISOString() : null;
     payload.validTo = formValue.validTo ? new Date(formValue.validTo).toISOString() : null;
     this.ruleService.addNewRule(payload).subscribe({
@@ -910,8 +908,6 @@ export class RulesComponent {
     }
 
     //payload.expression = this.expressionForm.value.expshown;
-    payload.createdBy = this.createdBy;
-    payload.updatedBy = this.loggedInUser.user.userName;
     payload.validFrom = this.expressionForm.value.validFrom;
     payload.validTo = this.expressionForm.value.validTo;
     this.ruleService.updateExistingRule(payload).subscribe({

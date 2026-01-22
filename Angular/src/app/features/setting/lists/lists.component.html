@@ -15,7 +15,7 @@
     <div class="d-flex align-items-center ms-3">
       <button appUseractivity="User Click on Add button"
               [componentName]="'ListComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="addList()" *ngIf="getAddPermission()">
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="addList()" >
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
       <button appUseractivity="User Click on Download Template button"
@@ -117,12 +117,12 @@
         <td class="cellStyling" mat-cell *matCellDef="let list">{{ list.listName }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="entityName">
+      <!-- <ng-container matColumnDef="entityName">
         <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Entity Name' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let list">
           {{ getEntityName(list.entityId, list) }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- Created By Column -->
       <ng-container matColumnDef="createdBy">
@@ -176,11 +176,11 @@
         <td class="cellStyling" mat-cell *matCellDef="let list">
           <mat-icon class="clickable-icon" color="primary" appUseractivity="User Click on Edit button"
               [componentName]="'ListComponent'"
-              [actionType]="'ButtonClick'" (click)="editList(list)" *ngIf="hasPermission(93)"
+              [actionType]="'ButtonClick'" (click)="editList(list)" 
             matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
           <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'ListComponent'"
-              [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteList(list)" *ngIf="hasPermission(94)"
+              [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteList(list)" 
             matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
         </td>
       </ng-container>
@@ -329,11 +329,11 @@
         <td class="cellStyling" mat-cell *matCellDef="let list">
           <mat-icon appUseractivity="User Click on Edit button"
                     [componentName]="'ListComponent'"
-                    [actionType]="'ButtonClick'" class="clickable-icon" color="primary" (click)="editList(list)" *ngIf="hasPermission(98)"
+                    [actionType]="'ButtonClick'" class="clickable-icon" color="primary" (click)="editList(list)" 
                     matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
           <mat-icon appUseractivity="User Click on Delete button"
                     [componentName]="'ListComponent'"
-                    [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteList(list)" *ngIf="hasPermission(99)"
+                    [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteList(list)" 
                     matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
         </td>
       </ng-container>

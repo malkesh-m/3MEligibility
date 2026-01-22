@@ -367,12 +367,12 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<Erule>(entity =>
         {
             entity.HasKey(e => e.EruleId).HasName("PK__ERule__5A54BCF376F1F4DF");
-
+            entity.Property(e => e.EruleId)
+             .ValueGeneratedOnAdd();
             entity.ToTable("ERule");
 
             entity.HasIndex(e => e.TenantId, "IX_ERule_TenantId");
 
-            entity.Property(e => e.EruleId).HasColumnName("ERuleId").HasDefaultValueSql("2");
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             entity.Property(e => e.ExpShown).HasColumnType("longtext");

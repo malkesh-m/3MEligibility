@@ -10,7 +10,7 @@
         <div class="d-flex align-items-center ms-3">
             <button appUseractivity="User Click on Add button"
               [componentName]="'ExceptionManagementComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="onnewClick()" *ngIf="hasPermission(122)">
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="onnewClick()" >
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
         </div>

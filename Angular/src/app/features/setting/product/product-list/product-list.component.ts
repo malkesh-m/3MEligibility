@@ -327,8 +327,8 @@ export class ProductListComponent {
    * Category tab crud events
    */
   addCategoryDetails(payload: { categoryName: string, catDescription: string, categoryId: number, entityId: number, createdBy: string, updatedBy: string }) {
-    payload.createdBy = this.loggedInUser.user.userName;
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.createdBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     payload.categoryId = 0;
 
     this.productService.addCategories(payload).subscribe({
@@ -352,7 +352,7 @@ export class ProductListComponent {
   }
 
   updateCategoryDetails(payload: { categoryName: string, catDescription: string, categoryId: number, entityId: number, updatedBy: string }) {
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     this.productService.updateCategoriesDetails(payload).subscribe({
       next: (response) => {
         if (response.isSuccess) {
@@ -446,8 +446,8 @@ export class ProductListComponent {
     console.log(payload)
     console.log("payload")
 
-    payload.createdBy = this.loggedInUser.user.userName;
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.createdBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     this.productService.addCategoriesInfo(payload).subscribe({
       next: (response) => {
         if (response.isSuccess) {
@@ -471,7 +471,7 @@ export class ProductListComponent {
   updateInfoDetails(payload: any) {
     console.log(payload)
     console.log("payload")
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     this.productService.updateCategoriesInfo(payload).subscribe({
       next: (response) => {
         if (response.isSuccess) {

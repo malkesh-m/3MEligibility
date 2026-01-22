@@ -15,7 +15,7 @@
       <div class="d-flex align-items-center ms-3">
           <button appUseractivity="User Click on Add button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" *ngIf="hasPermission(55)">
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" >
               <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
           </button>
           <button appUseractivity="User Click on Download Template button"

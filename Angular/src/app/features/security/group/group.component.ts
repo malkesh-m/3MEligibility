@@ -16,7 +16,7 @@ export interface GroupRecord {
 }
 
 export interface AssignedUserRecord {
-  userId: number | null;
+  id: number | null;
   groupId: number | null;
   userName: string;
   loginId:number;
@@ -391,8 +391,9 @@ export class GroupComponent implements OnInit {
   }
 
   deleteAssignedUserRecord(record: AssignedUserRecord) {
+    console.log('Deleting assigned user record:', record);
     if (confirm(`Are you sure you want to delete Assigned User: "${record.userName}"?`)) {
-      this.groupService.deleteAssignedUser(record.userId,record.groupId).subscribe({
+      this.groupService.deleteAssignedUser(record.id,record.groupId).subscribe({
         next: (response) => {
           if (response.isSuccess) {
             this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
@@ -417,7 +418,7 @@ export class GroupComponent implements OnInit {
     this.groupService.getAssignedUserbyId(parseInt(groupId)).subscribe({
       next: (response) => {
         this.assignedUserDataSource.data = response.data.map((item: any) => ({
-          id:item.id,
+          id:item.userId,
           groupId:item.groupId,
           displayName: item.userName,
           loginId: item.loginId,
@@ -444,7 +445,7 @@ export class GroupComponent implements OnInit {
     });
   }
 
-  @HostListener('document:click', ['$event.target'])
+  @HostListener('document:click', ['$event.target'!])
   onClickOutside(targetElement: HTMLElement) {
     const dropdown = document.querySelector('.dropdown-toggle');
     const menu = document.querySelector('.dropdown-menu');

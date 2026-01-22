@@ -33,17 +33,17 @@ const routes: Routes = [
 
   {
     path: 'products', component: ProductComponent,
-    canActivate: [roleGuard], data: { requiredRoleId: 51 },
+
     children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
-      { path: 'list', component: ProductListComponent, canActivate: [roleGuard], data: { requiredRoleId: 51 } },
-      { path: 'info', component: ProductListComponent, canActivate: [roleGuard], data: { requiredRoleId: 51 } },
+      { path: 'list', component: ProductListComponent},
+      { path: 'info', component: ProductListComponent },
       { path: 'details', component: ProductListComponent, canActivate: [roleGuard], data: { requiredRoleId: 51 } },
     ],
   },
-  { path: 'rules', component: RulesComponent, canActivate: [roleGuard], data: { requiredRoleId: 52 } },
-  { path: 'product-cards', component: ProductCardsComponent, canActivate: [roleGuard], data: { requiredRoleId: 54 } },
-  { path: 'cards', component: CardsComponent, canActivate: [roleGuard], data: { requiredRoleId: 53 } },
+  { path: 'rules', component: RulesComponent },
+  { path: 'product-cards', component: ProductCardsComponent},
+  { path: 'cards', component: CardsComponent },
 
   { path: 'checker', component: MakerCheckerComponent },
   { path: 'history', component: MakerCheckerHistoryComponent },

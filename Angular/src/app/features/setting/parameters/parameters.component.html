@@ -309,9 +309,9 @@
     <ng-container matColumnDef="actions">
       <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
       <td class="cellStyling" mat-cell *matCellDef="let parameter">
-        <mat-icon class="clickable-icon" color="primary" (click)="editParameter(parameter)" *ngIf="hasPermission(17)"
+        <mat-icon class="clickable-icon" color="primary" (click)="editParameter(parameter)" 
           matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
-        <mat-icon class="clickable-icon" color="warn" (click)="deleteParameter(parameter)" *ngIf="hasPermission(16)"
+        <mat-icon class="clickable-icon" color="warn" (click)="deleteParameter(parameter)"
           matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
       </td>
     </ng-container>

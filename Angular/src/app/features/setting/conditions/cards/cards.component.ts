@@ -248,8 +248,8 @@ export class CardsComponent {
   }
   
   addCard(payload: any) {
-    payload.createdBy = this.loggedInUser.user.userName;
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.createdBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     payload.ecardName = payload.ecardName.trim();
     this.cardService.addCard(payload).subscribe({
       next: (response) => {
@@ -273,7 +273,7 @@ export class CardsComponent {
   updateCard(payload: any) {
     payload.ecardName = payload.ecardName.trim();
 
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
     this.cardService.updateCard(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {
