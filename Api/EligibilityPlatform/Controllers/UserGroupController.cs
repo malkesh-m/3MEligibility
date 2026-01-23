@@ -4,6 +4,7 @@ using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EligibilityPlatform.Controllers
 {
@@ -16,10 +17,11 @@ namespace EligibilityPlatform.Controllers
     /// <param name="userGroupService">The user group service.</param>
     [Route("api/usergroup")]
     [ApiController]
-    public class UserGroupController(IUserGroupService userGroupService,IUserService userService) : ControllerBase
+    public class UserGroupController(IUserGroupService userGroupService,IUserService userService,IMemoryCache cache) : ControllerBase
     {
         private readonly IUserGroupService _userGroupService = userGroupService;
         private readonly IUserService _userService = userService;
+        private readonly IMemoryCache _cache = cache;
         /// <summary>
         /// Retrieves all user groups.
         /// </summary>
@@ -86,6 +88,7 @@ namespace EligibilityPlatform.Controllers
             }
             // Adds the new user group
             var message = await _userGroupService.Add(userGroupModel);
+
             // Returns success response after creation
             return Ok(new ResponseModel { IsSuccess = true, Message = message });
         }
@@ -121,6 +124,7 @@ namespace EligibilityPlatform.Controllers
         {
             // Deletes the user group by user ID and group ID
             await _userGroupService.RemoveUserGroup(userId, groupId);
+
             // Returns success response after deletion
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }

@@ -1,4 +1,6 @@
-﻿namespace EligibilityPlatform.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EligibilityPlatform.Domain.Entities;
 
 public partial class Parameter
 {
@@ -32,7 +34,10 @@ public partial class Parameter
     public string UpdatedBy { get; set; } = string.Empty;
 
     public bool IsImport { get; set; }
-
+    [Required]
+    public string RejectionReason { get; set; } = string.Empty;
+    [Required]
+    public string RejectionReasonCode { get; set; } = string.Empty;
     public string? ValueSource { get; set; }
 
     public string? StaticValue { get; set; }

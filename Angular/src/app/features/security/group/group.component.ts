@@ -88,11 +88,11 @@ export class GroupComponent implements OnInit {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'group' && this.hasPermission(49)) ||
-      (this.activeTab === 'assignedUser' && this.hasPermission(45));
+    return (this.activeTab === 'group' && this.hasPermission('49')) ||
+      (this.activeTab === 'assignedUser' && this.hasPermission('45'));
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 

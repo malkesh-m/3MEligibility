@@ -2,6 +2,7 @@
 using EligibilityPlatform.Domain.Entities;
 using EligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EligibilityPlatform.Application.Services.Inteface
 {
@@ -147,6 +148,7 @@ namespace EligibilityPlatform.Application.Services.Inteface
         ///// <param name="id">The unique identifier of the user to log out.</param>
         ///// <returns>The <see cref="User"/> object that was logged out.</returns>
         //UserGetModel Logout(int id);
+        void RemoveUserPermissionsCache(int userId);
 
         Task<List<string>> GetUserPermissionsAsync(int userId);
 

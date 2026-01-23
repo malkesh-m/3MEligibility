@@ -28,8 +28,8 @@ export class ProductListComponent {
 
   @Output() updateTableRows = new EventEmitter<any>()
   @Output() addFormData = new EventEmitter<any>()
-  @Input() editRoleId: number = 0;
-  @Input() deleteRoleId: number = 0;
+  @Input() editRoleId: string = '';
+  @Input() deleteRoleId: string = '';
   ProductListDetails: any = [];
   parametersList: any = [];
   parametersValueList: any = [];

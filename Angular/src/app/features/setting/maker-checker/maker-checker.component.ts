@@ -28,7 +28,7 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
   constructor(private dialog: MatDialog, private Makerservice: MakerCheckerService, private rolesService: RolesService) {
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 

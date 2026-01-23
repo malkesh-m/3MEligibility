@@ -616,7 +616,7 @@ namespace EligibilityPlatform.Application.Services
                     bool isValid = true;
 
                     // Validates age criteria if not set to "All"
-                    if (cap?.Age != "All")
+                    if (!string.IsNullOrWhiteSpace(cap?.Age) && cap?.Age != "All")
                     {
                         isValid &= MatchCondition(cap?.Age!, Age);
                     }
@@ -626,13 +626,13 @@ namespace EligibilityPlatform.Application.Services
                     }
 
                     // Validates salary criteria if not set to "All"
-                    if (cap?.Salary != "All")
+                    if (!string.IsNullOrWhiteSpace(cap?.Salary) && cap?.Salary != "All")
                     {
                         isValid &= MatchCondition(cap?.Salary!, Salary);
                     }
                     else
                     {
-                        isValid &= true;
+                        isValid &= true; // No restriction => always valid
                     }
 
                     // If all criteria are valid, sets eligible amount and marks as valid
@@ -1976,7 +1976,7 @@ namespace EligibilityPlatform.Application.Services
                 /// <summary>
                 /// Adds a descriptive error message for failed validation.
                 /// </summary>
-                validationResult.ErrorMessage.Add($"{factor.Parameter!.ParameterName} Factor {factor.FactorName}");
+                validationResult.ErrorMessage.Add($"{factor.Parameter!.ParameterId} Factor {factor.FactorName}");
             }
 
 
@@ -3485,19 +3485,30 @@ namespace EligibilityPlatform.Application.Services
         }
 
         private BREIntegrationResponse TransformToResponse(
-      EligibleAmountResults eligibilityResult,
-      long processingTimeMs,
-      string requestId,
-      EvaluationHistory evaluation,
-      ScoringResult scoringResult)
+EligibleAmountResults eligibilityResult,
+long processingTimeMs,
+string requestId,
+EvaluationHistory evaluation,
+ScoringResult scoringResult)
         {
             var eligibleProducts = new List<EligibleProduct>();
             var nonEligibleProducts = new List<NonEligibleProduct>();
 
             var allRejectionReasons = _uow.RejectionReasonRepository.Query().ToList();
+            var allParameters = _uow.ParameterRepository.Query().ToList(); // Load all parameters
 
             // Store unique failure reasons
             var uniqueFailureReasons = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Normalize skip failure reasons ONCE
+            var skipFailureReasonsNormalized = new HashSet<string>(
+                new[]
+                {
+           "No Rule Match",
+           "Could not find eligible amount criteria.",
+           "Customer's score does not satisfy eligibility requirements."
+                }.Select(NormalizeForMatch)
+            );
 
             if (eligibilityResult.Products != null)
             {
@@ -3505,14 +3516,13 @@ namespace EligibilityPlatform.Application.Services
                 {
                     if (product.Iseligible)
                     {
-                        // Add eligible product
                         eligibleProducts.Add(new EligibleProduct
                         {
                             ProductCode = product.ProductCode,
                             ProductName = product.ProductName,
                             MaxFinancingPercentage = product.MaximumProductCapPercentage,
                             EligibleAmount = product.EligibleAmount,
-                            ProductCapAmount = product.ProductCapAmount,
+                            ProductCapAmount = product.ProductCapAmount
                         });
                     }
                     else
@@ -3529,32 +3539,52 @@ namespace EligibilityPlatform.Application.Services
                             .Select(m => m.Trim())
                             .ToList();
 
-                        var skipFailureReasons = new List<string>
-                {"No Rule Match",
-                    "Could not find eligible amount criteria.",
-                    "Customer’s score does not satisfy eligibility requirements."
-                };
-
                         foreach (var msg in messages)
                         {
                             string cleanedMsg = NormalizeForMatch(msg);
 
+                            // Extract parameterId and factorName from message
                             var parts = msg.Split("Factor", StringSplitOptions.RemoveEmptyEntries);
-                            string paramName = parts.Length > 0 ? NormalizeForMatch(parts[0]) : "";
+                            string parameterIdStr = parts.Length > 0 ? parts[0].Trim() : "";
                             string factorName = parts.Length > 1 ? NormalizeForMatch(parts[1]) : "";
+                            string numericOnly = ExtractNumericValue(parameterIdStr);
 
+                            // Try to parse parameterId
+                            bool hasParameterId = int.TryParse(numericOnly, out int parameterId);
+
+                            if (hasParameterId)
+                            {
+                                var parameter = allParameters.FirstOrDefault(p => p.ParameterId == parameterId);
+                                if (parameter != null && !string.IsNullOrEmpty(parameter.RejectionReasonCode))
+                                {
+                                    nonEligible.RejectionReasons.Add(new RejectionReason
+                                    {
+                                        Code = parameter.RejectionReasonCode,
+                                        Description = parameter.RejectionReason ?? parameter.ParameterName
+                                    });
+
+                                    if (eligibleProducts.Count == 0)
+                                    {
+                                        uniqueFailureReasons.Add(parameter.RejectionReason ?? parameter.ParameterName!);
+                                    }
+
+                                    continue;
+                                }
+                            }
+
+                            string normalizedParamId = NormalizeForMatch(parameterIdStr);
                             var matched = allRejectionReasons.FirstOrDefault(r =>
-                                !string.IsNullOrEmpty(r.Description) &&
-                                NormalizeForMatch(r.Description).Contains(paramName, StringComparison.OrdinalIgnoreCase));
+                            {
+                                if (string.IsNullOrEmpty(r.Description))
+                                    return false;
 
-                            matched ??= allRejectionReasons.FirstOrDefault(r =>
-                                !string.IsNullOrEmpty(r.Description) &&
-                                NormalizeForMatch(r.Description).Contains(factorName, StringComparison.OrdinalIgnoreCase));
+                                var normalizedDesc = NormalizeForMatch(r.Description);
 
-                            matched ??= allRejectionReasons.FirstOrDefault(r =>
-                                !string.IsNullOrEmpty(r.Description) &&
-                                NormalizeForMatch(r.Description).Contains(cleanedMsg, StringComparison.OrdinalIgnoreCase));
-
+                                return
+                                    (!string.IsNullOrEmpty(normalizedParamId) && normalizedDesc.Contains(normalizedParamId)) ||
+                                    (!string.IsNullOrEmpty(factorName) && normalizedDesc.Contains(factorName)) ||
+                                    (!string.IsNullOrEmpty(cleanedMsg) && normalizedDesc.Contains(cleanedMsg));
+                            });
 
                             if (matched != null)
                             {
@@ -3564,31 +3594,44 @@ namespace EligibilityPlatform.Application.Services
                                     Description = matched.Description
                                 });
 
-                                // Add to failure reasons only when:
-                                //   - there are zero eligible products
-                                //   - it is not in skip list
-                                //   - not already added
                                 if (eligibleProducts.Count == 0 &&
-                                    !skipFailureReasons.Any(s =>
-                                        matched.Description!.Contains(s, StringComparison.OrdinalIgnoreCase)))
+                                    !skipFailureReasonsNormalized.Contains(
+                                        NormalizeForMatch(matched.Description!)
+                                    ))
                                 {
                                     uniqueFailureReasons.Add(matched.Description!);
                                 }
-                            }
-                            else
-                            {
-                                var defaultReason = $"{paramName} does not meet eligibility criteria.";
 
+                                continue;
+                            }
+
+                            if (skipFailureReasonsNormalized.Contains(cleanedMsg))
+                            {
                                 nonEligible.RejectionReasons.Add(new RejectionReason
                                 {
-                                    Code = "ELIGIBILITY_FAILED",
-                                    Description = defaultReason
+                                    Code = "BRE_MESSAGE",
+                                    Description = msg
                                 });
 
                                 if (eligibleProducts.Count == 0)
                                 {
-                                    uniqueFailureReasons.Add(defaultReason);
+                                    uniqueFailureReasons.Add(msg);
                                 }
+
+                                continue;
+                            }
+
+                            var defaultReason = "Does not meet eligibility criteria.";
+
+                            nonEligible.RejectionReasons.Add(new RejectionReason
+                            {
+                                Code = "ELIGIBILITY_FAILED",
+                                Description = defaultReason
+                            });
+
+                            if (eligibleProducts.Count == 0)
+                            {
+                                uniqueFailureReasons.Add(defaultReason);
                             }
                         }
 
@@ -3597,7 +3640,6 @@ namespace EligibilityPlatform.Application.Services
                 }
             }
 
-            // Final: Set FailureReason only once
             evaluation.FailurReason = uniqueFailureReasons.Count > 0
                 ? string.Join(", ", uniqueFailureReasons)
                 : null;
@@ -3614,17 +3656,21 @@ namespace EligibilityPlatform.Application.Services
             };
         }
 
-
-
-
         // Normalize string: remove punctuation, lowercase, trim
         private static string NormalizeForMatch(string input)
         {
-            if (string.IsNullOrWhiteSpace(input)) return "";
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
 
             return new string([.. input.Where(char.IsLetterOrDigit)])
-                .ToLower()
-                .Trim();
+                .ToLowerInvariant();
+        }
+        private static string ExtractNumericValue(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            return new string([.. input.Where(char.IsDigit)]);
         }
 
 

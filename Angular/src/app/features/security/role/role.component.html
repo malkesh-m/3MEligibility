@@ -20,14 +20,14 @@
             <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
                 (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
         </div>
-        <div class="col-auto" *ngIf="activeTab === 'AssignedRoles' && hasPermission(124)">
+        <div class="col-auto" *ngIf="activeTab === 'AssignedRoles'">
             <button appUseractivity="User Click on Remove Role button"
               [componentName]="'RoleComponent'"
               [actionType]="'ButtonClick'" class="cancelBtn btn-outline-secondary" style="min-width: 125px !important;" (click)="deleteRole()">
                 {{ 'Remove Role' | translate }}
             </button>
         </div>
-        <div class="col-auto" *ngIf="activeTab === 'AvailableRoles' && hasPermission(125)">
+        <div class="col-auto" *ngIf="activeTab === 'AvailableRoles'">
             <button appUseractivity="User Click on Add Role button"
               [componentName]="'RoleComponent'"
               [actionType]="'ButtonClick'" class="btn btn-outline-secondary" (click)="addRole()">

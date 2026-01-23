@@ -14,20 +14,24 @@ import { LocationStrategy } from '@angular/common';
 import { OidcAuthService } from './core/services/auth/oidc-auth.service';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { GlobalErrorInterceptor } from './core/interceptors/error.interceptor';
+import { AuthService } from './core/services/auth/auth.service';
 
-export function initializeOidc(oidcAuthService: OidcAuthService) {
-  return async () => {
-    try {
-      const initialized = await oidcAuthService.init();
-      console.log('OIDC initialization result:', initialized);
+export function initializeOidc(
+  oidcAuthService: OidcAuthService,
+  authService: AuthService
+) {
+  return () => {
+    return oidcAuthService.init().then(initialized => {
+      if (initialized) {
+        return authService.loadUserPermissions().toPromise();
+      }
       return true;
-    } catch (error) {
-      console.error('APP_INITIALIZER: OIDC init error:', error);
+    }).catch(err => {
+      console.error('APP_INITIALIZER error', err);
       return true;
-    }
+    });
   };
 }
-
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -57,7 +61,7 @@ export function initializeOidc(oidcAuthService: OidcAuthService) {
     {
       provide: APP_INITIALIZER,
       useFactory: initializeOidc,
-      deps: [OidcAuthService],
+      deps: [OidcAuthService,AuthService],
       multi: true
     },
     provideAnimationsAsync()

@@ -717,9 +717,9 @@
       <ng-container matColumnDef="Actions">
         <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
         <td class="cellStyling" mat-cell *matCellDef="let entity">
-          <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission(33)"
+          <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission('33')"
                     matTooltip="{{'Edit' | translate}}">edit</mat-icon>
-          <mat-icon class="clickable-icon" color="warn" (click)="deleteNode(entity)" *ngIf="hasPermission(32)"
+          <mat-icon class="clickable-icon" color="warn" (click)="deleteNode(entity)" *ngIf="hasPermission('32')"
                     matTooltip="{{'Delete' | translate}}">delete</mat-icon>
         </td>
       </ng-container>
@@ -779,9 +779,9 @@
       <ng-container matColumnDef="Actions">
         <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
         <td class="cellStyling" mat-cell *matCellDef="let entity">
-          <mat-icon class="clickable-icon" color="primary" (click)="editNodeAPIRecord(entity)" *ngIf="hasPermission(30)"
+          <mat-icon class="clickable-icon" color="primary" (click)="editNodeAPIRecord(entity)" *ngIf="hasPermission('30')"
                     matTooltip="{{'Edit' | translate}}">edit</mat-icon>
-          <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeAPI(entity)" *ngIf="hasPermission(29)"
+          <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeAPI(entity)" *ngIf="hasPermission('29')"
                     matTooltip="{{'Delete' | translate}}">delete</mat-icon>
 
         </td>
@@ -837,9 +837,9 @@
       <ng-container matColumnDef="Actions">
         <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
         <td class="cellStyling" mat-cell *matCellDef="let entity">
-          <mat-icon class="clickable-icon" color="primary" (click)="editAPIDetailsRecord(entity)" *ngIf="hasPermission(27)"
+          <mat-icon class="clickable-icon" color="primary" (click)="editAPIDetailsRecord(entity)" *ngIf="hasPermission('27')"
                     matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
-          <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeDetails(entity)" *ngIf="hasPermission(26)"
+          <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeDetails(entity)" *ngIf="hasPermission('26')"
                     matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
 
         </td>

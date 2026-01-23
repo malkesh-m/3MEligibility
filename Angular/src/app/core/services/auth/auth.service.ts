@@ -116,6 +116,11 @@ export class AuthService {
       })
     );
   }
+loadUserPermissions() {
+  return this.http.get<any>(`${this.apiUrl}/user/me`).pipe(
+    tap(res => this.rolesService.setRoles(res.permissions || []))
+  );
+}
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');

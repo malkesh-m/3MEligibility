@@ -110,6 +110,8 @@ namespace EligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(SecurityGroupUpdateModel securityGroupModel)
         {
+            var userName = User.GetUserName();
+            securityGroupModel.UpdatedBy = userName;
             // Validates the model state
             if (!ModelState.IsValid)
             {

@@ -14,28 +14,28 @@
     <div class="d-flex align-items-center ms-3">
       <button appUseractivity="User Click on Add button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  class="btn me-2" (click)="insertNewRecord()" >
+              [actionType]="'ButtonClick'"  class="btn me-2" (click)="insertNewRecord()"  *ngIf="hasPermission('Permissions.Rule.Create')" >
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
       <button class="btn" appUseractivity="User Click on Download Tamplate button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" (click)="downloadTemplate()" *ngIf="hasPermission(58)">
+              [actionType]="'ButtonClick'" (click)="downloadTemplate()" *ngIf="hasPermission('58')">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
       <button appUseractivity="User Click on Import button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  class="btn" (click)="fileInput.click()" *ngIf="hasPermission(58)">
+              [actionType]="'ButtonClick'"  class="btn" (click)="fileInput.click()" *ngIf="hasPermission('Permissions.Rule.Import')">
         <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
       </button>
       <button appUseractivity="User Click on Export button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  class="btn" *ngIf="hasPermission(57)">
+              [actionType]="'ButtonClick'"  class="btn" *ngIf="hasPermission('Permissions.Rule.Export')">
         <mat-icon matTooltip="{{ 'Export' | translate }}" (click)="exportRules()">file_download</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
       <button appUseractivity="User Click on Delete Multiple button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  (click)="deleteCheckedMultipleRules()" class="btn" *ngIf="hasPermission(56)">
+              [actionType]="'ButtonClick'"  (click)="deleteCheckedMultipleRules()" class="btn" *ngIf="hasPermission('Permissions.Rule.Delete')">
         <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
       </button>
     </div>
@@ -262,11 +262,11 @@
         <!-- Actions -->
         <div class="rule-cell actions-cell">
           <button mat-icon-button matTooltip="Edit" color="primary"
-                  (click)="editRuleMaster(group); $event.stopPropagation()">
+                  (click)="editRuleMaster(group); $event.stopPropagation()" *ngIf="hasPermission('Permissions.Rule.Edit')">
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button matTooltip="Delete" color="warn"
-                  (click)="deleteEruleMaster(group); $event.stopPropagation()">
+                  (click)="deleteEruleMaster(group); $event.stopPropagation()" *ngIf="hasPermission('Permissions.Rule.Delete')">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -281,7 +281,7 @@
       </button> -->
       <button appUseractivity="User Click on Add New Version button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" mat-raised-button color="primary" (click)="addNewVersion(group)" matTooltip="Add New Version">
+              [actionType]="'ButtonClick'" mat-raised-button color="primary" (click)="addNewVersion(group)" matTooltip="Add New Version" *ngIf="hasPermission('Permissions.Rule.Create')">
         <mat-icon>add</mat-icon> Add New Version
       </button>
 
@@ -345,7 +345,7 @@
                 lock
               </mat-icon>
             </ng-template>
-            <mat-icon color="warn" class="clickable-icon" *ngIf="hasPermission(56)" (click)="deleteRecord(item)"
+            <mat-icon color="warn" class="clickable-icon" *ngIf="hasPermission('Permissions.Rule.Delete')" (click)="deleteRecord(item)"
                       matTooltip="Delete">delete</mat-icon>
           </td>
         </ng-container>

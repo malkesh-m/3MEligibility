@@ -20,19 +20,19 @@
           </button>
           <button appUseractivity="User Click on Download Template button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(58)">
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('58')">
               <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
           </button>
           <button appUseractivity="User Click on Template button"
               [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()" *ngIf="hasPermission(58)">
+              [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()" *ngIf="hasPermission('58')">
               <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
           </button>
-          <button class="btn" *ngIf="hasPermission(57)">
+          <button class="btn" *ngIf="hasPermission('57')">
               <mat-icon matTooltip="{{ 'Export' | translate }}" (click)="exportRules()">file_download</mat-icon>
           </button>
           <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
-          <button (click)="deleteCheckedMultipleRules()" class="btn" *ngIf="hasPermission(56)">
+          <button (click)="deleteCheckedMultipleRules()" class="btn" *ngIf="hasPermission('56')">
               <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
           </button>
       </div>
@@ -253,13 +253,13 @@
       <ng-container matColumnDef="Actions">
           <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
           <td class="cellStyling" mat-cell *matCellDef="let entity">
-              <mat-icon class="clickable-icon" color="primary" (click)="copyRecord(entity)" *ngIf="hasPermission(117)"
+              <mat-icon class="clickable-icon" color="primary" (click)="copyRecord(entity)" *ngIf="hasPermission('117')"
                   matTooltip="{{ 'Copy' | translate }}">file_copy</mat-icon>
-              <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission(59)"
+              <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission('59')"
                   matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
-              <mat-icon class="clickable-icon" color="warn" (click)="deleteRecord(entity)" *ngIf="hasPermission(56)"
+              <mat-icon class="clickable-icon" color="warn" (click)="deleteRecord(entity)" *ngIf="hasPermission('56')"
                   matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
-              <mat-icon class="clickable-icon" color="accent" (click)="openValidatorDialog(entity)" *ngIf="hasPermission(118)"
+              <mat-icon class="clickable-icon" color="accent" (click)="openValidatorDialog(entity)" *ngIf="hasPermission('118')"
                   matTooltip="{{ 'Validate' | translate }}">check_circle</mat-icon>
           </td>
       </ng-container>

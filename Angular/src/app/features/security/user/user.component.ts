@@ -90,7 +90,7 @@ export class UserComponent implements OnInit {
 
   constructor(private userService: UserService,private rolesService:RolesService,private entityService:EntityService) { }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
   passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
@@ -154,7 +154,7 @@ export class UserComponent implements OnInit {
     this.menuVisible = false;
   }
 
-  @HostListener('document:click', ['$event.target'])
+  @HostListener('document:click', ['$event.target'!])
   onClickOutside(targetElement: HTMLElement) {
     const dropdown = document.querySelector('.dropdown-toggle');
     const menu = document.querySelector('.dropdown-menu');

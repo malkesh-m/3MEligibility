@@ -80,26 +80,26 @@ export class ListsComponent {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission(92)) ||
-      (this.activeTab === 'listItems' && this.hasPermission(97));
+    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Create')) ||
+      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Create'));
   }
 
   getDeletePermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission(94)) ||
-      (this.activeTab === 'listItems' && this.hasPermission(99));
+    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Delete')) ||
+      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Delete'));
   }
 
   getImportPermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission(95)) ||
-      (this.activeTab === 'listItems' && this.hasPermission(100));
+    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Import')) ||
+      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Import'));
   }
 
   getExportPermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission(96)) ||
-      (this.activeTab === 'listItems' && this.hasPermission(101));
+    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Export')) ||
+      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Export'));
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 

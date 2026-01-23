@@ -4,6 +4,7 @@ using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Application.UnitOfWork;
 using EligibilityPlatform.Domain.Entities;
 using EligibilityPlatform.Domain.Models;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EligibilityPlatform.Application.Services
 {
@@ -15,13 +16,14 @@ namespace EligibilityPlatform.Application.Services
     /// </remarks>
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
-    public class UserGroupService(IUnitOfWork uow, IMapper mapper) : IUserGroupService
+    public class UserGroupService(IUnitOfWork uow, IMapper mapper,IUserService userService) : IUserGroupService
     {
         /// The unit of work instance for database operations.
         private readonly IUnitOfWork _uow = uow;
 
         /// The AutoMapper instance for object mapping.
         private readonly IMapper _mapper = mapper;
+        private readonly IUserService _userService = userService;
 
         /// <summary>
         /// Adds a new user group to the database.
@@ -44,6 +46,8 @@ namespace EligibilityPlatform.Application.Services
             _uow.UserGroupRepository.Add(_mapper.Map<UserGroup>(userGroupModel));
             // Commits the changes to the database
             await _uow.CompleteAsync();
+            _userService.RemoveUserPermissionsCache(userGroupModel.UserId);
+
             result = "Success";
             return result;
         }
@@ -127,6 +131,7 @@ namespace EligibilityPlatform.Application.Services
                 _uow.UserGroupRepository.Remove(item);
                 // Commits the changes to the database
                 await _uow.CompleteAsync();
+                _userService.RemoveUserPermissionsCache(userId);
             }
             else
             {

@@ -4,6 +4,8 @@ using EligibilityPlatform.Application.UnitOfWork;
 using EligibilityPlatform.Domain.Entities;
 using EligibilityPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+
 
 namespace EligibilityPlatform.Application.Services
 {
@@ -15,18 +17,18 @@ namespace EligibilityPlatform.Application.Services
     /// </remarks>
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
-    public class GroupRoleService(IUnitOfWork uow, IMapper mapper) : IGroupRoleService
+    public class GroupRoleService(IUnitOfWork uow, IMapper mapper,IMemoryCache cache,IUserService userService) : IGroupRoleService
     {
         /// <summary>
         /// The unit of work instance for data access and persistence operations.
         /// </summary>
         private readonly IUnitOfWork _uow = uow;
-
+        private readonly IUserService _userService = userService;
         /// <summary>
         /// The AutoMapper instance for mapping between entities and models.
         /// </summary>
         private readonly IMapper _mapper = mapper;
-
+        private readonly IMemoryCache _cache = cache;
         /// <summary>
         /// Adds group-role assignments based on the given model.
         /// </summary>
@@ -44,12 +46,20 @@ namespace EligibilityPlatform.Application.Services
                     UpdatedByDateTime = DateTime.UtcNow
                 })
                 .ToList();
-
+     
             // Add all mappings at once
             _uow.GroupRoleRepository.AddRange(groupRoles);
-
             // Commit changes
             await _uow.CompleteAsync();
+
+            var userIds = await _uow.UserGroupRepository.Query()
+              .Where(x => x.GroupId == groupRoleModel.GroupId)
+             .Select(x => x.UserId)
+             .ToListAsync();
+            foreach (var userId in userIds)
+            {
+                _userService.RemoveUserPermissionsCache(userId);
+            }
         }
 
         /// <summary>
@@ -105,9 +115,16 @@ namespace EligibilityPlatform.Application.Services
             {
                 _uow.GroupRoleRepository.RemoveRange(itemsToRemove);
             }
-
             // Commit changes
             await _uow.CompleteAsync();
+            var userIds = await _uow.UserGroupRepository.Query()
+            .Where(x => x.GroupId == groupRoleModel.GroupId)
+            .Select(x => x.UserId)
+            .ToListAsync();
+            foreach (var userId in userIds)
+            {
+                _userService.RemoveUserPermissionsCache(userId);
+            }
         }
 
         /// <summary>

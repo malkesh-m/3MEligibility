@@ -32,9 +32,9 @@ export class TableComponent {
   pageSize: number = 10;
   currentPage: number = 0;
   @Input() displayedColumns: string[] = [];
-  @Input() editRoleId: number = 0;
-  @Input() deleteRoleId: number = 0;
-  @Input() validateRoleId: number = 0;
+  @Input() editRoleId: string = '';
+  @Input() deleteRoleId: string = '';
+  @Input() validateRoleId: string = '';
 
   constructor(
     private dialog: MatDialog,
@@ -62,7 +62,7 @@ export class TableComponent {
     this.updatePaginatedRows();
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
   

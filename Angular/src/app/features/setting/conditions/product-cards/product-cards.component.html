@@ -15,28 +15,28 @@
         <div class="d-flex align-items-center ms-3">
             <button appUseractivity="User Click on Add button"
               [componentName]="'ProductCardsComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" >
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" *ngIf="hasPermission('Permissions.PCard.Create')" >
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
             <button appUseractivity="User Click on Add button"
               [componentName]="'ProductCardsComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(68)">
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('Permissions.PCard.DownloadTemplate')">
                 <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
             </button>
             <button appUseractivity="User Click on Import button"
               [componentName]="'ProductCardsComponent'"
-              [actionType]="'ButtonClick'"  class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission(68)">
+              [actionType]="'ButtonClick'"  class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission('Permissions.PCard.Import')">
                 <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
             </button>
             <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
             <button appUseractivity="User Click on Export button"
               [componentName]="'ProductCardsComponent'"
-              [actionType]="'ButtonClick'"   class="btn" (click)="exportPCards()" *ngIf="hasPermission(67)">
+              [actionType]="'ButtonClick'"   class="btn" (click)="exportPCards()" *ngIf="hasPermission('Permissions.PCard.Export')">
                 <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
             </button>
             <button appUseractivity="User Click on Delete button"
               [componentName]="'ProductCardsComponent'"
-              [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleCards()" class="btn" *ngIf="hasPermission(66)">
+              [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleCards()" class="btn" *ngIf="hasPermission('Permissions.PCard.Delete')">
                 <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
             </button>
         </div>
@@ -175,7 +175,7 @@
 </div>
 
 <app-table *ngIf="!loading" #tableChild [cols]="productCardsColumnsAry" [checkedSelectedId]="deleteKeyForMultiple" [displayedColumns]="productCardsColumnsAry"
-    [rows]="filteredProductCardsList" [header]="cardsHeaderAry" (actionEvent)="tableRowAction($event)" [hasValidationAction]="true" [editRoleId]="69" [deleteRoleId]="66" [validateRoleId]="120">
+    [rows]="filteredProductCardsList" [header]="cardsHeaderAry" (actionEvent)="tableRowAction($event)" [hasValidationAction]="true" [editRoleId]="'Permissions.PCard.Edit'" [deleteRoleId]="'Permissions.PCard.Delete'" [validateRoleId]="'120'">
 </app-table>
 
 <!-- Full-page Loader -->

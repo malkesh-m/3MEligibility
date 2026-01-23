@@ -59,7 +59,7 @@ export class RoleComponent implements OnInit {
     this.fetchGroupList();
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 

@@ -112,7 +112,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
 
     }
 
-    hasPermission(roleId: number): boolean {
+    hasPermission(roleId: string): boolean {
         return this.rolesService.hasPermission(roleId);
       }
   showMaxLengthWarning: boolean = false;

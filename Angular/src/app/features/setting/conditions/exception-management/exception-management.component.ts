@@ -79,7 +79,7 @@ export class ExceptionManagementComponent {
     this.formVisible = false;
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 

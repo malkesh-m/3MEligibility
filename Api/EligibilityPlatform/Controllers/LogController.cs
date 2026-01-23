@@ -1,4 +1,5 @@
-﻿using EligibilityPlatform.Application.Middleware;
+﻿using EligibilityPlatform.Application.Constants;
+using EligibilityPlatform.Application.Middleware;
 using EligibilityPlatform.Application.Services.Inteface;
 using EligibilityPlatform.Domain.Entities;
 using EligibilityPlatform.Domain.Models;
@@ -29,6 +30,8 @@ namespace EligibilityPlatform.Controllers
         /// <param name="pageIndex">The page index (default is 0).</param>
         /// <param name="pageSize">The page size (default is 10).</param>
         /// <returns>An <see cref="IActionResult"/> containing the log records.</returns>
+        /// 
+        [Authorize(Policy = Permissions.Log.View)]
         [HttpGet("getall")]
         public async Task<IActionResult> GetAll(int pageIndex = 0, int pageSize = 10)
         {

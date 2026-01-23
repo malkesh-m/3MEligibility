@@ -61,6 +61,7 @@ export class OidcAuthService {
 
     async login(): Promise<void> {
         await this.userManager.signinRedirect();
+
     }
 
     async handleCallback(): Promise<void> {
@@ -93,4 +94,5 @@ export class OidcAuthService {
     getUserProfile(): any {
         return this.currentUser?.profile || null;
     }
+
 }

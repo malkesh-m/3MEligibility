@@ -49,7 +49,7 @@ export class BulkImportComponent {
    this.fetchBulkImportHistory();
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 

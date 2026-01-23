@@ -638,16 +638,16 @@ deleteMapping(id: number) {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'nodes' && this.hasPermission(34)) ||
-      (this.activeTab === 'api' && this.hasPermission(31)) ||
-      (this.activeTab === 'apiDetails' && this.hasPermission(28))||
+    return (this.activeTab === 'nodes' && this.hasPermission('34')) ||
+      (this.activeTab === 'api' && this.hasPermission('31')) ||
+      (this.activeTab === 'apiDetails' && this.hasPermission('28'))||
       (this.activeTab === 'addParameters') || (this.activeTab === 'mapApiParams');
   }
 
   getDeletePermission(): boolean {
-    return (this.activeTab === 'nodes' && this.hasPermission(32)) ||
-      (this.activeTab === 'api' && this.hasPermission(29)) ||
-      (this.activeTab === 'apiDetails' && this.hasPermission(26));
+    return (this.activeTab === 'nodes' && this.hasPermission('32')) ||
+      (this.activeTab === 'api' && this.hasPermission('29')) ||
+      (this.activeTab === 'apiDetails' && this.hasPermission('26'));
   }
   openApiDetails(api: any) {
     this.NodeAPIVisible = false;
@@ -716,7 +716,7 @@ deleteMapping(id: number) {
       defaultValue: row.defaultValue
     });
   }
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
   addApiParameter() {
@@ -1484,7 +1484,7 @@ deleteMapping(id: number) {
     }
   } 
   
-  @HostListener('document:click', ['$event.target'])
+  @HostListener('document:click', ['$event.target'!])
   onClickOutside(targetElement: HTMLElement) {
     const dropdown = document.querySelector('.dropdown-toggle');
     const menu = document.querySelector('.dropdown-menu');

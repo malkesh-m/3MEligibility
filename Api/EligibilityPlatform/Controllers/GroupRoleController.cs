@@ -68,8 +68,6 @@ namespace EligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
         [Authorize(Policy = Permissions.GroupRole.Delete)]
-        [RequirePermission("Delete Group Role")]
-
         [HttpDelete]
         public async Task<IActionResult> Delete(GroupRoleModel groupRoleModel)
         {

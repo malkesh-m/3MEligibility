@@ -15,7 +15,7 @@
         <div class="d-flex align-items-center ms-3">
             <button  appUseractivity="User Click on Add button"
               [componentName]="'ProductComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" >
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()"*ngIf="getAddPermission()" >
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
             <button appUseractivity="User Click on Download Template button"
@@ -68,14 +68,14 @@
   <div *ngSwitchCase="'Category'">
     <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
                       [columnsDisplayAry]="categoryTableColumnAry" [headerDisplayAry]="categoryTableHeaderAry"
-                      [listAry]="categoriesList" [editRoleId]="103" [deleteRoleId]="104" [currentTab]="activeTab">
+                      [listAry]="categoriesList" [editRoleId]="'Permissions.Category.Edit'" [deleteRoleId]="'Permissions.Category.Delete'" [currentTab]="activeTab">
     </app-product-list>
   </div>
 
   <div *ngSwitchCase="'Info'">
     <app-product-list *ngIf="isDataReady" #productChild (updateTableRows)="categoryTableDataUpdate($event)"
                       [columnsDisplayAry]="infoTableColumnAry" [headerDisplayAry]="infoTableHeaderAry" [listAry]="infoList"
-                      [currentTab]="activeTab" [categoryList]="categoriesList" [editRoleId]="108" [deleteRoleId]="109">
+                      [currentTab]="activeTab" [categoryList]="categoriesList" [editRoleId]="'Permissions.Product.Edit'" [deleteRoleId]="'Permissions.Product.Delete'">
     </app-product-list>
     <div *ngIf="!isDataReady" class="loading-container">
       <p>Loading data, please wait...</p>
@@ -86,8 +86,8 @@
   <div *ngSwitchCase="'Details'">
     <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
                       [columnsDisplayAry]="detailsTableColumnAry" [headerDisplayAry]="detailsTableHeaderAry"
-                      [listAry]="detailsList" [productList]="infoList" [currentTab]="activeTab" [editRoleId]="113"
-                      [deleteRoleId]="114">
+                      [listAry]="detailsList" [productList]="infoList" [currentTab]="activeTab" [editRoleId]="'113'"
+                      [deleteRoleId]="'114'">
     </app-product-list>
     <!--<div *ngIf="!isDataReady" class="loading-container">
       <p>Loading data, please wait...</p>

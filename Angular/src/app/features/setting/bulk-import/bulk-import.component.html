@@ -14,7 +14,7 @@
                     <div class="mt-3">
                         <button appUseractivity="User Click Download  button"
               [componentName]="'BulkImportComponent'"
-              [actionType]="'ButtonClick'"  class="btn mat-button download-btn" (click)="downloadTemplate()" *ngIf="hasPermission(131)" >
+              [actionType]="'ButtonClick'"  class="btn mat-button download-btn" (click)="downloadTemplate()" *ngIf="hasPermission('131')" >
                             <mat-icon>cloud_download</mat-icon>
                             <span class="ms-2">{{ 'Download' | translate }}</span>
                         </button>
@@ -34,7 +34,7 @@
                     <div class="mt-3">
                         <button class="btn import-btn mat-button" appUseractivity="User Click on Import  button"
               [componentName]="'BulkImportComponent'"
-              [actionType]="'ButtonClick'"  (click)="fileInput.click()" *ngIf="hasPermission(131)" >
+              [actionType]="'ButtonClick'"  (click)="fileInput.click()" *ngIf="hasPermission('131')" >
                             <mat-icon>file_upload</mat-icon>
                             {{ 'Import' | translate }}
                         </button>
@@ -86,7 +86,7 @@
       <ng-container matColumnDef="actions">
         <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
         <td class="cellStyling" mat-cell *matCellDef="let entity">
-            <button mat-icon-button (click)="downloadFile(entity)" matTooltip="{{ 'Download' | translate }}" *ngIf="hasPermission(132)" >
+            <button mat-icon-button (click)="downloadFile(entity)" matTooltip="{{ 'Download' | translate }}" *ngIf="hasPermission('132')" >
                 <mat-icon>cloud_download</mat-icon>
               </button>
         </td>

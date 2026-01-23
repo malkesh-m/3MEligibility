@@ -847,9 +847,13 @@ namespace EligibilityPlatform.Application.Services
                     .Distinct()
                     .ToListAsync();
 
-            _cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(10));
-
+            _cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(30));
             return permissions;
+        }
+        public void RemoveUserPermissionsCache(int userId)
+        {
+            var cacheKey = $"PERMISSIONS_USER_{userId}";
+            _cache.Remove(cacheKey);
         }
         /// <summary>
         /// Gets the user roles from a ClaimsPrincipal.

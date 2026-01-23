@@ -16,28 +16,28 @@
     <div class="d-flex align-items-center ms-3">
       <button appUseractivity="User Click on Add button"
               [componentName]="'EligibilityCardsComponent'"
-              [actionType]="'ButtonClick'"  class="btn me-2"  (click)="insertNewRecord()" >
+              [actionType]="'ButtonClick'"  class="btn me-2"  (click)="insertNewRecord()" *ngIf="hasPermission('Permissions.ECard.Create')" >
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
       <button appUseractivity="User Click on Download Template button"
               [componentName]="'EligibilityCardsComponent'"
-              [actionType]="'ButtonClick'"  class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(63)">
+              [actionType]="'ButtonClick'"  class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('63')">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
       <button appUseractivity="User Click on Import button"
               [componentName]="'EligibilityCardsComponent'"
-              [actionType]="'ButtonClick'"  class="btn" (click)="fileInput.click()" *ngIf="hasPermission(63)">
+              [actionType]="'ButtonClick'"  class="btn" (click)="fileInput.click()" *ngIf="hasPermission('Permissions.ECard.Import')">
         <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
       </button>
       <button appUseractivity="User Click on Export button"
               [componentName]="'EligibilityCardsComponent'"
-              [actionType]="'ButtonClick'"  class="btn" *ngIf="hasPermission(62)">
+              [actionType]="'ButtonClick'"  class="btn" *ngIf="hasPermission('Permissions.ECard.Export')">
         <mat-icon matTooltip="{{ 'Export' | translate }}" (click)="exportCards()">file_download</mat-icon>
       </button>
       <input  type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
       <button appUseractivity="User Click on Delete Multiple button"
               [componentName]="'EligibilityCardsComponent'"
-              [actionType]="'ButtonClick'"  (click)="deleteCheckedMultipleCards()" class="btn" *ngIf="hasPermission(61)">
+              [actionType]="'ButtonClick'"  (click)="deleteCheckedMultipleCards()" class="btn" *ngIf="hasPermission('Permissions.ECard.Delete')">
         <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
       </button>
     </div>
@@ -161,7 +161,7 @@
 
 <app-table #tableChild [cols]="cardsColumnsAry" [checkedSelectedId]="deleteKeyForMultiple" [rows]="filteredCards"
   [displayedColumns]="cardsColumnsAry" [header]="cardsHeaderAry" (actionEvent)="tableRowAction($event)"
-  [hasValidationAction]="true" [editRoleId]="64" [deleteRoleId]="61" [validateRoleId]="119">
+  [hasValidationAction]="true" [editRoleId]="'Permissions.ECard.Edit'" [deleteRoleId]="'Permissions.ECard.Delete'" [validateRoleId]="'65'">
 </app-table>
 
 <!-- Full-page Loader -->

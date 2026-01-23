@@ -103,26 +103,26 @@ export class ProductComponent {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'Category' && this.hasPermission(102)) ||
-      (this.activeTab === 'Info' && this.hasPermission(107)) || (this.activeTab === 'Details' && this.hasPermission(112));
+    return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Create')) ||
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Create')) || (this.activeTab === 'Details' && this.hasPermission('112'));
   }
 
   getDeletePermission(): boolean {
-    return (this.activeTab === 'Category' && this.hasPermission(104)) ||
-      (this.activeTab === 'Info' && this.hasPermission(109)) || (this.activeTab === 'Details' && this.hasPermission(114));
+    return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Delete')) ||
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Delete')) || (this.activeTab === 'Details' && this.hasPermission('114'));
   }
 
   getImportPermission(): boolean {
-    return (this.activeTab === 'Category' && this.hasPermission(105)) ||
-      (this.activeTab === 'Info' && this.hasPermission(110)) || (this.activeTab === 'Details' && this.hasPermission(115));
+    return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Import')) ||
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Import')) || (this.activeTab === 'Details' && this.hasPermission('115'));
   }
 
   getExportPermission(): boolean {
-    return (this.activeTab === 'Category' && this.hasPermission(106)) ||
-      (this.activeTab === 'Info' && this.hasPermission(111)) || (this.activeTab === 'Details' && this.hasPermission(116));
+    return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Export')) ||
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Export')) || (this.activeTab === 'Details' && this.hasPermission('116'));
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 

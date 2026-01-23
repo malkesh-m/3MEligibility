@@ -13,7 +13,7 @@
         <div class="d-flex align-items-center position-relative">
             <button appUseractivity="User Click on Update Changes button"
               [componentName]="'UserProfileComponent'"
-              [actionType]="'ButtonClick'" class="btn btn-outline-secondary" (click)="updateUser()" *ngIf="hasPermission(138)">
+              [actionType]="'ButtonClick'" class="btn btn-outline-secondary" (click)="updateUser()" *ngIf="hasPermission('138')">
                 {{ 'Update Changes' | translate }}
             </button>
         </div>

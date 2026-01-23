@@ -15,28 +15,28 @@
         <div class="d-flex align-items-center ms-3">
             <button appUseractivity="User Click on Add button"
               [componentName]="'FactorComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" >
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" *ngIf="hasPermission('Permissions.Factor.Create')" >
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
             <button appUseractivity="User Click on Download Template button"
               [componentName]="'FactorComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission(22)">
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('22')">
                 <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
               </button>
               <button  appUseractivity="User Click on Import button"
               [componentName]="'FactorComponent'"
-              [actionType]="'ButtonClick'"class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission(22)">
+              [actionType]="'ButtonClick'"class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission('Permissions.Factor.Import')">
                 <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
               </button>
               <input  type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
             <button appUseractivity="User Click on Export button"
               [componentName]="'FactorComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="exportFactors()" *ngIf="hasPermission(21)">
+              [actionType]="'ButtonClick'" class="btn" (click)="exportFactors()" *ngIf="hasPermission('Permissions.Factor.Export')">
                 <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
             </button>
             <button appUseractivity="User Click on Delete button"
               [componentName]="'FactorComponent'"
-              [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="btn" *ngIf="hasPermission(23)">
+              [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="btn" *ngIf="hasPermission('Permissions.Factor.Delete')">
                 <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
             </button>
         </div>
@@ -367,13 +367,13 @@
                 <button appUseractivity="User Click on Edit button"
               [componentName]="'FactorComponent'"
               [actionType]="'ButtonClick'" mat-icon-button color="primary" matTooltip="{{ 'Edit' | translate }}" (click)="editRecord(element)" 
-                    aria-label="Edit">
+                    aria-label="Edit"  *ngIf="hasPermission('Permissions.Factor.Edit')">
                     <mat-icon>edit</mat-icon>
                 </button>
                 <button appUseractivity="User Click on Delete button"
               [componentName]="'FactorComponent'"
               [actionType]="'ButtonClick'" mat-icon-button color="warn" matTooltip="{{ 'Delete' | translate }}" (click)="deleteFactor(element)"
-                    aria-label="Delete">
+                    aria-label="Delete"  *ngIf="hasPermission('Permissions.Factor.Delete')">
                     <mat-icon>delete</mat-icon>
                 </button>
             </td>

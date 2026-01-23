@@ -61,7 +61,7 @@
 
                   (click)="openDetailsDialog(row)"
                   matTooltip="{{ 'View Details' | translate }}"
-                  *ngIf="hasPermission(86)">
+                  *ngIf="hasPermission('86')">
           visibility
         </mat-icon>
 
@@ -72,7 +72,7 @@
 
                   (click)="updateStatus(row.makerCheckerId, 'Approved', '')"
                   matTooltip="{{ 'Approve' | translate }}"
-                  *ngIf="hasPermission(126)">
+                  *ngIf="hasPermission('126')">
           check_circle
         </mat-icon>
         <mat-icon appUseractivity="User Click on Reject  button"
@@ -82,7 +82,7 @@
                   color="warn"
                   matTooltip="{{ 'Reject' | translate }}"
                   (click)="updateStatus(row.makerCheckerId, 'Declined', '')"
-                  *ngIf="hasPermission(127)">
+                  *ngIf="hasPermission('127')">
           cancel
         </mat-icon>
 

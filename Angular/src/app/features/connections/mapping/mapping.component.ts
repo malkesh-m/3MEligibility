@@ -98,7 +98,7 @@ export class MappingComponent {
     });
   }
 
-  hasPermission(roleId: number): boolean {
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 
@@ -277,7 +277,7 @@ export class MappingComponent {
     this.isDisabled = true;
   }
 
-  @HostListener('document:click', ['$event.target'])
+  @HostListener('document:click', ['$event.target'!])
   onClickOutside(targetElement: HTMLElement) {
     const dropdown = document.querySelector('.dropdown-toggle');
     const menu = document.querySelector('.dropdown-menu');

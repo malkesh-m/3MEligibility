@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { RolesService } from '../../services/setting/role.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,13 +12,36 @@ import { RolesService } from '../../services/setting/role.service';
 export class SidebarComponent {
   step = signal(0);
 
-  constructor(private rolesService:RolesService){}
-  
+    permissions$ = this.rolesService.permissions$;
+
   setStep(index: number) {
     this.step.set(index);
   }
+  permissions = signal<string[]>([]);
 
-  hasPermission(roleId: number): boolean {
+
+
+  constructor(private rolesService: RolesService, private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.loadUserPermissions().subscribe({
+      next: () => {
+        this.rolesService.permissions$.subscribe(perms => {
+          this.permissions.set(perms);
+        });
+      },
+      error: err => console.error('Failed to load permissions', err)
+    });
+  }
+
+
+
+
+  loadPermissions() {
+    this.authService.loadUserPermissions()
+  }
+
+  hasPermission(roleId: string): boolean {
     return this.rolesService.hasPermission(roleId);
   }
 }

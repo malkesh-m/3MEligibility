@@ -204,6 +204,11 @@ namespace EligibilityPlatform.Application.Constants
             public const string Export = "Permissions.ListItem.Export";
             public const string Import = "Permissions.ListItem.Import";
         }
+        public static class Log
+        {
+            public const string View = "Permissions.Log.View";
+
+        }
         public static class MakerChecker
         {
             public const string Create = "Permissions.MakerChecker.Create";

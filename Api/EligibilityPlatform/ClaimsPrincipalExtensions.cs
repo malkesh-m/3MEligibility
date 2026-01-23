@@ -41,7 +41,7 @@ namespace EligibilityPlatform
         }
         public static string GetUserName(this ClaimsPrincipal user)
         {
-            var nameClaim = user?.FindFirst("name");
+            var nameClaim = user?.FindFirst("preferred_username");
 
             return nameClaim == null ? throw new Exception("User Name claim not found.") : nameClaim.Value;
         }

@@ -72,10 +72,10 @@
   <mat-dialog-actions align="end">
     <button appUseractivity="User Click on Approve  button"
               [componentName]="'MakerCheckerDetailsComponent'"
-              [actionType]="'ButtonClick'" mat-button color="primary" (click)="approve()" *ngIf="hasPermission(126)&& !fromhistory">{{ 'Approve' | translate }}</button>
+              [actionType]="'ButtonClick'" mat-button color="primary" (click)="approve()" *ngIf="hasPermission('126')&& !fromhistory">{{ 'Approve' | translate }}</button>
     <button appUseractivity="User Click on Reject  button"
               [componentName]="'MakerCheckerDetailsComponent'"
-              [actionType]="'ButtonClick'"  mat-button color="warn" (click)="reject()" *ngIf="hasPermission(127)&& !fromhistory">{{ 'Reject' | translate }}</button>
+              [actionType]="'ButtonClick'"  mat-button color="warn" (click)="reject()" *ngIf="hasPermission('127')&& !fromhistory">{{ 'Reject' | translate }}</button>
     <button  appUseractivity="User Click on Close Dialog button"
               [componentName]="'MakerCheckerDetailsComponent'"
               [actionType]="'ButtonClick'" mat-button (click)="closeDialog()">{{ 'Close' | translate }}</button>
