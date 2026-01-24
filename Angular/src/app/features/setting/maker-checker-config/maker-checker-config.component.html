@@ -6,7 +6,7 @@
 <div class="mb-3 gap-4" *ngIf="isDataReady">
   <mat-slide-toggle appUseractivity="User Click on Enable/Disable MakerChecker button"
               [componentName]="'MakerCheckerConfigComponent'"
-              [actionType]="'ButtonClick'"  [checked]="isMakerCheckerEnabled()" (change)="toggleMakerChecker($event)" *ngIf="hasPermission('129')">
+              [actionType]="'ButtonClick'"  [checked]="isMakerCheckerEnabled()" (change)="toggleMakerChecker($event)" *ngIf="hasPermission('Permissions.MakerCheckerConfig.Edit')">
     {{"Enable Maker-Checker"| translate}}
   </mat-slide-toggle>
 </div>

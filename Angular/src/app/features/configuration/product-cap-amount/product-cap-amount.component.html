@@ -122,7 +122,7 @@
   <div class="mb-3 d-flex justify-content-start">
     <button mat-raised-button color="primary"appUseractivity="User Click on Add Stream Cap Amount button"
               [componentName]="'ProductCapAmountComponent'"
-              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Amount">
+              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Amount" *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
       <mat-icon>add</mat-icon> Add New
     </button>
   </div>
@@ -167,12 +167,12 @@
       <ng-container matColumnDef="actions">
         <th class="cellStyling" mat-header-cell *matHeaderCellDef>Actions</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">
-          <button mat-icon-button color="primary" (click)="editProductCapAmount(element)" matTooltip="Edit">
+          <button mat-icon-button color="primary" (click)="editProductCapAmount(element)" matTooltip="Edit" *ngIf="hasPermission('Permissions.ProductCapAmount.Edit')">
             <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="deleteProductCapAmount(element)" matTooltip="Delete">
+          </button >
+          <button mat-icon-button color="warn" (click)="deleteProductCapAmount(element)" matTooltip="Delete" *ngIf="hasPermission('Permissions.ProductCapAmount.Delete')">
             <mat-icon>delete</mat-icon>
-          </button>
+          </button >
         </td>
       </ng-container>
 

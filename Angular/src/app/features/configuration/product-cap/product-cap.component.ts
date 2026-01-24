@@ -3,6 +3,7 @@ import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn,
 import { ProductsService } from '../../../core/services/setting/products.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductCapService } from '../../../core/services/setting/product-cap.service';
+import { RolesService } from '../../../core/services/setting/role.service';
 // import { MatTableDataSource } from '@angular/material/table';
 // import { MatSort } from '@angular/material/sort';
 
@@ -27,9 +28,11 @@ export class ProductCapComponent implements OnInit {
   showMinMaxError = false;
   constructor(private fb: FormBuilder,
     private productservice: ProductsService,
-    private productcapservice: ProductCapService) { }
+    private productcapservice: ProductCapService,private rolesService: RolesService) { }
   isSubmitted = false;
-
+  hasPermission(roleId: string): boolean {
+    return this.rolesService.hasPermission(roleId);
+  }
   ngOnInit(): void {
     this.fetchAllProducts();
     this.ProductCapForm = this.fb.group({

@@ -8,7 +8,7 @@ import { roleGuard } from '../../core/guards/role/role.guard';
 const routes: Routes = [
   { path: '', redirectTo: 'integration', pathMatch: 'full' },
   { path: '', component: ConnectionsComponent },
-  { path: 'integration', component: IntegrationComponent,canActivate: [roleGuard], data: { requiredRoleId: 7 } },
+  { path: 'integration', component: IntegrationComponent,canActivate: [roleGuard], data: { requiredRoleId: "Permissions.Integration.View"} },
   { path: 'mapping', component: MappingComponent,canActivate: [roleGuard], data: { requiredRoleId: 6 } }
 ];
 

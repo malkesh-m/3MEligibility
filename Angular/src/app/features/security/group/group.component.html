@@ -14,7 +14,7 @@
         <div class="d-flex align-items-center ms-3">
             <button appUseractivity="User Click on Add button"
               [componentName]="'GroupComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" >
+              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" *ngIf="hasPermission('Permissions.Group.Create')" >
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
         </div>
@@ -94,11 +94,11 @@
                     <mat-icon appUseractivity="User Click on Edit button"
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'"class="clickable-icon" color="primary" (click)="editRecord(list)"
-                        matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
+                        matTooltip="{{ 'Edit' | translate }}" *ngIf="hasPermission('Permissions.Group.Edit')">edit</mat-icon>
                     <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteRecord(list)" 
-                        matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+                        matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission('Permissions.Group.Delete')">delete</mat-icon>
                 </td>
             </ng-container>
 
@@ -191,7 +191,7 @@
                 <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'" class="clickable-icon"  color="warn" (click)="deleteAssignedUserRecord(entity)"
-                     matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+                     matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission('Permissions.UserGroup.Delete')">delete</mat-icon>
             </td>
         </ng-container>
 

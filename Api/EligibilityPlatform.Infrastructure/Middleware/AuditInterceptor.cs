@@ -248,7 +248,7 @@ namespace EligibilityPlatform.Infrastructure.Middleware
                 }
 
                 var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
-                var userName = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+                var userName = _httpContextAccessor.HttpContext?.User.FindFirst("preferred_username")?.Value;
                 string actionName = entry.State switch
                 {
                     EntityState.Modified => "Update",

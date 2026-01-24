@@ -19,9 +19,13 @@ export class RolesService {
     localStorage.setItem('userRoles', JSON.stringify(permissions));
   }
 
-  hasPermission(permission: string): boolean {
-    return this.permissionsSubject.value.includes(permission);
-  }
+hasPermission(permission: string): boolean {
+  if (!permission) return false;
+
+  return this.permissionsSubject.value
+    .map(p => p.toLowerCase())
+    .includes(permission.toLowerCase());
+}
 
   clearRoles(): void {
     this.permissionsSubject.next([]);

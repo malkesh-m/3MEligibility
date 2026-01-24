@@ -638,16 +638,16 @@ deleteMapping(id: number) {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'nodes' && this.hasPermission('34')) ||
-      (this.activeTab === 'api' && this.hasPermission('31')) ||
-      (this.activeTab === 'apiDetails' && this.hasPermission('28'))||
-      (this.activeTab === 'addParameters') || (this.activeTab === 'mapApiParams');
+    return (this.activeTab === 'nodes' && this.hasPermission('Permissions.Node.Create')) ||
+      (this.activeTab === 'api' && this.hasPermission('Permissions.NodeApi.Create')) ||
+      (this.activeTab === 'apiDetails' && this.hasPermission('Permissions.ApiDetails.Create'))||
+      (this.activeTab === 'addParameters' && this.hasPermission('Permissions.ApiParameters.Create')) || (this.activeTab === 'mapApiParams' && this.hasPermission('Permissions.ApiParameterMaps.Create'));
   }
 
   getDeletePermission(): boolean {
-    return (this.activeTab === 'nodes' && this.hasPermission('32')) ||
-      (this.activeTab === 'api' && this.hasPermission('29')) ||
-      (this.activeTab === 'apiDetails' && this.hasPermission('26'));
+    return (this.activeTab === 'nodes' && this.hasPermission('Permissions.Node.Delete')) ||
+      (this.activeTab === 'api' && this.hasPermission('Permissions.NodeApi.Delete')) ||
+      (this.activeTab === 'apiDetails' && this.hasPermission('Permissions.ApiDetails.Delete'));
   }
   openApiDetails(api: any) {
     this.NodeAPIVisible = false;

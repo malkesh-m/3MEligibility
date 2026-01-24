@@ -111,9 +111,9 @@
   <div class="mb-3 d-flex justify-content-start">
     <button mat-raised-button color="primary" appUseractivity="User Click on Add Stream Cap Score button"
               [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Score">
+              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Score" *ngIf="hasPermission('Permissions.ProductCap.Create')">
       <mat-icon>add</mat-icon> Add New
-    </button>
+    </button >
   </div>
   <div #entityTable class="table-wrapper">
     <!-- Table if data exists -->
@@ -151,12 +151,12 @@
         <td class="cellStyling" mat-cell *matCellDef="let element">
           <button mat-icon-button color="primary" appUseractivity="User Click on edit Stream Cap Score button"
               [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'" (click)="editProductCap(element)" matTooltip="Edit">
+              [actionType]="'ButtonClick'" (click)="editProductCap(element)" matTooltip="Edit" *ngIf="hasPermission('Permissions.ProductCap.Edit')">
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button color="warn"appUseractivity="User Click on delete Stream Cap Score button"
               [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'" (click)="deleteProductCap(element)" matTooltip="Delete">
+              [actionType]="'ButtonClick'" (click)="deleteProductCap(element)" matTooltip="Delete" *ngIf="hasPermission('Permissions.ProductCap.Delete')">
             <mat-icon>delete</mat-icon>
           </button>
         </td>

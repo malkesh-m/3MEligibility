@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductsService } from '../../../core/services/setting/products.service';
 import { ProductCapAmountService } from '../../../core/services/setting/product-cap-amount.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RolesService } from '../../../core/services/setting/role.service';
 
 @Component({
   selector: 'app-product-cap-amount',
@@ -20,7 +21,7 @@ export class ProductCapAmountComponent {
   private _snackBar = inject(MatSnackBar);
   formvisible: boolean = false;
   isDataReady: boolean = true;
-  constructor(private fb: FormBuilder, private productservice:ProductsService,private productAmountService:ProductCapAmountService ) { }
+  constructor(private fb: FormBuilder, private productservice:ProductsService,private productAmountService:ProductCapAmountService,private rolesService: RolesService) { }
   ngOnInit(): void {
     this.ProductCapForm = this.fb.group({
       id: [],
@@ -37,6 +38,9 @@ export class ProductCapAmountComponent {
     this.ProductCapForm.get('productId')?.valueChanges.subscribe(productId => {
       this.onProductSelected(+productId);
     });
+  }
+    hasPermission(roleId: string): boolean {
+    return this.rolesService.hasPermission(roleId);
   }
   onSubmit() {
     //this.isSubmitted = true;
