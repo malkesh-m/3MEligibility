@@ -147,7 +147,50 @@
           {{ isEditMode ? ('Edit Computed Values' | translate) : ('Add Computed Values' | translate) }}
         </button>
       </div>
+      <div class="row mt-3">
+        <!-- SMALL WIDTH -->
+        <div class="col-md-4">
+          <label class="inputLabel" for="rejectionReasonCode">
+            {{ 'Rejection Reason Code' | translate }} <span class="text-danger">*</span>
+          </label>
 
+          <input type="text"
+                 id="rejectionReasonCode"
+                 class="form-control"
+                 formControlName="rejectionReasonCode"
+                 required
+                 (input)="sanitizeCode($event)"
+                 maxlength="50" />
+
+          <div *ngIf="expressionForm.get('rejectionReasonCode')?.invalid &&
+             expressionForm.get('rejectionReasonCode')?.touched"
+               class="text-danger">
+            {{ 'Rejection Reason Code' | translate }}{{ ' is required' | translate }}
+          </div>
+        </div>
+
+        <!-- LARGE WIDTH -->
+        <div class="col-md-8">
+          <label class="inputLabel" for="rejectionReason">
+            {{ 'Rejection Reason Description' | translate }} <span class="text-danger">*</span>
+          </label>
+
+          <textarea id="rejectionReason"
+                    class="form-control auto-expand"
+                    formControlName="rejectionReason"
+                    required
+                    rows="1"
+                    (input)="autoResize($event)"
+                    maxlength="250">
+</textarea>
+
+          <div *ngIf="expressionForm.get('rejectionReason')?.invalid &&
+             expressionForm.get('rejectionReason')?.touched"
+               class="text-danger">
+            {{ 'Rejection Reason' | translate }}{{ ' is required' | translate }}
+          </div>
+        </div>
+      </div>
       <!-- Entity -->
       <!--<div class="col">
     <label class="inputLabel">{{ 'Entity' | translate }}</label>

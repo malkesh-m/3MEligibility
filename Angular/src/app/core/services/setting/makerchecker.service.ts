@@ -48,13 +48,13 @@ export class MakerCheckerService {
   }
 
   getMakerCheckerStatuses(): void {
-    this.http.get<{ id: number; name: string }[]>(`${this.apiUrl}/makerChecker/getMakerCheckerStatuses`, { headers: this.getHeaders() }).subscribe({
+    this.http.get<{ id: number; name: string }[]>(`${this.apiUrl}/makerChecker/getmakercheckerstatuses`, { headers: this.getHeaders() }).subscribe({
       next: (response) => this.statusList.set(response),
       error: (error) => console.error('Error fetching statuses:', error)
     });
   }
   updateStatus(makerCheckerId: number, statusName: string, comment: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/makerChecker/statusUpdate?id=${makerCheckerId}&statusName=${statusName}&Comment=${comment}`, { headers: this.getHeaders() }
+    return this.http.put(`${this.apiUrl}/makerchecker/statusUpdate?id=${makerCheckerId}&statusName=${statusName}&Comment=${comment}`, { headers: this.getHeaders() }
 )
       .pipe();
   }

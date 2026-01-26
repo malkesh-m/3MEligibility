@@ -369,8 +369,8 @@ export class FactorsComponent implements OnInit, AfterViewInit {
     };
     if (this.isEditMode) {
       // Call update API
-      requestBody.createdBy = this.formData.createdBy;
-      requestBody.updatedBy = this.loggedInUser.user.userName;
+      // requestBody.createdBy = this.formData.createdBy;
+      // requestBody.updatedBy = this.loggedInUser.user.userName;
       this.factorsService.updateFactor(requestBody).subscribe({
         next: (response) => {
           if (response.isSuccess) {

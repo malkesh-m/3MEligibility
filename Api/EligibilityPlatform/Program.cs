@@ -8,6 +8,7 @@ using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Services;
 using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Converters;
 using MEligibilityPlatform.Domain.Models;
 using MEligibilityPlatform.Infrastructure.Authorization;
 using MEligibilityPlatform.Infrastructure.Context;
@@ -61,7 +62,7 @@ builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
         mySqlOptions =>
         {
-            mySqlOptions.CommandTimeout(600); // 10 minutes
+            mySqlOptions.CommandTimeout(600); 
         });
 
     if (builder.Environment.IsDevelopment())
@@ -69,10 +70,14 @@ builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
 
     options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
- 
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter());
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -400,7 +405,7 @@ app.UseAuthorization();
 app.UseRateLimiter();
 
 
-app.UseMiddleware<PermissionBasedAuthorizationMiddleware>();
+//app.UseMiddleware<PermissionBasedAuthorizationMiddleware>();
 app.MapControllers();
 //app.MapDynamicApis();
 try

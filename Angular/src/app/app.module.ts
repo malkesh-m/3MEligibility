@@ -15,6 +15,7 @@ import { OidcAuthService } from './core/services/auth/oidc-auth.service';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { GlobalErrorInterceptor } from './core/interceptors/error.interceptor';
 import { AuthService } from './core/services/auth/auth.service';
+import { globalDateInterceptor } from './core/interceptors/global-date.interceptor';
 
 export function initializeOidc(
   oidcAuthService: OidcAuthService,
@@ -56,7 +57,7 @@ export function initializeOidc(
   ],
   providers: [
     provideHttpClient(
-      withInterceptors([AuthInterceptor, GlobalErrorInterceptor])
+      withInterceptors([AuthInterceptor, GlobalErrorInterceptor,globalDateInterceptor])
     ),
     {
       provide: APP_INITIALIZER,

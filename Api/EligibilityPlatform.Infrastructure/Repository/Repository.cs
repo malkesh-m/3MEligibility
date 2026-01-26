@@ -43,9 +43,9 @@ namespace MEligibilityPlatform.Infrastructure.Repository
             _entity = context.Set<T>();
             // Sets the maker-checker entity set
             _makerCheckerEntity = context.Set<MakerChecker>();
-
+          var   tenantId=httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "tenant_id") != null ? int.Parse(httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "tenant_id")?.Value!) : 0;
             // Determines if maker-checker pattern is enabled from settings
-            isMakerCheckerEnable = context.Set<Setting>().FirstOrDefault()?.IsMakerCheckerEnable ?? false;
+            isMakerCheckerEnable = context.Set<Setting>().Where(t=>t.TenantId==tenantId).FirstOrDefault()?.IsMakerCheckerEnable ?? false;
             // Extracts user ID from HTTP context claims
             if (httpContextAccessor != null && httpContextAccessor.HttpContext != null)
             {

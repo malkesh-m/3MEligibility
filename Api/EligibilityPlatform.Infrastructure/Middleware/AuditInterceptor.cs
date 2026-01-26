@@ -166,7 +166,7 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
         /// <param name="context">The EF Core database context containing tracked entities.</param>
         private void CaptureAudits(DbContext context)
         {
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
 
             foreach (var entry in context.ChangeTracker.Entries()
                 .Where(e => e.State != EntityState.Unchanged && e.State != EntityState.Detached))

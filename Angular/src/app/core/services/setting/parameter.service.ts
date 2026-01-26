@@ -30,13 +30,13 @@ export class ParameterService {
   }
 
   deleteParameter(parameterId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/Parameter`, {
+    return this.http.delete<any>(`${this.apiUrl}/parameter`, {
       params: { id: parameterId.toString() },headers: this.getHeaders() 
     }).pipe(catchError(this.handleError));
   }
 
   deleteMultipleParameters(ids: number[]): Observable<any> {
-    const url = `${this.apiUrl}/parameter/multipleDelete`;
+    const url = `${this.apiUrl}/parameter/multipledelete`;
     return this.http.request('DELETE', url, {
       body: ids,  headers: this.getHeaders() // Pass the array of IDs in the body
     }).pipe(
@@ -56,9 +56,9 @@ export class ParameterService {
     const formData = new FormData();
     formData.append('file', file);
     if (identifier === 1) {
-      return this.http.post(this.apiUrl + `/parameter/importCustomer?createdBy=${createdBy}`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
+      return this.http.post(this.apiUrl + `/parameter/importcustomer?createdBy=${createdBy}`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
     } else {
-      return this.http.post(this.apiUrl + `/parameter/importProduct`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
+      return this.http.post(this.apiUrl + `/parameter/importproduct`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
     }
   }
   

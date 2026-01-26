@@ -304,8 +304,6 @@ namespace MEligibilityPlatform.Application.Services
                              on parameter.DataTypeId equals datatype.DataTypeId
                              join entity in _uow.EntityRepository.Query()
                              on parameter.TenantId equals entity.EntityId
-                             join condition in _uow.ConditionRepository.Query()
-                             on parameter.ConditionId equals condition.ConditionId
                              where parameter.TenantId == tenantId && parameter.Identifier == 2
                              select new ParameterCsvModel
                              {
@@ -320,7 +318,6 @@ namespace MEligibilityPlatform.Application.Services
                                  DataTypeId = parameter.DataTypeId,
                                  DataTypeName = datatype.DataTypeName,
                                  ConditionId = parameter.ConditionId,
-                                 ConditionValue = condition.ConditionValue,
                                  FactorOrder = parameter.FactorOrder
                              };
                 sheetName = "Product-Parameters";

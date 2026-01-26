@@ -33,6 +33,8 @@ export interface Parameter {
   updatedBy: string;
   isMandatory: boolean;
   computedValues?: ComputedValueModel[] | null;
+  rejectionReason: string | null;
+  rejectionReasonCode: string | null;
 }
 
 @Component({
@@ -78,7 +80,9 @@ export class ParametersComponent {
     createdBy: '',
     updatedBy: '',
     isMandatory: false,
-    computedValues: []
+    computedValues: [],
+    rejectionReason: null,
+    rejectionReasonCode: null
   };
 
   entitiesList: { entityId: number; entityName: string }[] = [];
@@ -106,7 +110,9 @@ export class ParametersComponent {
       factorOrder: [{ value: '', disabled: true }], // Initially disabled
       conditionId: [{ value: '', disabled: true }],
       isMandatory: [''],
-      computedValues: this.fb.array([])
+      computedValues: this.fb.array([]),
+      rejectionReason: ['', Validators.required],
+      rejectionReasonCode:['', Validators.required]
     });
 
   }
@@ -117,7 +123,11 @@ export class ParametersComponent {
   message: string = "Loading data, please wait...";
   loggedInUser: any = null;
   createdBy: string = '';
-
+  autoResize(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  }
   ngOnInit(): void {
     this.fetchEntitiesList();
     this.fetchAllParameters();
@@ -275,7 +285,9 @@ export class ParametersComponent {
       conditionId: parameter.conditionId,
       isMandatory: parameter.isMandatory,
       factorOrder: factorOrderMapped,
-      computedValues: parameter.computedValues
+      computedValues: parameter.computedValues,
+      rejectionReason: parameter.rejectionReason,
+      rejectionReasonCode: parameter.rejectionReasonCode
     });
     this.computedValuesData = parameter.computedValues;
     this.createdBy = parameter.createdBy;
@@ -337,7 +349,9 @@ export class ParametersComponent {
       conditionId: this.expressionForm.value.conditionId,
       factorOrder: this.expressionForm.value.factorOrder == "Ascending" ? "Asc" : "Des",
       isMandatory: this.expressionForm.value.isMandatory ?? false,
-      computedValues: this.expressionForm.value.computedValues ?? []
+      computedValues: this.expressionForm.value.computedValues ?? [],
+      rejectionReason: this.expressionForm.value.rejectionReason ?? null,
+      rejectionReasonCode: this.expressionForm.value.rejectionReasonCode ?? null
     };
     if (this.isEditMode) {
       // Edit mode
@@ -412,7 +426,9 @@ export class ParametersComponent {
       createdBy: '',
       updatedBy: '',
       isMandatory: false,
-      computedValues: null
+      computedValues: null,
+      rejectionReason: null,
+      rejectionReasonCode: null
     }; // Reset form data
     this.fetchAllParameters();
   }
@@ -487,7 +503,9 @@ export class ParametersComponent {
       createdBy: '',
       updatedBy: '',
       isMandatory: false,
-      computedValues: null
+      computedValues: null,
+      rejectionReason: null,
+      rejectionReasonCode: null
     };
     this.formVisible = true; // Show the form
     this.expressionForm.reset();

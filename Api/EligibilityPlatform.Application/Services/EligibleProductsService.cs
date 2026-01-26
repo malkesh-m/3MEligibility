@@ -2180,7 +2180,7 @@ namespace MEligibilityPlatform.Application.Services
             var evaluation = new EvaluationHistory
             {
                 TenantId = TenantId,
-                EvaluationTimeStamp = DateTime.Now,
+                EvaluationTimeStamp = DateTime.UtcNow,
                 NationalId = nationalId!,
                 LoanNo = loanNo!
             };
