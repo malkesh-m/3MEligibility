@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace EligibilityPlatform.Infrastructure.Context
+namespace MEligibilityPlatform.Infrastructure.Context
 {
     public class EligibilityDbContextFactory : IDesignTimeDbContextFactory<EligibilityDbContext>
     {

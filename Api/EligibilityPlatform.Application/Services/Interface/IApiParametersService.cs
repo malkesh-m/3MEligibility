@@ -1,7 +1,7 @@
-﻿using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
+﻿using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
 
-namespace EligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Inteface
 {
     /// <summary>
     /// Service interface for API parameters management operations.

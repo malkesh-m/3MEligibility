@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EligibilityPlatform.Domain.Models
+namespace MEligibilityPlatform.Domain.Models
 {
     public class PassFailSummaryModel
     {

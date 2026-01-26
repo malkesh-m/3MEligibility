@@ -5,10 +5,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Entities;
 using System.Text.Json.Serialization;
 
-namespace EligibilityPlatform.Domain.Models
+namespace MEligibilityPlatform.Domain.Models
 {
     public class EvaluationHistoryModel
     {

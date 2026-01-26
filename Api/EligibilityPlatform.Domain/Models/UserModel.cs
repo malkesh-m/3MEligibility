@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace EligibilityPlatform.Domain.Models
+namespace MEligibilityPlatform.Domain.Models
 {
     public class UserModel
     {

@@ -1,13 +1,13 @@
-﻿using EligibilityPlatform.Application.Attributes;
-using EligibilityPlatform.Application.Constants;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
-//using EligibilityPlatform.Infrastructure.Migrations;
+﻿using MEligibilityPlatform.Application.Attributes;
+using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
+//using MEligibilityPlatform.Infrastructure.Migrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EligibilityPlatform.Controllers
+namespace MEligibilityPlatform.Controllers
 {
     /// <summary>
     /// API controller for managing bulk import operations.

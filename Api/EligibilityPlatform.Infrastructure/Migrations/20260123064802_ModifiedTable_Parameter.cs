@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace EligibilityPlatform.Infrastructure.Migrations
+namespace MEligibilityPlatform.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class ModifiedTable_Parameter : Migration

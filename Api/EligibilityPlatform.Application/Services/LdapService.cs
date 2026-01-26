@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Inteface;
 using Microsoft.Extensions.Configuration;
 using Novell.Directory.Ldap;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     public class LdapService(IConfiguration configuration) : ILdapService
     {

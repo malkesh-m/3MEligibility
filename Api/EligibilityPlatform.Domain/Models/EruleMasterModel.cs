@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace EligibilityPlatform.Domain.Models
+namespace MEligibilityPlatform.Domain.Models
 {
     public class EruleMasterModel
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Entities;
 
-namespace EligibilityPlatform.Domain.Models
+namespace MEligibilityPlatform.Domain.Models
 {
 
    

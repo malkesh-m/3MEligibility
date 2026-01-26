@@ -8,19 +8,19 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using CsvHelper.Configuration;
-using EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Application.UnitOfWork;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharpYaml.Tokens;
-using Parameter = EligibilityPlatform.Domain.Entities.Parameter;
-using RuleResult = EligibilityPlatform.Domain.Models.RuleResult;
-using ValidationResult = EligibilityPlatform.Domain.Models.ValidationResult;
+using Parameter = MEligibilityPlatform.Domain.Entities.Parameter;
+using RuleResult = MEligibilityPlatform.Domain.Models.RuleResult;
+using ValidationResult = MEligibilityPlatform.Domain.Models.ValidationResult;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Service class for determining eligible products based on business rules, exceptions, and scoring criteria.

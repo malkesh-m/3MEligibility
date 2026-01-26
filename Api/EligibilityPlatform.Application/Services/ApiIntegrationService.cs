@@ -2,15 +2,15 @@
 //using System.Text.Json;
 //using System.Xml.Linq;
 //using AutoMapper;
-//using EligibilityPlatform.Application.Services.Inteface;
-//using EligibilityPlatform.Application.UnitOfWork;
-//using EligibilityPlatform.Domain.Models;
+//using MEligibilityPlatform.Application.Services.Inteface;
+//using MEligibilityPlatform.Application.UnitOfWork;
+//using MEligibilityPlatform.Domain.Models;
 //using Microsoft.OpenApi;
 //using Microsoft.OpenApi.Models;
 //using Microsoft.OpenApi.Readers;
 //using Newtonsoft.Json.Linq;
 
-//namespace EligibilityPlatform.Application.Services
+//namespace MEligibilityPlatform.Application.Services
 //{
 //    /// <summary>
 //    /// Service for integrating with APIs, supporting data fetching, Swagger parsing, and request execution.

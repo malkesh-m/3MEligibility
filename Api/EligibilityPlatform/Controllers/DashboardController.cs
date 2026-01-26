@@ -1,13 +1,13 @@
-﻿using EligibilityPlatform.Application.Constants;
-using EligibilityPlatform.Application.Services;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Models;
+﻿using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Services;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using EligibilityPlatform.Application.Attributes;
+using MEligibilityPlatform.Application.Attributes;
 using Microsoft.AspNetCore.Authorization;
 
-namespace EligibilityPlatform.Controllers
+namespace MEligibilityPlatform.Controllers
 {
     /// <summary>
     /// API controller for managing dashboard operations and analytics.

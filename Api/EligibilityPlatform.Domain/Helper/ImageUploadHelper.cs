@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace EligibilityPlatform.Domain.Helper
+namespace MEligibilityPlatform.Domain.Helper
 {
     public class ImageUploadHelper
     {

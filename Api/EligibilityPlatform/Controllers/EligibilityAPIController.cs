@@ -1,7 +1,7 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Services.Inteface;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EligibilityPlatform.Controllers
+namespace MEligibilityPlatform.Controllers
 {
     /// <summary>
     /// API controller for managing eligibility API operations.

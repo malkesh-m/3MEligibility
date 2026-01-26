@@ -1,10 +1,10 @@
 ﻿using System.Text;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Provides methods to communicate with external APIs.

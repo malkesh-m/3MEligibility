@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
-using EligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Entities;
 
-namespace EligibilityPlatform.Application.Repository
+namespace MEligibilityPlatform.Application.Repository
 {
     /// <summary>
     /// Repository interface for managing factor entities.

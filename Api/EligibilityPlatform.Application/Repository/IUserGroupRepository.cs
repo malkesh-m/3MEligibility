@@ -1,7 +1,7 @@
-﻿using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
+﻿using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
 
-namespace EligibilityPlatform.Application.Repository
+namespace MEligibilityPlatform.Application.Repository
 {
     /// <summary>
     /// Repository interface for managing user group entities and their relationships.

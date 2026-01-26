@@ -1,7 +1,7 @@
-﻿using EligibilityPlatform.Domain.Entities;
+﻿using MEligibilityPlatform.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace EligibilityPlatform.Infrastructure.Context;
+namespace MEligibilityPlatform.Infrastructure.Context;
 
 public partial class EligibilityDbContext : DbContext
 {

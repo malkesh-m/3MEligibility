@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EligibilityPlatform.Infrastructure.Migrations
+namespace MEligibilityPlatform.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class ChangeTable_User : Migration

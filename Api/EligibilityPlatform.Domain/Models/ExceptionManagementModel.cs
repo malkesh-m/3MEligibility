@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using EligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Entities;
 
-namespace EligibilityPlatform.Domain.Models
+namespace MEligibilityPlatform.Domain.Models
 {
     public class ExceptionManagementModel
     {

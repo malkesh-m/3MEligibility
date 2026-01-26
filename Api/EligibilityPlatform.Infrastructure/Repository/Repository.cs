@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Enums;
-using EligibilityPlatform.Infrastructure.Context;
+using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Enums;
+using MEligibilityPlatform.Infrastructure.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace EligibilityPlatform.Infrastructure.Repository
+namespace MEligibilityPlatform.Infrastructure.Repository
 {
     /// <summary>
     /// Abstract base repository implementation providing common CRUD operations and maker-checker pattern support.

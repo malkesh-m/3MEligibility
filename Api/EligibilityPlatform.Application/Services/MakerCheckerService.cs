@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using CsvHelper.Configuration;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Application.UnitOfWork;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Enums;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Enums;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Service class for managing maker-checker workflow operations including approval, rejection, and tracking of changes.

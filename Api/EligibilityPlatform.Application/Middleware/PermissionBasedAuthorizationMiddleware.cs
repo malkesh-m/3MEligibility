@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Inteface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace EligibilityPlatform.Application.Middleware
+namespace MEligibilityPlatform.Application.Middleware
 {
     /// <summary>
     /// Middleware for handling permission-based authorization and request/response logging.

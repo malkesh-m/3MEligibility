@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EligibilityPlatform.Domain.Entities
+namespace MEligibilityPlatform.Domain.Entities
 {
     public class EruleMaster
     {

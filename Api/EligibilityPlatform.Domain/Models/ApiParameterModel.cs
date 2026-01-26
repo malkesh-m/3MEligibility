@@ -1,4 +1,4 @@
-﻿namespace EligibilityPlatform.Domain.Models
+﻿namespace MEligibilityPlatform.Domain.Models
 {
     public class ApiParameterModel
     {

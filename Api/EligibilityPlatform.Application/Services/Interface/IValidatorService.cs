@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using EligibilityPlatform.Domain.Models;
-using ValidationResult = EligibilityPlatform.Domain.Models.ValidationResult;
+using MEligibilityPlatform.Domain.Models;
+using ValidationResult = MEligibilityPlatform.Domain.Models.ValidationResult;
 
-namespace EligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Inteface
 {
     /// <summary>
     /// Service interface for validation operations.

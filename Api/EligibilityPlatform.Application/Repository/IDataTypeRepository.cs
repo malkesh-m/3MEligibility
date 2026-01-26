@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using EligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Entities;
 
-namespace EligibilityPlatform.Application.Repository
+namespace MEligibilityPlatform.Application.Repository
 {
-    namespace EligibilityPlatform.Application.Repository
+    namespace MEligibilityPlatform.Application.Repository
     {
         /// <summary>
         /// Repository interface for managing data type entities.

@@ -1,5 +1,5 @@
-﻿using EligibilityPlatform.Domain.Models;
-using EligibilityPlatform.Infrastructure.Repository;
+﻿using MEligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 namespace Middleware
 {

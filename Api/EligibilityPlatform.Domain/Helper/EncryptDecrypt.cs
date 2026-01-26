@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace EligibilityPlatform.Domain.Helper
+namespace MEligibilityPlatform.Domain.Helper
 {
     public static class EncryptDecrypt
     {

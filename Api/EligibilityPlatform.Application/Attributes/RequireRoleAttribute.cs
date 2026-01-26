@@ -1,9 +1,9 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Services.Inteface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-namespace EligibilityPlatform.Application.Attributes
+namespace MEligibilityPlatform.Application.Attributes
 {
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]

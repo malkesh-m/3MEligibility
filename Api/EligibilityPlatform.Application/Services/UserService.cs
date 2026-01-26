@@ -1,11 +1,11 @@
 ﻿using System.Net.Http.Json;
 using System.Security.Claims;
 using AutoMapper;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Application.UnitOfWork;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Helper;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Helper;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Org.BouncyCastle.Crypto;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Service class for managing user-related operations.

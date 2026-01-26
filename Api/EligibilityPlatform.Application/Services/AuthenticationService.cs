@@ -1,12 +1,12 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Provides authentication services for HTTP requests based on API configuration.

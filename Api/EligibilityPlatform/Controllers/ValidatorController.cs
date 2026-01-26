@@ -1,10 +1,10 @@
-﻿using EligibilityPlatform.Application.Attributes;
-using EligibilityPlatform.Application.Constants;
-using EligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Attributes;
+using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Services.Inteface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EligibilityPlatform.Controllers
+namespace MEligibilityPlatform.Controllers
 {
     /// <summary>
     /// API controller for managing validation operations for rules, E-cards, and P-cards.

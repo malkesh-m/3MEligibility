@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using EligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Inteface;
 using System.Security.Claims;
 
-namespace EligibilityPlatform.Infrastructure.Authorization
+namespace MEligibilityPlatform.Infrastructure.Authorization
 {
     public sealed class PermissionAuthorizationHandler(IUserService userService)
                 : AuthorizationHandler<PermissionRequirement>

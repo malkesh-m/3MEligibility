@@ -1,10 +1,10 @@
 ﻿using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Text;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EligibilityPlatform.Application.Extensions
+namespace MEligibilityPlatform.Application.Extensions
 {
     /// <summary>
     /// Provides extension methods for pagination, sorting, and searching functionality.

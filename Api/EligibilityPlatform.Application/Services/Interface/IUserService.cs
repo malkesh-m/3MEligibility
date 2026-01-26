@@ -1,10 +1,10 @@
 ﻿using System.Security.Claims;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace EligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Inteface
 {
     /// <summary>
     /// Service interface for user management operations.

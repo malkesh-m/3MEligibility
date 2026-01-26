@@ -1,4 +1,4 @@
-﻿namespace EligibilityPlatform.Domain
+﻿namespace MEligibilityPlatform.Domain
 {
     public class Class1
     {

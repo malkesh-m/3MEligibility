@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace EligibilityPlatform
+namespace MEligibilityPlatform
 {
     /// <summary>
     /// Provides extension methods for <see cref="ClaimsPrincipal"/> to extract custom claim values.

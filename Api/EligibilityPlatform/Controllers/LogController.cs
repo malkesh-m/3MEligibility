@@ -1,13 +1,13 @@
-﻿using EligibilityPlatform.Application.Constants;
-using EligibilityPlatform.Application.Middleware;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
+﻿using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Middleware;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.MicrosoftExtensions;
 
-namespace EligibilityPlatform.Controllers
+namespace MEligibilityPlatform.Controllers
 {
     /// <summary>
     /// API controller for managing log operations.

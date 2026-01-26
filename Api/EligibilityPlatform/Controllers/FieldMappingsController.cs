@@ -1,15 +1,15 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace EligibilityPlatform.Controllers
+namespace MEligibilityPlatform.Controllers
 {     /// <summary>
       /// API controller for managing field mapping operations between external APIs and internal parameters.
       /// </summary>

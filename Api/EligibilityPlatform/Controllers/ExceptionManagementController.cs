@@ -1,11 +1,11 @@
-﻿using EligibilityPlatform.Application.Attributes;
-using EligibilityPlatform.Application.Constants;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Models;
+﻿using MEligibilityPlatform.Application.Attributes;
+using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EligibilityPlatform.Controllers
+namespace MEligibilityPlatform.Controllers
 {
     /// <summary>
     /// API controller for managing exception management operations.

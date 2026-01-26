@@ -1,6 +1,6 @@
-﻿using EligibilityPlatform.Domain.Entities;
+﻿using MEligibilityPlatform.Domain.Entities;
 
-namespace EligibilityPlatform.Domain.Models;
+namespace MEligibilityPlatform.Domain.Models;
 public class ParameterComputedValueModel
 {
     public int ComputedValueId { get; set; }

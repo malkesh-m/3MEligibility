@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EligibilityPlatform.Application.Constants
+namespace MEligibilityPlatform.Application.Constants
 {
     
         public static class Permissions

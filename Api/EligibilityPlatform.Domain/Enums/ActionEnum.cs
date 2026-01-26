@@ -1,4 +1,4 @@
-﻿namespace EligibilityPlatform.Domain.Enums
+﻿namespace MEligibilityPlatform.Domain.Enums
 {
     public enum ActionEnum : byte
     {

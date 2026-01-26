@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using EligibilityPlatform.Domain.Enums;
+using MEligibilityPlatform.Domain.Enums;
 
-namespace EligibilityPlatform.Domain.Models
+namespace MEligibilityPlatform.Domain.Models
 {
     public class MakerCheckerModel
     {

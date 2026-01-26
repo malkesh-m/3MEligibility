@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EligibilityPlatform.Infrastructure.Migrations
+namespace MEligibilityPlatform.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration

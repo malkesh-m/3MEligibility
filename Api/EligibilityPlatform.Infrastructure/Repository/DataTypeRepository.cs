@@ -1,10 +1,10 @@
-﻿using EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Application.Repository.EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Infrastructure.Context;
+﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository.MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Infrastructure.Context;
 using Microsoft.AspNetCore.Http;
 
-namespace EligibilityPlatform.Infrastructure.Repository
+namespace MEligibilityPlatform.Infrastructure.Repository
 {
     /// <summary>
     /// Repository implementation for managing <see cref="DataType"/> entities.

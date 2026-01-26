@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
-namespace EligibilityPlatform
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
+namespace MEligibilityPlatform
 {
     public class AutoMapperProfile : Profile
     {

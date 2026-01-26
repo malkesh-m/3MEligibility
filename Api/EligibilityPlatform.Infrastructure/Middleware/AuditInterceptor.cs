@@ -1,12 +1,12 @@
 ﻿using System.Collections.Concurrent;
-using EligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 
-namespace EligibilityPlatform.Infrastructure.Middleware
+namespace MEligibilityPlatform.Infrastructure.Middleware
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AuditInterceptor"/> class.

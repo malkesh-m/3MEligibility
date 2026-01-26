@@ -1,8 +1,8 @@
 ﻿using System.Reflection.Metadata;
-using EligibilityPlatform.Domain.Entities;
-using Parameter = EligibilityPlatform.Domain.Entities.Parameter;
+using MEligibilityPlatform.Domain.Entities;
+using Parameter = MEligibilityPlatform.Domain.Entities.Parameter;
 
-namespace EligibilityPlatform.Application.Repository
+namespace MEligibilityPlatform.Application.Repository
 {
     /// <summary>
     /// Repository interface for managing parameter entities.

@@ -1,6 +1,6 @@
-﻿using EligibilityPlatform.Domain.Entities;
+﻿using MEligibilityPlatform.Domain.Entities;
 
-namespace EligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Inteface
 {
     /// <summary>
     /// Service interface for bulk import operations.

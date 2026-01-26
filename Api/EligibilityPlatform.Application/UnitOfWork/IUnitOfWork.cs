@@ -1,7 +1,7 @@
-﻿using EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Application.Repository.EligibilityPlatform.Application.Repository;
+﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository.MEligibilityPlatform.Application.Repository;
 
-namespace EligibilityPlatform.Application.UnitOfWork
+namespace MEligibilityPlatform.Application.UnitOfWork
 {
     /// <summary>
     /// Defines the unit of work pattern for managing repositories and database transactions.

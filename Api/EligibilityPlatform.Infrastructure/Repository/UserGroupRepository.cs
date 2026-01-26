@@ -1,11 +1,11 @@
-﻿using EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
-using EligibilityPlatform.Infrastructure.Context;
+﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Infrastructure.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace EligibilityPlatform.Infrastructure.Repository
+namespace MEligibilityPlatform.Infrastructure.Repository
 {
     /// <summary>
     /// Repository implementation for managing <see cref="UserGroup"/> entities.

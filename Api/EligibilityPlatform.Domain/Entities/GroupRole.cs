@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
-namespace EligibilityPlatform.Domain.Entities;
+namespace MEligibilityPlatform.Domain.Entities;
 
 public partial class GroupRole
 {

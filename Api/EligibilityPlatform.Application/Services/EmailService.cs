@@ -1,12 +1,12 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Domain.Models;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Provides email-related services, including sending password reset emails and general email notifications.

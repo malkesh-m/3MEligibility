@@ -1,12 +1,12 @@
 ﻿using System.Xml.Linq;
 using AutoMapper;
-using EligibilityPlatform.Application.Services.Inteface;
-using EligibilityPlatform.Application.UnitOfWork;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Service class for managing Node operations.

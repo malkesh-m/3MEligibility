@@ -1,7 +1,7 @@
 ﻿//using System.ComponentModel.DataAnnotations;
 //using System.Text.Json.Serialization;
 
-//namespace EligibilityPlatform.Domain.Models
+//namespace MEligibilityPlatform.Domain.Models
 //{
 //    public class EntityModel
 //    {

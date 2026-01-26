@@ -1,6 +1,6 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Services.Inteface;
 
-namespace EligibilityPlatform.Services
+namespace MEligibilityPlatform.Services
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="UserContextService"/> class.

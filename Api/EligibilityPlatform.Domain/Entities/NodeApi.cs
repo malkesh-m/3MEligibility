@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EligibilityPlatform.Domain.Entities;
+namespace MEligibilityPlatform.Domain.Entities;
 
 public partial class NodeApi
 {

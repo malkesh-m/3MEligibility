@@ -1,4 +1,4 @@
-﻿namespace EligibilityPlatform.Application.Services.Inteface
+﻿namespace MEligibilityPlatform.Application.Services.Inteface
 {
     /// <summary>
     /// Service interface for token management operations.

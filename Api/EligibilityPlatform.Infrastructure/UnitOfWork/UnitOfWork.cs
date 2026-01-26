@@ -1,18 +1,18 @@
 ﻿using System.Net.Http;
 using System.Text.RegularExpressions;
-using EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Application.Repository.EligibilityPlatform.Application.Repository;
-using EligibilityPlatform.Application.UnitOfWork;
-using EligibilityPlatform.Domain.Entities;
-using EligibilityPlatform.Infrastructure.Context;
-using EligibilityPlatform.Infrastructure.Repository;
+using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository.MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Infrastructure.Context;
+using MEligibilityPlatform.Infrastructure.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using IIntegrationApiEvaluationRepository = EligibilityPlatform.Application.Repository.IIntegrationApiEvaluationRepository;
+using IIntegrationApiEvaluationRepository = MEligibilityPlatform.Application.Repository.IIntegrationApiEvaluationRepository;
 
-namespace EligibilityPlatform.Infrastructure.UnitOfWork
+namespace MEligibilityPlatform.Infrastructure.UnitOfWork
 {
     /// <summary>
     /// Unit of Work implementation that provides access to all repositories and manages database transactions.

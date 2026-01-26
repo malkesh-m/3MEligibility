@@ -1,9 +1,9 @@
-﻿using EligibilityPlatform.Domain.Entities;
+﻿using MEligibilityPlatform.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
 
-using EligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Application.UnitOfWork;
 
-namespace EligibilityPlatform.Middleware
+namespace MEligibilityPlatform.Middleware
 {
 public class UserSyncMiddleware(RequestDelegate next, IMemoryCache cache)
     {

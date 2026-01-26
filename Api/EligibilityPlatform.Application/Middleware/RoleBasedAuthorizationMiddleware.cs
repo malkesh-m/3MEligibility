@@ -1,12 +1,12 @@
 ﻿using System.Net.Http;
 using System.Security.Claims;
-using EligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Application.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EligibilityPlatform.Application.Middleware
+namespace MEligibilityPlatform.Application.Middleware
 {
     public class RoleBasedAuthorizationMiddleware(RequestDelegate next, IMemoryCache cache, IServiceScopeFactory scopeFactory)
     {

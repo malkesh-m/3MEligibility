@@ -1,4 +1,4 @@
-﻿namespace EligibilityPlatform.Application.Repository
+﻿namespace MEligibilityPlatform.Application.Repository
 {
     /// <summary>
     /// Generic repository interface for managing entities of type T.

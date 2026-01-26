@@ -1,4 +1,4 @@
-﻿namespace EligibilityPlatform.Infrastructure
+﻿namespace MEligibilityPlatform.Infrastructure
 {
     public class Class1
     {

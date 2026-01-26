@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EligibilityPlatform.Domain.Entities
+namespace MEligibilityPlatform.Domain.Entities
 {
     public partial class ProductCapAmount
     {

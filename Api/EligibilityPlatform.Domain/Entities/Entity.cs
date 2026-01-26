@@ -2,7 +2,7 @@
 using System.Reflection.Metadata;
 using System.Xml.Linq;
 
-namespace EligibilityPlatform.Domain.Entities;
+namespace MEligibilityPlatform.Domain.Entities;
 
 public partial class Entity
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace EligibilityPlatform.Infrastructure.Authorization
+namespace MEligibilityPlatform.Infrastructure.Authorization
 {
     public sealed class PermissionRequirement(string permission) : IAuthorizationRequirement
     {

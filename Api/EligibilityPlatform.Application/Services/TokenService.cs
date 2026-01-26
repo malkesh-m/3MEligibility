@@ -1,6 +1,6 @@
-﻿using EligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Services.Inteface;
 
-namespace EligibilityPlatform.Application.Services
+namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Service class for generating and validating reset tokens.
