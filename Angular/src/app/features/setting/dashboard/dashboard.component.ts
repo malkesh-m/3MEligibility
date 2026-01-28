@@ -82,7 +82,10 @@ export class DashboardComponent implements AfterViewInit {
   //];
   getEvaluationHistory(): void {
     // Include pagination info in the filter
-    const request = {
+ this.filter.fromDate ? new Date(this.filter.fromDate).toISOString() : undefined,
+ this.filter.toDate ? new Date(this.filter.toDate).toISOString() : undefined
+ console.log('Fetching Evaluation History with filter:', this.filter);
+const request = {
       ...this.filter,
       pageNumber: this.pageNumber ?? 1,
       pageSize: this.pageSize ?? 10
@@ -116,6 +119,7 @@ export class DashboardComponent implements AfterViewInit {
     this.getEvaluationHistory();
   }
   applyFilters() {
+
     this.getEvaluationHistory();
   }
   fetchTileData(): void {

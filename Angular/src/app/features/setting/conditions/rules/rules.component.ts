@@ -292,8 +292,8 @@ export class RulesComponent {
       name: rule.eruleName || '',
       eruleMasterId: Number(rule.eruleMasterId),
       description: rule.description || '',
-      validFrom: latestVersion?.validFrom ? this.formatDateForInput(latestVersion.validFrom) : null,
-      validTo: latestVersion?.validTo ? this.formatDateForInput(latestVersion.validTo) : null,
+      validFrom: latestVersion?.validFrom ? this.formatDateForInputUTC(latestVersion.validFrom) : null,
+      validTo: latestVersion?.validTo ? this.formatDateForInputUTC(latestVersion.validTo) : null,
       expshown: latestVersion?.expShown || '',
       factorName: latestVersion?.factorName || '',
       expression: ''
@@ -880,8 +880,8 @@ export class RulesComponent {
     payload.eruleMasterId = formValue.eruleMasterId
  
 
-    payload.validFrom = formValue.validFrom ? new Date(formValue.validFrom).toISOString() : null;
-    payload.validTo = formValue.validTo ? new Date(formValue.validTo).toISOString() : null;
+   payload.validFrom = formValue.validFrom ? this.toUTCDateString(formValue.validFrom) : null;
+payload.validTo   = formValue.validTo   ? this.toUTCDateString(formValue.validTo)   : null;
     this.ruleService.addNewRule(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {
@@ -908,8 +908,8 @@ export class RulesComponent {
     }
 
     //payload.expression = this.expressionForm.value.expshown;
-    payload.validFrom = this.expressionForm.value.validFrom;
-    payload.validTo = this.expressionForm.value.validTo;
+    payload.validFrom = this.expressionForm.value.validFrom? this.toUTCDateString(this.expressionForm.value.validFrom): null;
+    payload.validTo = this.expressionForm.value.validTo? this.toUTCDateString(this.expressionForm.value.validTo): null;
     this.ruleService.updateExistingRule(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {
@@ -1174,8 +1174,8 @@ export class RulesComponent {
       isExceptionRule: event.isExceptionRule,
       exceptionId: event.exceptionId,
       parentRuleId: event.parentEruleId,
-      validFrom: event.validFrom ? this.formatDateForInput(event.validFrom) : null,
-      validTo: event.validTo ? this.formatDateForInput(event.validTo) : null
+      validFrom: event.validFrom ? this.formatDateForInputUTC(event.validFrom) : null,
+      validTo: event.validTo ? this.formatDateForInputUTC(event.validTo) : null,
     });
 
     this.eruleId = event.eruleId;
@@ -1292,7 +1292,19 @@ export class RulesComponent {
     }
 
   }
-
+private toUTCDateString(dateStr: string | null): string | null {
+  if (!dateStr) return null;
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const utcDate = new Date(Date.UTC(year, month - 1, day)); // construct in UTC
+  return utcDate.toISOString(); // always "YYYY-MM-DDT00:00:00.000Z"
+}
+private formatDateForInputUTC(date: string | Date): string {
+  const d = new Date(date);
+  const year = d.getUTCFullYear();
+  const month = ('0' + (d.getUTCMonth() + 1)).slice(-2);
+  const day = ('0' + d.getUTCDate()).slice(-2);
+  return `${year}-${month}-${day}`;
+}
   tableRowAction(event: { action: string; data: any }): void {
     if (event.action === 'edit') {
       this.isInsertNewRecord = false;

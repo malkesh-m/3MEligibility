@@ -109,8 +109,7 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                                                 if (propertyInfo != null && propertyInfo.CanWrite)
                                                 {
                                                     propertyInfo.SetValue(newValueObj, parsedId);
-                                                    audit.NewValue = JsonConvert.SerializeObject(newValueObj,
-                                                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                                                    audit.NewValue = JsonConvert.SerializeObject(newValueObj, _auditJsonSettings);
                                                 }
                                                 else
                                                 {
@@ -118,8 +117,7 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                                                     if (newValueDict != null)
                                                     {
                                                         newValueDict[primaryKeyProperty.Name] = parsedId;
-                                                        audit.NewValue = JsonConvert.SerializeObject(newValueDict,
-                                                            new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                                                        audit.NewValue = JsonConvert.SerializeObject(newValueDict, _auditJsonSettings);
                                                     }
                                                 }
                                             }
@@ -134,8 +132,7 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                                                 {
                                                     valuesDict[property.Name] = currentValues[property]!;
                                                 }
-                                                audit.NewValue = JsonConvert.SerializeObject(valuesDict,
-                                                    new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                                                audit.NewValue = JsonConvert.SerializeObject(valuesDict, _auditJsonSettings);
                                             }
                                             catch
                                             {
@@ -279,6 +276,11 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                 });
             }
         }
+        private static readonly JsonSerializerSettings _auditJsonSettings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+
         private static string SerializeWithoutExcludedFields(PropertyValues values)
         {
             var dict = new Dictionary<string, object?>();
@@ -291,11 +293,7 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                 dict[property.Name] = values[property];
             }
 
-            return JsonConvert.SerializeObject(dict,
-                new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+            return JsonConvert.SerializeObject(dict, _auditJsonSettings);
         }
 
         /// <summary>

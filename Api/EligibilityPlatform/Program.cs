@@ -54,12 +54,15 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuditInterceptor>();
+var sqlServerVersion = ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
 {
+
     options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
+        connectionString,
+        sqlServerVersion,
         mySqlOptions =>
         {
             mySqlOptions.CommandTimeout(600); 

@@ -2438,7 +2438,7 @@ namespace MEligibilityPlatform.Application.Services
                 var LoanNo = KeyValues.FirstOrDefault(x => x.Key.Equals("LoanNo", StringComparison.OrdinalIgnoreCase)).Value?.ToString();
 
                 // Step 9: Save Evaluation History
-                evaluation.EvaluationTimeStamp = DateTime.Now;
+                evaluation.EvaluationTimeStamp = DateTime.UtcNow;
                 evaluation.CreditScore = scoreResult.CustomerScore;
                 evaluation.NationalId = nationalIdValue!;
                 evaluation.LoanNo = LoanNo ?? "";
@@ -2470,7 +2470,7 @@ namespace MEligibilityPlatform.Application.Services
                     CustomerScore = result.CustomerScore,
                     ProbabilityOfDefault = result.ProbabilityOfDefault,
                     ProcessingTimeMs = result.ProcessingTimeMs,
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow,
 
                     EligibleProducts = [.. result.EligibleProducts!.Select(p => new EligibleProducts
                     {

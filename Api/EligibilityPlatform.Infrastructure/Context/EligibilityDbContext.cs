@@ -471,12 +471,12 @@ public partial class EligibilityDbContext : DbContext
             entity.HasKey(e => new { e.RoleId, e.GroupId }).HasName("PK__GroupRol__3BB3612C136B1C77");
 
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-
+                entity.HasIndex(gr => gr.GroupId)
+                .HasDatabaseName("IX_GroupRole_GroupId");
             entity.HasOne(d => d.Group).WithMany(p => p.GroupRoles)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GroupRole__Group__1F98B2C1");
-
+                .HasConstraintName("FK__GroupRole__Group__1F98B2C1");          
             entity.HasOne(d => d.Role).WithMany(p => p.GroupRoles)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -940,7 +940,10 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1AD71FF567");
-
+             entity.HasIndex(r => r.RoleId)
+                .HasDatabaseName("IX_Role_RoleId");
+        
+              
             entity.Property(e => e.RoleId).ValueGeneratedNever();
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
@@ -1025,7 +1028,8 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-
+            entity.HasIndex(ug => ug.UserId)
+            .HasDatabaseName("IX_UserGroup_UserId");
             entity.HasOne(d => d.Group).WithMany(p => p.UserGroups)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

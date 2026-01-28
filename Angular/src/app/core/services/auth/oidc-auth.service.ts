@@ -8,6 +8,9 @@ export class OidcAuthService {
     private userManager: UserManager;
     private currentUser: User | null = null;
 
+    private cachedToken: string | null = null;
+    private tokenExpiry: number = 0;
+
     constructor() {
         const settings: UserManagerSettings = {
             authority: environment.identitySettings.authority + '/realms/3M',
@@ -26,11 +29,17 @@ export class OidcAuthService {
         this.userManager.events.addUserLoaded((user) => {
             console.log('User loaded:', user.profile);
             this.currentUser = user;
+            if (user?.access_token) {
+                this.cachedToken = user.access_token;
+                this.tokenExpiry = Date.now() + (5 * 60 * 1000);
+            }
         });
 
         this.userManager.events.addUserUnloaded(() => {
             console.log('User unloaded');
             this.currentUser = null;
+            this.cachedToken = null;
+            this.tokenExpiry = 0;
         });
 
         this.userManager.events.addAccessTokenExpiring(() => {
@@ -87,7 +96,19 @@ export class OidcAuthService {
     }
 
     async getAccessToken(): Promise<string | null> {
+        const now = Date.now();
+        if (this.cachedToken && now < this.tokenExpiry) {
+            return this.cachedToken;
+        }
+
         const user = await this.userManager.getUser();
+
+        if (user?.access_token) {
+            this.cachedToken = user.access_token;
+            // Cache for 5 minutes (300,000 ms)
+            this.tokenExpiry = now + (5 * 60 * 1000);
+        }
+
         return user?.access_token || null;
     }
 
