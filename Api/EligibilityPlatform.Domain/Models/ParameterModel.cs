@@ -22,9 +22,9 @@ namespace MEligibilityPlatform.Domain.Models
         [Required(ErrorMessage = "Identifier is required.")]
         public int? Identifier { get; set; }
         [Required]
-        public string RejectionReason { get; set; }
+        public string RejectionReason { get; set; } = string.Empty;
         [Required]
-        public string RejectionReasonCode { get; set; }
+        public string RejectionReasonCode { get; set; } = string.Empty;
         [Required]
         public bool IsKyc { get; set; }
 

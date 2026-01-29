@@ -65,7 +65,7 @@ namespace MEligibilityPlatform.Application.Middleware
             var controllerName = routeData.Values["controller"]?.ToString();
             var actionName = routeData.Values["action"]?.ToString();
             var user = context.User;
-            var userName = user?.Identity?.IsAuthenticated == true ? user.Identity.Name : "Anonymous";
+            var userName = user?.Identity?.IsAuthenticated == true ? user?.FindFirst("preferred_username")?.Value : "Anonymous";
 
             try
             {

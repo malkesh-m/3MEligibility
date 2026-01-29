@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -1605,6 +1606,7 @@ namespace MEligibilityPlatform.Application.Services
                         {
                             foreach (var condition in conditions.OrderByDescending(c => c.ConditionValue!.Length))
                             {
+                                var match = MyRegex6().Match(block);
                                 string[] facts = [];
 
                                 if (condition.ConditionValue != null)
@@ -1612,11 +1614,16 @@ namespace MEligibilityPlatform.Application.Services
                                     var normalizedCondition = condition.ConditionValue
                                         .Replace(" ", "")
                                         .ToLowerInvariant();
+                                    var op = match.Groups[2].Value.ToLowerInvariant();
 
-                                    facts = block.Split(
-                                        normalizedCondition,
-                                        StringSplitOptions.None
-                                    );
+                                    if (!string.Equals(op, normalizedCondition, StringComparison.OrdinalIgnoreCase))
+                                        continue;
+
+                                    facts =
+                                    [
+                                        match.Groups[1].Value,
+                                        match.Groups[3].Value
+                                    ];
                                 }
 
                                 if (facts.Length != 2)
@@ -2777,7 +2784,7 @@ namespace MEligibilityPlatform.Application.Services
 
                     // Step 3: Build API payload dynamically
                     foreach (var param in parameters.Where(p =>
-         p.ParameterDirection.Equals("Input", StringComparison.OrdinalIgnoreCase)))
+                     p.ParameterDirection.Equals("Input", StringComparison.OrdinalIgnoreCase)))
                     {
                         object? value = null;
 
@@ -3138,14 +3145,12 @@ namespace MEligibilityPlatform.Application.Services
                 }
             }
 
-            // 1️⃣ Direct match
             if (payload.TryGetValue(name, out var directVal))
             {
                 value = directVal;
                 return true;
             }
 
-            // 2️⃣ Case-insensitive match
             var keyCaseInsensitive = payload.Keys.FirstOrDefault(k => string.Equals(k, name, StringComparison.OrdinalIgnoreCase));
             if (keyCaseInsensitive != null)
             {
@@ -3153,7 +3158,6 @@ namespace MEligibilityPlatform.Application.Services
                 return true;
             }
 
-            // 3️⃣ Normalized key match (ignore spaces, hyphens, etc.)
             var normalizedName = NormalizeKey(name);
             var normalizedKey = payload.Keys.FirstOrDefault(k => NormalizeKey(k) == normalizedName);
             if (normalizedKey != null)
@@ -3484,12 +3488,7 @@ namespace MEligibilityPlatform.Application.Services
             }
         }
 
-        private BREIntegrationResponse TransformToResponse(
-EligibleAmountResults eligibilityResult,
-long processingTimeMs,
-string requestId,
-EvaluationHistory evaluation,
-ScoringResult scoringResult)
+        private BREIntegrationResponse TransformToResponse(EligibleAmountResults eligibilityResult, long processingTimeMs, string requestId, EvaluationHistory evaluation, ScoringResult scoringResult)
         {
             var eligibleProducts = new List<EligibleProduct>();
             var nonEligibleProducts = new List<NonEligibleProduct>();
@@ -3504,9 +3503,9 @@ ScoringResult scoringResult)
             var skipFailureReasonsNormalized = new HashSet<string>(
                 new[]
                 {
-           "No Rule Match",
-           "Could not find eligible amount criteria.",
-           "Customer's score does not satisfy eligibility requirements."
+                   "No Rule Match",
+                   "Could not find eligible amount criteria.",
+                   "Customer's score does not satisfy eligibility requirements."
                 }.Select(NormalizeForMatch)
             );
 
@@ -3696,6 +3695,8 @@ ScoringResult scoringResult)
         private static partial Regex MyRegex4();
         [GeneratedRegex(@"\bAND\b", RegexOptions.IgnoreCase, "en-US")]
         private static partial Regex MyRegex5();
+        [GeneratedRegex(@"^\s*(\d+)\s*(>=|<=|>|<|=|inlist|notinlist|!=|range)\s*(.*)\s*$", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex MyRegex6();
 
 
 

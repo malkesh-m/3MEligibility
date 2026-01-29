@@ -62,18 +62,19 @@ namespace MEligibilityPlatform.Controllers
             //    error.Status,
             //    error.UserAgent
             //);
+            var ex = new Exception($"{error.Message}\n{error.Stack}");
+
             _logger.LogError(
-    "Frontend Error {@LogDetails}",
-    new
-    {
-        User = UserName,
-        error.Component,
-        error.Path,
-        error.Request,
-        Exception = $"{error.Message} - {error.Stack}",
-        error.Status,
-        error.UserAgent,
-    });
+                ex,
+                "Frontend error | User: {User} | Component: {Component} | Path: {Path} | Request: {Request} | Status: {Status} | UserAgent: {UserAgent}",
+                UserName,
+                error.Component,
+                error.Path,
+                error.Request,
+                error.Status,
+                error.UserAgent
+            );
+
             // Returns success response indicating the error was logged
             return Ok(new { Status = "Logged" });
         }
@@ -87,7 +88,10 @@ namespace MEligibilityPlatform.Controllers
         public IActionResult LogUserActivity(UserActivityModel userActivity)
         {
             // Gets the current user's name or defaults to "Anonymous"
-            var UserName = User?.Identity?.Name ?? "Annoymouns";
+            var userName =
+             User.Identity?.IsAuthenticated == true
+             ? User.GetUserName()
+             : "Anonymous";
             // Logs the user activity with detailed information
             //_logger.LogInformation(
             //    "User Activity | User: {User} | Component: {Component} | ActionType: {ActionType} | ActionName: {ActionName} | PageUrl: {PageUrl} ",
@@ -101,7 +105,7 @@ namespace MEligibilityPlatform.Controllers
        "User Activity {@LogDetails}",
        new
        {
-           User = UserName,
+           User = userName,
            Component = userActivity.ComponentName,
            userActivity.ActionType,
            userActivity.ActionName,

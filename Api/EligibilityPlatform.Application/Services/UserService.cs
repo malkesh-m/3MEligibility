@@ -829,23 +829,12 @@ namespace MEligibilityPlatform.Application.Services
                     return permissions;
                 }
 
-            var roleIds = await _uow.UserGroupRepository.Query()
-                .Where(x => x.UserId == userId)
-                .Select(x => x.GroupId)
-                .ToListAsync();
-
-            permissions = await _uow.GroupRoleRepository.Query()
-                    .Where(x => roleIds.Contains(x.GroupId))
-                    .Join(
-                     _uow.RoleRepository.Query(),
-                     gr => gr.RoleId,
-                     r => r.RoleId,
-                     (gr, r) => r.RoleAction
-                     )
-                    .Where(p => p != null)
-                    .Select(p => p!)
-                    .Distinct()
-                    .ToListAsync();
+            permissions = await (
+           from ug in _uow.UserGroupRepository.Query()
+           join gr in _uow.GroupRoleRepository.Query() on ug.GroupId equals gr.GroupId
+           join r in _uow.RoleRepository.Query() on gr.RoleId equals r.RoleId
+           where ug.UserId == userId && r.RoleAction != null
+           select r.RoleAction).Distinct().ToListAsync();
 
             _cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(30));
             return permissions;

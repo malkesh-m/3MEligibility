@@ -51,7 +51,7 @@ namespace MEligibilityPlatform.Application.Services
                 Id = l.Id,
                 Message = l.Message,
                 Level = l.Level,
-                TimeStamp = l.TimeStamp,
+                TimeStamp = l.TimeStamp!.Value,
                 Exception = l.Exception
             });
 

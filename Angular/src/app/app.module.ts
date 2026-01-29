@@ -2,7 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA, APP_INITIALIZER } from '@angular/core
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
+import {  HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
@@ -35,6 +35,7 @@ export function initializeOidc(
 @NgModule({
   declarations: [AppComponent],
   imports: [
+    HttpClientModule,
     BrowserModule,
     CoreModule,
     RouterModule,
@@ -55,9 +56,16 @@ export function initializeOidc(
     }),
   ],
   providers: [
-    provideHttpClient(
-      withInterceptors([AuthInterceptor, GlobalErrorInterceptor])
-    ),
+ {
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true
+  },
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: GlobalErrorInterceptor,
+    multi: true
+  },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeOidc,

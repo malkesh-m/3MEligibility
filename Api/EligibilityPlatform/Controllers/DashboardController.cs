@@ -37,7 +37,6 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("monthly-summary")]
         public async Task<IActionResult> GetMonthlySummary(int? year = null)
         {
-            var subId = User.GetUserSubId();
             /// <summary>
             /// Calls the service to retrieve monthly evaluation summary for the current user's entity.
             /// </summary>

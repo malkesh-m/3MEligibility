@@ -1,45 +1,61 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import {
+  HttpInterceptor,
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpErrorResponse
+} from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { catchError, throwError } from 'rxjs';
 import { LogerrorService } from '../services/log/logerror.service';
 
-export const GlobalErrorInterceptor: HttpInterceptorFn = (req, next) => {
-  const logService = inject(LogerrorService);
-  const snackBar = inject(MatSnackBar);
+@Injectable()
+export class GlobalErrorInterceptor implements HttpInterceptor {
 
-  // Skip logging for log API calls to avoid infinite loops
-  if (req.url.includes('/api/log')) {
-    return next(req);
-  }
+  constructor(
+    private logService: LogerrorService,
+    private snackBar: MatSnackBar
+  ) {}
 
-  const componentName = req.headers.get('X-Component') || 'Unknown';
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
 
-  return next(req).pipe(
-    catchError((error: HttpErrorResponse) => {
-      console.log(error.status);
-      console.log("error");
+    // 🚫 Prevent infinite logging loop
+    if (req.url.includes('/api/log')) {
+      return next.handle(req);
+    }
 
-      logService.captureLog({
-        component: componentName || "GlobalError",
-        path: req.url,
-        request: JSON.stringify(req.body || {}),
-        message: error.message,
-        status: error.status,
-        stack: error.error?.stack || '',
-        userAgent: navigator.userAgent,
-        error: error.error
-      }).subscribe({
-        error: (err: any) => console.error('Failed to send error log:', err)
-      });
+    const componentName = req.headers.get('X-Component') || 'Unknown';
 
-      if (error.status === 429) {
-        snackBar.open('Too many requests, please wait...', 'Close', {
-          duration: 5000,
+    return next.handle(req).pipe(
+      catchError((error: HttpErrorResponse) => {
+
+        this.logService.captureLog({
+          component: componentName,
+          path: req.url,
+          request: JSON.stringify(req.body || {}),
+          message: error.message,
+          status: error.status,
+          stack: error.error?.stack || '',
+          userAgent: navigator.userAgent,
+          error: error.error
+        }).subscribe({
+          error: err => console.error('Failed to send error log:', err)
         });
-      }
 
-      return throwError(() => error);
-    })
-  );
-};
+        if (error.status === 429) {
+          this.snackBar.open(
+            'Too many requests, please wait...',
+            'Close',
+            { duration: 5000 }
+          );
+        }
+
+        return throwError(() => error);
+      })
+    );
+  }
+}

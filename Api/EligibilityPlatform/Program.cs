@@ -28,7 +28,7 @@ using Serilog;
 using AuthenticationService = MEligibilityPlatform.Application.Services.AuthenticationService;
 using IAuthenticationService = MEligibilityPlatform.Application.Services.Inteface.IAuthenticationService;
 
-Log.Information("Starting 3M Eligibility Platform API application.");
+//Log.Information("Starting 3M Eligibility Platform API application.");
 
 Serilog.Debugging.SelfLog.Enable(msg => Console.Error.WriteLine(msg));
 
@@ -65,7 +65,7 @@ builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
         sqlServerVersion,
         mySqlOptions =>
         {
-            mySqlOptions.CommandTimeout(600); 
+            mySqlOptions.CommandTimeout(30); 
         });
 
     if (builder.Environment.IsDevelopment())
@@ -408,12 +408,12 @@ app.UseAuthorization();
 app.UseRateLimiter();
 
 
-//app.UseMiddleware<PermissionBasedAuthorizationMiddleware>();
+app.UseMiddleware<PermissionBasedAuthorizationMiddleware>();
 app.MapControllers();
 //app.MapDynamicApis();
 try
 {
-    Log.Information("Starting application...");
+    //Log.Information("Starting application...");
     app.Run();
 }
 catch (Exception ex)
@@ -425,5 +425,3 @@ finally
 {
     Log.CloseAndFlush();
 }
-
-app.Run();

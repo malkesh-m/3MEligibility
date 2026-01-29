@@ -1,26 +1,34 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { from, switchMap } from 'rxjs';
+import { Injectable } from '@angular/core';
+import {
+  HttpInterceptor,
+  HttpRequest,
+  HttpHandler,
+  HttpEvent
+} from '@angular/common/http';
+import { Observable, from, switchMap } from 'rxjs';
 import { OidcAuthService } from '../services/auth/oidc-auth.service';
 
-export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
-  const oidcAuthService = inject(OidcAuthService);
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
 
-  // Get token from OIDC service
-  return from(oidcAuthService.getAccessToken()).pipe(
-    switchMap(token => {
-      if (token) {
-        // Clone request and add authorization header
-        const clonedReq = req.clone({
-          setHeaders: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        return next(clonedReq);
-      }
+  constructor(private oidcAuthService: OidcAuthService) {}
 
-      // No token, proceed without auth header
-      return next(req)
-    })
-  );
-};
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+
+    return from(this.oidcAuthService.getAccessToken()).pipe(
+      switchMap(token => {
+        if (token) {
+          req = req.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+        }
+        return next.handle(req);
+      })
+    );
+  }
+}

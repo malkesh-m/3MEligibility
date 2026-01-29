@@ -44,7 +44,7 @@ namespace MEligibilityPlatform.Controllers
         /// 
         [Authorize(Policy = Permissions.ManagedList.View)]
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public IActionResult Get(int id)
         {
             // Retrieves a managed list record by ID for the current entity
