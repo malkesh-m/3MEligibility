@@ -254,13 +254,14 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = "Permissions.Category.Import")]
 
         [HttpPost("import")]
-        public async Task<IActionResult> ImportCategory(int tenantId, IFormFile file)
+        public async Task<IActionResult> ImportCategory(IFormFile file)
         {
             /// <summary>
             /// Validates that a file was uploaded and has content.
             /// </summary>
             /// 
             var userName = User.GetUserName();
+            var tenantId = User.GetTenantId();
 
             if (file == null || file.Length == 0)
                 /// <summary>

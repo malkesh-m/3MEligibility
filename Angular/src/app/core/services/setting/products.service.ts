@@ -61,7 +61,7 @@ export class ProductsService {
       );
   }
 
-  importCategory(file: File,createdBy:string): Observable<any> { // Return an Observable
+  importCategory(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/category/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));

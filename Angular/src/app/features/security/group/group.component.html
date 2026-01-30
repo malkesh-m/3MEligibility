@@ -50,12 +50,12 @@
                     </div>
                 </div>
                 <div class="col">
-                    <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" [(ngModel)]="formData.groupDesc" name="Description" required
+                    <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger"></span></label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.groupDesc" name="Description" 
                         #Description="ngModel" maxlength="250" (input)="sanitizeCode($event)" />
-                    <div *ngIf="Description.invalid && Description.touched" class="text-danger">
+                    <!-- <div *ngIf="Description.invalid && Description.touched" class="text-danger">
                         {{ 'Description' | translate }}{{ ' is required' | translate }}
-                    </div>
+                    </div> -->
                 </div>
                 <div class="col" style="align-content: end;">
                     <button appUseractivity="User Click on Add/Edit button"

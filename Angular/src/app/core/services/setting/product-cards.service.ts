@@ -58,7 +58,7 @@ export class ProductCardsService {
       );
   }
 
-  importPCard(file: File,createdBy:string): Observable<any> { // Return an Observable
+  importPCard(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/pcard/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));

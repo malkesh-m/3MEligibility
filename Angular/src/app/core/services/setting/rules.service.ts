@@ -69,7 +69,7 @@ export class RulesService {
   //  formData.append('file', file);
   //  return this.http.post(this.apiUrl + `/erule/import?createdBy=${createdBy}`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   //}
-  importRule(file: File, createdBy: string): Observable<any> { // Return an Observable
+  importRule(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/erule/importerulemaster`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));

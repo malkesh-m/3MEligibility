@@ -227,7 +227,7 @@ export class ProductListComponent {
       this.deleteKeyForMultiple = 'CategoryId';
       this.formData = this.fb.group({
         categoryName: ['', Validators.required],
-        catDescription: ['', Validators.required],
+        catDescription: [''],
         entityId: ['']
       });
     } else if (this.currentTab === 'Info') {
@@ -814,7 +814,7 @@ export class ProductListComponent {
       this.deleteKeyForMultiple = 'CategoryId';
       this.formData = this.fb.group({
         categoryName: ['', Validators.required],
-        catDescription: ['', Validators.required],
+        catDescription: [''],
         entityId: ['']
       });
     } else if (this.currentTab === 'Info') {

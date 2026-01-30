@@ -410,14 +410,14 @@ export class ProductComponent {
   }
 
   importProduct(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-  });
-    this.createdBy = this.loggedInUser.user.userName;
+  //   this.authService.currentUser$.subscribe((user) => {
+  //     this.loggedInUser = user;
+  // });
+    // this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
     if (this.activeTab === 'Category') {
-      this.productService.importCategory(selectedFile,this.createdBy).subscribe({
+      this.productService.importCategory(selectedFile).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchCategoriesList();

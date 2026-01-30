@@ -21,7 +21,7 @@
       </button>
       <button appUseractivity="User Click on Download Template button"
               [componentName]="'EligibilityCardsComponent'"
-              [actionType]="'ButtonClick'"  class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('63')">
+              [actionType]="'ButtonClick'"  class="btn" (click)="downloadTemplate()" >
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
       <button appUseractivity="User Click on Import button"
@@ -60,13 +60,13 @@
       </div>
 
       <div class="col-3"> <!-- Card Description -->
-        <label class="inputLabel" for="ecardDesc">{{ 'Card Description' | translate }} <span class="text-danger">*</span></label>
+        <label class="inputLabel" for="ecardDesc">{{ 'Card Description' | translate }} <span class="text-danger"></span></label>
         <input type="text" id="ecardDesc" class="form-control" formControlName="Description"
           (input)="sanitizeCode($event)" maxlength="50" />
-        <div *ngIf="expressionForm.get('Description')?.invalid && expressionForm.get('Description')?.touched"
+        <!-- <div *ngIf="expressionForm.get('Description')?.invalid && expressionForm.get('Description')?.touched"
           class="text-danger">
           {{ 'Card Description' | translate }}{{ ' is required' | translate }}
-        </div>
+        </div> -->
       </div>
     </div>
 

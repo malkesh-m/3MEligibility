@@ -17,15 +17,15 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
+                            <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger"></span></label>
                             <input type="text" class="form-control" formControlName="catDescription"
                                 (input)="sanitizeCode($event)"  maxlength="250"
  />
 
-                            <div *ngIf="formData.get('catDescription')?.invalid && formData.get('catDescription')?.touched"
+                            <!-- <div *ngIf="formData.get('catDescription')?.invalid && formData.get('catDescription')?.touched"
                                 class="text-danger">
                                 {{ 'Description' | translate }}{{ ' is required' | translate }}
-                            </div>
+                            </div> -->
                         </div>
                         <!--<div class="col">
                             <label class="inputLabel">{{ 'Select Entity' | translate }} <span class="text-danger">*</span></label>

@@ -406,7 +406,7 @@ deleteMapping(id: number) {
   constructor(private integrationService: IntegrationService, private fb: FormBuilder, private rolesService: RolesService, private parameterService: ParameterService, private dialog: MatDialog, private factorsService: FactorsService, private http: HttpClient, private utilityService: UtilityService) {
     this.nodeForm = this.fb.group({
       code: ['', [Validators.required]],
-      description: ['', [Validators.required]],
+      description: [''],
       nodeName: ['', [Validators.required]],
       url: ['', [Validators.required]],
       urlType: ['', [Validators.required]],

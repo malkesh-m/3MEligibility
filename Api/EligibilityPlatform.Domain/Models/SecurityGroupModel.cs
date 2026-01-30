@@ -17,7 +17,6 @@ ErrorMessage = "Group name can contain Arabic letters, English letters, numbers,
 @"^[\u0600-\u06FFa-zA-Z0-9_\-\s]+$",
 ErrorMessage = "Group Desc can contain Arabic letters, English letters, numbers, spaces, hyphens, and underscores only."
 )]
-        [Required(ErrorMessage = "Group Description is required.")]
         [StringLength(250, ErrorMessage = "Group Description cannot be longer than 250 characters.")]
         public string? GroupDesc { get; set; }
         public DateTime UpdatedByDateTime { get; set; }
@@ -39,7 +38,6 @@ ErrorMessage = "Group Desc can contain Arabic letters, English letters, numbers,
         @"^[\u0600-\u06FFa-zA-Z0-9_\-\s]+$",
         ErrorMessage = "Group Desc can contain Arabic letters, English letters, numbers, spaces, hyphens, and underscores only."
         )]
-        [Required(ErrorMessage = "Group Description is required.")]
         [StringLength(250, ErrorMessage = "Group Description cannot be longer than 250 characters.")]
         public string? GroupDesc { get; set; }
         [JsonIgnore]

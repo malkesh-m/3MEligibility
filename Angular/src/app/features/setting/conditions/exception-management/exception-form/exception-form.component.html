@@ -10,11 +10,11 @@
         </div>
       </div>
       <div class="col-md-4">
-        <label class="inputLabel">{{ 'Exception Description' | translate }} <span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Exception Description' | translate }} <span class="text-danger"></span></label>
         <input type="text" class="form-control" formControlName="description" />
-        <div *ngIf="exceptionForm.get('description')?.touched && exceptionForm.get('description')?.invalid" class="text-danger">
+        <!-- <div *ngIf="exceptionForm.get('description')?.touched && exceptionForm.get('description')?.invalid" class="text-danger">
           {{ 'Exception Description' | translate }}{{ ' is required' | translate }}
-        </div>
+        </div> -->
       </div>
       <div class="col-md-4" *ngIf="!isScopeSelected">
         <label class="inputLabel">{{ 'Exception Scope' | translate }} <span class="text-danger">*</span></label>

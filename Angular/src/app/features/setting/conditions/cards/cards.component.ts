@@ -87,7 +87,7 @@ export class CardsComponent {
   ) {
     this.expressionForm = this.fb.group({
       CardName: ['', Validators.required],
-      Description: ['', Validators.required],
+      Description: [''],
       Expshown: ['', [Validators.required]],
     });
   }
@@ -797,12 +797,12 @@ export class CardsComponent {
   }
 
   importCard(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-  });
+  //   this.authService.currentUser$.subscribe((user) => {
+  //     this.loggedInUser = user;
+  // });
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
-    this.cardService.importCard(selectedFile,this.loggedInUser.user.userName).subscribe({
+    this.cardService.importCard(selectedFile,).subscribe({
       next: (response) => {
         this.isUploading = false;
         this.fetchCards();

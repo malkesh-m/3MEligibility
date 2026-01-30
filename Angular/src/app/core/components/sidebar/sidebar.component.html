@@ -133,7 +133,7 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <mat-expansion-panel *ngIf="hasPermission('136')" [expanded]="step() === 7" (opened)="setStep(7)" hideToggle>
+      <mat-expansion-panel  [expanded]="step() === 7" (opened)="setStep(7)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">file_upload</mat-icon>
@@ -141,7 +141,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission('130')" mat-list-item routerLink="setting/bulk-import">{{ 'Bulk Import' | translate
+          <a *ngIf="hasPermission('Permissions.BulkImport.View')" mat-list-item routerLink="setting/bulk-import">{{ 'Bulk Import' | translate
             }}</a>
         </mat-nav-list>
       </mat-expansion-panel>

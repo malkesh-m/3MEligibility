@@ -1116,7 +1116,7 @@ export class ExceptionParameterFormComponent {
     this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
-    this.ruleService.importRule(selectedFile,this.createdBy).subscribe({
+    this.ruleService.importRule(selectedFile).subscribe({
       next: (response) => {
         this.isUploading = false;
         this.deleteKeyForMultiple = 'eruleId';

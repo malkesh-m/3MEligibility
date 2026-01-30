@@ -330,7 +330,7 @@ namespace MEligibilityPlatform.Application.Services
             // Define expected headers
             string[] requiredHeaders = [
                 "StreamCardName*",
-        "StreamCardDescription*",
+        "StreamCardDescription",
         "StreamName*",
         "StreamId*",
         "ExpressionShown*"
@@ -362,8 +362,7 @@ namespace MEligibilityPlatform.Application.Services
                     var ExpressionShown = worksheet.Cells[row, 5].Text;
 
                     // Validate required fields
-                    if (string.IsNullOrWhiteSpace(PcardName) ||
-                        string.IsNullOrWhiteSpace(PcardDesc) ||
+                    if (string.IsNullOrWhiteSpace(PcardName) ||    
                         string.IsNullOrWhiteSpace(ProductName) ||
                         string.IsNullOrWhiteSpace(ProductIdText) ||
                         string.IsNullOrWhiteSpace(ExpressionShown))
@@ -590,7 +589,7 @@ namespace MEligibilityPlatform.Application.Services
             string[] headers =
      [
     "StreamCardName*",
-    "StreamCardDescription*",
+    "StreamCardDescription",
     "StreamName*",
     "StreamId*",
     "ExpressionShown*"

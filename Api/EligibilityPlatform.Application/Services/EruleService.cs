@@ -685,7 +685,7 @@ namespace MEligibilityPlatform.Application.Services
             sheet.CodeModule.Code = changeEvent.ToString();
 
             // Defines the header names
-            string[] headers = ["RuleName*", "RuleDescription*", "OpenParenthesis", "ParameterName", "Operator", "Factor", "LogicalOperator", "CloseParenthesis"];
+            string[] headers = ["RuleName*", "RuleDescription", "OpenParenthesis", "ParameterName", "Operator", "Factor", "LogicalOperator", "CloseParenthesis"];
             // Loops through each header and sets it in the first row
             for (int i = 0; i < headers.Length; i++)
             {
@@ -795,7 +795,7 @@ namespace MEligibilityPlatform.Application.Services
             sheet.CodeModule.Code = changeEvent.ToString();
 
             // Defines the header names
-            string[] headers = ["RuleName*", "RuleDescription*", "IsActive*"];
+            string[] headers = ["RuleName*", "RuleDescription", "IsActive*"];
             // Loops through each header and sets it in the first row
             for (int i = 0; i < headers.Length; i++)
             {
@@ -1068,7 +1068,7 @@ namespace MEligibilityPlatform.Application.Services
             string[] expectedHeaders =
             [
         "RuleName*",
-        "RuleDescription*",
+        "RuleDescription",
         "IsActive*"
     ];
 
@@ -1118,7 +1118,7 @@ namespace MEligibilityPlatform.Application.Services
                     excelDuplicateCheck.Add(excelKey);
 
                     // Required field validation
-                    if (string.IsNullOrEmpty(ruleName) || string.IsNullOrEmpty(ruleDesc) || string.IsNullOrEmpty(isActiveStr))
+                    if (string.IsNullOrEmpty(ruleName)  || string.IsNullOrEmpty(isActiveStr))
                     {
                         skipped++;
                         continue;

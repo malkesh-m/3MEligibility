@@ -140,7 +140,7 @@ export class ExceptionFormComponent {
     this.exceptionForm = this.fb.group({
       exceptionManagementId:[],
       exceptionName: ['', Validators.required],
-      description: ['', Validators.required],
+      description: [''],
       scope: [[], [Validators.required, limitRequiresProductValidator]
 ],
       isTemporary: [false],

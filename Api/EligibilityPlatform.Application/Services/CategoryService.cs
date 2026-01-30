@@ -314,10 +314,10 @@ namespace MEligibilityPlatform.Application.Services
                     // Gets category description from column 2
                     var CatDescription = worksheet.Cells[row, 2].Text;
                     // Gets entity ID from column 4
-                    var TenantId = worksheet.Cells[row, 4].Text;
+                    //var TenantId = worksheet.Cells[row, 4].Text;
 
                     // Validates required fields are present and valid
-                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) || !int.TryParse(TenantId, out _))
+                    if (string.IsNullOrWhiteSpace(CategoryName))
                     {
                         // Increments skipped records count
                         skippedRecordsCount++;
@@ -330,7 +330,7 @@ namespace MEligibilityPlatform.Application.Services
                     {
                         CategoryName = CategoryName,
                         CatDescription = CatDescription,
-                        TenantId = int.Parse(TenantId),
+                        TenantId = tenantId,
                         CreatedBy = createdBy
                     };
                     // Adds the model to the list
@@ -447,7 +447,7 @@ namespace MEligibilityPlatform.Application.Services
             var sheet = package.Workbook.Worksheets.Add("Category");
 
             // Defines column headers
-            string[] headers = ["CategoryName*", "CatDescription*", "EntityName*", "TenantId*", "Field Description"];
+            string[] headers = ["CategoryName*", "CatDescription", "Field Description"];
             // Sets headers in the first row
             for (int i = 0; i < headers.Length; i++)
             {
@@ -455,16 +455,16 @@ namespace MEligibilityPlatform.Application.Services
             }
 
             // Adds description for required fields in row 2, column 5
-            sheet.Cells[2, 5].Value = "* Fields marked with an asterisk are required.";
+            sheet.Cells[2, 3].Value = "* Fields marked with an asterisk are required.";
             // Makes the text bold
-            sheet.Cells[2, 5].Style.Font.Bold = true;
+            sheet.Cells[2, 3].Style.Font.Bold = true;
             // Sets the text color to red
-            sheet.Cells[2, 5].Style.Font.Color.SetColor(System.Drawing.Color.Red);
+            sheet.Cells[2, 3].Style.Font.Color.SetColor(System.Drawing.Color.Red);
 
             // Sets header for entity name reference data in column 10
-            sheet.Cells[1, 10].Value = "EntityName";
-            // Sets header for entity ID reference data in column 11
-            sheet.Cells[1, 11].Value = "TenantId";
+            //sheet.Cells[1, 10].Value = "EntityName";
+            //// Sets header for entity ID reference data in column 11
+            //sheet.Cells[1, 11].Value = "TenantId";
 
             // Populates column 10 with entity names
             //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 10);
@@ -472,12 +472,12 @@ namespace MEligibilityPlatform.Application.Services
             //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 11);
 
             // Applies dropdown validation to column C using data from column 10
-            ApplyDropdown(sheet, "EntityNameRange", "C", 10, 100);
-            // Adds formula to column D to lookup entity ID based on entity name
-            AddFormula(sheet, "D", "C", 10, 11, 100);
+            //ApplyDropdown(sheet, "EntityNameRange", "C", 10, 100);
+            //// Adds formula to column D to lookup entity ID based on entity name
+            //AddFormula(sheet, "D", "C", 10, 11, 100);
 
             // Hides column 4 (TenantId) from view
-            sheet.Column(4).Hidden = true;
+         
 
             // Auto-fits all columns to content
             sheet.Cells[sheet.Dimension.Address].AutoFitColumns();

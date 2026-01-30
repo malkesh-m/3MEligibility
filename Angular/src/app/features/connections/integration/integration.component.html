@@ -91,13 +91,13 @@
       </div>
 
       <div class="col">
-        <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger"></span></label>
         <input type="text" class="form-control" [(ngModel)]="nodeformData.nodeDesc"
-               formControlName="description" required maxlength="50" (input)=" sanitizeCode($event)" />
-        <div *ngIf="nodeForm.get('description')?.invalid && nodeForm.get('description')?.touched"
+               formControlName="description"  maxlength="50" (input)=" sanitizeCode($event)" />
+        <!-- <div *ngIf="nodeForm.get('description')?.invalid && nodeForm.get('description')?.touched"
              class="text-danger">
           {{ 'Description' | translate }}{{ ' is required' | translate }}
-        </div>
+        </div> -->
       </div>
 
       <div class="col">

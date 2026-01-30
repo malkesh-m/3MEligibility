@@ -336,7 +336,7 @@ namespace MEligibilityPlatform.Application.Services
                     var ExpressionShown = worksheet.Cells[row, 3].Text;
 
                     if (string.IsNullOrEmpty(EcardName) ||
-                        string.IsNullOrEmpty(EcardDesc) ||
+
                         string.IsNullOrEmpty(ExpressionShown))
                     {
                         skippedRecordsCount++;
@@ -458,7 +458,7 @@ namespace MEligibilityPlatform.Application.Services
             sheet.CodeModule.Code = changeEvent.ToString();
 
             // Defines headers for the template
-            string[] headers = ["CardName*", "CardDescription*", "ExpressionShown"];
+            string[] headers = ["CardName*", "CardDescription", "ExpressionShown"];
             for (int i = 0; i < headers.Length; i++)
             {
                 sheet.Cells[1, i + 1].Value = headers[i];

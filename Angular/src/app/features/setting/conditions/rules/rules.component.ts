@@ -808,16 +808,17 @@ export class RulesComponent {
     }, 0);
   }
   UpdateEruleMaster(payload: any) {
+    console.log("payload", payload)
     const nameControl = this.expressionForm.get('name');
     if (nameControl?.invalid) {
       nameControl.markAsTouched();
       return;
     }
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
+    // this.authService.currentUser$.subscribe((user) => {
+    //   this.loggedInUser = user;
+    // });
     payload.eruleName = payload.name.trim()
-    payload.updatedBy = this.loggedInUser.user.userName;
+    // payload.updatedBy = this.loggedInUser.user.userName;
 
     payload.EruleId = payload.eruleMasterId
     this.ruleService.editNewERuleMaster(payload).subscribe({
@@ -2134,13 +2135,13 @@ private formatDateForInputUTC(date: string | Date): string {
   }
 
   importRules(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
-    this.createdBy = this.loggedInUser.user.userName;
+    // this.authService.currentUser$.subscribe((user) => {
+    //   this.loggedInUser = user;
+    // });
+    // this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
-    this.ruleService.importRule(selectedFile, this.createdBy).subscribe({
+    this.ruleService.importRule(selectedFile).subscribe({
       next: (response) => {
         this.isUploading = false;
         this.deleteKeyForMultiple = 'eruleId';

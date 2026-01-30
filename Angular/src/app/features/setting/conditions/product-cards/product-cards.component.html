@@ -20,7 +20,7 @@
             </button>
             <button appUseractivity="User Click on Add button"
               [componentName]="'ProductCardsComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('Permissions.PCard.DownloadTemplate')">
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" >
                 <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
             </button>
             <button appUseractivity="User Click on Import button"
@@ -56,12 +56,12 @@
                 </div>
             </div>
             <div class="col-2">
-                <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger">*</span></label>
+                <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger"></span></label>
                 <input type="text" class="form-control" formControlName="Description" (input)="sanitizeCode($event)" maxlength="50" />
-                <div *ngIf="expressionForm.get('Description')?.invalid && expressionForm.get('Description')?.touched"
+                <!-- <div *ngIf="expressionForm.get('Description')?.invalid && expressionForm.get('Description')?.touched"
                     class="text-danger">
                     {{ 'Description' | translate }}{{ ' is required' | translate }}
-                </div>
+                </div> -->
             </div>
             <div class="col">
                 <label class="inputLabel">{{ 'Stream' | translate }} <span class="text-danger">*</span></label>

@@ -81,7 +81,7 @@ export class ProductCardsComponent implements OnInit {
   ) {
     this.expressionForm = this.fb.group({
       ProductCardName: ['', [Validators.required]],
-      Description: ['', [Validators.required]],
+      Description: [''],
       //MaximumAmount: ['',[Validators.required]],
       Expshown: ['', [Validators.required]],
       Product: ['', [Validators.required]],
@@ -921,13 +921,13 @@ export class ProductCardsComponent implements OnInit {
   }
 
   importPCard(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-  });
-    this.createdBy = this.loggedInUser.user.userName;
+  //   this.authService.currentUser$.subscribe((user) => {
+  //     this.loggedInUser = user;
+  // });
+    // this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
-    this.productsCardService.importPCard(selectedFile,this.createdBy).subscribe({
+    this.productsCardService.importPCard(selectedFile).subscribe({
       next: (response) => {
         this.isUploading = false;
         this.fetchAllProductCards();
