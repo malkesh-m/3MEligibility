@@ -301,7 +301,20 @@ namespace MEligibilityPlatform.Controllers
             // Retrieves the import template as byte array
             var excelBytes = await _parameterService.DownloadTemplate();
             // Returns the template file as a downloadable Excel file
+            // Returns the template file as a downloadable Excel file
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsx");
+        }
+
+        /// <summary>
+        /// Retrieves all system parameters.
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="SourceParameterDto"/> objects.</returns>
+        [Authorize(Policy = Permissions.Parameter.View)]
+        [HttpGet("system-parameters")]
+        public async Task<IActionResult> GetSystemParameters()
+        {
+            var result = await _parameterService.GetSystemParameters();
+            return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
 
         /// <summary>

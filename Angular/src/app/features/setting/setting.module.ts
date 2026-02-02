@@ -51,6 +51,7 @@ import { AuditLogComponent } from './Audit/audit-log/audit-log.component';
 import { LogsComponent } from './Audit/logs/logs.component';
 import { SharedModule } from '../../shared/shared.module';
 import { ApiDetailsDialogComponent } from './dashboard/api-details-dialog/api-details-dialog.component';
+import { ParameterBindingComponent } from './parameter-binding/parameter-binding.component';
 
 
 
@@ -81,11 +82,12 @@ import { ApiDetailsDialogComponent } from './dashboard/api-details-dialog/api-de
     ComputedValuesDialogComponent,
     AuditLogComponent,
     LogsComponent,
-    ApiDetailsDialogComponent
+    ApiDetailsDialogComponent,
+    ParameterBindingComponent
   ],
   imports: [
     MatDividerModule
-,
+    ,
     CommonModule,
     CoreModule,
     MatTooltipModule,

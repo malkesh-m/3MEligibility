@@ -21,7 +21,7 @@
       </button>
       <button appUseractivity="User Click on Download Template button"
               [componentName]="'ParametersComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('19')">
+              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
       <button appUseractivity="User Click on Import button"

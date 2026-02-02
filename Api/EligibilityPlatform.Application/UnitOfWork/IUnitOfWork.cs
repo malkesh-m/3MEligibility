@@ -256,6 +256,8 @@ namespace MEligibilityPlatform.Application.UnitOfWork
         ILogRepository LogRepository { get; }
         IIntegrationApiEvaluationRepository IntegrationApiEvaluationRepository { get; }
         IRejectionReasonRepository RejectionReasonRepository { get; }
+        ISystemParameterRepository SystemParameterRepository { get; }
+        IParameterBindingRepository ParameterBindingRepository { get; }
 
         #endregion
 

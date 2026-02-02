@@ -22,12 +22,13 @@ import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuditLogComponent } from './Audit/audit-log/audit-log.component';
 import { LogsComponent } from './Audit/logs/logs.component';
+import { ParameterBindingComponent } from './parameter-binding/parameter-binding.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '', component: SettingComponent },
-  { path: 'entity', component: EntityComponent ,canActivate: [roleGuard], data: { requiredRoleId: 9 } },
-  { path: 'factors', component: FactorsComponent/*, canActivate: [roleGuard], data: { requiredRoleId: 8 } */},
+  { path: 'entity', component: EntityComponent, canActivate: [roleGuard], data: { requiredRoleId: 9 } },
+  { path: 'factors', component: FactorsComponent/*, canActivate: [roleGuard], data: { requiredRoleId: 8 } */ },
   { path: 'parameters', component: ParametersComponent /*, canActivate: [roleGuard], data: { requiredRoleId: 10 }*/ },
   { path: 'lists', component: ListsComponent },
 
@@ -36,14 +37,15 @@ const routes: Routes = [
 
     children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
-      { path: 'list', component: ProductListComponent},
+      { path: 'list', component: ProductListComponent },
       { path: 'info', component: ProductListComponent },
       { path: 'details', component: ProductListComponent, canActivate: [roleGuard], data: { requiredRoleId: 51 } },
     ],
   },
   { path: 'rules', component: RulesComponent },
-  { path: 'product-cards', component: ProductCardsComponent},
+  { path: 'product-cards', component: ProductCardsComponent },
   { path: 'cards', component: CardsComponent },
+  { path: 'parameter-binding', component: ParameterBindingComponent },
 
   { path: 'checker', component: MakerCheckerComponent },
   { path: 'history', component: MakerCheckerHistoryComponent },

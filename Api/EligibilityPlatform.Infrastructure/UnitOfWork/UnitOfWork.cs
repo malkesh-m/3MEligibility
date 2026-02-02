@@ -376,6 +376,20 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         /// </summary>
         public IRejectionReasonRepository RejectionReasonRepository => _rejectionReasonRepository ??= new RejectionReasonRepository(_dbContext, _httpContext);
 
+        private SystemParameterRepository? _systemParameterRepository;
+
+        /// <summary>
+        /// Gets the source parameter repository.
+        /// </summary>
+        public ISystemParameterRepository SystemParameterRepository => _systemParameterRepository ??= new SystemParameterRepository(_dbContext, _httpContext);
+
+        private ParameterBindingRepository? _parameterBindingRepository;
+
+        /// <summary>
+        /// Gets the parameter binding repository.
+        /// </summary>
+        public IParameterBindingRepository ParameterBindingRepository => _parameterBindingRepository ??= new ParameterBindingRepository(_dbContext, _httpContext);
+
         #region Readonlys
 
         private readonly EligibilityDbContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));

@@ -97,6 +97,12 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         List<ParameterModel>? GetParameterByProducts(int tenantId, int productId);
 
         /// <summary>
+        /// Retrieves all source parameters.
+        /// </summary>
+        /// <returns>A list of <see cref="SourceParameterDto"/>.</returns>
+        Task<List<SystemParameterModel>> GetSystemParameters();
+
+        /// <summary>
         /// Downloads a template file for parameter operations.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation, containing the template file as a byte array.</returns>

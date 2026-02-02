@@ -111,6 +111,8 @@ public partial class EligibilityDbContext : DbContext
     public virtual DbSet<ProductCapAmount> ProductCapAmounts { get; set; }
     public virtual DbSet<RejectionReasons> RejectionReasons { get; set; }
     public virtual DbSet<IntegrationApiEvaluation> IntegrationApiEvaluation { get; set; }
+    public virtual DbSet<SystemParameter> SystemParameters { get; set; }
+    public virtual DbSet<ParameterBinding> ParameterBindings { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AmountEligibility>(entity =>
@@ -774,6 +776,22 @@ public partial class EligibilityDbContext : DbContext
                   .HasConstraintName("FK_ParameterComputedValue_Parameter_33D4B5983M");
         });
 
+        modelBuilder.Entity<ParameterBinding>(entity =>
+        {
+            entity.ToTable("ParameterBinding");
+
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(pb => pb.SystemParameter)
+                  .WithMany(sp => sp.ParameterBindings)
+                  .HasForeignKey(pb => pb.SystemParameterId)
+                  .OnDelete(DeleteBehavior.NoAction);
+
+            entity.HasOne(pb => pb.MappedParameter)
+                  .WithMany()
+                  .HasForeignKey(pb => pb.MappedParameterId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
 
         modelBuilder.Entity<ParamtersMap>(entity =>
         {
@@ -1067,6 +1085,8 @@ public partial class EligibilityDbContext : DbContext
                 .HasPrecision(18, 4);
 
         });
+
+
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -262,6 +262,13 @@ namespace MEligibilityPlatform.Application.Constants
             public const string CheckComputedValue = "Permissions.Parameter.CheckComputedValue";
 
         }
+        public static class ParameterBinding
+        {
+            public const string Create = "Permissions.ParameterBinding.Create";
+            public const string View = "Permissions.ParameterBinding.View";
+
+        }
+
         public static class ParametersMap
         {
             public const string Create = "Permissions.ParametersMap.Create";

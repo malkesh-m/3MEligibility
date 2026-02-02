@@ -73,7 +73,7 @@ export class GroupComponent implements OnInit {
     groupName: '',
     groupDesc: '',
   };
-  activeTab: string = 'group';
+  activeTab?: string = 'group';
   selectedGroupName: string | null = null;
   filteredGroupNames: UserRecord[] = [];
   requestBody: { id: number | null; groupId: string | null } = { id: null, groupId: null };

@@ -395,7 +395,8 @@ namespace MEligibilityPlatform.Application.Services
                 .ToList();
 
             // Checks eligible amounts for the combined product list
-            var eligibleAmountResult = CheckEligibleAmount(productsForEligibilityCheck, allProducts, productCap, keyValues);
+            var eligibleAmountResult = CheckEligibleAmount(tenantId, productsForEligibilityCheck, allProducts, productCap, keyValues);
+
             // Extracts eligible product IDs from the result
             var eligibleProductIds = eligibleAmountResult.Products!.Select(p => p.ProductId).Distinct().ToList();
 
@@ -548,6 +549,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="keyValues">A dictionary of parameter IDs and their corresponding values.</param>
         /// <returns>An <see cref="EligibleAmountResult"/> object containing eligible amounts and scoring information.</returns>
         public EligibleAmountResult CheckEligibleAmount(
+            int tenantId,
             IEnumerable<ProductEligibilityResult> validateProductIds,
             IEnumerable<Product> products,
             IEnumerable<ProductCap> productCaps,
@@ -558,38 +560,14 @@ namespace MEligibilityPlatform.Application.Services
             string Salary = "";
             int score = 0;
 
-            // Retrieves parameter mappings from the repository
-            var parameterMap = _uow.ParameterRepository.Query()
-                .Where(p => keyValues.Keys.Contains(p.ParameterId))
-                .Select(p => new { p.ParameterId, p.ParameterName })
-                .ToList();
-
-            // Processes each parameter to extract relevant values
-            foreach (var param in parameterMap)
+            // Resolves parameters using dynamic binding or fallbacks
+            Age = GetBoundParameterValue("Age", tenantId, keyValues)?.ToString() ?? "";
+            Salary = GetBoundParameterValue("Salary", tenantId, keyValues)?.ToString() ?? "";
+            
+            var scoreVal = GetBoundParameterValue("score", tenantId, keyValues);
+            if (scoreVal != null && int.TryParse(scoreVal.ToString(), out var parsedScore))
             {
-                if (keyValues.TryGetValue(param.ParameterId, out var value))
-                {
-                    var paramName = param.ParameterName?.Trim().ToLower() ?? "";
-
-                    // Extracts age value if parameter name contains "age"
-                    if (paramName.Equals("CustomerAge", StringComparison.OrdinalIgnoreCase))
-                        Age = value?.ToString() ?? "";
-                    // Extracts salary value if parameter name contains "salary"
-                    else if (paramName.Equals("CustomerSalary", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Exact match "score"
-                        Salary = value?.ToString() ?? "";
-
-                    }
-                    // Extracts score value if parameter name contains "score"
-                    else if (paramName.Equals("score", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Exact match "score"
-                        if (int.TryParse(value?.ToString(), out var parsedScore))
-                            score = parsedScore;
-                    }
-
-                }
+                score = parsedScore;
             }
 
 
@@ -2134,22 +2112,16 @@ namespace MEligibilityPlatform.Application.Services
 
                 };
             }
-            var nationalIdKey = KeyValues.Keys
-       .FirstOrDefault(k =>
-           k.Equals("NationalId", StringComparison.OrdinalIgnoreCase) ||
-           k.Equals("NationalIdNumber", StringComparison.OrdinalIgnoreCase)
-       );
+            // Resolve NationalId dynamically
+            var nationalId = GetBoundParameterValue("NationalId", TenantId, [], KeyValues)?.ToString();
 
-            var nationalId = nationalIdKey != null ? KeyValues[nationalIdKey]?.ToString() : null;
+            // Resolve LoanNo dynamically
+            var loanNo = GetBoundParameterValue("LoanNo", TenantId, [], KeyValues)?.ToString();
 
-            // Extract LoanNo
-            var loanNo = KeyValues.TryGetValue("LoanNo", out object? value)
-                ? value?.ToString()
-                : null;
             var mustFieldsMissing = new List<string>();
 
             if (string.IsNullOrWhiteSpace(nationalId))
-                mustFieldsMissing.Add("NationalIdNumber");
+                mustFieldsMissing.Add("NationalId");
 
             if (string.IsNullOrWhiteSpace(loanNo))
                 mustFieldsMissing.Add("LoanNo");
@@ -2159,7 +2131,7 @@ namespace MEligibilityPlatform.Application.Services
                 return new BREIntegrationResponses
                 {
                     RequestId = requestId,
-                    Message = "Both LoanNo and NationalIdNumber are required.",
+                    Message = "Both LoanNo and NationalId are required.",
                     MandatoryParameters = mustFieldsMissing
                 };
             }
@@ -2184,6 +2156,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 return listValidationResult;
             }
+  
             var evaluation = new EvaluationHistory
             {
                 TenantId = TenantId,
@@ -2346,75 +2319,51 @@ namespace MEligibilityPlatform.Application.Services
                 }
 
                 //  Utility to safely find value in keyValues
-                object? FindValue(string target)
-                {
-                    var normalizedTarget = Normalize(target);
+                //object? FindValue(string target)
+                //{
+                //    var normalizedTarget = Normalize(target);
 
-                    // 1️⃣ Try to find from main keyValuesForEligibility first
-                    var kv = keyValuesForEligibility.FirstOrDefault(kv =>
-                    {
-                        var paramName = parameters.FirstOrDefault(p => p.ParameterId == kv.Key)?.ParameterName;
-                        return !string.IsNullOrWhiteSpace(paramName) &&
-                               Normalize(paramName).Contains(normalizedTarget);
-                    });
+                //    // 1️⃣ Try to find from main keyValuesForEligibility first
+                //    var kv = keyValuesForEligibility.FirstOrDefault(kv =>
+                //    {
+                //        var paramName = parameters.FirstOrDefault(p => p.ParameterId == kv.Key)?.ParameterName;
+                //        return !string.IsNullOrWhiteSpace(paramName) &&
+                //               Normalize(paramName).Contains(normalizedTarget);
+                //    });
 
-                    if (!Equals(kv, default(KeyValuePair<int, object?>)) && kv.Value != null)
-                        return kv.Value;
+                //    if (!Equals(kv, default(KeyValuePair<int, object?>)) && kv.Value != null)
+                //        return kv.Value;
 
-                    // If not found, fallback to external API results
-                    foreach (var apiResult in externalApiResults)
-                    {
-                        var flattened = FlattenJson(apiResult.Value);
+                //    // If not found, fallback to external API results
+                //    foreach (var apiResult in externalApiResults)
+                //    {
+                //        var flattened = FlattenJson(apiResult.Value);
 
-                        var match = flattened.FirstOrDefault(f =>
-                            Normalize(f.Key).Contains(normalizedTarget));
+                //        var match = flattened.FirstOrDefault(f =>
+                //            Normalize(f.Key).Contains(normalizedTarget));
 
-                        if (!Equals(match, default(KeyValuePair<string, object?>)) && match.Value != null)
-                            return match.Value;
-                    }
+                //        if (!Equals(match, default(KeyValuePair<string, object?>)) && match.Value != null)
+                //            return match.Value;
+                //    }
 
-                    return null;
-                }
+                //    return null;
+                //}
 
-
-                //  Convert to integer safely
-                int? TryConvertToInt(object? value)
-                {
-                    if (value == null) return null;
-                    if (value is int i) return i;
-                    if (value is long l) return (int)l;
-                    if (value is double d) return (int)Math.Round(d);
-                    if (value is decimal dec) return (int)Math.Round(dec);
-                    if (int.TryParse(value.ToString(), out var r)) return r;
-                    if (double.TryParse(value.ToString(), out var dv)) return (int)Math.Round(dv);
-                    return null;
-                }
 
                 var scoreResult = new ScoringResult();
-
-
-                //  Extract values (supporting different possible key names)
-
-                object? scoreValue = null;
-
-                // 1Try from payload parameters
-                var scoreParam = parameters.FirstOrDefault(p =>
-                    p.ParameterName!.Equals("Score", StringComparison.OrdinalIgnoreCase));
-
-                if (scoreParam != null && parameterDictionary.TryGetValue(scoreParam.ParameterId, out var paramScoreVal))
-                {
-                    scoreValue = paramScoreVal;  // take from payload first
-                }
-                else
-                {
-                    // 2Fallback to external API
-                    scoreValue = FindValue("Score");
-                }
-                var pdValue = FindValue("probabilityofdefault") ?? FindValue("pd");
-
-                //  Convert and assign to int properties
-                scoreResult.CustomerScore = TryConvertToInt(scoreValue) ?? 0;
-                scoreResult.ProbabilityOfDefault = TryConvertToInt(pdValue) ?? 0;
+ 
+                 // Resolve Score and ProbabilityOfDefault dynamically
+                 var scoreValue = GetBoundParameterValue("score", TenantId, keyValuesForEligibility, KeyValues);
+                 if (scoreValue != null && int.TryParse(scoreValue.ToString(), out var parsedScore))
+                 {
+                     scoreResult.CustomerScore = parsedScore;
+                 }
+ 
+                 var pdValue = GetBoundParameterValue("probabilityofdefault", TenantId, keyValuesForEligibility, KeyValues);
+                 if (pdValue != null && int.TryParse(pdValue.ToString(), out var parsedPd))
+                 {
+                     scoreResult.ProbabilityOfDefault = parsedPd;
+                 }
 
                 // Replace or add in keyValuesForEligibility
                 //         var parameterss = _uow.ParameterRepository.Query()
@@ -2437,18 +2386,11 @@ namespace MEligibilityPlatform.Application.Services
                 //    keyValuesForEligibility[pdParam.ParameterId] = scoreResult.ProbabilityOfDefault;
                 // Step 8: Perform eligibility evaluation
                 var eligibilityResult = GetAllEligibleProducts(TenantId, keyValuesForEligibility);
-                var nationalIdValue = KeyValues
-                    .FirstOrDefault(x =>
-                          x.Key.Equals("NationalIdNumber", StringComparison.OrdinalIgnoreCase) ||
-                          x.Key.Equals("NationalId", StringComparison.OrdinalIgnoreCase))
-                          .Value?.ToString();
-                var LoanNo = KeyValues.FirstOrDefault(x => x.Key.Equals("LoanNo", StringComparison.OrdinalIgnoreCase)).Value?.ToString();
 
                 // Step 9: Save Evaluation History
                 evaluation.EvaluationTimeStamp = DateTime.UtcNow;
                 evaluation.CreditScore = scoreResult.CustomerScore;
-                evaluation.NationalId = nationalIdValue!;
-                evaluation.LoanNo = LoanNo ?? "";
+
                 evaluation.TenantId = TenantId;
                 evaluation.ProcessingTime = Math.Round(stopwatch.Elapsed.TotalSeconds, 2);
                 var breRequestWithNames = keyValuesForEligibility.ToDictionary(
@@ -2754,10 +2696,11 @@ namespace MEligibilityPlatform.Application.Services
         {
             var results = new Dictionary<string, Dictionary<string, object>>();
 
-            // Step 1: Get all active APIs from NodeApi + Api tables
-            var activeApis = (from api in _uow.NodeApiRepository.GetAll()
-                              join node in _uow.NodeModelRepository.GetAll() on api.NodeId equals node.NodeId
-                              where api.IsActive
+            var apis = _uow.NodeApiRepository.GetAll().Where(api => api.IsActive).ToList();
+            var nodes = _uow.NodeModelRepository.GetAll().ToList();
+
+            var activeApis = (from api in apis
+                              join node in nodes on api.NodeId equals node.NodeId
                               orderby api.ExecutionOrder
                               select new
                               {
@@ -2765,10 +2708,11 @@ namespace MEligibilityPlatform.Application.Services
                                   api.Apiname,
                                   api.HttpMethodType,
                                   FullUrl = node.NodeUrl + "/" + api.Apiname,
-                                  requestBody = api.RequestBody,
-                                  requestParameters = api.RequestParameters,
+                                  api.RequestBody,
+                                  api.RequestParameters,
                                   Headers = api.Header
                               }).ToList();
+            var allInternalParams = _uow.ParameterRepository.GetAll().ToList();
 
             foreach (var api in activeApis)
             {
@@ -2796,7 +2740,6 @@ namespace MEligibilityPlatform.Application.Services
                         }
                         else
                         {
-                            var allInternalParams = _uow.ParameterRepository.GetAll().ToList();
 
                             var normalizedParamName = Normalize(param.ParameterName);
                             var matchedInternal = allInternalParams.FirstOrDefault(p =>
@@ -3169,13 +3112,55 @@ namespace MEligibilityPlatform.Application.Services
             return false;
         }
 
+        private object? GetBoundParameterValue(string systemParameterName, int tenantId, Dictionary<int, object> mappedKeyValues, Dictionary<string, object>? rawKeyValues = null)
+        {
+            // Check if there is a binding for this system parameter (case-insensitive)
+            var binding = _uow.ParameterBindingRepository.Query()
+                .Include(b => b.SystemParameter)
+                .FirstOrDefault(b => b.TenantId == tenantId && b.SystemParameter!.Name.ToLower() == systemParameterName.ToLower());
+
+            if (binding?.MappedParameterId != null)
+            {
+                // If bound, try to get value from the mapped parameter ID
+                if (mappedKeyValues.TryGetValue(binding.MappedParameterId.Value, out var val))
+                    return val;
+
+                // Also check rawKeyValues by mapped parameter name if provided
+                if (rawKeyValues != null)
+                {
+                    var mappedParam = _uow.ParameterRepository.Query().FirstOrDefault(p => p.ParameterId == binding.MappedParameterId);
+                    if (mappedParam != null)
+                    {
+                        var match = rawKeyValues.FirstOrDefault(k => string.Equals(k.Key, mappedParam.ParameterName, StringComparison.OrdinalIgnoreCase));
+                        if (!match.Equals(default(KeyValuePair<string, object>)))
+                            return match.Value;
+                    }
+                }
+            }
+
+            //   try to find the value by the systemParameterName itself in rawKeyValues
+            if (rawKeyValues != null)
+            {
+                var match = rawKeyValues.FirstOrDefault(k => string.Equals(k.Key, systemParameterName, StringComparison.OrdinalIgnoreCase));
+                if (!match.Equals(default(KeyValuePair<string, object>)))
+                    return match.Value;
+            }
+
+            // Also check if any parameter with this name (case-insensitive) exists in mappedKeyValues
+            var defaultParam = _uow.ParameterRepository.Query()
+                .FirstOrDefault(p => p.TenantId == tenantId && p.ParameterName!.ToLower() == systemParameterName.ToLower());
+            if (defaultParam != null && mappedKeyValues.TryGetValue(defaultParam.ParameterId, out var mappedVal))
+            {
+                return mappedVal;
+            }
+
+            return null;
+        }
+
+
         #endregion
 
-        static string? GetParam(Dictionary<string, object?> dict, string key)
-        {
-            var normalizedKey = key.Replace(" ", "").ToLowerInvariant();
-            return dict.TryGetValue(normalizedKey, out var value) ? value?.ToString() : null;
-        }
+     
         public async Task<object> CallYaqeenApi(string nationalId, EvaluationHistory evaluation)
         {
             //var yaqeenRequest = new { NationalId = nationalId };

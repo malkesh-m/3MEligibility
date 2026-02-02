@@ -229,7 +229,13 @@ namespace MEligibilityPlatform
 
             // Configures bidirectional mapping between Log entity and LogModel
             CreateMap<Log, LogModel>().ReverseMap();
-        }
+            CreateMap<SystemParameter, SystemParameterModel>().ReverseMap();
 
+            CreateMap<ParameterBinding, ParameterBindingModel>()
+                .ForMember(dest => dest.SystemParameterName, opt => opt.MapFrom(src => src.SystemParameter!.Name))
+                .ReverseMap();
+
+            CreateMap<ParameterBinding, ParameterBindingAddModel>().ReverseMap();
+        }
     }
 }

@@ -25,6 +25,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="entityService">The entity service instance.</param>
     public partial class ParameterService(IUnitOfWork uow, IMapper mapper, IDataTypeService dataTypeService, IConditionService conditionService/*, IEntityService entityService*/) : IParameterService
     {
+      
         /// <summary>
         /// The unit of work instance for database operations.
         /// </summary>
@@ -628,6 +629,74 @@ namespace MEligibilityPlatform.Application.Services
 
             // Maps parameters to ParameterModel objects
             return _mapper.Map<List<ParameterModel>?>(parameters);
+        }
+        public async Task<List<SystemParameterModel>> GetSystemParameters()
+        {
+            var systemParams = await _uow.SystemParameterRepository.Query().ToListAsync();
+            if (systemParams.Count == 0)
+            {
+                // Seed default values
+                var defaults = new List<SystemParameter>
+                {
+                    new() { Name = "NationalId", Description = "National Identity Number" },
+                    new() { Name = "LoanNo", Description = "Loan Number" },
+                    new() { Name = "Score", Description = "Credit Score" },
+                    new() { Name = "Age", Description = "Customer Age" },
+                    new() { Name = "Salary", Description = "Monthly Salary" },
+                };
+
+                _uow.SystemParameterRepository.AddRange(defaults);
+                await _uow.CompleteAsync();
+                systemParams = await _uow.SystemParameterRepository.Query().ToListAsync();
+            }
+
+            return _mapper.Map<List<SystemParameterModel>>(systemParams);
+        }
+
+        public async Task AddSystemParameter(SystemParameterModel model)
+        {
+            var exists = await _uow.SystemParameterRepository.Query()
+                .AnyAsync(p => p.Name == model.Name);
+
+            if (exists)
+                throw new Exception("Source Parameter name already exists.");
+
+            var entity = _mapper.Map<SystemParameter>(model);
+
+            _uow.SystemParameterRepository.Add(entity);
+            await _uow.CompleteAsync();
+        }
+
+        public async Task UpdateSystemParameter(SystemParameterModel model)
+        {
+            var entity = await _uow.SystemParameterRepository.Query()
+                .FirstOrDefaultAsync(p => p.Id == model.Id)
+                ?? throw new Exception("Source Parameter not found.");
+
+            var exists = await _uow.SystemParameterRepository.Query()
+                .AnyAsync(p => p.Name == model.Name && p.Id != model.Id);
+
+            if (exists)
+                throw new Exception("Source Parameter name already exists.");
+
+            entity.Name = model.Name;
+            entity.Description = model.Description;
+
+            _uow.SystemParameterRepository.Update(entity);
+            await _uow.CompleteAsync();
+        }
+
+        public async Task DeleteSystemParameter(int id)
+        {
+            var entity = await _uow.SystemParameterRepository.Query()
+                .FirstOrDefaultAsync(p => p.Id == id)
+                ?? throw new Exception("Source Parameter not found.");
+
+            // Optional: Check usage in ParameterBinding if stricter integrity is needed, 
+            // but for now allowing delete (cascading or manual cleanup might be expected).
+
+            _uow.SystemParameterRepository.Remove(entity);
+            await _uow.CompleteAsync();
         }
 
         /// <summary>

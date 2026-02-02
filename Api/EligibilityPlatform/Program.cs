@@ -145,6 +145,7 @@ builder.Services.AddScoped<IApiParameterMapservice, ApiParameterMapservice>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IApiClientService, ApiClientService>();
 builder.Services.AddScoped<IEligibleProductsService, EligibleProductsService>();
+builder.Services.AddScoped<IParameterBindingService, ParameterBindingService>();
 builder.Services.AddScoped<IProductCapService, ProductCapService>();
 builder.Services.AddScoped<IEvaluationHistoryService, EvaluationHistoryService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();

@@ -1,0 +1,83 @@
+<div class="mb-3">
+    <div>
+        <p class="moduleLabel mb-2">{{ 'Parameter Binding Configuration' | translate }}</p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
+            <input type="text" class="form-control" style="width: 100%;" [(ngModel)]="searchTerms[activeTab]"
+                (input)="applyFilter()" placeholder="{{ 'Search Parameters' | translate }}" />
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <!-- <li class="nav-item">
+    <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'customer'"
+      (click)="switchTab('customer')">
+      {{ 'Customer' | translate }}
+    </a>
+  </li> -->
+    <li class="nav-item">
+        <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'product'"
+            (click)="switchTab('product')">
+            {{ 'Product' | translate }}
+        </a>
+    </li>
+</ul>
+
+<div class="table-wrapper">
+    <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+
+        <!-- System Parameter Column -->
+        <ng-container matColumnDef="parameterName">
+            <th class="cellStyling column-parameter-name" mat-header-cell *matHeaderCellDef mat-sort-header> 
+                {{ 'System Parameter' | translate }} 
+            </th>
+            <td class="cellStyling column-parameter-name" mat-cell *matCellDef="let element">
+                <div>{{element.name}}</div>
+                <div class="text-muted small" *ngIf="element.description">{{element.description}}</div>
+            </td>
+        </ng-container>
+
+        <!-- Mapped Internal Parameter Column -->
+        <ng-container matColumnDef="inputAlias">
+            <th class="cellStyling column-input-alias" mat-header-cell *matHeaderCellDef> 
+                {{ 'Mapped Internal Parameter' | translate }}
+            </th>
+            <td class="cellStyling column-input-alias" mat-cell *matCellDef="let element">
+                <select class="form-select form-select-sm" [(ngModel)]="element.selectedParamId" (change)="markAsModified(element)">
+                    <option [ngValue]="null">{{ 'None (Unmapped)' | translate }}</option>
+                    <option *ngFor="let param of getFilteredParameters()" [value]="param.parameterId">
+                        {{ param.parameterName }}
+                    </option>
+                </select>
+            </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+            <th class="cellStyling column-actions" mat-header-cell *matHeaderCellDef>
+                {{ 'Actions' | translate }}
+            </th>
+            <td class="cellStyling column-actions" mat-cell *matCellDef="let element">
+                <div class="action-buttons">
+                    <button class="btn btn-primary btn-sm " *ngIf="isModified(element)" (click)="saveParameter(element)">
+                        {{ 'Save' | translate }}
+                    </button>
+                    <button class="btn btn-secondary btn-sm" *ngIf="isModified(element)" (click)="cancelChanges(element)">
+                        {{ 'Cancel' | translate }}
+                    </button>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
+    </table>
+    <mat-paginator class="paginator" [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+</div>
+
+<!-- Full-page Loader -->
+<app-spinner [isLoading]="isLoading" [message]="message"></app-spinner>

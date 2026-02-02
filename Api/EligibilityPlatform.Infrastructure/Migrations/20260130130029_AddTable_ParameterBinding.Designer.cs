@@ -4,6 +4,7 @@ using MEligibilityPlatform.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MEligibilityPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(EligibilityDbContext))]
-    partial class EligibilityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260130130029_AddTable_ParameterBinding")]
+    partial class AddTable_ParameterBinding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1783,8 +1786,10 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.Property<int?>("MappedParameterId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SystemParameterId")
-                        .HasColumnType("int");
+                    b.Property<string>("SystemParameter")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
@@ -1792,8 +1797,6 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MappedParameterId");
-
-                    b.HasIndex("SystemParameterId");
 
                     b.ToTable("ParameterBinding", (string)null);
                 });
@@ -2278,7 +2281,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.ToTable("Settings");
                 });
 
-            modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.SystemParameter", b =>
+            modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.SourceParameter", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2296,7 +2299,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SystemParameters");
+                    b.ToTable("SourceParameters");
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.User", b =>
@@ -2793,15 +2796,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                         .HasForeignKey("MappedParameterId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("MEligibilityPlatform.Domain.Entities.SystemParameter", "SystemParameter")
-                        .WithMany("ParameterBindings")
-                        .HasForeignKey("SystemParameterId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.Navigation("MappedParameter");
-
-                    b.Navigation("SystemParameter");
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.ParameterComputedValue", b =>
@@ -3105,11 +3100,6 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.Navigation("GroupRoles");
 
                     b.Navigation("UserGroups");
-                });
-
-            modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.SystemParameter", b =>
-                {
-                    b.Navigation("ParameterBindings");
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.User", b =>

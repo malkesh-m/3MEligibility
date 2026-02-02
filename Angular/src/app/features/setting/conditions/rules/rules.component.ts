@@ -51,7 +51,9 @@ export interface RulesRecord {
   templateUrl: './rules.component.html',
   styleUrl: './rules.component.scss'
 })
+
 export class RulesComponent {
+
   @ViewChild('formSection') formSection!: ElementRef;
 
   @ViewChild('tableChild') tableChild!: TableComponent;
@@ -147,6 +149,7 @@ export class RulesComponent {
   ) {
 
   }
+
   ngAfterViewInit(): void {
     // Assign paginator and sort AFTER the view initializes
     this.dataSource.paginator = this.paginator;
@@ -285,6 +288,7 @@ export class RulesComponent {
     this.formVisible = true;
 
     const latestVersion = rule.versions && rule.versions.length > 0 ? rule.versions[0] : null;
+    const today = new Date().toISOString().substring(0, 10);
 
     // Patch base rule information (from EruleMaster)
     this.expressionForm.patchValue({
@@ -292,8 +296,8 @@ export class RulesComponent {
       name: rule.eruleName || '',
       eruleMasterId: Number(rule.eruleMasterId),
       description: rule.description || '',
-      validFrom: latestVersion?.validFrom ? this.formatDateForInputUTC(latestVersion.validFrom) : null,
-      validTo: latestVersion?.validTo ? this.formatDateForInputUTC(latestVersion.validTo) : null,
+      validFrom: this.formatDateForInputUTC(today)  ,
+      validTo:  null,
       expshown: latestVersion?.expShown || '',
       factorName: latestVersion?.factorName || '',
       expression: ''
