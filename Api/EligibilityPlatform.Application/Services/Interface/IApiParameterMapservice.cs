@@ -12,14 +12,14 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// Retrieves all API parameter mappings.
         /// </summary>
         /// <returns>A list of <see cref="ApiParameterListMapModel"/> objects containing all parameter mappings.</returns>
-        List<ApiParameterListMapModel> GetAll();
+        List<ApiParameterListMapModel> GetAll(int tenantID);
 
         /// <summary>
         /// Retrieves a specific API parameter mapping by its identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the parameter mapping to retrieve.</param>
         /// <returns>The <see cref="ApiParameterListMapModel"/> with the specified ID.</returns>
-        ApiParameterListMapModel GetById(int id);
+        ApiParameterListMapModel GetById(int id,int tenantId);
 
         /// <summary>
         /// Adds a new API parameter mapping.

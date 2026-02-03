@@ -46,6 +46,9 @@ namespace MEligibilityPlatform.Domain.Models
         [JsonIgnore]
 
         public string? UpdatedBy { get; set; }
+
+        [JsonIgnore]
+        public int TenantId { get; set; }
         public bool IsImport { get; set; }
     }
     public class ListItemModelDescription

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MEligibilityPlatform.Domain.Models
@@ -27,6 +28,8 @@ namespace MEligibilityPlatform.Domain.Models
 
         [Range(0, double.MaxValue, ErrorMessage = "Amount must be non-negative.")]
         public decimal Amount { get; set; }
+        [JsonIgnore]
+        public int TenantId { get; set; }
     }
     public class ProductCapAmountUpdateModel : ProductCapAmountAddModel
     {

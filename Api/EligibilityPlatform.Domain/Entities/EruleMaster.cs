@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MEligibilityPlatform.Domain.Entities
 {
-    public class EruleMaster
+    public class EruleMaster : ITenantEntity
     {
         public int Id { get; set; }
 

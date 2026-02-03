@@ -119,7 +119,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<PcardListModel> GetAll(int tenantId)
         {
             // Get Pcards by entity ID
-            var pcard = _uow.PcardRepository.Query().Where(f => f.TenantId == tenantId);
+            var pcard = _uow.PcardRepository.GetAllByTenantId(tenantId);
             // Map entities to models and return
             return _mapper.Map<List<PcardListModel>>(pcard);
         }

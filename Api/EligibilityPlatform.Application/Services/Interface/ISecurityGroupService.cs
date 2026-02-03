@@ -12,14 +12,14 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// Retrieves all security group records.
         /// </summary>
         /// <returns>A list of <see cref="SecurityGroupModel"/> objects containing all security group records.</returns>
-        List<SecurityGroupModel> GetAll();
+        List<SecurityGroupModel> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific security group record by its identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the security group record to retrieve.</param>
         /// <returns>The <see cref="SecurityGroupModel"/> with the specified ID.</returns>
-        SecurityGroupModel GetById(int id);
+        SecurityGroupModel GetById(int id,int tenantId);
 
         /// <summary>
         /// Adds a new security group record.

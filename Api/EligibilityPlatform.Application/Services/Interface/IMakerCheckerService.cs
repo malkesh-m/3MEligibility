@@ -12,7 +12,7 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// Retrieves all maker-checker records.
         /// </summary>
         /// <returns>A list of <see cref="MakerCheckerModel"/> objects containing all maker-checker records.</returns>
-        List<MakerCheckerModel> GetAll();
+        List<MakerCheckerModel> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific maker-checker record by its identifier.

@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// Retrieves all API parameters.
         /// </summary>
         /// <returns>A list of <see cref="ApiParametersListModel"/> objects containing all API parameters.</returns>
-        List<ApiParametersListModel> GetAll();
+        List<ApiParametersListModel> GetAll(int tenantID);
 
         /// <summary>
         /// Retrieves a specific API parameter by its identifier.

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class User
+public partial class User : ITenantEntity
 {
     [Key]
     public int UserId { get; set; }

@@ -35,10 +35,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getall")]
         public async Task<IActionResult> Get(int pageIndex = 0, int pageSize = 10)
         {
+            var tenantId = User.GetTenantId();
             /// <summary>
             /// Calls the service to retrieve all audit records with pagination.
             /// </summary>
-            var result = await _AuditService.GetAll(pageIndex, pageSize);
+            var result = await _AuditService.GetAll(tenantId,pageIndex, pageSize);
 
             /// <summary>
             /// Returns successful response with the retrieved audit records.
@@ -56,10 +57,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
+            var tenantId = User.GetTenantId();
             /// <summary>
             /// Retrieves a specific audit record by ID from the service.
             /// </summary>
-            var result = _AuditService.GetById(id);
+            var result = _AuditService.GetById(id,tenantId);
 
             /// <summary>
             /// Checks if the audit record was found.

@@ -12,14 +12,14 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// Retrieves all list items.
         /// </summary>
         /// <returns>A list of <see cref="ListItemModel"/> objects containing all list items.</returns>
-        List<ListItemModel> GetAll();
+        List<ListItemModel> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific list item by its identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the list item to retrieve.</param>
         /// <returns>The <see cref="ListItemModel"/> with the specified ID.</returns>
-        ListItemModel GetById(int id);
+        ListItemModel GetById(int id,int tenantId);
 
         /// <summary>
         /// Adds a new list item.

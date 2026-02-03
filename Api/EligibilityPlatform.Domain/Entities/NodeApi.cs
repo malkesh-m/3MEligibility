@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class NodeApi
+public partial class NodeApi : ITenantEntity
 {
     [Key]
     public int Apiid { get; set; }
@@ -37,6 +37,7 @@ public partial class NodeApi
 
     public string RequestBody { get; set; } = null!;
 
+    public int TenantId { get; set; }
 
     public string RequestParameters { get; set; } = null!;
     public string ResponseFormate { get; set; } = string.Empty;

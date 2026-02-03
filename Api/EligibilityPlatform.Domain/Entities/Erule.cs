@@ -4,7 +4,7 @@ using System.Reflection.Metadata;
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Erule
+public partial class Erule : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

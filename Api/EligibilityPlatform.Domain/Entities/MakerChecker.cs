@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class MakerChecker
+public partial class MakerChecker : ITenantEntity
 {
     public int MakerCheckerId { get; set; }
 
@@ -27,6 +27,8 @@ public partial class MakerChecker
     public DateTime UpdatedByDateTime { get; set; }
 
     public string? Comment { get; set; }
+    public int TenantId { get; set; }
+
 
     public virtual User? Checker { get; set; }
 

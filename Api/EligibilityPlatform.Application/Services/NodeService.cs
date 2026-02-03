@@ -1,5 +1,6 @@
 ﻿using System.Xml.Linq;
 using AutoMapper;
+using MEligibilityPlatform.Application.Extensions;
 using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -84,9 +85,8 @@ namespace MEligibilityPlatform.Application.Services
         public List<NodeListModel> GetAll(int tenantId)
         {
             // Queries nodes filtered by entity ID and *executes* the query immediately.
-            var nodesList = _uow.NodeModelRepository
-                                .Query()
-                                .Where(f => f.TenantId == tenantId)
+            var nodesList = _uow.NodeModelRepository        
+                                .GetAllByTenantId(tenantId)
                                 .ToList();
 
             return _mapper.Map<List<NodeListModel>>(nodesList);
@@ -100,7 +100,7 @@ namespace MEligibilityPlatform.Application.Services
         public NodeListModel GetById(int tenantId, int id)
         {
             // Retrieves the specific node by entity ID and node ID
-            var node = _uow.NodeModelRepository.Query().First(f => f.NodeId == id && f.TenantId == tenantId);
+            var node = _uow.NodeModelRepository.Query().FirstOrDefault(f => f.NodeId == id && f.TenantId == tenantId);
             // Maps the node to NodeListModel object
             return _mapper.Map<NodeListModel>(node);
         }

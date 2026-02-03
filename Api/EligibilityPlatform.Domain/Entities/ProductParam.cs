@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ProductParam
+public partial class ProductParam : ITenantEntity
 {
     public int ProductId { get; set; }
 

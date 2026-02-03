@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ManagedList
+public partial class ManagedList : ITenantEntity
 {
     [Key]
     public int ListId { get; set; }

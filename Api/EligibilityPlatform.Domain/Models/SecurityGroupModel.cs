@@ -51,6 +51,8 @@ ErrorMessage = "Group Desc can contain Arabic letters, English letters, numbers,
         [JsonIgnore]
 
         public string? UpdatedBy { get; set; }
+        [JsonIgnore]
+        public int TenantId { get; set; }
     }
 
 }

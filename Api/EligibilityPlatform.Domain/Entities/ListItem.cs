@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ListItem
+public partial class ListItem : ITenantEntity
 {
     [Key]
     public int ItemId { get; set; }
@@ -22,6 +22,8 @@ public partial class ListItem
     public string UpdatedBy { get; set; } = string.Empty;
 
     public bool IsImport { get; set; }
+    public int TenantId { get; set; }
+
 
     public virtual ManagedList? List { get; set; }
 }

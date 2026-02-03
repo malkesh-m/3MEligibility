@@ -33,8 +33,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getall")]
         public IActionResult Get()
         {
+            var tenantId = User.GetTenantId();
             // Retrieves all list item records
-            List<ListItemModel> result = _listItemService.GetAll();
+            List<ListItemModel> result = _listItemService.GetAll(tenantId);
             // Returns success response with the retrieved list item list
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -50,8 +51,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
+            var tenantId = User.GetTenantId();
             // Retrieves a list item record by ID
-            var result = _listItemService.GetById(id);
+            var result = _listItemService.GetById(id,tenantId);
             // Checks if the list item record was found
             if (result != null)
             {
@@ -75,10 +77,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(ListItemCreateUpdateModel listItem)
         {
-
+            var tenantId = User.GetTenantId();
             var userName = User.GetUserName();
             listItem.CreatedBy = userName;
             listItem.UpdatedBy = userName;
+            listItem.TenantId = tenantId;
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -102,6 +105,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(ListItemCreateUpdateModel listItem)
         {
+            var tenantId = User.GetTenantId();
+            listItem.TenantId = tenantId;
 
             var userName = User.GetUserName();
             listItem.UpdatedBy = userName;

@@ -30,8 +30,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getall")]
         public IActionResult Get()
         {
+            var tenantId = User.GetTenantId();
             // Retrieves all node API records
-            List<NodeApiListModel> result = _nodeApiService.GetAll();
+            List<NodeApiListModel> result = _nodeApiService.GetAll(tenantId);
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -56,8 +57,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
+            var tenantId = User.GetTenantId();
             // Retrieves a node API record by ID
-            var result = _nodeApiService.GetById(id);
+            var result = _nodeApiService.GetById(id,tenantId);
             // Checks if the record was found
             if (result != null)
             {
@@ -82,7 +84,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(NodeApiCreateOrUpdateModel nodeApi)
         {
+            var tenantId = User.GetTenantId();
             var userName = User.GetUserName();
+            nodeApi.TenantId = tenantId;
             nodeApi.CreatedBy = userName;
             nodeApi.UpdatedBy = userName;
             // Validates the model state
@@ -107,6 +111,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(NodeApiCreateOrUpdateModel nodeApi)
         {
+            var tenantId = User.GetTenantId();
+            nodeApi.TenantId = tenantId;
             var userName = User.GetUserName();
             nodeApi.UpdatedBy = userName;
             // Validates the model state

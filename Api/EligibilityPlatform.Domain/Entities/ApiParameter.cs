@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ApiParameter
+public partial class ApiParameter: ITenantEntity
 {
     [Key]
     public int ApiParamterId { get; set; }
@@ -16,6 +16,7 @@ public partial class ApiParameter
     public string? DefaultValue { get; set; }
 
     public int? ApiId { get; set; }
+    public int TenantId { get; set; }
 
     public DateTime CreatedByDateTime { get; set; }
 

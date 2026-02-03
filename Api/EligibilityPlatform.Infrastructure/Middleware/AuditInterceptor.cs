@@ -245,7 +245,15 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                 }
 
                 var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
-                var userName = _httpContextAccessor.HttpContext?.User.FindFirst("preferred_username")?.Value;
+                var claims = _httpContextAccessor.HttpContext?.User.Claims;
+
+                var userName = claims?.FirstOrDefault(c =>
+                    string.Equals(c.Type, "preferred_username", StringComparison.OrdinalIgnoreCase))?.Value;
+
+                var tenantIdString = claims?.FirstOrDefault(c =>
+                    string.Equals(c.Type, "tenant_id", StringComparison.OrdinalIgnoreCase))?.Value;
+
+                int tenantId = int.TryParse(tenantIdString, out var tId) ? tId : 0;
                 string actionName = entry.State switch
                 {
                     EntityState.Modified => "Update",
@@ -265,7 +273,8 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                     FieldName = "",
                     UpdatedByDateTime = now,
                     IPAddress = ip,
-                    UserName = userName
+                    UserName = userName,
+                    TenantId=tenantId
                 };
 
                 _pendingAuditInfos.Add(new AuditInfo
@@ -276,9 +285,12 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                 });
             }
         }
-        private static readonly JsonSerializerSettings _auditJsonSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings _auditJsonSettings =
+        new()
         {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+            DateFormatString = "yyyy-MM-ddTHH:mm:ss.fffffffZ"
         };
 
         private static string SerializeWithoutExcludedFields(PropertyValues values)

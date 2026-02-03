@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MEligibilityPlatform.Application.Extensions;
 using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -45,10 +46,10 @@ namespace MEligibilityPlatform.Application.Services
         /// Retrieves all API parameter mappings from the database.
         /// </summary>
         /// <returns>A list of API parameter mappings.</returns>
-        public List<ApiParameterListMapModel> GetAll()
+        public List<ApiParameterListMapModel> GetAll(int tenantId)
         {
             // Retrieves all entities from the repository
-            var result = _uow.ApiParameterMapsRepository.GetAll();
+            var result = _uow.ApiParameterMapsRepository.GetAllByTenantId(tenantId);
             // Maps entities to list models using AutoMapper
             return _mapper.Map<List<ApiParameterListMapModel>>(result);
         }
@@ -58,10 +59,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The unique identifier of the API parameter mapping.</param>
         /// <returns>The API parameter mapping if found, otherwise null.</returns>
-        public ApiParameterListMapModel GetById(int id)
+        public ApiParameterListMapModel GetById(int id,int tenantId)
         {
             // Retrieves entity by ID from the repository
-            var result = _uow.ApiParameterMapsRepository.GetById(id);
+            var result = _uow.ApiParameterMapsRepository.Query().Where(a=>a.Id==id && a.TenantId==tenantId);
             // Maps entity to list model using AutoMapper
             return _mapper.Map<ApiParameterListMapModel>(result);
         }

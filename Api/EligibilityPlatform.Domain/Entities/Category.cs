@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Category
+public partial class Category : ITenantEntity
 {
     public int CategoryId { get; set; }
 

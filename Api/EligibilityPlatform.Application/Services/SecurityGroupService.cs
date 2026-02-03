@@ -47,10 +47,10 @@ namespace MEligibilityPlatform.Application.Services
         /// Gets all security groups.
         /// </summary>
         /// <returns>A list of SecurityGroupModel representing all security groups.</returns>
-        public List<SecurityGroupModel> GetAll()
+        public List<SecurityGroupModel> GetAll(int tenantId)
         {
             // Retrieves all security groups from the repository
-            var securityGroups = _uow.SecurityGroupRepository.GetAll();
+            var securityGroups = _uow.SecurityGroupRepository.GetAllByTenantId(tenantId);
             // Maps the security groups to SecurityGroupModel objects
             return _mapper.Map<List<SecurityGroupModel>>(securityGroups);
         }
@@ -60,10 +60,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The security group ID to retrieve.</param>
         /// <returns>The SecurityGroupModel for the specified ID.</returns>
-        public SecurityGroupModel GetById(int id)
+        public SecurityGroupModel GetById(int id,int tenantId)
         {
             // Retrieves the specific security group by ID
-            var securityGroup = _uow.SecurityGroupRepository.GetById(id) ?? throw new KeyNotFoundException("security Group not found");
+            var securityGroup = _uow.SecurityGroupRepository.Query().Where(s=>s.GroupId==id && s.TenantId==tenantId) ?? throw new KeyNotFoundException("security Group not found");
             // Maps the security group to SecurityGroupModel object
             return _mapper.Map<SecurityGroupModel>(securityGroup);
         }

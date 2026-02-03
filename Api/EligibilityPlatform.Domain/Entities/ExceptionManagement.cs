@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ExceptionManagement
+public partial class ExceptionManagement : ITenantEntity
 {
     public int ExceptionManagementId { get; set; }
 

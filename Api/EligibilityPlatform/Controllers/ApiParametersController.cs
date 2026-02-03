@@ -33,10 +33,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet]
         public IActionResult Getall()
         {
+            var tenantId = User.GetTenantId();
             /// <summary>
             /// Returns successful response with all API parameters.
             /// </summary>
-            return Ok(new ResponseModel { Data = _apiParameters.GetAll(), Message = GlobalcConstants.Success });
+            return Ok(new ResponseModel { Data = _apiParameters.GetAll(tenantId), Message = GlobalcConstants.Success });
         }
 
         /// <summary>
@@ -83,6 +84,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(ApiParametersCreateUpdateModel model)
         {
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -138,6 +141,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Update(ApiParametersCreateUpdateModel model)
         {
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
             /// <summary>
             /// Validates the model state before processing.
             /// </summary>

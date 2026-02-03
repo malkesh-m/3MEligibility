@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class SecurityGroup
+public partial class SecurityGroup : ITenantEntity
 {
     public int GroupId { get; set; }
 
@@ -16,4 +16,6 @@ public partial class SecurityGroup
     public string? CreatedBy { get; set; }
     public DateTime CreatedByDateTime { get; set; }
     public string? UpdatedBy { get; set; }
+    public int TenantId { get; set; }
+
 }

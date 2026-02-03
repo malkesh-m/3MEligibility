@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Factor
+public partial class Factor : ITenantEntity
 {
     public int FactorId { get; set; }
 

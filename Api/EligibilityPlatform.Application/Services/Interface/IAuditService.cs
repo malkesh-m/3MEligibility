@@ -14,14 +14,14 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// <param name="pageIndex">The zero-based index of the page to retrieve (default is 0).</param>
         /// <param name="pageSize">The number of records per page (default is 10).</param>
         /// <returns>A <see cref="PaginationModel{AuditModel}"/> containing the paginated audit records.</returns>
-        Task<PaginationModel<AuditModel>> GetAll(int pageIndex = 0, int pageSize = 10);
+        Task<PaginationModel<AuditModel>> GetAll(int tenantId,int pageIndex = 0, int pageSize = 10);
 
         /// <summary>
         /// Retrieves a specific audit record by its identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the audit record to retrieve.</param>
         /// <returns>The <see cref="AuditModel"/> with the specified ID.</returns>
-        AuditModel GetById(int id);
+        AuditModel GetById(int id,int tenantId);
 
         /// <summary>
         /// Adds a new audit record.

@@ -107,7 +107,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<ExceptionManagementListModel> GetAll(int tenantId)
         {
             // Filters exceptions by the specified entity ID
-            var exceptions = _uow.ExceptionManagementRepository.Query().Where(f => f.TenantId == tenantId);
+            var exceptions = _uow.ExceptionManagementRepository.GetAllByTenantId(tenantId);
             // Maps the entity collection to a list of view models using AutoMapper
             return _mapper.Map<List<ExceptionManagementListModel>>(exceptions);
         }

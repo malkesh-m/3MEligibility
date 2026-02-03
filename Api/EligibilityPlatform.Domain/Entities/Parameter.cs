@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Parameter
+public partial class Parameter : ITenantEntity
 {
     public int ParameterId { get; set; }
 

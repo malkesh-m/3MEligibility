@@ -24,7 +24,7 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// Retrieves all product cap amount records.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation, containing a list of <see cref="ProductCapAmountModel"/> objects.</returns>
-        List<ProductCapAmountModel> GetAll();
+        List<ProductCapAmountModel> GetAll(int tenantId);
 
         /// <summary>
         /// Updates an existing product cap amount record.

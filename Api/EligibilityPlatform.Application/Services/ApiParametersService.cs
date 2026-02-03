@@ -89,10 +89,10 @@ namespace MEligibilityPlatform.Application.Services
         /// Retrieves all API parameters from the database.
         /// </summary>
         /// <returns>A list of API parameters.</returns>
-        public List<ApiParametersListModel> GetAll()
+        public List<ApiParametersListModel> GetAll(int tenantId)
         {
             // Retrieves all entities from the repository
-            var result = _uow.ApiParametersRepository.GetAll().ToList();
+            var result = _uow.ApiParametersRepository.GetAllByTenantId(tenantId);
             // Maps entities to list models using AutoMapper
             return _mapper.Map<List<ApiParametersListModel>>(result);
         }

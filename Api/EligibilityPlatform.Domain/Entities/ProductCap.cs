@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ProductCap
+public partial class ProductCap : ITenantEntity
 {
     public int Id { get; set; }
 
@@ -11,6 +11,8 @@ public partial class ProductCap
     public int ProductId { get; set; }
 
     public decimal ProductCapPercentage { get; set; }
+    public int TenantId { get; set; }
+
 
     public virtual Product Product { get; set; } = null!;
 }

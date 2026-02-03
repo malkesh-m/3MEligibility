@@ -33,8 +33,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getall")]
         public IActionResult Get()
         {
+            var tenantId = User.GetTenantId();
             // Retrieves all security groups from the security group service
-            List<SecurityGroupModel> result = _securityGroupService.GetAll();
+            List<SecurityGroupModel> result = _securityGroupService.GetAll(tenantId);
             // Returns success response with the list of security groups
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -51,9 +52,9 @@ namespace MEligibilityPlatform.Controllers
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
-        {
+        {  var tenantId = User.GetTenantId();
             // Retrieves a specific security group by its ID
-            var result = _securityGroupService.GetById(id);
+            var result = _securityGroupService.GetById(id,tenantId);
             // Checks if the security group was found
             if (result != null)
             {
@@ -81,7 +82,9 @@ namespace MEligibilityPlatform.Controllers
         public async Task<IActionResult> Post(SecurityGroupUpdateModel securityGroupModel)
         {
             // Sets the created and updated by fields with the current user's name
+            var tenantId = User.GetTenantId();
             var UserName = User.GetUserName();
+            securityGroupModel.TenantId = tenantId;
             securityGroupModel.CreatedBy = UserName;
             securityGroupModel.UpdatedBy = UserName;
 
@@ -110,6 +113,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(SecurityGroupUpdateModel securityGroupModel)
         {
+            var tenantId = User.GetTenantId();
+            securityGroupModel.TenantId = tenantId;
             var userName = User.GetUserName();
             securityGroupModel.UpdatedBy = userName;
             // Validates the model state
@@ -136,8 +141,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            var tenantId = User.GetTenantId();
             // Retrieves the security group by ID to check if it exists
-            var item = _securityGroupService.GetById(id);
+            var item = _securityGroupService.GetById(id, tenantId);
             if (item == null)
             {
                 // Returns error response if security group is not found
@@ -185,6 +191,7 @@ namespace MEligibilityPlatform.Controllers
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> MultipleDelete(List<int> ids)
         {
+            var tenantId = User.GetTenantId();
             // Validates that IDs were provided
             if (ids.Count == 0 || ids == null)
             {
@@ -196,7 +203,7 @@ namespace MEligibilityPlatform.Controllers
             foreach (var id in ids)
             {
                 // Retrieves the security group by ID to check if it exists
-                var item = _securityGroupService.GetById(id);
+                var item = _securityGroupService.GetById(id,tenantId);
                 if (item == null)
                 {
                     // Returns error response if security group is not found

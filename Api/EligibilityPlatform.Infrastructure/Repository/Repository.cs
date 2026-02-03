@@ -83,7 +83,29 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         /// <param name="id">The ID of the entity to retrieve.</param>
         /// <returns>The entity with the specified ID, or null if not found.</returns>
         public T GetById(int id) => _entity.Find(id)!;
+        /// <summary>
+        /// Returns all entities for the given tenant. 
+        /// Only use if <typeparamref name="T"/> implements <see cref="ITenantEntity"/>.
+        /// </summary>
+        /// <param name="tenantId">Tenant ID to filter by.</param>
+        /// <param name="asNoTracking">If true, disables EF tracking for performance.</param>
+        /// <returns>Queryable of entities filtered by tenant.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if <typeparamref name="T"/> does not implement <see cref="ITenantEntity"/>.</exception>
 
+       public IQueryable<T> GetAllByTenantId(int tenantId, bool asNoTracking = false)
+        {
+            if (!typeof(ITenantEntity).IsAssignableFrom(typeof(T)))
+                throw new InvalidOperationException($"Entity {typeof(T).Name} does not implement ITenantEntity.");
+
+            IQueryable<T> query = _entity;
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            query = query.Where(x => ((ITenantEntity)x).TenantId == tenantId);
+
+            return query;
+        }
         /// <summary>
         /// Retrieves multiple entities by their IDs.
         /// </summary>
@@ -106,6 +128,7 @@ namespace MEligibilityPlatform.Infrastructure.Repository
             // Returns entities matching the specified IDs
             return [.. _entity.Where(e => ids.Contains(EF.Property<int>(e, keyName)))];
         }
+
 
         /// <summary>
         /// Adds a new entity to the repository. Uses maker-checker pattern if enabled.

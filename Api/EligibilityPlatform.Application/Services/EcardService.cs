@@ -105,7 +105,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<EcardListModel> GetAll(int tenantId)
         {
             // Retrieves all Ecard entities for the specified entity ID
-            var ecards = _uow.EcardRepository.Query().Where(f => f.TenantId == tenantId);
+            var ecards = _uow.EcardRepository.GetAllByTenantId(tenantId);
             // Maps the Ecard entities to EcardListModel objects and returns the list
             return _mapper.Map<List<EcardListModel>>(ecards);
         }

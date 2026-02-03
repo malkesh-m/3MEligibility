@@ -48,7 +48,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="model">The ListItemModel containing the data to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(ListItemCreateUpdateModel model)
-        {
+        { 
             var duplicateCode = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.Code == p.Code);
             if (duplicateCode)
             {
@@ -93,10 +93,10 @@ namespace MEligibilityPlatform.Application.Services
         /// Gets all list items.
         /// </summary>
         /// <returns>A list of ListItemModel representing all list items.</returns>
-        public List<ListItemModel> GetAll()
+        public List<ListItemModel> GetAll(int tenantId)
         {
             // Retrieves all list items from the repository
-            var items = _uow.ListItemRepository.GetAll();
+            var items = _uow.ListItemRepository.GetAllByTenantId(tenantId);
             // Maps the list items to ListItemModel objects
             return _mapper.Map<List<ListItemModel>>(items);
         }
@@ -106,10 +106,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The ID of the list item to retrieve.</param>
         /// <returns>The ListItemModel for the specified ID.</returns>
-        public ListItemModel GetById(int id)
+        public ListItemModel GetById(int id,int tenantId)
         {
             // Retrieves the specific list item by ID
-            var item = _uow.ListItemRepository.GetById(id);
+            var item = _uow.ListItemRepository.Query().Where(l=>l.ItemId==id&& l.TenantId==tenantId);
             // Maps the list item to ListItemModel object
             return _mapper.Map<ListItemModel>(item);
         }

@@ -38,6 +38,9 @@ namespace MEligibilityPlatform.Domain.Models
 
         public string? CheckerName { get; set; }
         public string? MakerName { get; set; }
+        [JsonIgnore]
+        public int TenantId { get; set; }
+
     }
 
     //public class MakerCheckerGetModel : MakerCheckerModel
@@ -104,6 +107,8 @@ namespace MEligibilityPlatform.Domain.Models
         [JsonIgnore]
 
         public string? MakerName { get; set; }
+        [JsonIgnore]
+        public int TenantId { get; set; }
     }
     public class MakerCheckerModelCopy
     {

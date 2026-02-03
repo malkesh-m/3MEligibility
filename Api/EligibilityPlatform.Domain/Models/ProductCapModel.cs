@@ -17,6 +17,7 @@ namespace MEligibilityPlatform.Domain.Models
 
         [Range(0, 100, ErrorMessage = "ProductCapPercentage must be between 0 and 100.")]
         public decimal ProductCapPercentage { get; set; }
+        public int TenantId { get; set; }
 
 
     }

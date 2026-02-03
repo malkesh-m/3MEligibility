@@ -30,9 +30,9 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.MakerChecker.View)]
         [HttpGet("getall")]
         public IActionResult GetAll()
-        {
+        {  var tenantId = User.GetTenantId();
             // Retrieves all maker checker records
-            var data = _makerChecker.GetAll();
+            var data = _makerChecker.GetAll(tenantId);
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = data, Message = GlobalcConstants.Success });
         }
@@ -72,7 +72,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(MakerCheckerAddUpdateModel model)
         {
-
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
             var userName = User.GetUserName();
             model.MakerName = userName;
             var userId = User.GetUserId();
@@ -101,6 +102,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Put(MakerCheckerModel model)
         {
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
+
             // Validates the model state
             if (!ModelState.IsValid)
             {

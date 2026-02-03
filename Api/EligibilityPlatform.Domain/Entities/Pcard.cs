@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Pcard
+public partial class Pcard : ITenantEntity
 {
     public int PcardId { get; set; }
 

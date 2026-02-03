@@ -63,10 +63,10 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="pageIndex">The zero-based index of the page to retrieve.</param>
         /// <param name="pageSize">The number of records per page.</param>
         /// <returns>A pagination model containing audit records.</returns>
-        public async Task<PaginationModel<AuditModel>> GetAll(int pageIndex = 0, int pageSize = 10)
+        public async Task<PaginationModel<AuditModel>> GetAll(int tenantId,int pageIndex = 0, int pageSize = 10)
         {
             // Creates a queryable for audit entities with no tracking for read-only operations
-            var logsQuery = _uow.AuditRepository.Query().AsNoTracking();
+            var logsQuery = _uow.AuditRepository.Query().Where(a=>a.TenantId==tenantId).AsNoTracking();
             // Counts the total number of records in the query
             var totalCount = await logsQuery.CountAsync();
             // Retrieves a paginated list of audit records, ordered by action date descending
@@ -94,10 +94,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The ID of the audit record.</param>
         /// <returns>The audit model if found; otherwise, null.</returns>
-        public AuditModel GetById(int id)
+        public AuditModel GetById(int id,int tenantId)
         {
             // Retrieves the audit entity by ID from the repository
-            var Auditval = _uow.AuditRepository.GetById(id);
+            var Auditval = _uow.AuditRepository.Query().Where(a=>a.AuditId==id && a.TenantId==tenantId );
             // Maps the entity to model using AutoMapper and returns the result
             return _mapper.Map<AuditModel>(Auditval);
         }

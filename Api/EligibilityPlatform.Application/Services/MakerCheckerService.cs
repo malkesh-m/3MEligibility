@@ -147,10 +147,10 @@ namespace MEligibilityPlatform.Application.Services
         /// Gets all MakerChecker records.
         /// </summary>
         /// <returns>A list of MakerCheckerModel representing all records.</returns>
-        public List<MakerCheckerModel> GetAll()
+        public List<MakerCheckerModel> GetAll(int tenantId)
         {
             // Query maker checker records joined with user data to get maker and checker names
-            var makerChecker = from mc in _uow.MakerCheckerRepository.Query().OrderByDescending(p => p.MakerDate)
+            var makerChecker = from mc in _uow.MakerCheckerRepository.Query().Where(m=>m.TenantId==tenantId).OrderByDescending(p => p.MakerDate)
                                join u in _uow.UserRepository.Query() on mc.MakerId equals u.UserId
                                select new MakerCheckerModel
                                {

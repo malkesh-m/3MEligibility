@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MEligibilityPlatform.Domain.Entities
 {
-    public partial class EvaluationHistory
+    public partial class EvaluationHistory 
     {
         [Key]
         public int EvaluationHistoryId { get; set; }
@@ -24,7 +24,7 @@ namespace MEligibilityPlatform.Domain.Entities
         public int? PreviousApplication { get; set; }
         public double ProcessingTime { get; set; }
         //[ForeignKey("EntityId")]
-        public int? TenantId { get; set; }
+        public int TenantId { get; set; }
         public string? BreRequest { get; set; }
         public string? BreResponse { get; set; }
 

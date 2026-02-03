@@ -2088,8 +2088,8 @@ namespace MEligibilityPlatform.Application.Services
             var stopwatch = Stopwatch.StartNew();
             var requestId = RequestId ?? Guid.NewGuid().ToString();
             var allMandatoryParams = _uow.ParameterRepository.Query()
-    .Where(p => p.IsMandatory && p.TenantId == TenantId)
-    .ToList();
+            .Where(p => p.IsMandatory && p.TenantId == TenantId)
+             .ToList();
 
             // Count how many mandatory parameters are present in KeyValues (case-insensitive)
             var isMandatoryTrue = allMandatoryParams

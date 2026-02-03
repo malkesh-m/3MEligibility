@@ -3,7 +3,7 @@ using System.Reflection.Metadata;
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ApiParameterMap
+public partial class ApiParameterMap : ITenantEntity
 {
     [Key]
     public int Id { get; set; }
@@ -13,6 +13,7 @@ public partial class ApiParameterMap
     public int ParameterId { get; set; }
 
     public DateTime LastModificationDate { get; set; }
+    public int TenantId { get; set; }
 
     public virtual ApiParameter ApiParameter { get; set; } = null!;
 

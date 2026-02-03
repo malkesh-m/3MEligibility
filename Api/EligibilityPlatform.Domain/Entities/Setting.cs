@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Setting
+public partial class Setting : ITenantEntity
 {
     public int SettingId { get; set; }
 

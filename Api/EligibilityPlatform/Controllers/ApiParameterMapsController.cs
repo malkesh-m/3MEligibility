@@ -33,10 +33,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet]
         public IActionResult Getall()
         {
+            int tenantId = User.GetTenantId();
             /// <summary>
             /// Returns successful response with all API parameter maps.
             /// </summary>
-            return Ok(new ResponseModel { Data = _ApiParameterMaps.GetAll(), Message = GlobalcConstants.Success });
+            return Ok(new ResponseModel { Data = _ApiParameterMaps.GetAll(tenantId), Message = GlobalcConstants.Success });
         }
 
         /// <summary>
@@ -50,10 +51,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("id")]
         public IActionResult Getbyid(int id)
         {
+            var tenantId = User.GetTenantId();
             /// <summary>
             /// Retrieves a specific API parameter map by ID from the service.
             /// </summary>
-            var result = _ApiParameterMaps.GetById(id);
+            var result = _ApiParameterMaps.GetById(id,tenantId);
 
             /// <summary>
             /// Checks if the API parameter map was found.
@@ -86,6 +88,9 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Validates the model state before processing.
             /// </summary>
+            /// 
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
             if (!ModelState.IsValid)
             {
                 /// <summary>
@@ -115,6 +120,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Update(ApiParameterCreateUpdateMapModel model)
         {
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
             /// <summary>
             /// Validates the model state before processing.
             /// </summary>

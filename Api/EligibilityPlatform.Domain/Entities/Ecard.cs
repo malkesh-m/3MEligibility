@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Ecard
+public partial class Ecard : ITenantEntity
 {
     public int EcardId { get; set; }
 

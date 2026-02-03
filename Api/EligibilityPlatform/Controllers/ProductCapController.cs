@@ -30,8 +30,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getall")]
         public IActionResult GetAll()
         {
+            var tenantId = User.GetTenantId();
             // Retrieves all product cap records
-            var result = _productCapService.GetAll();
+            var result = _productCapService.GetAll(tenantId);
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result });
         }
@@ -47,8 +48,9 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
+            var tenantId = User.GetTenantId();
             // Retrieves a product cap record by ID
-            var result = _productCapService.GetById(id);
+            var result = _productCapService.GetById(id,tenantId);
             // Checks if the record was found
             if (result != null)
             {
@@ -99,6 +101,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(ProductCapModel model)
         {
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
             // Adds a new product cap record
             await _productCapService.Add(model);
             // Returns success response for created operation
@@ -116,6 +120,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpPut]
         public async Task<IActionResult> Update(ProductCapModel model)
         {
+            var tenantId = User.GetTenantId();
+            model.TenantId = tenantId;
             // Updates an existing product cap record
             await _productCapService.Update(model);
             // Returns success response for updated operation

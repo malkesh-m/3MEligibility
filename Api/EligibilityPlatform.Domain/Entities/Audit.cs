@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Audit
+public partial class Audit : ITenantEntity
 {
     [Key]
     public int AuditId { get; set; }
@@ -23,5 +23,7 @@ public partial class Audit
     public string? IPAddress { get; set; }
     public string? Comments { get; set; }
     public string? UserName { get; set; }
+    public int TenantId { get; set; }
+
     public DateTime UpdatedByDateTime { get; set; }
 }

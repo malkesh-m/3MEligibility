@@ -51,10 +51,10 @@ namespace MEligibilityPlatform.Application.Services
         /// Gets all product cap amounts.
         /// </summary>
         /// <returns>A task with a list of <see cref="ProductCapAmountModel"/> instances.</returns>
-        public List<ProductCapAmountModel> GetAll()
-        {
+        public List<ProductCapAmountModel> GetAll(int tenantId)
+        { 
             // Retrieve all entities from repository
-            var entities = _uow.ProductCapAmountRepository.GetAll().ToList();
+            var entities = _uow.ProductCapAmountRepository.GetAllByTenantId(tenantId);
             // Map entities to models
             return _mapper.Map<List<ProductCapAmountModel>>(entities);
         }

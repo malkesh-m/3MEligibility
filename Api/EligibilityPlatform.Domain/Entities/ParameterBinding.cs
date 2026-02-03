@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MEligibilityPlatform.Domain.Entities
 {
-    public class ParameterBinding
+    public class ParameterBinding : ITenantEntity
     {
         [Key]
         public int Id { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Node
+public partial class Node : ITenantEntity
 {
     public int NodeId { get; set; }
 

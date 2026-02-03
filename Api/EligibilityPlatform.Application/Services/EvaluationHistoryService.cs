@@ -105,8 +105,7 @@ namespace MEligibilityPlatform.Application.Services
             /// <summary>
             /// Retrieves all evaluation history entities for the specified entity ID.
             /// </summary>
-            var entities = await _uow.EvaluationHistoryRepository.Query()
-                .Where(x => x.TenantId == tenantId)
+            var entities = await _uow.EvaluationHistoryRepository.GetAllByTenantId(tenantId)
                 .ToListAsync();
 
             /// <summary>

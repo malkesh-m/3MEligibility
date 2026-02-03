@@ -82,7 +82,7 @@ namespace MEligibilityPlatform.Application.Services
         {
             // Query the repository for all lists belonging to the specified entity
             // Map the entities to get models and return as a list
-            return _mapper.Map<List<ManagedListGetModel>>(_uow.ManagedListRepository.Query().Where(f => f.TenantId == tenantId));
+            return _mapper.Map<List<ManagedListGetModel>>(_uow.ManagedListRepository.GetAllByTenantId(tenantId));
         }
 
         /// <summary>

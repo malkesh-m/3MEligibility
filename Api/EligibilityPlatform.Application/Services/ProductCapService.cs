@@ -70,10 +70,11 @@ namespace MEligibilityPlatform.Application.Services
         /// Gets all product caps.
         /// </summary>
         /// <returns>A list of ProductCapModel representing all product caps.</returns>
-        public List<ProductCapModel> GetAll()
+        public List<ProductCapModel> GetAll(int tenantId)
         {
+
             // Retrieves all product caps from the repository
-            var entities = _uow.ProductCapRepository.GetAll();
+            var entities = _uow.ProductCapRepository.GetAllByTenantId(tenantId);
             // Maps the product caps to ProductCapModel objects
             return _mapper.Map<List<ProductCapModel>>(entities);
         }
@@ -100,10 +101,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The product cap ID to retrieve.</param>
         /// <returns>The ProductCapModel for the specified ID.</returns>
-        public ProductCapModel GetById(int id)
+        public ProductCapModel GetById(int id,int tenantId)
         {
             // Retrieves the product cap by ID
-            var entity = _uow.ProductCapRepository.GetById(id) ?? throw new Exception("Product Cap not found.");
+            var entity = _uow.ProductCapRepository.Query().Where(p=>p.Id==id && p.TenantId==tenantId) ?? throw new Exception("Product Cap not found.");
 
             // Maps the product cap to ProductCapModel object
             return _mapper.Map<ProductCapModel>(entity);

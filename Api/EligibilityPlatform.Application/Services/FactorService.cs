@@ -107,7 +107,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<FactorListModel> GetAll(int tenantId)
         {
             // Retrieves all factors for the specified entity
-            var factors = _uow.FactorRepository.Query().Where(f => f.TenantId == tenantId);
+            var factors = _uow.FactorRepository.GetAllByTenantId(tenantId);
             // Maps the factors to FactorListModel objects
             return _mapper.Map<List<FactorListModel>>(factors);
         }

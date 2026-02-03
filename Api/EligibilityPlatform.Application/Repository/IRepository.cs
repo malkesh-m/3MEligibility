@@ -69,5 +69,7 @@
         /// </summary>
         /// <param name="entities">The collection of entities to add.</param>
         void AddRange(IEnumerable<T> entities);
+        IQueryable<T> GetAllByTenantId(int tenantId, bool asNoTracking = false);
+
     }
 }
