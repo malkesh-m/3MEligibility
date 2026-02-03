@@ -55,6 +55,7 @@ export class ApiDetailsDialogComponent {
             formattedRequest: this.formatJson(x.apiRequest),
             formattedResponse: this.formatJson(x.apiResponse)
           }));
+          
 
           this.loading = false;
         },

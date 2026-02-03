@@ -77,9 +77,9 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
 
   </table>
-  <div *ngIf="LoadAudit" class="loading-container">
+  <!-- <div *ngIf="LoadAudit" class="loading-container">
     <p>Loading data, please wait...</p>
-  </div>
+  </div> -->
   <!-- Pagination for the table -->
   <mat-paginator #paginator
                  class="paginator"
@@ -92,5 +92,7 @@
   </mat-paginator>
 </div>
 <p *ngIf="dataSource.data.length === 0 && LoadAudit===false">No Audit Log history records found.</p>
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
+
 
 

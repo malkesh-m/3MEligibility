@@ -21,6 +21,10 @@ export class LogsComponent {
   pageIndex = 0;
   pageSize = 10;
   LoadAudit: boolean = false;
+  isLoading: boolean = false;
+  isUploading: boolean = false;
+  isDownloading: boolean = false
+  message: string = "Loading data, please wait...";
 
   constructor(private logService:LogService) {
 
@@ -40,7 +44,7 @@ export class LogsComponent {
     this.getLogs();
   }
   getLogs() {
-    this.LoadAudit = true;
+    this.isLoading = true;
     this.logService.getLog(this.pageIndex, this.pageSize).subscribe({
       next: (response) => {
         if (response.isSuccess) {
@@ -59,12 +63,11 @@ export class LogsComponent {
           }
           this.dataSource.sort = this.sort;
         }
-        this.LoadAudit = false;
+        this.isLoading = false;
       },
       error: (error) => {
         console.log(error.message);
-        this.LoadAudit = false;
-
+        this.isLoading = false;
       }
 
     });

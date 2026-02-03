@@ -73,6 +73,10 @@ export class ExceptionManagementComponent {
       this.fetchTableData()
   }
 
+  isLoading: boolean = false;
+  isDownloading: boolean = false
+  isUploading: boolean = false
+  message: string = "Loading data, please wait...";
   switchTab(tab: ExceptionManagementTabs): void {
     this.searchTerm = this.searchTerms[tab] || '';
     this.activeTab = tab;
@@ -156,6 +160,7 @@ export class ExceptionManagementComponent {
   }
 
   fetchExceptionList() {
+    this.isLoading = true;
     this.exceptionService.getExceptionList().subscribe({
       next: (response) => {
         if (response && response.data) {
@@ -184,6 +189,7 @@ export class ExceptionManagementComponent {
 
             };
           });
+          this.isLoading = false;
         }
        
       },
@@ -192,6 +198,7 @@ export class ExceptionManagementComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+        this.isLoading = false;
       },
     });
   }

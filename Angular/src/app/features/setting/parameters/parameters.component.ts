@@ -173,6 +173,7 @@ export class ParametersComponent {
   }
 
   fetchAllParameters(): void {
+    this.isLoading = true;
     this.parameterService.getParameters().subscribe({
       next: (response) => {
         // Sorting the response data based on lastModifiedDateTime in descending order
@@ -187,7 +188,8 @@ export class ParametersComponent {
         this.dataSource.data = this.parameters.filter((param) => param.identifier === tabIdentifier); // Default to customers
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
-    
+        this.isLoading = false;
+
 
       },
       error: (error) => {
@@ -195,6 +197,7 @@ export class ParametersComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+             this.isLoading = false;
       },
     });
   }

@@ -47,13 +47,13 @@
     <li class="nav-item">
       <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'Category'"
         (click)="switchTab('Category')">
-        {{ 'Product' | translate }}
+        {{ 'Category' | translate }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'Info'"
         (click)="switchTab('Info')">
-        {{ 'Stream' | translate }}
+        {{ 'Product' | translate }}
       </a>
     </li>
     <!--<li class="nav-item">
@@ -73,13 +73,11 @@
   </div>
 
   <div *ngSwitchCase="'Info'">
-    <app-product-list *ngIf="isDataReady" #productChild (updateTableRows)="categoryTableDataUpdate($event)"
+    <app-product-list   (loadingChange)="onLoadingChange($event)" #productChild (updateTableRows)="categoryTableDataUpdate($event)"
                       [columnsDisplayAry]="infoTableColumnAry" [headerDisplayAry]="infoTableHeaderAry" [listAry]="infoList"
                       [currentTab]="activeTab" [categoryList]="categoriesList" [editRoleId]="'Permissions.Product.Edit'" [deleteRoleId]="'Permissions.Product.Delete'">
     </app-product-list>
-    <div *ngIf="!isDataReady" class="loading-container">
-      <p>Loading data, please wait...</p>
-    </div>
+  
   </div>
  
 

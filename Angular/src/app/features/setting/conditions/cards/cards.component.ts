@@ -106,6 +106,8 @@ export class CardsComponent {
   }
 
   fetchCards(): void {
+          this.isLoading = true;
+
     this.eCardsListAry = [];
     this.cardService.getCardsList().subscribe({
       next: (response) => {
@@ -127,8 +129,12 @@ export class CardsComponent {
           }));
           this.filteredCards = this.eCardsListAry; // Initialize filtered list
         }
+            this.isLoading = false;
       },
-      error: (error) => console.error('Error fetching cards:', error),
+      error: (error) => {
+        console.error('Error fetching cards:', error);
+        this.isLoading = false;
+      }
     });
   }
 

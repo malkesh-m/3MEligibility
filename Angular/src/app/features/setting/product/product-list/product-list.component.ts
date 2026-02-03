@@ -30,6 +30,8 @@ export class ProductListComponent {
   @Output() addFormData = new EventEmitter<any>()
   @Input() editRoleId: string = '';
   @Input() deleteRoleId: string = '';
+  @Output() loadingChange = new EventEmitter<boolean>();
+
   ProductListDetails: any = [];
   parametersList: any = [];
   parametersValueList: any = [];
@@ -166,7 +168,7 @@ export class ProductListComponent {
         const base64String = `data:${event.data.MimeType};base64,${event.data.ProductImage}`;
         this.formData.patchValue({
           code: event.data.Code,
-          productName: event.data["Stream Name"],
+          productName: event.data["Product Name"],
           productCategory: event.data.Category,
           productImage: event.data.ProductImage,
           narrative: event.data.Narrative,
@@ -206,7 +208,7 @@ export class ProductListComponent {
       if (this.currentTab === 'Category') {
         this.deleteCategoryWithId(event.data.CategoryId, event.data.Name);
       } else if (this.currentTab === 'Info') {
-        this.deleteInfoWithId(event.data.ProductId, event.data["Stream Name"]);
+        this.deleteInfoWithId(event.data.ProductId, event.data["Product Name"]);
       } else {
         this.deleteProductDetailWithId(event.data.ProductId, event.data.ParameterId, event.data.Product);
       }
@@ -443,6 +445,7 @@ export class ProductListComponent {
    * Info tab crud events
    */
   addInfoDetails(payload: any) {
+  this.loadingChange.emit(true);
     console.log(payload)
     console.log("payload")
 
@@ -458,18 +461,23 @@ export class ProductListComponent {
           });
           this.updateTableRows.emit({ event: 'InfoList', action: '' })
         }
+        this.loadingChange.emit(false);
+
       },
       error: (error) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+          this.loadingChange.emit(false);
+
       }
     })
   }
 
   updateInfoDetails(payload: any) {
-    console.log(payload)
+ this.loadingChange.emit(true);
+      console.log(payload)
     console.log("payload")
     // payload.updatedBy = this.loggedInUser.user.userName;
     this.productService.updateCategoriesInfo(payload).subscribe({
@@ -482,19 +490,20 @@ export class ProductListComponent {
           });
           this.updateTableRows.emit({ event: 'InfoList', action: '' })
         }
+    this.loadingChange.emit(false);
       },
       error: (error) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-      }
+     this.loadingChange.emit(false);      }
     })
   }
 
   deleteInfoWithId(id: number, productName: string) {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete the Stream: "${productName}"?`
+      `Are you sure you want to delete the Product: "${productName}"?`
     );
 
     if (confirmDelete) {
@@ -774,10 +783,10 @@ export class ProductListComponent {
     } else if (this.currentTab === 'Info') {
       this.isDataReady = false;
       this.rows = this.listAry.map((res: any) => ({
-        "Stream Name": res.productName,
+        "Product Name": res.productName,
         "Code": res.code,
         "Category": res.categoryId,
-        "Product Name": res.categoryName,
+        "Category Name": res.categoryName,
         "ProductImage": res.productImage,
         "Narrative": res.narrative,
         "Description": res.description,
@@ -794,7 +803,7 @@ export class ProductListComponent {
       this.isDataReady = true;
     } else {
       this.rows = this.listAry.map((res: any) => ({
-        "Stream": res.productName,
+        "Product": res.productName,
         "ProductId": res.productId,
         "ParameterId": res.parameterId,
         "Parameter": res.parameterName,

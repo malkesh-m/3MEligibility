@@ -167,6 +167,7 @@ export class ListsComponent {
   }
 
   fetchListItems(): void {
+    this.isLoading = true;
     this.listsService.fetchListItems().subscribe({
       next: (response) => {
    
@@ -180,12 +181,14 @@ export class ListsComponent {
         }));
         this.listItemDataSource.paginator = this.paginator;
         this.listItemDataSource.sort = this.sort;
+            this.isLoading = false;
       },
       error: (error) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+            this.isLoading = false;
         console.error('Error fetching list items:', error);
       },
     });
@@ -204,18 +207,21 @@ export class ListsComponent {
   }
 
   fetchLists(): void {
+        this.isLoading = true;
     this.listsService.fetchAllLists().subscribe({
       next: (response) => {
     
         this.dataSource.data = this.listItems = response.data;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+            this.isLoading = false;
       },
       error: (error) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+            this.isLoading = false;
         console.error('Error fetching lists:', error);
       },
     });

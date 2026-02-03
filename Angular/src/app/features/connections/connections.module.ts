@@ -23,6 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedModule } from '../../shared/shared.module';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CoreModule } from '../../core/core.module';
 
 
 @NgModule({
@@ -52,7 +53,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     QuillModule.forRoot(),
     TranslateModule,
     SharedModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    CoreModule
   ]
 })
 export class ConnectionsModule { }

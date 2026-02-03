@@ -2338,6 +2338,8 @@ private formatDateForInputUTC(date: string | Date): string {
   }
   paginatedRules: any[] = [];
   loadParentRules() {
+      this.isLoading = true;
+
     this.ruleService.getRulesList().subscribe({
       next: (response: any) => {
         if (response.isSuccess) {
@@ -2368,6 +2370,8 @@ private formatDateForInputUTC(date: string | Date): string {
 
           // Initialize pagination after fetching data
           setTimeout(() => this.initPagination(), 0);
+                this.isLoading = false;
+
         }
       }
     });

@@ -1,17 +1,17 @@
 
 <div class="row mb-4">
   <div class="col">
-    <h5 class="">Maximum Amount Per Stream</h5>
+    <h5 class="">Maximum Amount Per Product</h5>
   </div>
 </div>
 
-<div class="card p-3" *ngIf="isDataReady" >
+<div class="card p-3" *ngIf="!isLoading" >
   <form [formGroup]="ProductCapForm">
     <div class="row mb-3">
       <div class="col-4">
-        <label class="inputLabel">{{ 'Select Stream' | translate }}</label>
+        <label class="inputLabel">{{ 'Select Product' | translate }}</label>
         <select class="form-control" formControlName="productId">
-          <option value="" disabled>{{ 'Choose Stream' | translate }}</option>
+          <option value="" disabled>{{ 'Choose Product' | translate }}</option>
           <option *ngFor="let product of productsList" [value]="product.productId">
             {{ product.productName }}
           </option>
@@ -22,9 +22,9 @@
 </div>
 
 <!-- Loading Message -->
-<div class="loading-container" *ngIf="!isDataReady">
+<!-- <div class="loading-container" *ngIf="!isLoading">
   <p>Loading data, please wait...</p>
-</div>
+</div> -->
 
 <!-- Add/Edit Form -->
 <div class="card p-3" *ngIf="formvisible" >
@@ -120,9 +120,9 @@
 <div  class="card p-3" *ngIf="ProductCapForm.get('productId')?.value" >
 
   <div class="mb-3 d-flex justify-content-start">
-    <button mat-raised-button color="primary"appUseractivity="User Click on Add Stream Cap Amount button"
+    <button mat-raised-button color="primary"appUseractivity="User Click on Add Product Cap Amount button"
               [componentName]="'ProductCapAmountComponent'"
-              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Amount" *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
+              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Product Cap Amount" *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
       <mat-icon>add</mat-icon> Add New
     </button>
   </div>
@@ -137,7 +137,7 @@
     <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.id }}</td>
   </ng-container>-->
       <ng-container matColumnDef="productName">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Stream Name</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Product Name</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productName }}</td>
       </ng-container>
 
@@ -147,7 +147,7 @@
       </ng-container>-->
 
       <ng-container matColumnDef="maxCapPerStream">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Max Cap Per Stream</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Max Cap Per Product</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.maxCapPerStream }}</td>
       </ng-container>
 
@@ -182,6 +182,7 @@
   </div>
   <!-- Message when no data -->
   <div *ngIf="selectedProductData.length === 0" class="text-center text-muted mt-3">
-    <p>No Stream Cap Amount available for the selected Stream.</p>
+    <p>No Product Cap Amount available for the selected Product.</p>
   </div>
 </div>
+<app-spinner [isLoading]="isLoading" [message]="message"></app-spinner>

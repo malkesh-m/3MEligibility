@@ -54,7 +54,7 @@
             translate }}</a>
           <a *ngIf="hasPermission('Permissions.ECard.View')" mat-list-item routerLink="setting/cards">{{ 'Cards' |
             translate }}</a>
-          <a *ngIf="hasPermission('Permissions.PCard.View')" mat-list-item routerLink="setting/product-cards">{{ 'Stream
+          <a *ngIf="hasPermission('Permissions.PCard.View')" mat-list-item routerLink="setting/product-cards">{{ 'Product
             Cards' | translate
             }}</a>
           <a *ngIf="hasPermission('Permissions.Exception.View')" mat-list-item routerLink="setting/exception">{{
@@ -89,8 +89,8 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission('Permissions.User.View')" mat-list-item routerLink="security/user">{{ 'Users' |
-            translate }}</a>
+          <!-- <a *ngIf="hasPermission('Permissions.User.View')" mat-list-item routerLink="security/user">{{ 'Users' |
+            translate }}</a> -->
           <a *ngIf="hasPermission('Permissions.Group.View')" mat-list-item routerLink="security/group">{{ 'Groups' |
             translate }}</a>
           <a *ngIf="hasPermission('Permissions.Role.View')" mat-list-item routerLink="security/role">{{ 'Roles' |
@@ -144,9 +144,9 @@
           <!-- <a mat-list-item routerLink="configuration/exception">{{ 'Exception Config' | translate }}</a> -->
           <a *ngIf="hasPermission('Permissions.ProductCap.View')" mat-list-item routerLink="configuration/Product-Cap"
             class="small-font">{{
-            'Maximum Percentage Per Stream' | translate }}</a>
+            'Maximum Percentage Per Product' | translate }}</a>
           <a *ngIf="hasPermission('Permissions.ProductCapAmount.View')" mat-list-item
-            routerLink="configuration/Product-Cap-Amount" class="small-font">{{ 'Maximum Amount Per Stream' | translate
+            routerLink="configuration/Product-Cap-Amount" class="small-font">{{ 'Maximum Amount Per Product' | translate
             }}</a>
 
 

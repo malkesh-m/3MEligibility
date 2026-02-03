@@ -460,27 +460,15 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
             {
                 if (ex.InnerException != null && ex.InnerException.Message.Contains("REFERENCE"))
                 {
-                    var message = ex.InnerException.Message;
+                    var match = MySqlTableRegex().Match(ex.InnerException.Message);
+                    var dependentTable = match.Success ? match.Groups[1].Value : "UnknownDependentTable";
 
-                    var dependentMatch = MyRegex().Match(message);
-                    string dependentTable = dependentMatch.Success ? dependentMatch.Groups[1].Value : "UnknownDependentTable";
-
-                    var fkMatch = MyRegex1().Match(message);
-                    string fkName = fkMatch.Success ? fkMatch.Groups[1].Value : "UnknownFK";
-
-                    var principalEntry = ex.Entries?.AsEnumerable().FirstOrDefault();
-                    string principalTable = "Unknown";
-                        //principalEntry != null
-                        //    ? _dbContext.Model
-                        //        .FindEntityType(principalEntry.Entity.GetType())
-                        //        ?.GetTableName() ?? "UnknownPrincipalTable"
-                        //    : "UnknownPrincipalTable";
-
-                    if (!string.IsNullOrEmpty(principalTable) && principalTable.Contains("Product"))
-                        principalTable = principalTable.Replace("Product", "Stream");
-
-                    if (!string.IsNullOrEmpty(dependentTable) && dependentTable.Contains("Product"))
-                        dependentTable = dependentTable.Replace("Product", "Stream");
+                    var principalEntry = ex.Entries?.FirstOrDefault();
+                    var principalTable = principalEntry != null
+                        ? _dbContext.Model
+                            .FindEntityType(principalEntry.Entity.GetType())
+                            ?.GetTableName()
+                        : "Unknown";
 
                     throw new InvalidOperationException(
                         $"Cannot delete from '{principalTable}' because it is referenced by '{dependentTable}'."
@@ -537,9 +525,8 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
                 _disposed = true;
             }
         }
-
-        [GeneratedRegexAttribute(@"table ""?dbo\.([^\\""]+)""?", RegexOptions.IgnoreCase, "en-US")]
-        private static partial System.Text.RegularExpressions.Regex MyRegex();
+        [GeneratedRegex(@"`[^`]+`\.`([^`]+)`", RegexOptions.IgnoreCase)]
+        private static partial Regex MySqlTableRegex();
         [GeneratedRegex(@"constraint ""?([^\\""]+)""?", RegexOptions.IgnoreCase, "en-US")]
         private static partial Regex MyRegex1();
         #endregion

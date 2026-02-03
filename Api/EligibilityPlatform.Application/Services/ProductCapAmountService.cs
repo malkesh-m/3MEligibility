@@ -74,7 +74,7 @@ namespace MEligibilityPlatform.Application.Services
             }
 
             // Retrieve existing cap amount entity
-            var existingEntity = _uow.ProductCapAmountRepository.GetById(model.Id) ?? throw new Exception("Stream Cap Amount not found.");
+            var existingEntity = _uow.ProductCapAmountRepository.GetById(model.Id) ?? throw new Exception("Product Cap Amount not found.");
 
             // Map update model onto existing entity
             _mapper.Map(model, existingEntity);
@@ -103,7 +103,7 @@ namespace MEligibilityPlatform.Application.Services
             else
             {
                 // Throw if not found
-                throw new Exception("Stream Cap Amount not found.");
+                throw new Exception("Product Cap Amount not found.");
             }
         }
 
@@ -119,7 +119,7 @@ namespace MEligibilityPlatform.Application.Services
             // Throw if none found
             if (entity.Count == 0)
             {
-                throw new Exception("Stream Cap Amount not found.");
+                throw new Exception("Product Cap Amount not found.");
             }
             // Map and return models
             return _mapper.Map<List<ProductCapAmountModel>>(entity);

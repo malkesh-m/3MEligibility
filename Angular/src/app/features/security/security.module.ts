@@ -26,6 +26,7 @@ import { UserprofileComponent } from './userprofile/userprofile.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedModule } from '../../shared/shared.module';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [UserComponent,SecurityComponent, GroupComponent,RoleComponent, UserprofileComponent],
@@ -49,7 +50,9 @@ import { SharedModule } from '../../shared/shared.module';
     MatButtonModule,
     QuillModule.forRoot(),
     TranslateModule,
-    SharedModule
+    SharedModule,
+    MatProgressSpinner,
+    CoreModule
   ],
 })
 export class SecurityModule {}

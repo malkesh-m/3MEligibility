@@ -1,7 +1,7 @@
 <!-- Product Cap Title -->
 <div class="row mb-4">
   <div class="col">
-    <h5 class="">Maximum Percentage Per Stream</h5>
+    <h5 class="">Maximum Percentage Per Product</h5>
   </div>
 </div>
 
@@ -10,9 +10,9 @@
   <form [formGroup]="ProductCapForm">
     <div class="row mb-3">
       <div class="col-4">
-        <label class="inputLabel">{{ 'Select Stream' | translate }}</label>
+        <label class="inputLabel">{{ 'Select Product' | translate }}</label>
         <select class="form-control" formControlName="productID">
-          <option value="" disabled>{{ 'Choose Stream' | translate }}</option>
+          <option value="" disabled>{{ 'Choose Product' | translate }}</option>
           <option *ngFor="let product of productsList" [value]="product.productId">
             {{ product.productName }}
           </option>
@@ -23,9 +23,9 @@
 </div>
 
 <!-- Loading Message -->
-<div *ngIf="!isDataReady" class="loading-container">
+<!-- <div *ngIf="!isDataReady" class="loading-container">
   <p>Loading data, please wait...</p>
-</div>
+</div> -->
 
 <!-- Add/Edit Form -->
 <div class="card p-3" *ngIf="formvisible">
@@ -64,7 +64,7 @@
 
       <!-- Product Cap -->
       <div class="col-md-4">
-        <label class="inputLabel">Stream Cap (%) <span class="text-danger">*</span></label>
+        <label class="inputLabel">Product Cap (%) <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="productCapPercentage" />
         <div class="text-danger"
           *ngIf="ProductCapForm.get('productCapPercentage')?.touched && ProductCapForm.get('productCapPercentage')?.hasError('required')">
@@ -109,7 +109,7 @@
 
   <!-- Add Button -->
   <div class="mb-3 d-flex justify-content-start">
-    <button mat-raised-button color="primary" appUseractivity="User Click on Add Stream Cap Score button"
+    <button mat-raised-button color="primary" appUseractivity="User Click on Add Product Cap Score button"
               [componentName]="'ProductCapComponent'"
               [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Score" *ngIf="hasPermission('Permissions.ProductCap.Create')">
       <mat-icon>add</mat-icon> Add New
@@ -127,12 +127,12 @@
       </ng-container>
 
       <ng-container matColumnDef="ProductName">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Stream Name</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Product Name</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="ProductCap">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Stream Cap(%)</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Product Cap(%)</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productCapPercentage }}</td>
       </ng-container>
 
@@ -171,3 +171,5 @@
     <p>No Stream Cap Score available for the selected Stream.</p>
   </div>
 </div>
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
+

@@ -215,17 +215,27 @@ export class IntegrationComponent implements OnInit {
   isLoadingTestApi = false;
   showMappingSection = false;
   apiParameterMappings: any[] = [];
-
+isLoading: boolean = false;
+isDownloading: boolean = false;
+isUploading: boolean = false;
+message: string = "Loading data, please wait...";
 
   loadApiParameterMappings() {
+    this.isLoading = true;
     this.integrationService.getApiParameterMapping().subscribe({
       next: (res: any) => {
         this.apiParameterMappings = res.data || res; // store all mappings
         if (this.selectedApi) {
           this.applyApiFilter(); // filter if an API is selected
+          
         }
+            this.isLoading = false;
+
       },
-      error: (err) => console.error('Error loading API parameter mappings', err)
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error loading API parameter mappings', err)
+      }
     });
   }
 deleteMapping(id: number) {
@@ -822,6 +832,8 @@ deleteMapping(id: number) {
   selectedApiParameter: string = "";
   originalApiParameterRecords: any[] = [];
   loadApiParameters() {
+        this.isLoading = true;
+
     this.integrationService.getApiParameters().subscribe({
       next: (response) => {
         this.originalApiParameterRecords = response.data.map((p: any) => ({
@@ -834,8 +846,13 @@ deleteMapping(id: number) {
         this.apiParameterDataSource.data = this.apiParameterRecords;
         this.apiParameterDataSource.paginator = this.paginator;
         this.apiParameterDataSource.sort = this.sort;
+              this.isLoading = false;
+
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.isLoading = false;
+        console.error(err);
+      }
     });
   }
   filterByApi() {
@@ -887,6 +904,8 @@ deleteMapping(id: number) {
     }
   }
   fetchNodeList() {
+        this.isLoading = true;
+
     this.integrationService.getNodeList().subscribe({
       next: (response) => {
         this.nodeDataSource.data = response.data.map((item: any) => ({
@@ -907,6 +926,8 @@ deleteMapping(id: number) {
           this.nodeDataSource.paginator = this.nodePaginator;
           this.nodeDataSource.sort = this.nodeSort;
         });
+      this.isLoading = false;
+
       },
       error: (error) => {
         console.error('Error fetching node list:', error);
@@ -916,12 +937,14 @@ deleteMapping(id: number) {
           verticalPosition: 'top',
           duration: 3000,
         });
+      this.isLoading = false;
       },
     });
   }
 
   fetchNodeAPIList() {
-    this.integrationService.getNodeAPIList().subscribe({
+        this.isLoading = true;
+   this.integrationService.getNodeAPIList().subscribe({
       next: (response) => {
         this.nodeAPIDataSource.data = response.data.map((item: any) => {
           const matchedNode = this.noderecords.find(node => node.nodeId === item.nodeId);
@@ -949,6 +972,7 @@ deleteMapping(id: number) {
           this.nodeAPIDataSource.paginator = this.apiPaginator;
           this.nodeAPIDataSource.sort = this.apiSort;
         });
+      this.isLoading = false;
       },
       error: (error) => {
         console.error('Error fetching node API list:', error);
@@ -958,6 +982,7 @@ deleteMapping(id: number) {
           verticalPosition: 'top',
           duration: 3000,
         });
+      this.isLoading = false;
       },
     });
   }

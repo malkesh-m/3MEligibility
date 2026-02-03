@@ -23,8 +23,8 @@ import { RolesService } from '../../../../core/services/setting/role.service';
 export class ProductCardsComponent implements OnInit {
   @ViewChild('tableChild') tableChild!: TableComponent;
   eProductCardsListAry: any = [];
-  productCardsColumnsAry = ['Select', 'Stream Card Name', 'Description', 'Exp shown', 'Stream','Created By', 'Updated By', 'Actions'];
-  cardsHeaderAry = ['Stream Card Name', 'Description', 'Exp shown', 'Stream','Created By', 'Updated By'];
+  productCardsColumnsAry = ['Select', 'Product Card Name', 'Description', 'Exp shown', 'Product','Created By', 'Updated By', 'Actions'];
+  cardsHeaderAry = ['Product Card Name', 'Description', 'Exp shown', 'Product','Created By', 'Updated By'];
   deleteKeyForMultiple: string = 'eproductCardId';
   formVisible: boolean = false;
   isInsertNewRecord: boolean = false;
@@ -114,7 +114,7 @@ export class ProductCardsComponent implements OnInit {
   }
 
   fetchAllProductCards() {
-    this.loading = true;
+    this.isLoading = true;
     this.productsCardService.getProductCardsList().subscribe({
       next: (response) => {
         if (response.isSuccess) {
@@ -136,11 +136,11 @@ export class ProductCardsComponent implements OnInit {
 
                 this.eProductCardsListAry = sortedData.map(
                   (card: { pcardName: any; pcardDesc: any; expshown: any; expression: any; pcardId: any; productId: number; amount: any; createdBy: any; createdByDateTime: any; updatedBy: any; updatedByDateTime: any; entityId: any }) => ({
-                    "Stream Card Name": card.pcardName,
+                    "Product Card Name": card.pcardName,
                     Description: card.pcardDesc,
                     "Exp shown": card.expshown,
                     eproductCardId: card.pcardId,
-                    Stream: this.productMap.get(card.productId) || 'Unknown',
+                    Product: this.productMap.get(card.productId) || 'Unknown',
                     productId: card.productId,
                     "Created By": card.createdBy,
                     "Created Date": card.createdByDateTime,
@@ -153,19 +153,19 @@ export class ProductCardsComponent implements OnInit {
 
                 // Initialize filtered list with all data
                 this.filteredProductCardsList = [...this.eProductCardsListAry];
-                this.loading = false;
+                this.isLoading = false;
               }
             },
             error: (error) => {
               console.error('Error fetching product information', error);
-              this.loading = false;
+              this.isLoading = false;
             },
           });
         }
       },
       error: (error) => {
         console.error('Error fetching product card list', error);
-        this.loading = false;
+        this.isLoading = false;
       },
     });
   }
@@ -222,7 +222,7 @@ export class ProductCardsComponent implements OnInit {
       this.formVisible = true;
       this.createdBy = event.data.createdBy;
       this.expressionForm.patchValue({
-        ProductCardName: event.data["Stream Card Name"],
+        ProductCardName: event.data["Product Card Name"],
         Description: event.data.Description,
         //MaximumAmount: event.data["Maximum Amount"],
         Expshown: event.data["Exp shown"],
@@ -781,7 +781,7 @@ export class ProductCardsComponent implements OnInit {
 
   deleteProductCard(productCardId: number,productCard:string) {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete the Stream Card: "${productCard}"?`
+      `Are you sure you want to delete the Product Card: "${productCard}"?`
     );
     if (confirmDelete) {
       this.productsCardService.deleteProductCard(productCardId).subscribe({
@@ -842,7 +842,7 @@ export class ProductCardsComponent implements OnInit {
         const url = window.URL.createObjectURL(response);
         const anchor = document.createElement('a');
         anchor.href = url;
-        anchor.download = 'StreamCards.xlsx';
+        anchor.download = 'ProductCards.xlsx';
         document.body.appendChild(anchor);
         anchor.click();
         document.body.removeChild(anchor);
@@ -896,10 +896,10 @@ export class ProductCardsComponent implements OnInit {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'StreamCards-Template.xlsm'; // Filename for the download
+      a.download = 'ProductCards-Template.xlsm'; // Filename for the download
       a.click();
       window.URL.revokeObjectURL(url);
-      this._snackBar.open('Stream Cards Template Download Successfully.', 'Okay', {
+      this._snackBar.open('Product Cards Template Download Successfully.', 'Okay', {
         duration: 2000,
         horizontalPosition: 'right',
         verticalPosition: 'top',

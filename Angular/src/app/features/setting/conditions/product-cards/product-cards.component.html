@@ -1,6 +1,6 @@
 <div class="mb-3">
     <div>
-        <p class="moduleLabel mb-2">{{ 'Stream Cards' | translate }}</p>
+        <p class="moduleLabel mb-2">{{ 'Product Cards' | translate }}</p>
     </div>
 
     <!-- Search and Actions Section -->
@@ -8,7 +8,7 @@
         <!-- Search Input -->
         <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
             <input type="text" class="form-control" style="width: 100%;" (input)="applyFilter()"
-             [(ngModel)]="searchTerm"   placeholder="{{ 'Search Stream Cards' | translate }}" />
+             [(ngModel)]="searchTerm"   placeholder="{{ 'Search Product Cards' | translate }}" />
         </div>
 
         <!-- Actions Buttons -->
@@ -47,12 +47,12 @@
     <form [formGroup]="expressionForm" (ngSubmit)="submit()">
         <div class="row mb-3">
             <div class="col-3">
-                <label class="inputLabel">{{ 'Stream Card Name' | translate }} <span class="text-danger">*</span></label>
+                <label class="inputLabel">{{ 'Product Card Name' | translate }} <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" formControlName="ProductCardName"
                     (input)="sanitizeCode($event)"maxlength="50" />
                 <div *ngIf="expressionForm.get('ProductCardName')?.invalid && expressionForm.get('ProductCardName')?.touched"
                     class="text-danger">
-                    {{ 'Stream Card Name' | translate }}{{ ' is required' | translate }}
+                    {{ 'Product Card Name' | translate }}{{ ' is required' | translate }}
                 </div>
             </div>
             <div class="col-2">
@@ -64,15 +64,15 @@
                 </div> -->
             </div>
             <div class="col">
-                <label class="inputLabel">{{ 'Stream' | translate }} <span class="text-danger">*</span></label>
+                <label class="inputLabel">{{ 'Product' | translate }} <span class="text-danger">*</span></label>
                 <select #productSelect class="form-control" formControlName="Product">
-                    <option value="null" disabled selected>{{ 'Stream' | translate }}</option>
+                    <option value="null" disabled selected>{{ 'Product' | translate }}</option>
                     <option *ngFor="let product of productsList" [value]="product.productId">{{
                         product.productName }}</option>
                 </select>
                 <div *ngIf="expressionForm.get('Product')?.invalid && expressionForm.get('Product')?.touched"
                     class="text-danger">
-                    {{ 'Select Stream' | translate }}
+                    {{ 'Select Product' | translate }}
                 </div>
             </div>
             <!--<div class="col-2">
@@ -181,8 +181,8 @@
 <!-- Full-page Loader -->
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
 
-<div *ngIf="loading" class="text-center my-4">
+<!-- <div *ngIf="loading" class="text-center my-4">
   <div class="loading-container" role="status">
     <span class="">Loading data, please wait...</span>
   </div>
-</div>
+</div> -->

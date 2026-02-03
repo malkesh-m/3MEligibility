@@ -24,6 +24,10 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
   statusList: Signal<{ id: number; name: string }[]> = this.service.statusList;
   displayedColumns: string[] = ['makerCheckerId', 'tableName', 'actionName', 'status', 'actions'];
   dataSource = new MatTableDataSource<MakerChecker>([]); // Initialize empty data source
+  isLoading: boolean = false;
+  message: string = "Loading data, please wait..."
+  isUploading: boolean = false;
+  isDownloading: boolean = false;
 
   constructor(private dialog: MatDialog, private Makerservice: MakerCheckerService, private rolesService: RolesService) {
   }
@@ -47,6 +51,7 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
   }
 
   loadData(): void {
+    this.isLoading = true;
     this.Makerservice.getAll().subscribe(response => {
       if (response && Array.isArray(response.data)) {
         // Extract `data` array and filter out "Approved" records
@@ -65,8 +70,10 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
         // Re-attach paginator and sorting
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        this.isLoading = false;
       } else {
         console.error("Invalid response format:", response);
+        this.isLoading = false;
       }
     });
   }

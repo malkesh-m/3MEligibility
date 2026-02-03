@@ -26,6 +26,10 @@ export class ProductCapComponent implements OnInit {
   productsList: any[] = [];
   displayedColumns: string[] = ['ProductName', 'ProductCap', 'MinimumScore', 'MaximumScore', 'actions'];
   showMinMaxError = false;
+  isLoading: boolean = false;
+  message: string = "Loading data, please wait...";
+  isUploading: boolean = false;
+  isDownloading: boolean = false;
   constructor(private fb: FormBuilder,
     private productservice: ProductsService,
     private productcapservice: ProductCapService,private rolesService: RolesService) { }
@@ -51,7 +55,6 @@ export class ProductCapComponent implements OnInit {
     this.ProductCapForm.get('maximumScore')?.valueChanges.subscribe(() => this.validateMinMax());
   }
 
-  // ✅ Custom cross-field validator
   minLessThanOrEqualMaxValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
     const form = control as FormGroup;
     const min = form.get('minimumScore')?.value;
@@ -111,12 +114,14 @@ export class ProductCapComponent implements OnInit {
 
 
   fetchAllProducts() {
+    this.isLoading = true;
     this.productservice.getInfoListName().subscribe({
       next: (response) => {
         if (response.isSuccess) {
           this.productsList = response.data;
           this.isDataReady = true;
         }
+        this.isLoading = false;
       }, error: (error) => {
 
         this._snackBar.open(error.message, 'Okay', {
@@ -124,6 +129,7 @@ export class ProductCapComponent implements OnInit {
           verticalPosition: 'top', duration: 3000
         });
         console.log("Products :", error)
+        this.isLoading = false;
       }
 
     })

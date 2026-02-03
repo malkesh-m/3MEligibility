@@ -24,6 +24,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ProductCapComponent } from './product-cap/product-cap.component';
 import { ProductCapAmountComponent } from './product-cap-amount/product-cap-amount.component';
 import { SharedModule } from '../../shared/shared.module';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { CoreModule } from '../../core/core.module';
 
 
 @NgModule({
@@ -54,7 +56,9 @@ import { SharedModule } from '../../shared/shared.module';
     QuillModule.forRoot(),
     TranslateModule,
     MatSlideToggleModule,
-    SharedModule
+    SharedModule,
+    MatProgressSpinner,
+    CoreModule
   ]
 })
 export class ConfigurationModule { }

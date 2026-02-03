@@ -68,16 +68,16 @@
                       </div>
                     </div>
                     <div class="col">
-                      <label class="inputLabel">{{ 'Stream Name' | translate }} <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" placeholder="{{ 'Stream Name' | translate }}"
+                      <label class="inputLabel">{{ 'Product Name' | translate }} <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="{{ 'Product Name' | translate }}"
                              formControlName="productName" (input)="sanitizeCode($event)" maxlength="50" />
                       <div *ngIf="formData.get('productName')?.invalid && formData.get('productName')?.touched"
                            class="text-danger">
-                        {{ 'Stream Name' | translate }}{{ ' is required' | translate }}
+                        {{ 'Product Name' | translate }}{{ ' is required' | translate }}
                       </div>
                       <div class="text-danger"
                            *ngIf="formData.get('productName')?.value?.length === 50">
-                        Stream Name must be less than 50 characters
+                        Product Name must be less than 50 characters
                       </div>
                     </div>
                    
@@ -91,10 +91,10 @@
                       </div>
                     </div>-->
                     <div class="col">
-                      <label class="inputLabel">{{ 'Select Product' | translate }} <span class="text-danger">*</span></label>
+                      <label class="inputLabel">{{ 'Select Category' | translate }} <span class="text-danger">*</span></label>
                       <select class="form-control" formControlName="productCategory"
                               (change)="bindEntityId($event,'Info')">
-                        <option value="null" disabled>{{ 'Select Product' | translate }}</option>
+                        <option value="null" disabled>{{ 'Select Category' | translate }}</option>
                         <option *ngFor="let category of categoryList" [value]="category.categoryId">
                           {{
                                     category.categoryName
@@ -103,7 +103,7 @@
                       </select>
                       <div *ngIf="formData.get('productCategory')?.invalid && formData.get('productCategory')?.touched"
                            class="text-danger">
-                        {{ 'Product Product' | translate }}{{ ' is required' | translate }}
+                        {{ 'Product Category' | translate }}{{ ' is required' | translate }}
                       </div>
                     </div>
                     <!--<div class="col">
@@ -206,17 +206,17 @@
                 <form [formGroup]="formData" (ngSubmit)="detailsFormSubmit()">
                     <div class="row mb-3">
                         <div class="col">
-                            <label class="inputLabel">{{ 'Select Stream' | translate }} <span class="text-danger">*</span></label>
+                            <label class="inputLabel">{{ 'Select Category' | translate }} <span class="text-danger">*</span></label>
                             <select class="form-control" formControlName="product"
                                 (change)="onSelectProductItem($event)">
-                                <option value="null">{{ 'Select Stream' | translate }}</option>
+                                <option value="null">{{ 'Select Category' | translate }}</option>
                                 <option *ngFor="let products of ProductListDetails" [value]="products.productId">{{
                                     products.productName }}
                                 </option>
                             </select>
                             <div *ngIf="formData.get('product')?.invalid && formData.get('product')?.touched"
                                 class="text-danger">
-                                {{ 'Stream' | translate }}{{ ' is required' | translate }}
+                                {{ 'Category' | translate }}{{ ' is required' | translate }}
                             </div>
                         </div>
                         <!--<div class="col">

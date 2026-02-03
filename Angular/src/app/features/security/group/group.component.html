@@ -201,3 +201,4 @@
     <p style="text-align: center;" *ngIf="assignedUserDataSource.data.length === 0">{{recordMessage}}</p>
     <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

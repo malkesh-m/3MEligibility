@@ -52,6 +52,10 @@ export class RoleComponent implements OnInit {
   combinedColumns: string[] = []; // To include 'select' column
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  isLoading: boolean = false;
+  message: string = "Loading data, please wait...";
+  isUploading: boolean = false;
+  isDownloading: boolean = false;
   constructor(private roleService: RoleService, private rolesService: RolesService) { }
 
   ngOnInit(): void {
@@ -75,6 +79,7 @@ export class RoleComponent implements OnInit {
   }
 
   fetchGroupList() {
+    this.isLoading = true;
     this.roleService.getGroupList().subscribe({
       next: (response) => {
         this.records = response.data.map((item: any) => ({
@@ -82,12 +87,14 @@ export class RoleComponent implements OnInit {
           groupName: item.groupName,
           groupDesc: item.groupDesc
         }));
+        this.isLoading = false;
       },
       error: (error) => {
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
+        this.isLoading = false;
       },
     });
   }
@@ -167,6 +174,7 @@ export class RoleComponent implements OnInit {
     
 
     getUnAssignedRolesByGroupId(groupId: number) {
+      this.isLoading = true;
         this.roleService.getUnAssignedRolesByGroupId(groupId).subscribe({
             next: (response) => {
                 this.roleUnAssigndataSource.data = response.data.map((item: any) => ({
@@ -176,6 +184,7 @@ export class RoleComponent implements OnInit {
                 }));
                 this.roleUnAssigndataSource.paginator = this.paginator;
                 this.roleUnAssigndataSource.sort = this.sort;
+                this.isLoading = false;
             },
             error: (error) => {
                 this.roleAssigndataSource.data = [];
@@ -184,11 +193,13 @@ export class RoleComponent implements OnInit {
                     horizontalPosition: 'right',
                     verticalPosition: 'top', duration: 3000,
                 });
+                this.isLoading = false;
             },
         });
     }
 
     getAssignedRolesByGroupId(groupId: number) {
+      this.isLoading = true;
         this.roleService.getAssignedRolesByGroupId(groupId).subscribe({
             next: (response) => {
                 this.roleAssigndataSource.data = response.data.map((item: any) => ({
@@ -198,6 +209,7 @@ export class RoleComponent implements OnInit {
                 }));
                 this.roleAssigndataSource.paginator = this.paginator;
                 this.roleAssigndataSource.sort = this.sort;
+                this.isLoading = false;
             },
             error: (error) => {
                 this.roleAssigndataSource.data = [];
@@ -207,6 +219,7 @@ export class RoleComponent implements OnInit {
                     horizontalPosition: 'right',
                     verticalPosition: 'top', duration: 3000,
                 });
+                this.isLoading = false;
             },
         });
     }

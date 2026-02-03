@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { GroupService } from '../../../core/services/security/group.service';
 import { MatPaginator } from '@angular/material/paginator';
@@ -49,7 +49,7 @@ export interface requestBody {
   templateUrl: './group.component.html',
   styleUrl: './group.component.scss'
 })
-export class GroupComponent implements OnInit {
+export class GroupComponent implements OnInit,AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   searchTerm: string = '';
@@ -80,11 +80,19 @@ export class GroupComponent implements OnInit {
   private _snackBar = inject(MatSnackBar);
   UnassignedUser: boolean = false;
   recordMessage: string = 'Please select group to view assigned user list';
+  isLoading: boolean = false;
+  isDownloading: boolean = false
+  isUploading: boolean = false
+  message: string = "Loading data, please wait...";
   constructor(private groupService: GroupService, private utilityService: UtilityService, private cdr: ChangeDetectorRef, private userService: UserService, private rolesService: RolesService) { }
 
   ngOnInit(): void {
     this.fetchGroupList();
     this.fetchUsersList();
+  }
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   getAddPermission(): boolean {
@@ -415,6 +423,7 @@ export class GroupComponent implements OnInit {
   }
 
   fetchAssignedUserbyId(groupId: string) {
+    this.isLoading = true;
     this.groupService.getAssignedUserbyId(parseInt(groupId)).subscribe({
       next: (response) => {
         this.assignedUserDataSource.data = response.data.map((item: any) => ({
@@ -430,17 +439,15 @@ export class GroupComponent implements OnInit {
         if(this.assignedUserDataSource.data.length === 0){
           this.recordMessage = "No User Assigned to this group";
         }
-        setTimeout(() => {
-          this.assignedUserDataSource.paginator = this.paginator;
-          this.assignedUserDataSource.sort = this.sort;  
-        }, 700);
-       
+     
+        this.isLoading = false;
       },
       error: (error) => {
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
+        this.isLoading = false;
       },
     });
   }
@@ -456,6 +463,7 @@ export class GroupComponent implements OnInit {
   }
 
   fetchGroupList() {
+    this.isLoading = true;
     this.groupService.getGroupList().subscribe({
       next: (response) => {
         this.dataSource.data = response.data.map((item: any) => ({
@@ -466,12 +474,14 @@ export class GroupComponent implements OnInit {
         this.records = response.data;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        this.isLoading = false;
       },
       error: (error) => {
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
+        this.isLoading = false;
       },
     });
   }

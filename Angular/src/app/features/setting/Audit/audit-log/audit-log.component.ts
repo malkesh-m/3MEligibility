@@ -32,6 +32,10 @@ export class AuditLogComponent {
   pageSize = 10;   
   pageIndex = 0;   
   LoadAudit = false;
+  isLoading: boolean = false;
+  isUploading: boolean = false
+  isDownloading: boolean = false
+  message: string = "Loading data, please wait...";
 
   parseJson(jsonString: string): any {
     try {
@@ -82,7 +86,7 @@ export class AuditLogComponent {
     }
   }
   getAuditLog() {
-    this.LoadAudit = true;
+    this.isLoading = true;
 
     this.auditservice.getAuditLog(this.pageIndex, this.pageSize).subscribe({
       next: (response) => {
@@ -102,11 +106,11 @@ export class AuditLogComponent {
         }
 
         this.dataSource.sort = this.sort;
-        this.LoadAudit = false;
+        this.isLoading = false;
       },
       error: (error) => {
         console.log(error.message);
-        this.LoadAudit = false;
+        this.isLoading = false;
       }
     });
   }

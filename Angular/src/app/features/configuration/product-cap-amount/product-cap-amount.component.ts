@@ -20,7 +20,8 @@ export class ProductCapAmountComponent {
   selectedProductData: any[] = [];
   private _snackBar = inject(MatSnackBar);
   formvisible: boolean = false;
-  isDataReady: boolean = true;
+  isLoading: boolean = false;
+  message: string = "Loading data, please wait...";
   constructor(private fb: FormBuilder, private productservice:ProductsService,private productAmountService:ProductCapAmountService,private rolesService: RolesService) { }
   ngOnInit(): void {
     this.ProductCapForm = this.fb.group({
@@ -125,13 +126,13 @@ export class ProductCapAmountComponent {
     }
   }
   fetchAllProducts() {
-    this.isDataReady = false;
+    this.isLoading = true;
 
     this.productservice.getInfoListName().subscribe({
       next: (response) => {
         if (response.isSuccess) {
           this.productsList = response.data;
-         this.isDataReady = true;
+         this.isLoading = false;
         }
       }, error: (error) => {
         this._snackBar.open(error.message, 'Close', {

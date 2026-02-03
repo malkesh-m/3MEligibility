@@ -15,7 +15,7 @@ namespace MEligibilityPlatform.Controllers
     /// Initializes a new instance of the <see cref="EvaluationHistoryController"/> class.
     /// </remarks>
     /// <param name="evaluationHistoryService">The evaluation history service.</param>
-    [Route("api/evalutionhistory")]
+    [Route("api/evaluationhistory")]
     [ApiController]
     public class EvaluationHistoryController(IEvaluationHistoryService evaluationHistoryService) : ControllerBase
     {

@@ -350,7 +350,7 @@ namespace MEligibilityPlatform.Application.Services
             try
             {
                 if (rowCount <= 0)
-                    return "Stream Card Page = Uploaded File PCards sheet is empty.";
+                    return "Product Card Page = Uploaded File PCards sheet is empty.";
 
                 // Read rows
                 for (int row = 2; row <= rowCount + 1; row++)

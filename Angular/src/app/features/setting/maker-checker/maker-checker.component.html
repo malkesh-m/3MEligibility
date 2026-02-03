@@ -101,3 +101,4 @@
 </div>
 
 <p *ngIf="dataSource.data.length === 0">No Maker-Checker records found.</p>
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

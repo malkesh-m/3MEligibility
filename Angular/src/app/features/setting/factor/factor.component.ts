@@ -162,6 +162,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
     }
 
     fetchFactorsList() {
+      this.isLoading = true;
         this.factorsService.getFactorsList().subscribe({
             next: (response) => {
                 if (response && response.data) {
@@ -173,11 +174,14 @@ export class FactorsComponent implements OnInit, AfterViewInit {
                         const parameter = this.parametersList.find(
                             (param) => param.parameterId === factor.parameterId
                         );
+                            this.isLoading = false;
                         return {
                             ...factor,
                             parameterName: parameter ? parameter.parameterName : 'Unknown Parameter',
                             selected: false,
                         };
+                          
+
                     });
                 }
             },
@@ -187,6 +191,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
                     horizontalPosition: 'right',
                     verticalPosition: 'top', duration: 3000
                 });
+                    this.isLoading = false;
             },
         });
     }

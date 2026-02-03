@@ -62,11 +62,11 @@ export class ProductComponent {
   menuVisible: boolean = false;
   isTableDataUpdated: boolean = false;
   categoryTableColumnAry = ['Select', 'Name', 'Description','Created By', 'Updated By', 'Actions'];
-  infoTableColumnAry = [ 'Select' ,'Code', 'Category Name','Stream Name','Created By', 'Updated By', 'Actions'];
-  detailsTableColumnAry = ['Select', 'Stream', 'Parameter', 'Parameter value', 'Display order','Created By', 'Updated By', 'Actions'];
+  infoTableColumnAry = [ 'Select' ,'Code', 'Category Name','Product Name','Created By', 'Updated By', 'Actions'];
+  detailsTableColumnAry = ['Select', 'Product', 'Parameter', 'Parameter value', 'Display order','Created By', 'Updated By', 'Actions'];
   categoryTableHeaderAry = ['Name', 'Description','Created By', 'Updated By'];
-  infoTableHeaderAry = ['Code', 'Product Name','Stream Name'  ,'Created By', 'Updated By'];
-  detailsTableHeaderAry = ['Stream', 'Parameter', 'Parameter value', 'Display order','Created By', 'Updated By'];
+  infoTableHeaderAry = ['Code', 'Product Name','Category Name'  ,'Created By', 'Updated By'];
+  detailsTableHeaderAry = ['Product', 'Parameter', 'Parameter value', 'Display order','Created By', 'Updated By'];
   
   filteredCategoriesList = [];
   filteredInfoList = [];
@@ -144,6 +144,9 @@ export class ProductComponent {
   closeMenu() {
     this.menuVisible = false;
   }
+  onLoadingChange(isLoading: boolean) {
+  this.isLoading = isLoading;
+}
 
   tabChanged(event: any) {
     this.activeTab =Object.keys(this.tabMapping).find(key => this.tabMapping[key] === event.index) || 'Category';
@@ -182,10 +185,13 @@ export class ProductComponent {
   }
 
   fetchCategoriesList(action?:string) {
+          this.isLoading = true;
+
     this.productService.getCategoriesList().subscribe({
       next: (response) => {
         this.categoriesList = response.data;
         this.applyFilter(action);
+            this.isLoading = false;
       },
       error: (error) => {
         this.categoriesList = [];
@@ -194,13 +200,14 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+            this.isLoading = false;
       }
     })
     this.isTableDataUpdated = false;
   }
 
   fetchInfoList(action?: string) {
-    this.isDataReady = false;
+    this.isLoading = true;
     this.productService.getInfoList().subscribe({
       next: (response) => {
             this.infoList = response.data.map((product: Product) => {
@@ -211,7 +218,7 @@ export class ProductComponent {
           return product;
         });
         this.applyFilter(action);
-        this.isDataReady = true;
+        this.isLoading = false;
 
       },
       error: (error) => {
@@ -221,6 +228,7 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+            this.isLoading = false;
       }
     })
   }

@@ -88,4 +88,5 @@
   </mat-paginator>
 </div>
 <p *ngIf="dataSource.data.length === 0 && LoadAudit===false">No  Log  records found.</p>
+<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
 

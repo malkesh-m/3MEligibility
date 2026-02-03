@@ -62,7 +62,7 @@ namespace MEligibilityPlatform.Application.Services
             else
             {
                 // Throws exception if product cap is not found
-                throw new Exception("Stream Cap not found.");
+                throw new Exception("Product Cap not found.");
             }
         }
 
@@ -89,7 +89,7 @@ namespace MEligibilityPlatform.Application.Services
             var entity = await _uow.ProductCapRepository.Query().Where(p => p.ProductId == id).ToListAsync();
             // Throws exception if no product caps found for the product ID
             if (entity.Count == 0)
-                throw new Exception("Stream Cap not found.");
+                throw new Exception("Product Cap not found.");
 
             // Maps the product caps to ProductCapModel objects
             return _mapper.Map<List<ProductCapModel>>(entity);
@@ -103,7 +103,7 @@ namespace MEligibilityPlatform.Application.Services
         public ProductCapModel GetById(int id)
         {
             // Retrieves the product cap by ID
-            var entity = _uow.ProductCapRepository.GetById(id) ?? throw new Exception("Stream Cap not found.");
+            var entity = _uow.ProductCapRepository.GetById(id) ?? throw new Exception("Product Cap not found.");
 
             // Maps the product cap to ProductCapModel object
             return _mapper.Map<ProductCapModel>(entity);
@@ -117,7 +117,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task Update(ProductCapModel model)
         {
             // Retrieves the existing product cap by ID
-            var existingEntity = _uow.ProductCapRepository.GetById(model.Id) ?? throw new Exception("Stream Cap not found.");
+            var existingEntity = _uow.ProductCapRepository.GetById(model.Id) ?? throw new Exception("Product Cap not found.");
 
             // Maps updated data from model to existing entity
             _mapper.Map(model, existingEntity);

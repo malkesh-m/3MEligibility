@@ -406,13 +406,17 @@ export class ExceptionParameterFormComponent {
   }
 
   fetchAllExceptions() {
+          this.isLoading = true;
+
     this.exceptionsService.getExceptionList().subscribe({
       next: (response) => {
         if (response.isSuccess) {
         //  this.exceptions = response.data.map((exc: any) => ({...exc, exceptionID: Number(exc.exceptionID)}));
+          this.isLoading = false;
         }
       }, error: (error) => {
         console.log("rules :", error)
+        this.isLoading = false;
       }
     })
   }
