@@ -56,16 +56,16 @@ export function initializeOidc(
     }),
   ],
   providers: [
- {
-    provide: HTTP_INTERCEPTORS,
-    useClass: AuthInterceptor,
-    multi: true
-  },
-  {
-    provide: HTTP_INTERCEPTORS,
-    useClass: GlobalErrorInterceptor,
-    multi: true
-  },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: GlobalErrorInterceptor,
+      multi: true
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeOidc,

@@ -1,6 +1,6 @@
-// export const environment = {
-//   production: true,
-//   apiUrl: 'https://localhost:50647/api',
+export const environment = {
+  production: true,
+  apiUrl: 'https://localhost:50647/api',
 //   identitySettings: {
 //     authority: 'https://auth.3m-technology.com',
 //     clientId: '3MEligibility-Client',
@@ -14,4 +14,6 @@
 //   server: {
 //     apiUrl: 'https://localhost:50647/',
 //   },
-// };
+  imagePath: 'https://localhost:50647',
+
+};

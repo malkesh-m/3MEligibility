@@ -58,11 +58,11 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
             return await base.SavedChangesAsync(eventData, result, cancellationToken);
         }
         private static readonly HashSet<string> ExcludedAuditFields =
-[
-    "Password",
-    "PasswordHash",   // if you have hashed passwords
-    "UserPassword"    // if you store salt
-];
+            [
+            "Password",
+            "PasswordHash",   // if you have hashed passwords
+            "UserPassword"    // if you store salt
+            ];
         /// <summary>
         /// Processes pending audits and saves them to the database after entities are persisted.
         /// </summary>

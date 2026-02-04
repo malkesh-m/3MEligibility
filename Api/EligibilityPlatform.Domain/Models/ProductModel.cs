@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http;
 
 namespace MEligibilityPlatform.Domain.Models
 {
@@ -22,13 +23,12 @@ namespace MEligibilityPlatform.Domain.Models
         [StringLength(50, ErrorMessage = "CategoryName cannot exceed 50 characters.")]
         public string? CategoryName { get; set; }
 
-        [JsonIgnore]
         public int TenantId { get; set; }
 
         [StringLength(10, ErrorMessage = "Code cannot exceed 10 characters.")]
         public string? Code { get; set; }
 
-        public byte[]? ProductImage { get; set; }
+        public string? ProductImagePath { get; set; }
 
         public string? Narrative { get; set; }
         [RegularExpression(
@@ -37,9 +37,6 @@ namespace MEligibilityPlatform.Domain.Models
 )]
         [StringLength(50, ErrorMessage = "Description cannot exceed 50 characters.")]
         public string? Description { get; set; }
-
-        [StringLength(20, ErrorMessage = "MimeType cannot exceed 20 characters.")]
-        public string? MimeType { get; set; }
 
         public int? ExceptionId { get; set; }
 
@@ -61,6 +58,8 @@ namespace MEligibilityPlatform.Domain.Models
         public string? CreatedBy { get; set; }
         [JsonIgnore]
         public string? UpdatedBy { get; set; }
+        [JsonIgnore]
+        public IFormFile? ProductImageFile { get; set; }
     }
     public class ProductDescription
     {
@@ -71,10 +70,9 @@ namespace MEligibilityPlatform.Domain.Models
         public string? CategoryName { get; set; }
         public int TenantId { get; set; }
         public string? EntityName { get; set; }
-        public byte[]? ProductImage { get; set; }
+        public string? ProductImagePath { get; set; }
         public string? Narrative { get; set; }
         public string? Description { get; set; }
-        public string? MimeType { get; set; }
     }
     public class ProductIdAndNameModel
     {
@@ -82,7 +80,7 @@ namespace MEligibilityPlatform.Domain.Models
 
         public string? ProductName { get; set; }
 
-        public byte[]? ProductImage { get; set; }
+        public string? ProductImagePath { get; set; }
 
     }
     public class ProductEligibleModel

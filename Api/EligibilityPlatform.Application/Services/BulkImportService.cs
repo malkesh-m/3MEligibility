@@ -1404,12 +1404,8 @@ namespace MEligibilityPlatform.Application.Services
                         CategoryId = int.TryParse(CategoryId, out int categoryId) ? categoryId : 0,
                         // Parses and sets entity ID, defaults to 0 if invalid
                         TenantId = int.TryParse(TenantId, out int tenantId) ? tenantId : 0,
-                        // Converts image URL to byte array if provided, otherwise null
-                        ProductImage = await SafeLoadImage(imageUrl),
                         // Sets narrative from Excel data
                         Narrative = Narrative,
-                        // Sets description from Excel data
-                        Description = Description,
                         // Sets creator identifier
                         CreatedBy = createdBy
                     };

@@ -8,16 +8,12 @@ using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using CsvHelper.Configuration;
-using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SharpYaml.Tokens;
-using Parameter = MEligibilityPlatform.Domain.Entities.Parameter;
 using RuleResult = MEligibilityPlatform.Domain.Models.RuleResult;
 using ValidationResult = MEligibilityPlatform.Domain.Models.ValidationResult;
 
@@ -95,9 +91,9 @@ namespace MEligibilityPlatform.Application.Services
                    CategoryId = e.Product.CategoryId,
                    TenantId = e.Product.TenantId,
                    Code = e.Product.Code,
+                   ProductImagePath = e.Product.ProductImagePath,
                    Narrative = e.Product.Narrative,
                    Description = e.Product.Description,
-                   MimeType = e.Product.MimeType,
                    UpdatedByDateTime = e.Product.UpdatedByDateTime,
                    CreatedBy = e.Product.CreatedBy,
                    CreatedByDateTime = e.Product.CreatedByDateTime,

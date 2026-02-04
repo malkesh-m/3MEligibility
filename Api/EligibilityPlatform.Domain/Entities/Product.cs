@@ -12,7 +12,7 @@ public partial class Product : ITenantEntity
 
     public string? Code { get; set; }
 
-    public byte[]? ProductImage { get; set; }
+    public string? ProductImagePath { get; set; }
 
     public string? Narrative { get; set; }
 

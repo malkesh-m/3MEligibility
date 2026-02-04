@@ -382,6 +382,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseRouting();
 
+app.UseStaticFiles();
 
 app.UseSwagger();
 app.UseSwaggerUI();

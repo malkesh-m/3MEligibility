@@ -75,11 +75,11 @@ namespace MEligibilityPlatform.Controllers
         //[ApiKeyAuth]
 
         [HttpPost("breintegrationalignment")]
-        public async Task<IActionResult> BREIntegrationAlignment([FromBody] Dictionary<string, object> KeyValues, [FromQuery] int TenentId, [FromHeader] string? RequestId)
+        public async Task<IActionResult> BREIntegrationAlignment([FromBody] Dictionary<string, object> KeyValues, [FromQuery] int TenantId, [FromHeader] string? RequestId)
         {
             try
             {
-                var result = await _eligibleProductsService.ProcessBREIntegration(KeyValues, TenentId, RequestId);
+                var result = await _eligibleProductsService.ProcessBREIntegration(KeyValues, TenantId, RequestId);
                 return Ok(result);
             }
             catch (Exception ex)

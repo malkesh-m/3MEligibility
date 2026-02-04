@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 import { ProductsService } from '../../../../core/services/setting/products.service';
 import { TableComponent } from '../../../../core/components/table/table.component';
 import { FactorsService } from '../../../../core/services/setting/factors.service';
@@ -10,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { UtilityService } from '../../../../core/services/utility/utils';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ExceptionManagementService } from '../../../../core/services/setting/exception-management.service';
+
 
 @Component({
   selector: 'app-product-list',
@@ -30,7 +32,7 @@ export class ProductListComponent {
   @Output() addFormData = new EventEmitter<any>()
   @Input() editRoleId: string = '';
   @Input() deleteRoleId: string = '';
-  @Output() loadingChange = new EventEmitter<boolean>();
+
 
   ProductListDetails: any = [];
   parametersList: any = [];
@@ -46,10 +48,15 @@ export class ProductListComponent {
   selectedRows: Set<number> = new Set();
   entitiesList: { entityId: number; entityName: string }[] = [];
   imagePreview: string = '';
+  selectedImageFile: File | null = null;
+  uploadProgress: number = 0;
+  isDragging: boolean = false;
+  isUploading: boolean = false;  // Separate flag for upload loading
   loggedInUser: any = null;
   isExceptionRule: boolean = false;
   isDataReady: boolean = false;
-  isLoading: boolean = false;
+  isLoading: boolean = false;  // General data loading flag
+
   private editingItem: any = null;
   private formBackup: any = null;
   isEditing = false;
@@ -70,10 +77,21 @@ export class ProductListComponent {
   //  { exceptionID: 31, exceptionName: "Age Exception" }
   //];
 
-  constructor(private fb: FormBuilder,private exceptionsService: ExceptionManagementService,private authService: AuthService, private cdrf: ChangeDetectorRef, private productService: ProductsService, private factorsService: FactorsService, private entityService: EntityService, private dialog: MatDialog, private utilityService: UtilityService) { }
+  constructor(
+    private productService: ProductsService,
+    private cdrf: ChangeDetectorRef,
+    private fb: FormBuilder,
+    public dialog: MatDialog,
+    private translate: TranslateService,
+    private authService: AuthService,
+    private exceptionsService: ExceptionManagementService,
+    private factorsService: FactorsService,
+    private entityService: EntityService,
+    private utilityService: UtilityService
+  ) { }
 
   ngOnInit() {
-    if(this.currentTab == 'Info') {
+    if (this.currentTab == 'Info') {
       // this.fetchAllExceptions();
     }
     if (this.currentTab == 'Details') {
@@ -83,25 +101,74 @@ export class ProductListComponent {
   onFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
-      const file = input.files[0];
-      const mimeType = file.type;
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64String = reader.result as string;
-          const base64WithoutPrefix = base64String.split(',')[1];
-          this.formData.patchValue({
-            productImage: base64WithoutPrefix,
-            mimeType: mimeType
-          });
-          this.imagePreview = base64String;
-        };
-
-        reader.readAsDataURL(file);
-      } else {
-        alert('Please select a valid image file.');
-      }
+      this.handleFileSelection(input.files[0]);
     }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFileSelection(files[0]);
+    }
+  }
+
+  private handleFileSelection(file: File) {
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      this._snackBar.open('Please select a valid image file (JPG, PNG, GIF, BMP, WEBP)', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+      return;
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      this._snackBar.open('File size should not exceed 5MB.', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+      return;
+    }
+
+    // Store the file for upload
+    this.selectedImageFile = file;
+
+    // Create preview using object URL (much faster than base64)
+    if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(this.imagePreview);  // Clean up old object URL
+    }
+    this.imagePreview = URL.createObjectURL(file);
+  }
+
+  removeImage() {
+    // Clean up object URL to prevent memory leaks
+    if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(this.imagePreview);
+    }
+    this.selectedImageFile = null;
+    this.imagePreview = '';
+    this.uploadProgress = 0;
   }
 
   sanitizeCode(event: any) {
@@ -137,6 +204,8 @@ export class ProductListComponent {
 
   addNewRecord() {
     this.imagePreview = '';
+    this.selectedImageFile = null;
+    this.uploadProgress = 0;
     this.formVisible = true;
     this.isInsertNewRecord = true;
     this.isEditing = false;
@@ -165,16 +234,22 @@ export class ProductListComponent {
       } else if (this.currentTab === 'Info') {
         this.updatedIndexId = event.data.ProductId;
         const hasException = !!event.data.ExceptionId;
-        const base64String = `data:${event.data.MimeType};base64,${event.data.ProductImage}`;
+
+        // Get image URL if productImagePath exists
+        if (event.data.ProductImagePath) {
+          const tenantId = event.data.EntityId || 0;
+          this.imagePreview = this.productService.getImageUrl(tenantId, event.data.ProductImagePath);
+        } else {
+          this.imagePreview = '';
+        }
+
         this.formData.patchValue({
           code: event.data.Code,
           productName: event.data["Product Name"],
           productCategory: event.data.Category,
-          productImage: event.data.ProductImage,
           narrative: event.data.Narrative,
           description: event.data.Description,
           entityId: event.data.EntityId || "",
-          mimeType: event.data.MimeType,
           isExceptionRule: hasException,
           exceptionId: hasException ? event.data.ExceptionId : null,
           maxEligibleAmount: event.data['Stream Cap'] ?? ''
@@ -188,7 +263,7 @@ export class ProductListComponent {
           this.formData.get('exceptionId')?.clearValidators();
         }
         this.formData.get('exceptionId')?.updateValueAndValidity();
-        this.imagePreview = base64String;
+        this.selectedImageFile = null;
       } else {
         this.onSelectProductItem({ target: { value: event.data.ProductId } });
         setTimeout(() => {
@@ -284,7 +359,8 @@ export class ProductListComponent {
           "Narrative": res.narrative,
           "Description": res.description,
           "ProductId": res.productId,
-          "EntityId": res.entityId,
+          "ProductImagePath": res.productImagePath,  // Added for image loading on edit
+          "EntityId": res.entityId || res.tenantId,
           "MimeType": res.mimeType,
           "Created By": res.createdBy,
           "Created Date": res.createdByDateTime,
@@ -332,10 +408,14 @@ export class ProductListComponent {
     // payload.createdBy = this.loggedInUser.user.userName;
     // payload.updatedBy = this.loggedInUser.user.userName;
     payload.categoryId = 0;
+    this.isLoading = true;
+
 
     this.productService.addCategories(payload).subscribe({
       next: (response) => {
+
         if (response.isSuccess) {
+          this.isLoading = false;
           this._snackBar.open(response.message, 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
@@ -345,6 +425,8 @@ export class ProductListComponent {
         }
       },
       error: (error) => {
+        this.isLoading = false;
+
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -355,9 +437,13 @@ export class ProductListComponent {
 
   updateCategoryDetails(payload: { categoryName: string, catDescription: string, categoryId: number, entityId: number, updatedBy: string }) {
     // payload.updatedBy = this.loggedInUser.user.userName;
+    this.isLoading = true;
+
     this.productService.updateCategoriesDetails(payload).subscribe({
       next: (response) => {
+
         if (response.isSuccess) {
+          this.isLoading = false;
           this.cancelEvent();
           this._snackBar.open(response.message, 'Okay', {
             horizontalPosition: 'right',
@@ -368,6 +454,8 @@ export class ProductListComponent {
         }
       },
       error: (error) => {
+        this.isLoading = false;
+
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -441,64 +529,103 @@ export class ProductListComponent {
     });
   }
 
-  /**
-   * Info tab crud events
-   */
-  addInfoDetails(payload: any) {
-  this.loadingChange.emit(true);
-    console.log(payload)
-    console.log("payload")
 
-    // payload.createdBy = this.loggedInUser.user.userName;
-    // payload.updatedBy = this.loggedInUser.user.userName;
-    this.productService.addCategoriesInfo(payload).subscribe({
-      next: (response) => {
-        if (response.isSuccess) {
-          this.cancelEvent();
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-          this.updateTableRows.emit({ event: 'InfoList', action: '' })
-        }
-        this.loadingChange.emit(false);
+  async onSubmit() {
+    if (this.formData.invalid) {
+      return;
+    }
+    const formData = new FormData();
 
-      },
-      error: (error) => {
-        this._snackBar.open(error, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top', duration: 3000
-        });
-          this.loadingChange.emit(false);
+    // Append form fields
+    formData.append('Code', this.formData.value.code || '');
+    formData.append('ProductName', this.formData.value.productName || '');
+    formData.append('CategoryId', this.formData.value.productCategory || '');
+    formData.append('Narrative', this.formData.value.narrative || '');
+    formData.append('Description', this.formData.value.description || '');
+    formData.append('EntityId', this.formData.value.entityId || '');
+    formData.append('MaxEligibleAmount', this.formData.value.maxEligibleAmount || '');
 
-      }
-    })
+    // Process image - Direct upload
+    if (this.selectedImageFile) {
+      formData.append('ProductImageFile', this.selectedImageFile, this.selectedImageFile.name);
+    }
+
+    // Call appropriate method based on insert/update mode
+    if (this.isInsertNewRecord) {
+      this.addInfoDetails(formData);
+    } else {
+      formData.append('ProductId', this.updatedIndexId.toString());
+      this.updateInfoDetails(formData);
+    }
   }
 
-  updateInfoDetails(payload: any) {
- this.loadingChange.emit(true);
-      console.log(payload)
-    console.log("payload")
-    // payload.updatedBy = this.loggedInUser.user.userName;
-    this.productService.updateCategoriesInfo(payload).subscribe({
+
+
+
+  addInfoDetails(formData: FormData) {
+    this.uploadProgress = 0;
+    this.isLoading = true;
+
+    this.productService.addCategoriesInfo(formData).subscribe({
       next: (response) => {
+
         if (response.isSuccess) {
+          this.isLoading = false;
+          this.uploadProgress = 100;
           this.cancelEvent();
           this._snackBar.open(response.message, 'Okay', {
             horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
+            verticalPosition: 'top',
+            duration: 3000
           });
-          this.updateTableRows.emit({ event: 'InfoList', action: '' })
+          this.updateTableRows.emit({ event: 'InfoList', action: '' });
+          this.cancelEvent();
         }
-    this.loadingChange.emit(false);
       },
       error: (error) => {
+        this.isLoading = false;
+
+        this.uploadProgress = 0;
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
-          verticalPosition: 'top', duration: 3000
+          verticalPosition: 'top',
+          duration: 3000
         });
-     this.loadingChange.emit(false);      }
-    })
+      }
+    });
+  }
+
+  updateInfoDetails(formData: FormData) {
+    this.uploadProgress = 0;
+    this.isLoading = true;
+
+    this.productService.updateCategoriesInfo(formData).subscribe({
+      next: (response) => {
+
+        if (response.isSuccess) {
+          this.isLoading = false;
+          this.uploadProgress = 100;
+          this.cancelEvent();
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+          this.updateTableRows.emit({ event: 'InfoList', action: '' });
+          this.cancelEvent();
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+
+        this.uploadProgress = 0;
+        this._snackBar.open(error, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
+    });
   }
 
   deleteInfoWithId(id: number, productName: string) {
@@ -559,16 +686,18 @@ export class ProductListComponent {
     });
   }
 
-  /**
-   * Detail tab crud events
-   */
+ 
 
   addProductDetails(payload: any) {
     payload.createdBy = this.loggedInUser.user.userName;
     payload.updatedBy = this.loggedInUser.user.userName;
+    this.isLoading = true;
+
     this.productService.addProductDetails(payload).subscribe({
       next: (response) => {
+
         if (response.isSuccess) {
+          this.isLoading = false;
           this.cancelEvent();
           this._snackBar.open(response.message, 'Okay', {
             horizontalPosition: 'right',
@@ -580,6 +709,8 @@ export class ProductListComponent {
         }
       },
       error: (error) => {
+        this.isLoading = false;
+
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -590,9 +721,13 @@ export class ProductListComponent {
 
   updateProductDetails(payload: any) {
     payload.updatedBy = this.loggedInUser.user.userName;
+    this.isLoading = true;
+
     this.productService.updateProductDetails(payload).subscribe({
       next: (response) => {
+
         if (response.isSuccess) {
+          this.isLoading = false;
           this.cancelEvent();
           this._snackBar.open(response.message, 'Okay', {
             horizontalPosition: 'right',
@@ -603,6 +738,8 @@ export class ProductListComponent {
         }
       },
       error: (error) => {
+        this.isLoading = false;
+
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -713,12 +850,15 @@ export class ProductListComponent {
   cancelEvent(): void {
     if (this.isEditing) {
       this.formData.patchValue(this.formBackup);
-      this.formVisible = false; 
+      this.formVisible = false;
     } else {
       this.formData.reset();
       this.formVisible = false;
     }
     this.isInsertNewRecord = !this.isEditing;
+    this.selectedImageFile = null;
+    this.imagePreview = '';
+    this.uploadProgress = 0;
   }
 
   onSelectProductItem(value: any) {
@@ -788,6 +928,7 @@ export class ProductListComponent {
         "Category": res.categoryId,
         "Category Name": res.categoryName,
         "ProductImage": res.productImage,
+        "ProductImagePath": res.productImagePath, // Add this line
         "Narrative": res.narrative,
         "Description": res.description,
         "ProductId": res.productId,
@@ -832,11 +973,9 @@ export class ProductListComponent {
         code: ['', Validators.required],
         productName: ['', Validators.required],
         productCategory: ['', Validators.required],
-        productImage: [''],
         narrative: [''],
         description: [''],
         entityId: [''],
-        mimeType: [''],
         exceptionId: new FormControl({ value: '', disabled: true }),
         isExceptionRule: [false],
         maxEligibleAmount: ['']
@@ -854,21 +993,7 @@ export class ProductListComponent {
     }
   }
 
-  onSubmit() {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
-    if (this.formData.valid) {
-      if (this.isInsertNewRecord) {
-        this.addInfoDetails({ ...this.formData.value, productId: 0, categoryId: parseInt(this.formData.value.productCategory) })
-      } else {
-        this.updateInfoDetails({ ...this.formData.value, productId: this.updatedIndexId, categoryId: parseInt(this.formData.value.productCategory) })
-      }
-      this.imagePreview = '';
-    } else {
-      this.formData.markAllAsTouched();
-    }
-  }
+
 
   bindEntityId(value: any, tab: string) {
     if (tab === 'Details') {
@@ -990,7 +1115,7 @@ export class ProductListComponent {
     this.exceptionsService.getExceptionList().subscribe({
       next: (response) => {
         if (response.isSuccess) {
-        //  this.exceptions = response.data.map((exc: any) => ({...exc, exceptionID: Number(exc.exceptionID)}));
+          //  this.exceptions = response.data.map((exc: any) => ({...exc, exceptionID: Number(exc.exceptionID)}));
         }
       }, error: (error) => {
         console.log("rules :", error)

@@ -131,7 +131,7 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Product.Create)]
 
         [HttpPost]
-        public async Task<IActionResult> Post(ProductAddUpdateModel product)
+        public async Task<IActionResult> Post([FromForm] ProductAddUpdateModel product)
         {
             // Sets user information and entity ID from the current user context
             String? UserName = User.GetUserName();
@@ -161,7 +161,7 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Product.Edit)]
 
         [HttpPut]
-        public async Task<IActionResult> Put(ProductAddUpdateModel product)
+        public async Task<IActionResult> Put([FromForm] ProductAddUpdateModel product)
         {
             // Sets user information and entity ID from the current user context
             String? UserName = User.GetUserName();
@@ -281,6 +281,44 @@ namespace MEligibilityPlatform.Controllers
             byte[] excelBytes = await _productService.DownloadTemplate(User.GetTenantId());
             // Returns the template file as a downloadable Excel document
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Template.xlsx");
+        }
+
+        /// <summary>
+        /// Serves a product image file from the file system.
+        /// </summary>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <param name="filename">The filename of the image.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the image file.</returns>
+        [AllowAnonymous]
+        [HttpGet("image/{tenantId}/{filename}")]
+        public IActionResult GetImage(int tenantId, string filename)
+        {
+            // Constructs the relative file path
+            var relativePath = $"files/{tenantId}/{filename}";
+            
+            // Gets the full file path
+            var filePath = _productService.GetImagePath(relativePath);
+            
+            // Checks if file exists
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound(new ResponseModel { IsSuccess = false, Message = "Image not found." });
+            }
+            
+            // Determines content type based on file extension
+            var extension = Path.GetExtension(filename).ToLowerInvariant();
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+            
+            // Returns the image file
+            return PhysicalFile(filePath, contentType);
         }
     }
 }

@@ -106,5 +106,12 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="ProductEligibleModel"/> objects containing eligible product names.</returns>
         List<ProductEligibleModel> GetProductName(int tenantId);
+
+        /// <summary>
+        /// Gets the full file path for an image from its relative path.
+        /// </summary>
+        /// <param name="relativePath">The relative path to the image.</param>
+        /// <returns>The full file path.</returns>
+        string GetImagePath(string relativePath);
     }
 }

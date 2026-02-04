@@ -15,6 +15,7 @@ export const environment = {
   server: {
     apiUrl: 'https://localhost:50647/',
   },
+  imagePath: 'https://localhost:50647',
 };
 
 // export const keycloakConfig = {

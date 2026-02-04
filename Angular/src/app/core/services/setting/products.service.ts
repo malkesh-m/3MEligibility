@@ -9,6 +9,7 @@ import { environment } from '../../../../environments/environment';
 export class ProductsService {
 
   private apiUrl = environment.apiUrl;
+  private imageBaseUrl = environment.imagePath;
 
   constructor(private http: HttpClient) { }
   private getHeaders(): HttpHeaders {
@@ -36,8 +37,9 @@ export class ProductsService {
   }
 
   deleteMultipleCategories(listAry: any) {
-    return this.http.delete<any>(`${this.apiUrl}/category/multipledelete`, { body: listAry, headers: this.getHeaders() 
-}).pipe(catchError(this.handleError))
+    return this.http.delete<any>(`${this.apiUrl}/category/multipledelete`, {
+      body: listAry, headers: this.getHeaders()
+    }).pipe(catchError(this.handleError))
   }
 
   // exportCategories(): Observable<Blob> {
@@ -47,8 +49,8 @@ export class ProductsService {
   // }
 
   exportCategories(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/category/export`, selectedIds, { 
-      responseType: 'blob', headers: this.getHeaders() 
+    return this.http.post(`${this.apiUrl}/category/export`, selectedIds, {
+      responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
     );
@@ -67,7 +69,7 @@ export class ProductsService {
     return this.http.post(this.apiUrl + `/category/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
 
-  
+
   /**
    * Info Crud service Api 
    */
@@ -79,12 +81,19 @@ export class ProductsService {
     return this.http.get<any>(`${this.apiUrl}/product/getallname`, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
-  addCategoriesInfo(payload: any) {
+  addCategoriesInfo(payload: FormData) {
     return this.http.post<any>(`${this.apiUrl}/product`, payload, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
-  updateCategoriesInfo(payload: any) {
+  updateCategoriesInfo(payload: FormData) {
     return this.http.put<any>(`${this.apiUrl}/product`, payload, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
+  }
+
+  getImageUrl(tenantId: number, filename: string): string {
+    if (!filename) return '';
+    const parts = filename.replace(/\\/g, '/').split('/');
+    const file = parts[parts.length - 1];
+    return `${this.imageBaseUrl}/${filename}`;
   }
 
   deleteCategoryInfoWithId(id: number) {
@@ -92,8 +101,9 @@ export class ProductsService {
   }
 
   deleteMultipleInfoItems(listAry: any) {
-    return this.http.delete<any>(`${this.apiUrl}/product/multipleDelete`, { body: listAry,headers: this.getHeaders() 
-}).pipe(catchError(this.handleError))
+    return this.http.delete<any>(`${this.apiUrl}/product/multipleDelete`, {
+      body: listAry, headers: this.getHeaders()
+    }).pipe(catchError(this.handleError))
   }
 
   // exportInfoList(): Observable<Blob> {
@@ -103,8 +113,8 @@ export class ProductsService {
   // }
 
   exportInfoList(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/product/export`, selectedIds, { 
-      responseType: 'blob', headers: this.getHeaders() 
+    return this.http.post(`${this.apiUrl}/product/export`, selectedIds, {
+      responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
     );
@@ -112,18 +122,18 @@ export class ProductsService {
 
   DownloadInfoTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/product/Download-Template', { responseType: 'blob',headers: this.getHeaders() }).pipe(
+      .get(this.apiUrl + '/product/Download-Template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
         catchError(this.handleError)
       );
   }
 
-  importInfo(file: File,createdBy:string): Observable<any> { // Return an Observable
+  importInfo(file: File, createdBy: string): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/product/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
 
-  
+
   /**
    * Details Crud Service Api
    */
@@ -151,8 +161,8 @@ export class ProductsService {
   // }
 
   exportDetails(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/productParam/export`, selectedIds, { 
-      responseType: 'blob',headers: this.getHeaders() 
+    return this.http.post(`${this.apiUrl}/productParam/export`, selectedIds, {
+      responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
     );
@@ -177,12 +187,12 @@ export class ProductsService {
       );
   }
 
-  importDetails(file: File,createdBy:string): Observable<any> { // Return an Observable
+  importDetails(file: File, createdBy: string): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/productParam/import?createdBy=${createdBy}`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
-  
+
   getParameterList() {
     return this.http.get<any>(`${this.apiUrl}/parameter/GetAll`, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
@@ -195,7 +205,7 @@ export class ProductsService {
     return this.http.get<any>(`${this.apiUrl}/factors/getValueByParameterId?parameterId=${parameterId}`, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
-  
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
     console.log("error.error ", error.error)

@@ -7,7 +7,9 @@ using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Domain.Helper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using LicenseContext = OfficeOpenXml.LicenseContext;
@@ -24,7 +26,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
     /// <param name="categoryService">The category service instance.</param>
-    public class ProductService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/, ICategoryService categoryService) : IProductService
+    public class ProductService(IUnitOfWork uow, IMapper mapper, ICategoryService categoryService, IWebHostEnvironment webHostEnvironment) : IProductService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -37,14 +39,14 @@ namespace MEligibilityPlatform.Application.Services
         private readonly IMapper _mapper = mapper;
 
         /// <summary>
-        /// The entity service instance for entity-related operations.
-        /// </summary>
-        //private readonly IEntityService _entityService = entityService;
-
-        /// <summary>
         /// The category service instance for category-related operations.
         /// </summary>
         private readonly ICategoryService _categoryService = categoryService;
+
+        /// <summary>
+        /// The web host environment for accessing wwwroot path.
+        /// </summary>
+        private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 
         /// <summary>
         /// Adds a new product to the database.
@@ -70,6 +72,16 @@ namespace MEligibilityPlatform.Application.Services
             {
                 throw new InvalidOperationException("Stream Name is already exits");
             }
+
+            // Handle file upload if provided
+            if (model.ProductImageFile != null)
+            {
+                model.ProductImagePath = await FileUploadHelper.SaveFileAsync(
+                    model.ProductImageFile, 
+                    model.TenantId, 
+                    _webHostEnvironment.WebRootPath);
+            }
+
             // Maps the model to a Product entity.
             var productEntities = _mapper.Map<Product>(model);
 
@@ -98,6 +110,12 @@ namespace MEligibilityPlatform.Application.Services
             // Retrieves the product entity by ID and entity ID.
             var Item = _uow.ProductRepository.Query().First(f => f.ProductId == id && f.TenantId == tenantId);
 
+            // Delete associated image file if it exists
+            if (!string.IsNullOrWhiteSpace(Item.ProductImagePath))
+            {
+                FileUploadHelper.DeleteFile(Item.ProductImagePath, _webHostEnvironment.WebRootPath);
+            }
+
             // Removes the product entity from the repository.
             _uow.ProductRepository.Remove(Item);
 
@@ -125,10 +143,9 @@ namespace MEligibilityPlatform.Application.Services
                     CreatedByDateTime = s.CreatedByDateTime,
                     Description = s.Description,
                     TenantId = s.TenantId,
-                    MimeType = s.MimeType,
                     Narrative = s.Narrative,
                     ProductId = s.ProductId,
-                    ProductImage = s.ProductImage,
+                    ProductImagePath = s.ProductImagePath,
                     ProductName = s.ProductName,
                     UpdatedBy = s.UpdatedBy,
                     UpdatedByDateTime = s.UpdatedByDateTime,
@@ -151,10 +168,10 @@ namespace MEligibilityPlatform.Application.Services
                 .Where(w => w.TenantId == tenantId)
                 .Select(s => new ProductIdAndNameModel
                 {
-                    // Maps product ID, name, and image to the model.
+                    // Maps product ID, name, and image path to the model.
                     ProductId = s.ProductId,
                     ProductName = s.ProductName,
-                    ProductImage = s.ProductImage
+                    ProductImagePath = s.ProductImagePath
                 })
                 .ToList();
 
@@ -244,6 +261,29 @@ namespace MEligibilityPlatform.Application.Services
             // Retrieves the existing product entity by ID and entity ID.
             var products = _uow.ProductRepository.Query().FirstOrDefault(w => w.ProductId == model.ProductId && w.TenantId == model.TenantId) ?? throw new InvalidOperationException("Product Does Not Exist");
             var createdBy = products.CreatedBy;
+            var oldImagePath = products.ProductImagePath;
+
+            // Handle file upload if a new file is provided
+            if (model.ProductImageFile != null)
+            {
+                // Delete old file if it exists
+                if (!string.IsNullOrWhiteSpace(oldImagePath))
+                {
+                    FileUploadHelper.DeleteFile(oldImagePath, _webHostEnvironment.WebRootPath);
+                }
+
+                // Save new file
+                model.ProductImagePath = await FileUploadHelper.SaveFileAsync(
+                    model.ProductImageFile,
+                    model.TenantId,
+                    _webHostEnvironment.WebRootPath);
+            }
+            else
+            {
+                // Preserve existing image path if no new file is uploaded
+                model.ProductImagePath = oldImagePath;
+            }
+
             // Maps the updated model to the existing entity.
             var productEntities = _mapper.Map<ProductAddUpdateModel, Product>(model, products);
             products.CreatedBy = createdBy;
@@ -276,6 +316,12 @@ namespace MEligibilityPlatform.Application.Services
                 // Removes the product entity if it exists.
                 if (products != null)
                 {
+                    // Delete associated image file if it exists
+                    if (!string.IsNullOrWhiteSpace(products.ProductImagePath))
+                    {
+                        FileUploadHelper.DeleteFile(products.ProductImagePath, _webHostEnvironment.WebRootPath);
+                    }
+
                     _uow.ProductRepository.Remove(products);
                 }
             }
@@ -310,10 +356,9 @@ namespace MEligibilityPlatform.Application.Services
                             CategoryName = category.CategoryName,
                             TenantId = product.TenantId,
                             EntityName = entity.EntityName ?? "",
-                            ProductImage = product.ProductImage,
+                            ProductImagePath = product.ProductImagePath,
                             Narrative = product.Narrative,
-                            Description = product.Description,
-                            MimeType = product.MimeType
+                            Description = product.Description
                         };
 
             // Filters by selected product IDs if provided.
@@ -472,13 +517,13 @@ namespace MEligibilityPlatform.Application.Services
                         CreatedBy = createdBy,
                         ProductName = ProductName,
                         CategoryId = int.Parse(CategoryId),
-                        TenantId = int.Parse(TenantId),
-                        ProductImage = await SafeLoadImage(imageUrl),
                         Narrative = Narrative,
-                        Description = Description,
-
+                        TenantId = int.Parse(TenantId),
+                        UpdatedBy = createdBy,
+                        CreatedByDateTime = DateTime.UtcNow,
+                        UpdatedByDateTime = DateTime.UtcNow,
+                        IsImport = true
                     };
-
                     // Adds the model to the list.
                     models.Add(model);
                 }
@@ -843,6 +888,16 @@ namespace MEligibilityPlatform.Application.Services
             {
                 sheet.Cells[row, resultColumn[0] - 'A' + 1].Formula = $"IF({lookupColumn}{row}=\"\", \"\", VLOOKUP({lookupColumn}{row}, {rangeAddress}, 2, FALSE))";
             }
+        }
+
+        /// <summary>
+        /// Gets the full file path for an image from its relative path.
+        /// </summary>
+        /// <param name="relativePath">The relative path to the image.</param>
+        /// <returns>The full file path.</returns>
+        public string GetImagePath(string relativePath)
+        {
+            return FileUploadHelper.GetFullPath(relativePath, _webHostEnvironment.WebRootPath);
         }
     }
 }

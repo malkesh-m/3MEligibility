@@ -10,7 +10,7 @@ import { AuthService } from './core/services/auth/auth.service';
 })
 export class AppComponent {
   title = '3MEligibilityFrontend';
-   constructor(
+  constructor(
     private authService: AuthService,
     private oidcAuthService: OidcAuthService
   ) {}
@@ -19,5 +19,5 @@ export class AppComponent {
     if (this.oidcAuthService.isAuthenticated()) {
       this.authService.loadUserPermissions();
     }
-}
+  }
 }

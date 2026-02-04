@@ -9,9 +9,9 @@ interface Product {
   productId: number;
   productName: string;
   categoryId: number;
-  entityId:number;
-  code:string;
-  productImage:string;
+  entityId: number;
+  code: string;
+  productImage: string;
   categoryName?: string;  // Optional, will be added after mapping
   description: string;
   narrative: string;
@@ -19,7 +19,7 @@ interface Product {
   maxEligibleAmount: number;
 }
 
-interface Category{
+interface Category {
   categoryId: 0,
   categoryName: string,
   catDescription: string,
@@ -61,13 +61,13 @@ export class ProductComponent {
   activeTab: string = 'Category'
   menuVisible: boolean = false;
   isTableDataUpdated: boolean = false;
-  categoryTableColumnAry = ['Select', 'Name', 'Description','Created By', 'Updated By', 'Actions'];
-  infoTableColumnAry = [ 'Select' ,'Code', 'Category Name','Product Name','Created By', 'Updated By', 'Actions'];
-  detailsTableColumnAry = ['Select', 'Product', 'Parameter', 'Parameter value', 'Display order','Created By', 'Updated By', 'Actions'];
-  categoryTableHeaderAry = ['Name', 'Description','Created By', 'Updated By'];
-  infoTableHeaderAry = ['Code', 'Product Name','Category Name'  ,'Created By', 'Updated By'];
-  detailsTableHeaderAry = ['Product', 'Parameter', 'Parameter value', 'Display order','Created By', 'Updated By'];
-  
+  categoryTableColumnAry = ['Select', 'Name', 'Description', 'Created By', 'Updated By', 'Actions'];
+  infoTableColumnAry = ['Select', 'Code', 'Category Name', 'Product Name', 'Created By', 'Updated By', 'Actions'];
+  detailsTableColumnAry = ['Select', 'Product', 'Parameter', 'Parameter value', 'Display order', 'Created By', 'Updated By', 'Actions'];
+  categoryTableHeaderAry = ['Name', 'Description', 'Created By', 'Updated By'];
+  infoTableHeaderAry = ['Code', 'Product Name', 'Category Name', 'Created By', 'Updated By'];
+  detailsTableHeaderAry = ['Product', 'Parameter', 'Parameter value', 'Display order', 'Created By', 'Updated By'];
+
   filteredCategoriesList = [];
   filteredInfoList = [];
   filteredDetailsList = [];
@@ -83,14 +83,14 @@ export class ProductComponent {
   isUploading: boolean = false;
   message: string = "Loading data, please wait...";
   loggedInUser: any = null;
-  createdBy:string = '';
+  createdBy: string = '';
   tabMapping: { [key: string]: number } = {
     'Category': 0,
     'Info': 1,
     'Details': 2
   };
 
-  constructor(private productService: ProductsService,private rolesService:RolesService,private cdr: ChangeDetectorRef,private authService: AuthService) { }
+  constructor(private productService: ProductsService, private rolesService: RolesService, private cdr: ChangeDetectorRef, private authService: AuthService) { }
 
   ngOnInit() {
     if (this.activeTab === 'Category') {
@@ -131,7 +131,7 @@ export class ProductComponent {
       this.isDataReady = true;
       this.productListChiild.addNewRecord();
     } else {
- 
+
     } this.menuVisible = false;
     this.isDataReady = true;
 
@@ -144,24 +144,22 @@ export class ProductComponent {
   closeMenu() {
     this.menuVisible = false;
   }
-  onLoadingChange(isLoading: boolean) {
-  this.isLoading = isLoading;
-}
+
 
   tabChanged(event: any) {
-    this.activeTab =Object.keys(this.tabMapping).find(key => this.tabMapping[key] === event.index) || 'Category';
+    this.activeTab = Object.keys(this.tabMapping).find(key => this.tabMapping[key] === event.index) || 'Category';
     this.searchTerm = this.searchTerms[this.activeTab] || ''; // Load the stored search term
-      if (this.activeTab === 'Category') {
-        this.fetchCategoriesList();
-      } else if (this.activeTab === 'Info') {
-        this.fetchInfoList();
-      } else {
-        this.fetchInfoList();
-        this.fetchDetailsList();
-      }
+    if (this.activeTab === 'Category') {
+      this.fetchCategoriesList();
+    } else if (this.activeTab === 'Info') {
+      this.fetchInfoList();
+    } else {
+      this.fetchInfoList();
+      this.fetchDetailsList();
+    }
     this.applyFilter(); // Apply the filter for the active tab
   }
-  
+
   getTabIndex(): number {
     return this.tabMapping[this.activeTab] || 0;
   }
@@ -169,29 +167,26 @@ export class ProductComponent {
   switchTab(tabName: string): void {
     this.activeTab = tabName;
     this.searchTerm = this.searchTerms[this.activeTab] || ''; // Load the stored search term
-      if (this.activeTab === 'Category') {
-        this.fetchCategoriesList();
-      } else if (this.activeTab === 'Info') {
-    
+    if (this.activeTab === 'Category') {
+      this.fetchCategoriesList();
+    } else if (this.activeTab === 'Info') {
 
-        this.fetchInfoList();
-        
 
-      } else {
-        this.fetchInfoList();
-        this.fetchDetailsList();
-      }
+      this.fetchInfoList();
+
+
+    } else {
+      this.fetchInfoList();
+      this.fetchDetailsList();
+    }
     this.applyFilter();
   }
 
-  fetchCategoriesList(action?:string) {
-          this.isLoading = true;
-
+  fetchCategoriesList(action?: string) {
     this.productService.getCategoriesList().subscribe({
       next: (response) => {
         this.categoriesList = response.data;
         this.applyFilter(action);
-            this.isLoading = false;
       },
       error: (error) => {
         this.categoriesList = [];
@@ -200,17 +195,15 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-            this.isLoading = false;
       }
     })
     this.isTableDataUpdated = false;
   }
 
   fetchInfoList(action?: string) {
-    this.isLoading = true;
     this.productService.getInfoList().subscribe({
       next: (response) => {
-            this.infoList = response.data.map((product: Product) => {
+        this.infoList = response.data.map((product: Product) => {
           const category = this.categoriesList.find((category: Category) => category.categoryId === product.categoryId);
           if (category) {
             product.categoryName = category['categoryName'];
@@ -218,7 +211,6 @@ export class ProductComponent {
           return product;
         });
         this.applyFilter(action);
-        this.isLoading = false;
 
       },
       error: (error) => {
@@ -228,18 +220,17 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-            this.isLoading = false;
       }
     })
   }
 
-  fetchDetailsList(action?:string) {
+  fetchDetailsList(action?: string) {
     this.productService.getDetailsList().subscribe({
       next: (response) => {
         this.detailsList = response.data;
         this.applyFilter(action);
       },
-      error: (error) => { 
+      error: (error) => {
         this.detailsList = [];
         this.applyFilter(action);
         this._snackBar.open(error.message, 'Okay', {
@@ -251,7 +242,7 @@ export class ProductComponent {
   }
 
   categoryTableDataUpdate(event: any) {
-  
+
 
     if (event.event === 'CategoryList') {
       this.fetchCategoriesList(event.action)
@@ -268,14 +259,14 @@ export class ProductComponent {
 
   }
 
-  applyFilter(action?:string) {
+  applyFilter(action?: string) {
     const searchTerm = this.searchTerms[this.activeTab]?.toLowerCase() || '';
     this.cdr.markForCheck();
     if (this.productListChiild) {
       this.productListChiild.loadTabData(searchTerm, action);
     }
   }
-  
+
   // exportProducts() {
   //   if (this.activeTab === 'Category') {
   //     this.productService.exportCategories().subscribe({
@@ -344,8 +335,8 @@ export class ProductComponent {
 
   downloadTemplate() {
     this.isDownloading = true;
-      this.message = "Please wait, template is downloading...";
-    if(this.activeTab === 'Category'){
+    this.message = "Please wait, template is downloading...";
+    if (this.activeTab === 'Category') {
       this.productService.DownloadCategoryTemplate().subscribe((response) => {
         this.isDownloading = false;
         const blob = new Blob([response], {
@@ -364,7 +355,7 @@ export class ProductComponent {
         });
       });
     }
-    else if(this.activeTab === 'Info'){
+    else if (this.activeTab === 'Info') {
       this.productService.DownloadInfoTemplate().subscribe((response) => {
         this.isDownloading = false;
         const blob = new Blob([response], {
@@ -383,7 +374,7 @@ export class ProductComponent {
         });
       });
     }
-    else if(this.activeTab === 'Details'){
+    else if (this.activeTab === 'Details') {
       this.productService.DownloadDetailsTemplate().subscribe((response) => {
         this.isDownloading = false;
         const blob = new Blob([response], {
@@ -418,9 +409,9 @@ export class ProductComponent {
   }
 
   importProduct(selectedFile: File) {
-  //   this.authService.currentUser$.subscribe((user) => {
-  //     this.loggedInUser = user;
-  // });
+    //   this.authService.currentUser$.subscribe((user) => {
+    //     this.loggedInUser = user;
+    // });
     // this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
@@ -444,7 +435,7 @@ export class ProductComponent {
       });
     }
     else if (this.activeTab === 'Info') {
-      this.productService.importInfo(selectedFile,this.createdBy).subscribe({
+      this.productService.importInfo(selectedFile, this.createdBy).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchInfoList();
@@ -463,7 +454,7 @@ export class ProductComponent {
       });
     }
     else if (this.activeTab === 'Details') {
-      this.productService.importDetails(selectedFile,this.createdBy).subscribe({
+      this.productService.importDetails(selectedFile, this.createdBy).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchDetailsList();

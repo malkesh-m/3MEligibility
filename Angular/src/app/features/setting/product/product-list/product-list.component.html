@@ -1,26 +1,27 @@
 <div class="list-wrap">
 
-    <div *ngIf="formVisible" class="card p-3 mb-3">
+    <div *ngIf="formVisible" class="card p-3 mb-3" style="position: relative; min-height: 200px;">
+        <app-spinner [isLoading]="isLoading" [isLocal]="true" [message]="'Processing...'"></app-spinner>
 
         <div [ngSwitch]="currentTab">
             <div *ngSwitchCase="'Category'">
                 <form [formGroup]="formData" (ngSubmit)="formRecord()">
                     <div class="row">
                         <div class="col">
-                            <label class="inputLabel">{{ 'Name' | translate }} <span class="text-danger">*</span></label>
+                            <label class="inputLabel">{{ 'Name' | translate }} <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" formControlName="categoryName"
-                                (input)="sanitizeCode($event)"   maxlength="50"
- />
+                                (input)="sanitizeCode($event)" maxlength="50" />
                             <div *ngIf="formData.get('categoryName')?.invalid && formData.get('categoryName')?.touched"
                                 class="text-danger">
                                 {{ 'Category' | translate }}{{ ' is required' | translate }}
                             </div>
                         </div>
                         <div class="col">
-                            <label class="inputLabel">{{ 'Description' | translate }} <span class="text-danger"></span></label>
+                            <label class="inputLabel">{{ 'Description' | translate }} <span
+                                    class="text-danger"></span></label>
                             <input type="text" class="form-control" formControlName="catDescription"
-                                (input)="sanitizeCode($event)"  maxlength="250"
- />
+                                (input)="sanitizeCode($event)" maxlength="250" />
 
                             <!-- <div *ngIf="formData.get('catDescription')?.invalid && formData.get('catDescription')?.touched"
                                 class="text-danger">
@@ -42,14 +43,15 @@
                         </div>-->
 
                         <div class="col" style="align-content: end;">
-                            <button  [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
-              [componentName]="'ProductListComponent'"
-              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="formData.invalid">
+                            <button
+                                [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+                                [componentName]="'ProductListComponent'" [actionType]="'FormSubmit'" type="submit"
+                                class="addBtn btn-primary me-2" [disabled]="formData.invalid">
                                 {{isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}
                             </button>
                             <button appUseractivity="User Click on Cancel button"
-              [componentName]="'ProductListComponent'"
-              [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" (click)="cancelEvent()">{{
+                                [componentName]="'ProductListComponent'" [actionType]="'ButtonClick'" type="button"
+                                class="btn btn-secondary cancelBtn" (click)="cancelEvent()">{{
                                 'Cancel' | translate }}</button>
                         </div>
                     </div>
@@ -57,31 +59,32 @@
             </div>
             <div *ngSwitchCase="'Info'">
                 <form [formGroup]="formData" (ngSubmit)="onSubmit()">
-                  <div class="row mb-3">
-                    <div class="col">
-                      <label class="inputLabel">{{ 'Code' | translate }} <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" formControlName="code"
-                             (input)="sanitizeCode($event)" maxlength="10" />
-                      <div *ngIf="formData.get('code')?.invalid && formData.get('code')?.touched"
-                           class="text-danger">
-                        {{ 'Code' | translate }}{{ ' is required' | translate }}
-                      </div>
-                    </div>
-                    <div class="col">
-                      <label class="inputLabel">{{ 'Product Name' | translate }} <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" placeholder="{{ 'Product Name' | translate }}"
-                             formControlName="productName" (input)="sanitizeCode($event)" maxlength="50" />
-                      <div *ngIf="formData.get('productName')?.invalid && formData.get('productName')?.touched"
-                           class="text-danger">
-                        {{ 'Product Name' | translate }}{{ ' is required' | translate }}
-                      </div>
-                      <div class="text-danger"
-                           *ngIf="formData.get('productName')?.value?.length === 50">
-                        Product Name must be less than 50 characters
-                      </div>
-                    </div>
-                   
-                    <!--<div class="col">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Code' | translate }} <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" formControlName="code"
+                                (input)="sanitizeCode($event)" maxlength="10" />
+                            <div *ngIf="formData.get('code')?.invalid && formData.get('code')?.touched"
+                                class="text-danger">
+                                {{ 'Code' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Product Name' | translate }} <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="{{ 'Product Name' | translate }}"
+                                formControlName="productName" (input)="sanitizeCode($event)" maxlength="50" />
+                            <div *ngIf="formData.get('productName')?.invalid && formData.get('productName')?.touched"
+                                class="text-danger">
+                                {{ 'Product Name' | translate }}{{ ' is required' | translate }}
+                            </div>
+                            <div class="text-danger" *ngIf="formData.get('productName')?.value?.length === 50">
+                                Product Name must be less than 50 characters
+                            </div>
+                        </div>
+
+                        <!--<div class="col">
                       <label class="inputLabel">{{ 'Stream Cap' | translate }} <span class="text-danger">*</span></label>
                       <input type="number" class="form-control" placeholder="{{ 'Stream Cap' | translate }}"
                              formControlName="maxEligibleAmount" (input)="sanitizeCode($event)" />
@@ -90,23 +93,24 @@
                         {{ 'Stream Cap' | translate }}{{ ' is required' | translate }}
                       </div>
                     </div>-->
-                    <div class="col">
-                      <label class="inputLabel">{{ 'Select Category' | translate }} <span class="text-danger">*</span></label>
-                      <select class="form-control" formControlName="productCategory"
-                              (change)="bindEntityId($event,'Info')">
-                        <option value="null" disabled>{{ 'Select Category' | translate }}</option>
-                        <option *ngFor="let category of categoryList" [value]="category.categoryId">
-                          {{
+                        <div class="col">
+                            <label class="inputLabel">{{ 'Select Category' | translate }} <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-control" formControlName="productCategory"
+                                (change)="bindEntityId($event,'Info')">
+                                <option value="null" disabled>{{ 'Select Category' | translate }}</option>
+                                <option *ngFor="let category of categoryList" [value]="category.categoryId">
+                                    {{
                                     category.categoryName
-                          }}
-                        </option>
-                      </select>
-                      <div *ngIf="formData.get('productCategory')?.invalid && formData.get('productCategory')?.touched"
-                           class="text-danger">
-                        {{ 'Product Category' | translate }}{{ ' is required' | translate }}
-                      </div>
-                    </div>
-                    <!--<div class="col">
+                                    }}
+                                </option>
+                            </select>
+                            <div *ngIf="formData.get('productCategory')?.invalid && formData.get('productCategory')?.touched"
+                                class="text-danger">
+                                {{ 'Product Category' | translate }}{{ ' is required' | translate }}
+                            </div>
+                        </div>
+                        <!--<div class="col">
                       <label class="inputLabel">{{ 'Select Entity' | translate }}</label>
                       <select class="form-control" formControlName="entityId">
                         <option value="null" disabled selected>{{ 'Select Entity' | translate }}</option>
@@ -119,10 +123,10 @@
                         {{ 'Entity' | translate }}{{ ' is required' | translate }}
                       </div>
                     </div>-->
-                  </div>
+                    </div>
                     <!--<div class="row mb-3">-->
-                        <!-- <div class="col"> -->
-                            <!--<div class="col-2 d-flex align-items-center">
+                    <!-- <div class="col"> -->
+                    <!--<div class="col-2 d-flex align-items-center">
                                 <label class="form-check-label">
                                     <input type="checkbox" class="form-check-input" formControlName="isExceptionRule" (change)="toggleException()" />
                                     {{ 'Exception Product?' | translate }}
@@ -139,74 +143,85 @@
                                     <small class="text-danger">{{ 'Exception is required' | translate }}</small>
                                 </div>
                             </div>-->
-                        <!-- </div> -->
+                    <!-- </div> -->
                     <!--</div>-->
-                <div class="row">
-                  <div class="col">
-                    <label> Select Image <span class="text-danger"></span></label>
-                    <input type="file" class="form-control" (change)="onFileSelect($event)" accept="image/*" />
-                    <div>
-                      <img *ngIf="imagePreview; else noImage" [src]="imagePreview" alt="Product Image"
-                           class="image-preview" />
-                      <ng-template #noImage>
-                        <p class="no-image-text">{{ 'No image available' | translate }} <span class="text-danger"></span></p>
-                      </ng-template>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="inputLabel">Product Image</label>
+                            <div class="upload-zone-compact" [class.dragging]="isDragging" (click)="fileInput.click()"
+                                (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+                                (drop)="onDrop($event)">
+                                <input type="file" #fileInput class="file-input" (change)="onFileSelect($event)"
+                                    accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/webp" />
+                                <div *ngIf="!imagePreview" class="upload-placeholder-compact">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                        viewBox="0 0 16 16">
+                                        <path
+                                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                        <path
+                                            d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
+                                    </svg>
+                                    <span class="upload-text-compact">Click to add image</span>
+                                    <span class="upload-hint-compact">JPG, PNG (Max 5MB)</span>
+                                </div>
+                                <div *ngIf="imagePreview" class="image-preview-compact">
+                                    <img [src]="imagePreview" alt="Product Image" class="preview-img-compact" />
+                                    <button type="button" class="remove-btn-compact"
+                                        (click)="$event.stopPropagation(); removeImage()" title="Remove image"><svg
+                                            xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            fill="currentColor" viewBox="0 0 16 16">
+                                            <path
+                                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                                        </svg></button>
+                                </div>
+                                <div *ngIf="isUploading" class="upload-loading-compact">
+                                    <div class="spinner-compact"></div><span class="loading-text-compact">{{
+                                        uploadProgress }}%</span>
+                                </div>
+                            </div>
+                            <small class="text-muted" *ngIf="selectedImageFile">{{ selectedImageFile.name }} ({{
+                                (selectedImageFile.size / 1024).toFixed(1) }} KB)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="inputLabel">{{ 'Description' | translate }}</label>
+                            <input type="text" class="form-control" formControlName="description" maxlength="50"
+                                placeholder="Enter Description" />
+                            <div class="text-danger" *ngIf="formData.get('description')?.value?.length === 50">
+                                Description must be less than 50 characters</div>
+                        </div>
                     </div>
-                    <!--<div *ngIf="formData.get('productImage')?.invalid && formData.get('productImage')?.touched"
-        class="text-danger">
-        {{ 'Product Image' | translate }}{{ ' is required' |  }}
-    </div>-->
-                  </div>
-                  <!--<div class="col">
+                    <div class="row">
+                        <!--<div class="col">
       <quill-editor placeholder="Enter Narrative" formControlName="narrative"></quill-editor>
   </div>-->
-                  <!--<div class="col">
-                    <quill-editor placeholder="Enter Description" formControlName="description"></quill-editor>
-                  </div>-->
+                        <!--<div class="col">
+    <quill-editor placeholder="Enter Description" formControlName="description"></quill-editor>
+  </div>-->
 
-                  <div class="col">
-                    <label class="inputLabel">
-                      {{ 'Description' | translate }}
-                    </label>
+                        <div class="col d-flex justify-content-end align-items-end">
+                            <button
+                                [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
+                                [componentName]="'ProductListComponent'" [actionType]="'FormSubmit'" type="submit"
+                                class="addBtn btn-primary me-2" [disabled]="formData.invalid">
+                                {{ isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}
+                            </button>
 
-                    <input type="text"
-                           class="form-control"
-                           formControlName="description"
-                           maxlength="50"
-                           placeholder="Enter Description"/>
-
-                    <div class="text-danger"
-                         *ngIf="formData.get('description')?.value?.length === 50">
-                      Description must be less than 50 characters
+                            <button appUseractivity="User Click on Cancel button"
+                                [componentName]="'ProductListComponent'" [actionType]="'ButtonClick'" type="button"
+                                class="btn btn-secondary cancelBtn" (click)="cancelEvent()">
+                                {{ 'Cancel' | translate }}
+                            </button>
+                        </div>
                     </div>
-                  </div>
-                  <div class="col d-flex justify-content-end align-items-end">
-                    <button [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
-                            [componentName]="'ProductListComponent'"
-                            [actionType]="'FormSubmit'"
-                            type="submit"
-                            class="addBtn btn-primary me-2"
-                            [disabled]="formData.invalid">
-                      {{ isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}
-                    </button>
-
-                    <button appUseractivity="User Click on Cancel button"
-                            [componentName]="'ProductListComponent'"
-                            [actionType]="'ButtonClick'"
-                            type="button"
-                            class="btn btn-secondary cancelBtn"
-                            (click)="cancelEvent()">
-                      {{ 'Cancel' | translate }}
-                    </button>
-                  </div>
-                </div>
                 </form>
             </div>
             <div *ngSwitchCase="'Details'">
                 <form [formGroup]="formData" (ngSubmit)="detailsFormSubmit()">
                     <div class="row mb-3">
                         <div class="col">
-                            <label class="inputLabel">{{ 'Select Category' | translate }} <span class="text-danger">*</span></label>
+                            <label class="inputLabel">{{ 'Select Category' | translate }} <span
+                                    class="text-danger">*</span></label>
                             <select class="form-control" formControlName="product"
                                 (change)="onSelectProductItem($event)">
                                 <option value="null">{{ 'Select Category' | translate }}</option>
@@ -233,7 +248,8 @@
                             </div>
                         </div>-->
                         <div class="col">
-                            <label class="inputLabel">{{ 'Select Parameter' | translate }} <span class="text-danger">*</span></label>
+                            <label class="inputLabel">{{ 'Select Parameter' | translate }} <span
+                                    class="text-danger">*</span></label>
                             <select class="form-control" formControlName="parameter"
                                 (change)="onSelectParameterItem($event)">
                                 <option value="null">{{ 'Select Parameter' | translate }}</option>
@@ -263,7 +279,8 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label class="inputLabel">{{ 'Display Order' | translate }} <span class="text-danger">*</span></label>
+                            <label class="inputLabel">{{ 'Display Order' | translate }} <span
+                                    class="text-danger">*</span></label>
                             <input type="number" class="form-control" placeholder="{{ 'Display Order' | translate }}"
                                 formControlName="displayOrder" />
                             <div *ngIf="formData.get('displayOrder')?.invalid && formData.get('displayOrder')?.touched"
@@ -272,7 +289,8 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label class="inputLabel">{{ 'Select Category' | translate }} <span class="text-danger">*</span></label>
+                            <label class="inputLabel">{{ 'Select Category' | translate }} <span
+                                    class="text-danger">*</span></label>
                             <select class="form-control" formControlName="isrequired">
                                 <option value="null">{{ 'Select Category' | translate }}</option>
                                 <option *ngFor="let isrequired of requiredAry" [value]="isrequired.value">{{
@@ -287,13 +305,13 @@
 
                         <div class="col"></div>
                         <div class="col">
-                            <button  appUseractivity="User Click on Add button"
-              [componentName]="'ProductListComponent'"
-              [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2" [disabled]="formData.invalid"> {{
-                                isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}</button>
-                            <button  appUseractivity="User Click on Cancel button"
-              [componentName]="'ProductListComponent'"
-              [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" (click)="cancelEvent()">{{
+                            <button appUseractivity="User Click on Add button" [componentName]="'ProductListComponent'"
+                                [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2"
+                                [disabled]="formData.invalid">
+                                {{ isInsertNewRecord ? ('Add' | translate) : ('Update' | translate) }}</button>
+                            <button appUseractivity="User Click on Cancel button"
+                                [componentName]="'ProductListComponent'" [actionType]="'ButtonClick'" type="button"
+                                class="btn btn-secondary cancelBtn" (click)="cancelEvent()">{{
                                 'Cancel' | translate }}</button>
                         </div>
                     </div>
@@ -303,10 +321,11 @@
     </div>
 
     <div>
-        <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple" [displayedColumns]="columnsDisplayAry"
-            [header]="headerDisplayAry" [rows]="rows" (actionEvent)="tableRowAction($event)" [editRoleId]="editRoleId" [deleteRoleId]="deleteRoleId" >
+        <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple"
+            [displayedColumns]="columnsDisplayAry" [header]="headerDisplayAry" [rows]="rows"
+            (actionEvent)="tableRowAction($event)" [editRoleId]="editRoleId" [deleteRoleId]="deleteRoleId">
         </app-table>
-       
+
 
     </div>
 </div>
