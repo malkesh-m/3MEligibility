@@ -14,6 +14,10 @@ namespace MEligibilityPlatform.Domain.Models
         [Range(1, int.MaxValue, ErrorMessage = "ParameterId must be greater than 0")]
         public int ParameterId { get; set; }
         public int TenantId { get; set; }
+        
+        [Required(ErrorMessage = "ApiId is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "ApiId must be greater than 0")]
+        public int ApiId { get; set; }
     }
 
     public class ApiParameterListMapModel : ApiParameterMapsModel

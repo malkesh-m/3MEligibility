@@ -4,6 +4,7 @@ using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace MEligibilityPlatform.Application.Services
 {
@@ -83,27 +84,21 @@ namespace MEligibilityPlatform.Application.Services
         }
         public List<ApiParameterMapName> GetMappingsByApiId(int apiId)
         {
-            var apiParameters = _uow.ApiParametersRepository
-                                    .GetAll()
-                                    .Where(p => p.ApiId == apiId)
-                                    .ToList();
-
-            var parameters = _uow.ParameterRepository.GetAll().ToList();
-
+            // Optimized query using ApiId column directly instead of joining through ApiParameters
+            // Include navigation properties to avoid null reference exceptions
             var mappings = _uow.ApiParameterMapsRepository
-                               .GetAll()
-                               .Where(m => apiParameters.Any(p => p.ApiParamterId == m.ApiParameterId))
+                               .Query()
+                               .Include(m => m.ApiParameter)
+                               .Include(m => m.Parameter)
+                               .Where(m => m.ApiId == apiId)
                                .Select(m => new ApiParameterMapName
                                {
                                    Id = m.Id,
+                                   ApiId = m.ApiId,
                                    ApiParameterId = m.ApiParameterId,
                                    ParameterId = m.ParameterId,
-                                   ApiParameterName = apiParameters
-                                                      .FirstOrDefault(p => p.ApiParamterId == m.ApiParameterId)
-                                                      ?.ParameterName,
-                                   ParameterName = parameters
-                                                   .FirstOrDefault(p => p.ParameterId == m.ParameterId)
-                                                   ?.ParameterName
+                                   ApiParameterName = m.ApiParameter.ParameterName,
+                                   ParameterName = m.Parameter.ParameterName
                                })
                                .ToList();
 
@@ -123,6 +118,7 @@ namespace MEligibilityPlatform.Application.Services
             var entity = _mapper.Map<ApiParameterMap>(apiResponce);
             entity.ApiParameterId = model.ApiParameterId;
             entity.ParameterId = model.ParameterId;
+            entity.ApiId = model.ApiId;
 
             // Updates the last modification date to current time
             entity.LastModificationDate = DateTime.Now;

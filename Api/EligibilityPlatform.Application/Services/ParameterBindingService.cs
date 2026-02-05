@@ -1,9 +1,9 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
+using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Application.Services
 {

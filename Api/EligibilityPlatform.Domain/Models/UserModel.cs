@@ -69,8 +69,8 @@ namespace MEligibilityPlatform.Domain.Models
         public string MobileNo { get; set; } = string.Empty;
 
         public int CountryId { get; set; }
-
-        public int StateId { get; set; }
+        [JsonPropertyName("stateId")]
+        public int? StateId { get; set; }
 
         public int? CityId { get; set; }
 

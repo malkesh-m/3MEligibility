@@ -7,6 +7,7 @@ using MEligibilityPlatform.Application.Middleware;
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Services;
 using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Converters;
 using MEligibilityPlatform.Domain.Models;

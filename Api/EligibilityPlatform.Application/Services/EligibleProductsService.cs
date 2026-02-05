@@ -27,10 +27,11 @@ namespace MEligibilityPlatform.Application.Services
     /// </remarks>
     /// <param name="uow">The unit of work instance for database operations.</param>
     /// <param name="evaluationHistoryService">The evaluation history service instance for tracking evaluations.</param>
-    public partial class EligibleProductsService(IUnitOfWork uow, ILogger<EligibleProductsService> logger) : IEligibleProductsService
+    public partial class EligibleProductsService(IUnitOfWork uow, ILogger<EligibleProductsService> logger, IHttpClientFactory httpClientFactory) : IEligibleProductsService
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly ILogger<EligibleProductsService> _logger = logger;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
         /// <summary>
         /// Retrieves all eligible products for a given entity based on provided key-value parameters.
@@ -126,7 +127,7 @@ namespace MEligibilityPlatform.Application.Services
                 tenantId);
             var exceptionRules = _uow.ExceptionManagementRepository.Query();
             // Checks for products with exception handling
-            var exceptionHandledProducts = CheckProductWithException(tenantId, keyValues, exceptionRules);
+            //var exceptionHandledProducts = CheckProductWithException(tenantId, keyValues, exceptionRules);
 
             // Processes eligible and non-eligible products based on validation results
             var (eligibleProducts, nonEligibleProducts) = ProcessEligibleProducts(
@@ -134,7 +135,7 @@ namespace MEligibilityPlatform.Application.Services
                 allProducts,
                 productCap,
                 validProductIds,
-                (List<ProductEligibilityResult>)exceptionHandledProducts,
+                //(List<ProductEligibilityResult>)exceptionHandledProducts,
                 nonPCardEligibilityResults,
                 pcardFailProducts,
                 ruleResults,
@@ -151,27 +152,27 @@ namespace MEligibilityPlatform.Application.Services
             var productDict = new Dictionary<int, ProductEligibilityResult>();
 
             // Processes exception-handled products to update their eligibility information
-            foreach (var exProd in exceptionHandledProducts)
-            {
-                // Finds matching product in the combined list
-                var match = allProductsList.FirstOrDefault(p => p.ProductId == exProd.ProductId);
-                if (match != null)
-                {
-                    // Updates exception product with eligibility details from the match
-                    exProd.EligibleAmount = match.EligibleAmount;
-                    exProd.MaxEligibleAmount = match.MaxEligibleAmount;
-                    exProd.ErrorMessage = match.ErrorMessage;
-                    exProd.IsEligible = match.IsEligible;
-                    exProd.EligibilityPercent = match.EligibilityPercent;
-                }
+            //foreach (var exProd in exceptionHandledProducts)
+            //{
+            //    // Finds matching product in the combined list
+            //    var match = allProductsList.FirstOrDefault(p => p.ProductId == exProd.ProductId);
+            //    if (match != null)
+            //    {
+            //        // Updates exception product with eligibility details from the match
+            //        exProd.EligibleAmount = match.EligibleAmount;
+            //        exProd.MaxEligibleAmount = match.MaxEligibleAmount;
+            //        exProd.ErrorMessage = match.ErrorMessage;
+            //        exProd.IsEligible = match.IsEligible;
+            //        exProd.EligibilityPercent = match.EligibilityPercent;
+            //    }
 
-                // Adds or updates the product in the dictionary
-                productDict[exProd.ProductId] = exProd;
+            //    // Adds or updates the product in the dictionary
+            //    productDict[exProd.ProductId] = exProd;
 
-                // Generates a random probability of default for the product
-                Random probability = new();
-                exProd.ProbabilityOfDefault = probability.Next(1, 101);
-            }
+            //    // Generates a random probability of default for the product
+            //    Random probability = new();
+            //    exProd.ProbabilityOfDefault = probability.Next(1, 101);
+            //}
 
             // Processes all other products that weren't handled by exceptions
             foreach (var prod in allProductsList)
@@ -366,7 +367,7 @@ namespace MEligibilityPlatform.Application.Services
             List<Product> allProducts,
             List<ProductCap> productCap,
             List<int?> validProductIds,
-            List<ProductEligibilityResult> exceptionHandledProducts,
+            //List<ProductEligibilityResult> exceptionHandledProducts,
             List<ProductEligibilityResult> nonPCardEligibilityResults,
             List<ProductEligibilityResult> pcardFailProducts,
             List<RuleResult> ruleResults,
@@ -384,8 +385,7 @@ namespace MEligibilityPlatform.Application.Services
                 }).ToList();
 
             // Combines exception-handled and rule-matched products, removing duplicates
-            var productsForEligibilityCheck = exceptionHandledProducts
-                .Concat(ruleMatchedProducts)
+            var productsForEligibilityCheck = ruleMatchedProducts
                 .GroupBy(p => p.ProductId)
                 .Select(g => g.First())
                 .ToList();
@@ -398,7 +398,6 @@ namespace MEligibilityPlatform.Application.Services
 
             // Creates a set of all product IDs that have been processed in some way
             var handledProductIds = eligibleProductIds
-                .Concat(exceptionHandledProducts.Select(p => p.ProductId))
                 .Concat(nonPCardEligibilityResults.Select(p => p.ProductId))
                 .Concat(pcardFailProducts.Select(p => p.ProductId))
                 .Distinct()
@@ -644,8 +643,7 @@ namespace MEligibilityPlatform.Application.Services
                 // Handles products not processed by exception with valid criteria and matching score range
                 if (item.IsProcessedByException == false && validProduct && count > 0)
                 {
-                    _logger.LogError("652 - Eligible Product: {ProductId}, Score: {Score}, EligibilityPercent: {EligibilityPercent}",
-                        productDetails.ProductId, score, eligibilityPercentage);
+                  
                     results.Add(new ProductEligibilityResult
                     {
                         ProductId = productDetails.ProductId,
@@ -662,8 +660,7 @@ namespace MEligibilityPlatform.Application.Services
                 // Handles exception-processed products with valid criteria and matching score range
                 else if (validProduct && count > 0)
                 {
-                    _logger.LogError("669 - Exception Eligible Product: {ProductId}, Score: {Score}, EligibilityPercent: {EligibilityPercent}",
-                        productDetails.ProductId, score, item.EligibilityPercent);
+                  
                     results.Add(new ProductEligibilityResult
                     {
                         ProductId = productDetails.ProductId,
@@ -685,8 +682,7 @@ namespace MEligibilityPlatform.Application.Services
                 // Handles products not processed by exception with valid criteria but no matching score range
                 else if (item.IsProcessedByException == false && validProduct && count <= 0)
                 {
-                    _logger.LogError("691 - Ineligible Product due to Score: {ProductId}, Score: {Score}",
-                        productDetails.ProductId, score);
+                
                     results.Add(new ProductEligibilityResult
                     {
                         ProductId = productDetails.ProductId,
@@ -709,8 +705,7 @@ namespace MEligibilityPlatform.Application.Services
                 // Handles all other cases (invalid criteria)
                 else
                 {
-                    _logger.LogError("714 - Ineligible Product due to Criteria: {ProductId}, Score: {Score}",
-                        productDetails.ProductId, score);
+                     
                     results.Add(new ProductEligibilityResult
                     {
                         ProductId = productDetails.ProductId,
@@ -1645,40 +1640,40 @@ namespace MEligibilityPlatform.Application.Services
                                 var parameter = _uow.ParameterRepository.GetById(factor.ParameterId!.Value);
                                 var datatype = _uow.DataTypeRepository.GetById(parameter.DataTypeId!.Value);
 
-                                string? codeValue = null;
-                                string? nameValue = null;
+                                //string? codeValue = null;
+                                //string? nameValue = null;
 
-                                string baseParameterName = parameter.ParameterName!;
+                                //string baseParameterName = parameter.ParameterName!;
 
-                                if (baseParameterName.EndsWith("Name", StringComparison.OrdinalIgnoreCase))
-                                    baseParameterName = baseParameterName[..^4];
-                                else if (baseParameterName.EndsWith("Code", StringComparison.OrdinalIgnoreCase))
-                                    baseParameterName = baseParameterName[..^4];
+                                //if (baseParameterName.EndsWith("Name", StringComparison.OrdinalIgnoreCase))
+                                //    baseParameterName = baseParameterName[..^4];
+                                //else if (baseParameterName.EndsWith("Code", StringComparison.OrdinalIgnoreCase))
+                                //    baseParameterName = baseParameterName[..^4];
 
-                                foreach (var kv in keyValues)
-                                {
-                                    var kvParam = _uow.ParameterRepository.GetById(kv.Key);
-                                    if (kvParam?.ParameterName == null) continue;
+                                //foreach (var kv in keyValues)
+                                //{
+                                //    var kvParam = _uow.ParameterRepository.GetById(kv.Key);
+                                //    if (kvParam?.ParameterName == null) continue;
 
-                                    if (kvParam.ParameterName.Equals(baseParameterName + "Code",
-                                        StringComparison.OrdinalIgnoreCase))
-                                        codeValue = kv.Value?.ToString();
-                                    else if (kvParam.ParameterName.Equals(baseParameterName + "Name",
-                                        StringComparison.OrdinalIgnoreCase))
-                                        nameValue = kv.Value?.ToString();
-                                }
+                                //    if (kvParam.ParameterName.Equals(baseParameterName + "Code",
+                                //        StringComparison.OrdinalIgnoreCase))
+                                //        codeValue = kv.Value?.ToString();
+                                //    else if (kvParam.ParameterName.Equals(baseParameterName + "Name",
+                                //        StringComparison.OrdinalIgnoreCase))
+                                //        nameValue = kv.Value?.ToString();
+                                //}
 
                                 object valueToValidate;
 
-                                if (!string.IsNullOrEmpty(codeValue) || !string.IsNullOrEmpty(nameValue))
-                                {
-                                    valueToValidate = new { Code = codeValue, Name = nameValue };
-                                }
-                                else
-                                {
+                                //if (!string.IsNullOrEmpty(codeValue) || !string.IsNullOrEmpty(nameValue))
+                                //{
+                                //    valueToValidate = new { Code = codeValue, Name = nameValue };
+                                //}
+                                //else
+                                //{
                                     keyValues.TryGetValue(factor.ParameterId!.Value, out var rawValue);
                                     valueToValidate = rawValue!;
-                                }
+                                //}
 
                                 var detail = Validate(condition, factor, valueToValidate, datatype.DataTypeName);
                                 detail.ParameterId = factor.ParameterId;
@@ -1752,31 +1747,30 @@ namespace MEligibilityPlatform.Application.Services
         private ValidationDetail Validate(Condition condition, Factor factor, object value, string? datatype = null, int? productId = null)
         {
 
-            string? codeValue = null;
-            string? nameValue = null;
+            //string? codeValue = null;
+            //string? nameValue = null;
             string? providedValue = null;
 
             // If value has Code/Name properties
             if (value != null)
             {
                 var type = value.GetType();
-                var codeProp = type.GetProperty("Code");
-                var nameProp = type.GetProperty("Name");
+                //var codeProp = type.GetProperty("Code");
+                //var nameProp = type.GetProperty("Name");
 
-                if (codeProp != null || nameProp != null)
-                {
-                    codeValue = codeProp?.GetValue(value)?.ToString();
-                    nameValue = nameProp?.GetValue(value)?.ToString();
+                //if (codeProp != null || nameProp != null)
+                //{
+                //    codeValue = codeProp?.GetValue(value)?.ToString();
+                //    nameValue = nameProp?.GetValue(value)?.ToString();
 
-                    // For display and comparison purposes, combine them
-                    providedValue = string.IsNullOrEmpty(codeValue) ? nameValue :
-                                    string.IsNullOrEmpty(nameValue) ? codeValue :
-                                    $"{codeValue}-{nameValue}";
-                }
-                else
-                {
+                //    // For display and comparison purposes, combine them
+                //    providedValue = string.IsNullOrEmpty(codeValue) ? nameValue :
+                //                    string.IsNullOrEmpty(nameValue) ? codeValue :
+                //                    $"{codeValue}-{nameValue}";
+                //}
+              
                     providedValue = value.ToString();
-                }
+                
             }
             var validationResult = new ValidationDetail
             {
@@ -1859,31 +1853,24 @@ namespace MEligibilityPlatform.Application.Services
                         }
 
                         // Try to find the list by its name
-                        var list = _uow.ManagedListRepository.Query()
-                            .FirstOrDefault(l => l.ListName == listName);
+                        var list = _uow.ManagedListRepository.Query().FirstOrDefault(l => l.ListName == listName);
 
                         // If list doesn't exist, assume the value must match Value1 directly
                         if (list == null)
                         {
-                            validationResult.IsValid =
-                                string.Equals(listName, validationResult.ProvidedValue?.Trim(), StringComparison.OrdinalIgnoreCase);
+                            validationResult.IsValid = string.Equals(listName, validationResult.ProvidedValue?.Trim(), StringComparison.OrdinalIgnoreCase);
                             break;
                         }
-
                         // Fetch items belonging to that list
                         var listId = list.ListId;
-                        var listItems = _uow.ListItemRepository.Query()
-                            .Where(l => l.ListId == listId)
-                            .Select(l => l.ItemName)
-                            .ToList();
+                        var listItems = _uow.ListItemRepository.Query().Where(l => l.ListId == listId).Select(l => l.ItemName).ToList();
 
                         // Validate provided value exists in list items
-                        var existsInDb = listItems.Any(item =>
-                              string.Equals(item?.Trim(), nameValue?.Trim(), StringComparison.OrdinalIgnoreCase));
-                        var existsInMemory = _uow.ListItemRepository
-                             .ExistsInMemory(listId, nameValue ?? "");
+                        var existsInDb = listItems.Any(item =>string.Equals(item?.Trim(), providedValue?.Trim(), StringComparison.OrdinalIgnoreCase));
+                        //var existsInMemory = _uow.ListItemRepository
+                        //     .ExistsInMemory(listId, nameValue ?? "");
 
-                        var exists = existsInDb || existsInMemory;
+                        var exists = existsInDb ;
 
                         if (exists)
                         {
@@ -1892,24 +1879,8 @@ namespace MEligibilityPlatform.Application.Services
                         }
                         else
                         {
-                            //  Not found  Add new value to the list
-
-                            var newItem = new ListItem
-                            {
-                                ListId = listId,
-                                Code = codeValue ?? "",
-                                ItemName = nameValue ?? "",
-                                CreatedByDateTime = DateTime.Now,
-                                UpdatedByDateTime = DateTime.Now,
-                                CreatedBy = "System",
-
-                            };
-
-                            _uow.ListItemRepository.Add(newItem, true);
-                            // commit to DB
-
                             //  Mark validation as successful after adding
-                            validationResult.IsValid = true;
+                            validationResult.IsValid = false;
                         }
 
                         break;
@@ -1933,7 +1904,6 @@ namespace MEligibilityPlatform.Application.Services
                             validationResult.IsValid = true;
                             break;
                         }
-
                         var listId = list.ListId;
                         var listItems = _uow.ListItemRepository.Query()
                             .Where(l => l.ListId == listId)
@@ -2038,14 +2008,13 @@ namespace MEligibilityPlatform.Application.Services
             /// <summary>
             /// Retrieves active rules valid for the current time.
             /// </summary>
-            var eRules = _uow.EruleRepository.Query()
-         .Where(f => f.TenantId == tenantId
+            var eRules = _uow.EruleRepository.Query().Where(f => f.TenantId == tenantId
                      && f.EruleMaster != null
                      && f.EruleMaster.IsActive
                      && (f.ValidFrom <= now && (!f.ValidTo.HasValue || f.ValidTo >= now)))
-         .GroupBy(f => f.EruleMasterId) // group by master id
-         .Select(g => g.OrderByDescending(f => f.Version).First()) // pick highest version
-         .ToList();
+                     .GroupBy(f => f.EruleMasterId) // group by master id
+                     .Select(g => g.OrderByDescending(f => f.Version).First()) // pick highest version
+                     .ToList();
             /// <summary>
             /// Retrieves all factors for the entity to resolve FactorName to ParameterId.
             /// </summary>
@@ -2080,544 +2049,473 @@ namespace MEligibilityPlatform.Application.Services
         {
             var stopwatch = Stopwatch.StartNew();
             var requestId = RequestId ?? Guid.NewGuid().ToString();
-            var allMandatoryParams = _uow.ParameterRepository.Query()
-            .Where(p => p.IsMandatory && p.TenantId == TenantId)
-             .ToList();
 
-            // Count how many mandatory parameters are present in KeyValues (case-insensitive)
-            var isMandatoryTrue = allMandatoryParams
-                .Count(p => KeyValues.Keys.Any(k => string.Equals(k, p.ParameterName, StringComparison.OrdinalIgnoreCase)));
+            var allMandatoryParams = _uow.ParameterRepository.Query().Where(p => p.IsMandatory && p.TenantId == TenantId).ToList();
 
-            var isMandatoryPassed = isMandatoryTrue == allMandatoryParams.Count;
-            if (!isMandatoryPassed)
-            {
-                // Collect missing parameters
-                var missingParams = allMandatoryParams
-                    .Where(p => !KeyValues.ContainsKey(p.ParameterName!))
+            //  Validate Mandatory Parameters
+            var validationResponse = ValidateMandatoryParameters(KeyValues, requestId, allMandatoryParams);
+            if (validationResponse != null) return validationResponse;
 
-                    .ToList();
-
-                return new BREIntegrationResponses
-                {
-                    RequestId = requestId,
-                    Message = "Please fill in the mandatory fields.",
-                    MandatoryParameters = [.. missingParams.Select(missingParams => missingParams.ParameterName!)],
-
-                };
-            }
-            // Resolve NationalId dynamically
+            // Resolve NationalId and LoanNo for Evaluation History
             var nationalId = GetBoundParameterValue("NationalId", TenantId, [], KeyValues)?.ToString();
-
-            // Resolve LoanNo dynamically
             var loanNo = GetBoundParameterValue("LoanNo", TenantId, [], KeyValues)?.ToString();
 
-            var mustFieldsMissing = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(nationalId))
-                mustFieldsMissing.Add("NationalId");
-
-            if (string.IsNullOrWhiteSpace(loanNo))
-                mustFieldsMissing.Add("LoanNo");
-
-            if (mustFieldsMissing.Count != 0)
+            if (string.IsNullOrWhiteSpace(nationalId) || string.IsNullOrWhiteSpace(loanNo))
             {
                 return new BREIntegrationResponses
                 {
                     RequestId = requestId,
                     Message = "Both LoanNo and NationalId are required.",
-                    MandatoryParameters = mustFieldsMissing
+                    MandatoryParameters = ["NationalId", "LoanNo"]
                 };
             }
-            // Check duplicate evaluation record
-            //if (!string.IsNullOrWhiteSpace(nationalId) && !string.IsNullOrWhiteSpace(loanNo))
-            //{
-            //    var alreadyExists = _uow.EvaluationHistoryRepository.Query()
-            //        .Any(e => e.NationalId.ToLower() == nationalId.ToLower() && e.LoanNo.ToLower() == loanNo.ToLower());
 
-            //    if (alreadyExists)
-            //    {
-            //        return new BREIntegrationResponses
-            //        {
-            //            RequestId = requestId,
-            //            Message = $"This customer with National ID {nationalId} and Loan No {loanNo} has been evaluated already.",
-            //        };
-            //    }
-            //}
-
-            var listValidationResult = ValidateListTypeParameters(KeyValues, TenantId, requestId);
-            if (listValidationResult != null)
-            {
-                return listValidationResult;
-            }
-  
-            var evaluation = new EvaluationHistory
-            {
-                TenantId = TenantId,
-                EvaluationTimeStamp = DateTime.UtcNow,
-                NationalId = nationalId!,
-                LoanNo = loanNo!
-            };
-
-            // Step: Save initial evaluation to get ID
-            _uow.EvaluationHistoryRepository.Add(evaluation);
-            await _uow.CompleteAsync();
+            //  Initialize Evaluation History
+            var evaluation = await InitializeEvaluation(TenantId, nationalId, loanNo);
 
             try
             {
-                // Step 1: Load all internal parameters
+                // Fetch necessary data
                 var parameters = _uow.ParameterRepository.GetAll().ToList();
+                var apiParameters = _uow.ApiParametersRepository.GetAll().ToList();
+                var apiMappings = _uow.ApiParameterMapsRepository.GetAll().ToList();
 
-                // Step 2: Build a dictionary (ParameterId => Value) from passed KeyValues
-                var parameterDictionary = new Dictionary<int, object>();
+                //  Resolve Parameters
+                var parameterDictionary = MapParameterNamesToIds(KeyValues, TenantId, parameters);
 
+                //  Call External APIs and Merge Results
+                var keyValuesForEligibility = await CallExternalApis(parameterDictionary, evaluation, apiParameters, apiMappings, parameters);
 
-                foreach (var kv in KeyValues)
-                {
-                    var parameterName = kv.Key?.Trim();
-                    var parameterValue = kv.Value;
-
-                    if (string.IsNullOrWhiteSpace(parameterName))
-                        continue;
-
-                    var normalizedInputName = new string([.. parameterName.Where(c => !char.IsWhiteSpace(c))]).ToLower();
-
-                    var parameter = parameters.FirstOrDefault(p =>
-                        p.TenantId == TenantId &&
-                        !string.IsNullOrWhiteSpace(p.ParameterName) &&
-                        new string([.. p.ParameterName.Where(c => !char.IsWhiteSpace(c))]).Equals(normalizedInputName
-                        , StringComparison.CurrentCultureIgnoreCase)
-                    );
-
-                    if (parameter != null)
-                    {
-                        parameterDictionary[parameter.ParameterId] = parameterValue;
-                    }
-                }
-                // Step 3: Load API Parameters + Mappings
-                var apiParameters = _uow.ApiParametersRepository
-                    .GetAll()
-                    .ToList();
-
-                var apiParameterIds = apiParameters.Select(ap => ap.ApiParamterId).ToList();
-
-                var apiMappings = _uow.ApiParameterMapsRepository
-                    .GetAll()
-                    .Where(map => apiParameterIds.Contains(map.ApiParameterId))
-                    .ToList();
-
-
-
-                var externalApiResults = await CallAllExternalApisDynamic(parameterDictionary, evaluation);
-
-                // Merge internal + external parameters into final key-value set
-                var keyValuesForEligibility = new Dictionary<int, object>(parameterDictionary);
-                string Normalize(string name)
-                {
-                    if (string.IsNullOrWhiteSpace(name)) return string.Empty;
-                    return MyRegex2().Replace(name.Trim(), "").ToLowerInvariant();
-                }
-                var skipWords = new[] { "message", "error", "success" };
-
-                bool ShouldSkip(string name)
-                {
-                    var norm = Normalize(name);
-                    return skipWords.Any(sw => norm.Contains(sw));
-                }
-
-
-
-                //  Keep track of logs for debugging
-                var mappingLogs = new List<string>();
-
-                var updatedParamIds = new HashSet<int>();
-
-                foreach (var apiResult in externalApiResults)
-                {
-                    var flattened = FlattenJson(apiResult.Value);
-
-                    foreach (var kv in flattened)
-                    {
-                        var outputNameRaw = kv.Key?.Trim();
-                        var outputValue = kv.Value;
-
-                        if (string.IsNullOrWhiteSpace(outputNameRaw))
-                            continue;
-
-                        if (ShouldSkip(outputNameRaw))
-                            continue;
-
-                        var normalizedOutputName = Normalize(outputNameRaw);
-
-                        //  Try to find API parameter (Output direction)
-                        var apiOutputParam = apiParameters.FirstOrDefault(ap =>
-                            ap.ParameterDirection.Equals("Output", StringComparison.OrdinalIgnoreCase) &&
-                            Normalize(ap.ParameterName ?? "") == normalizedOutputName);
-
-                        bool isMapped = false;
-
-                        if (apiOutputParam != null)
-                        {
-                            //Try to find mapping for this API Output parameter
-                            var apiMap = apiMappings.FirstOrDefault(m => m.ApiParameterId == apiOutputParam.ApiParamterId);
-                            if (apiMap != null)
-                            {
-                                var mappedInternalParam = parameters.FirstOrDefault(p => p.ParameterId == apiMap.ParameterId);
-                                if (mappedInternalParam != null)
-                                {
-                                    //: Only add if not already present from internal parameters
-                                    if (!keyValuesForEligibility.ContainsKey(mappedInternalParam.ParameterId))
-                                    {
-                                        keyValuesForEligibility[mappedInternalParam.ParameterId] = outputValue!;
-                                        updatedParamIds.Add(mappedInternalParam.ParameterId);
-                                    }
-                                    isMapped = true;
-                                }
-                            }
-
-                            // If no mapping, try direct match
-                            if (!isMapped)
-                            {
-                                var directInternal = parameters.FirstOrDefault(p =>
-                                    Normalize(p.ParameterName ?? "") == Normalize(apiOutputParam.ParameterName ?? ""));
-
-                                if (directInternal != null)
-                                {
-                                    // Only add if not already present from internal parameters
-                                    if (!keyValuesForEligibility.ContainsKey(directInternal.ParameterId))
-                                    {
-                                        keyValuesForEligibility[directInternal.ParameterId] = outputValue!;
-                                        updatedParamIds.Add(directInternal.ParameterId);
-                                    }
-                                    isMapped = true;
-                                }
-                            }
-                        }
-
-                        // Fallback to direct internal parameter name match
-                        if (!isMapped)
-                        {
-                            var fallbackInternal = parameters.FirstOrDefault(p =>
-                                Normalize(p.ParameterName ?? "") == normalizedOutputName);
-
-                            if (fallbackInternal != null)
-                            {
-                                if (!keyValuesForEligibility.ContainsKey(fallbackInternal.ParameterId))
-                                {
-                                    keyValuesForEligibility[fallbackInternal.ParameterId] = outputValue!;
-                                    updatedParamIds.Add(fallbackInternal.ParameterId);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                //  Utility to safely find value in keyValues
-                //object? FindValue(string target)
-                //{
-                //    var normalizedTarget = Normalize(target);
-
-                //    // 1️⃣ Try to find from main keyValuesForEligibility first
-                //    var kv = keyValuesForEligibility.FirstOrDefault(kv =>
-                //    {
-                //        var paramName = parameters.FirstOrDefault(p => p.ParameterId == kv.Key)?.ParameterName;
-                //        return !string.IsNullOrWhiteSpace(paramName) &&
-                //               Normalize(paramName).Contains(normalizedTarget);
-                //    });
-
-                //    if (!Equals(kv, default(KeyValuePair<int, object?>)) && kv.Value != null)
-                //        return kv.Value;
-
-                //    // If not found, fallback to external API results
-                //    foreach (var apiResult in externalApiResults)
-                //    {
-                //        var flattened = FlattenJson(apiResult.Value);
-
-                //        var match = flattened.FirstOrDefault(f =>
-                //            Normalize(f.Key).Contains(normalizedTarget));
-
-                //        if (!Equals(match, default(KeyValuePair<string, object?>)) && match.Value != null)
-                //            return match.Value;
-                //    }
-
-                //    return null;
-                //}
-
-
+                //  Scoring
                 var scoreResult = new ScoringResult();
- 
-                 // Resolve Score and ProbabilityOfDefault dynamically
-                 var scoreValue = GetBoundParameterValue("score", TenantId, keyValuesForEligibility, KeyValues);
-                 if (scoreValue != null && int.TryParse(scoreValue.ToString(), out var parsedScore))
-                 {
-                     scoreResult.CustomerScore = parsedScore;
-                 }
- 
-                 var pdValue = GetBoundParameterValue("probabilityofdefault", TenantId, keyValuesForEligibility, KeyValues);
-                 if (pdValue != null && int.TryParse(pdValue.ToString(), out var parsedPd))
-                 {
-                     scoreResult.ProbabilityOfDefault = parsedPd;
-                 }
+                var scoreValue = GetBoundParameterValue("score", TenantId, keyValuesForEligibility, KeyValues);
+                if (scoreValue != null && int.TryParse(scoreValue.ToString(), out var parsedScore)) 
+                    scoreResult.CustomerScore = parsedScore;
 
-                // Replace or add in keyValuesForEligibility
-                //         var parameterss = _uow.ParameterRepository.Query()
-                //.Where(p => new[] { "score", "creditscore", "probabilityofdefault", "pd" }.Contains(p.ParameterName!.ToLower()))
-                //.Select(p => new { p.ParameterId, p.ParameterName })
-                //.ToList();
+                var pdValue = GetBoundParameterValue("probabilityofdefault", TenantId, keyValuesForEligibility, KeyValues);
+                if (pdValue != null && int.TryParse(pdValue.ToString(), out var parsedPd)) scoreResult.ProbabilityOfDefault = parsedPd;
 
-                //         // Find IDs by name
-                //         var scoreParam = parameterss.FirstOrDefault(p => p.ParameterName!.Equals("score", StringComparison.OrdinalIgnoreCase)
-                //             || p.ParameterName.Equals("creditscore", StringComparison.OrdinalIgnoreCase));
-
-                //         var pdParam = parameterss.FirstOrDefault(p => p.ParameterName!.Equals("probabilityofdefault", StringComparison.OrdinalIgnoreCase)
-                //             || p.ParameterName.Equals("pd", StringComparison.OrdinalIgnoreCase));
-
-                //         // Update values using parameter IDs
-                //         if (scoreParam != null && keyValuesForEligibility.ContainsKey(scoreParam.ParameterId))
-                //             keyValuesForEligibility[scoreParam.ParameterId] = scoreResult.CustomerScore;
-
-                //if (pdParam != null && keyValuesForEligibility.ContainsKey(pdParam.ParameterId))
-                //    keyValuesForEligibility[pdParam.ParameterId] = scoreResult.ProbabilityOfDefault;
-                // Step 8: Perform eligibility evaluation
+                //  Eligibility
                 var eligibilityResult = GetAllEligibleProducts(TenantId, keyValuesForEligibility);
 
-                // Step 9: Save Evaluation History
-                evaluation.EvaluationTimeStamp = DateTime.UtcNow;
-                evaluation.CreditScore = scoreResult.CustomerScore;
-
-                evaluation.TenantId = TenantId;
-                evaluation.ProcessingTime = Math.Round(stopwatch.Elapsed.TotalSeconds, 2);
-                var breRequestWithNames = keyValuesForEligibility.ToDictionary(
-                    kv => parameters.FirstOrDefault(p => p.ParameterId == kv.Key)?.ParameterName ?? kv.Key.ToString(),
-                    kv => kv.Value
-                );
-
-                // Serialize using parameter names
-                evaluation.BreRequest = JsonSerializer.Serialize(breRequestWithNames, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }); _uow.EvaluationHistoryRepository.Update(evaluation);
-                var result = TransformToResponse(eligibilityResult!, stopwatch.ElapsedMilliseconds, requestId, evaluation, scoreResult);
-                evaluation.BreResponse = JsonSerializer.Serialize(result);
-                var eligibleCount = result.EligibleProducts?.Count ?? 0;
-                var nonEligibleCount = result.NonEligibleProducts?.Count ?? 0;
-
-                var status = eligibleCount > 0 ? "Approved" : "Rejected";
-                evaluation.Outcome = $"{status}: {eligibleCount} Eligible and {nonEligibleCount} Non Eligible Products";
-                await _uow.CompleteAsync();
-
-                // Transform final response
-                var finalResponse = new BREIntegrationResponses
-                {
-                    RequestId = result.RequestId,
-                    CustomerScore = result.CustomerScore,
-                    ProbabilityOfDefault = result.ProbabilityOfDefault,
-                    ProcessingTimeMs = result.ProcessingTimeMs,
-                    Timestamp = DateTime.UtcNow,
-
-                    EligibleProducts = [.. result.EligibleProducts!.Select(p => new EligibleProducts
-                    {
-                        ProductCode = p.ProductCode,
-                        ProductName = p.ProductName,
-                        MaxFinancingPercentage = p.MaxFinancingPercentage,
-                        ProductCapAmount = p.ProductCapAmount
-
-                    })],
-
-                    NonEligibleProducts = result.NonEligibleProducts ?? [] // same model, keep as is
-                };
-
-                // Return new formatted response
-                return finalResponse;
+                //  Create Final Response
+                return await CreateFinalResponse(evaluation, scoreResult, eligibilityResult!, stopwatch.Elapsed.TotalSeconds, requestId, keyValuesForEligibility, parameters, TenantId);
             }
-            //catch (Exception ex)
-            //{
-            //    throw new BREIntegrationException($"Internal server error - RequestId: {requestId}", ex);
-            //}
             finally
             {
                 stopwatch.Stop();
             }
         }
 
-        private BREIntegrationResponses? ValidateListTypeParameters(Dictionary<string, object> keyValues, int tenantId, string requestId)
+        private static  BREIntegrationResponses? ValidateMandatoryParameters(Dictionary<string, object> keyValues, string requestId, List<Parameter> allMandatoryParams)
         {
-            var listTypeParameters = (
-                from f in _uow.FactorRepository.Query()
-                join p in _uow.ParameterRepository.Query()
-                    on f.ParameterId equals p.ParameterId
-                join c in _uow.ConditionRepository.Query()
-                    on f.ConditionId equals c.ConditionId
-                where f.TenantId == tenantId
-                      && (
-                            c.ConditionValue!.ToLower() == "in list" ||
-                            c.ConditionValue.ToLower() == "not in list"
-                         )
-                select p.ParameterName
-            )
-            .Distinct()
-            .ToList();
+            // Count how many mandatory parameters are present in KeyValues (case-insensitive)
+            var isMandatoryTrue = allMandatoryParams
+                .Count(p => keyValues.Keys.Any(k => string.Equals(k, p.ParameterName, StringComparison.OrdinalIgnoreCase)));
 
-            foreach (var param in listTypeParameters)
+            var isMandatoryPassed = isMandatoryTrue == allMandatoryParams.Count;
+            if (!isMandatoryPassed)
             {
-                // Check if the parameter name from DB already ends with "Name" or "Code"
-                bool paramEndsWithName = param.EndsWith("Name", StringComparison.OrdinalIgnoreCase);
-                bool paramEndsWithCode = param.EndsWith("Code", StringComparison.OrdinalIgnoreCase);
+                // Collect missing parameters
+                var missingParams = allMandatoryParams
+                    .Where(p => !keyValues.ContainsKey(p.ParameterName!))
+                    .ToList();
 
-                string codeKey, nameKey;
-
-                if (paramEndsWithName)
+                return new BREIntegrationResponses
                 {
-                    // Parameter already ends with "Name", so we need its Code counterpart
-                    string baseName = param[..^4]; // Remove "Name"
-                    codeKey = baseName + "Code";
-                    nameKey = param; // Keep original
-                }
-                else if (paramEndsWithCode)
-                {
-                    string baseName = param[..^4];
-                    codeKey = param;
-                    nameKey = baseName + "Name";
-                }
-                else
-                {
+                    RequestId = requestId,
+                    Message = "Please fill in the mandatory fields.",
+                    MandatoryParameters = [.. missingParams.Select(missingParams => missingParams.ParameterName)],
+                };
+            }
+            return null;
+        }
 
-                    codeKey = param + "Code";
-                    nameKey = param + "Name";
-                }
+        private async Task<EvaluationHistory> InitializeEvaluation(int tenantId, string nationalId, string loanNo)
+        {
+            var evaluation = new EvaluationHistory
+            {
+                TenantId = tenantId,
+                EvaluationTimeStamp = DateTime.UtcNow,
+                NationalId = nationalId,
+                LoanNo = loanNo
+            };
 
-                // Now check what exists in the input
-                var hasOriginalParam = keyValues.Keys
-                    .Any(k => k.Equals(param, StringComparison.OrdinalIgnoreCase));
+            // Step: Save initial evaluation to get ID
+            _uow.EvaluationHistoryRepository.Add(evaluation);
+            await _uow.CompleteAsync();
 
-                var hasCode = keyValues.Keys
-                    .Any(k => k.Equals(codeKey, StringComparison.OrdinalIgnoreCase));
+            return evaluation;
+        }
 
-                var hasName = keyValues.Keys
-                    .Any(k => k.Equals(nameKey, StringComparison.OrdinalIgnoreCase));
-                if (!hasOriginalParam && !hasCode && !hasName)
-                {
-                    continue;
-                }
-                // If  parameter (without suffix) is provided, reject it
-                if (hasOriginalParam && !paramEndsWithName && !paramEndsWithCode)
-                {
-                    return new BREIntegrationResponses
-                    {
-                        RequestId = requestId,
-                        Message = $"'{param}' is a list-type parameter. Please provide '{param}Code' and '{param}Name',.",
-                        MandatoryParameters = [codeKey, nameKey]
-                    };
-                }
+        private static Dictionary<int, object> MapParameterNamesToIds(Dictionary<string, object> keyValues, int tenantId, List<Parameter> parameters)
+        {
+            var parameterDictionary = new Dictionary<int, object>();
 
-                // Check if we have the required pair
-                bool hasRequiredPair = false;
+            foreach (var kv in keyValues)
+            {
+                var parameterName = kv.Key?.Trim();
+                var parameterValue = kv.Value;
 
-                if (paramEndsWithName)
-                {
-                    hasRequiredPair = hasCode && hasOriginalParam;
-                }
-                else if (paramEndsWithCode)
-                {
-                    hasRequiredPair = hasOriginalParam && hasName;
-                }
-                else
-                {
-                    hasRequiredPair = hasCode && hasName;
-                }
-
-                if (!hasRequiredPair)
-                {
-                    return new BREIntegrationResponses
-                    {
-                        RequestId = requestId,
-                        Message = $"'{param}' is a list-type parameter. You need to provide both Code and Name values.",
-                        MandatoryParameters = [codeKey, nameKey]
-                    };
-                }
-
-                if (hasCode)
-                {
-                    var codeValue = keyValues.First(k => k.Key.Equals(codeKey, StringComparison.OrdinalIgnoreCase))
-                        .Value?.ToString();
-                    if (string.IsNullOrWhiteSpace(codeValue))
-                    {
-                        return new BREIntegrationResponses
-                        {
-                            RequestId = requestId,
-                            Message = $"'{codeKey}' cannot be empty.",
-                            MandatoryParameters = [codeKey, nameKey]
-                        };
-                    }
-                }
-
-                if (hasName)
-                {
-                    var nameValue = keyValues.First(k => k.Key.Equals(nameKey, StringComparison.OrdinalIgnoreCase))
-                        .Value?.ToString();
-                    if (string.IsNullOrWhiteSpace(nameValue))
-                    {
-                        return new BREIntegrationResponses
-                        {
-                            RequestId = requestId,
-                            Message = $"'{nameKey}' cannot be empty.",
-                            MandatoryParameters = [codeKey, nameKey]
-                        };
-                    }
-                }
-                var factor = _uow.FactorRepository.Query()
-                    .FirstOrDefault(f => f.TenantId == tenantId && f.ParameterId ==
-                        _uow.ParameterRepository.Query().First(p => p.ParameterName == param).ParameterId);
-
-                var listName = factor?.Value1?.Trim();
-
-                if (string.IsNullOrEmpty(listName))
+                if (string.IsNullOrWhiteSpace(parameterName))
                     continue;
 
-                var list = _uow.ManagedListRepository.Query()
-                    .FirstOrDefault(l => l.ListName == listName);
+                var normalizedInputName = new string([.. parameterName.Where(c => !char.IsWhiteSpace(c))]).ToLower();
 
-                if (list == null)
-                    continue;
+                var parameter = parameters.FirstOrDefault(p =>
+                    p.TenantId == tenantId &&
+                    !string.IsNullOrWhiteSpace(p.ParameterName) &&
+                    new string([.. p.ParameterName.Where(c => !char.IsWhiteSpace(c))]).Equals(normalizedInputName
+                    , StringComparison.CurrentCultureIgnoreCase)
+                );
 
-                var listId = list.ListId;
-
-                if (hasCode)
+                if (parameter != null)
                 {
-                    var codeValue = keyValues.First(k => k.Key.Equals(codeKey, StringComparison.OrdinalIgnoreCase))
-                        .Value?.ToString();
+                    parameterDictionary[parameter.ParameterId] = parameterValue;
+                }
+            }
+            return parameterDictionary;
+        }
 
-                    var nameValue = keyValues.First(k => k.Key.Equals(nameKey, StringComparison.OrdinalIgnoreCase))
-                        .Value?.ToString();
+        private async Task<Dictionary<int, object>> CallExternalApis(Dictionary<int, object> parameterDictionary, EvaluationHistory evaluation, List<ApiParameter> apiParameters, List<ApiParameterMap> apiMappings, List<Parameter> parameters)
+        {
+            var externalApiResults = await CallAllExternalApisDynamic(parameterDictionary, evaluation);
 
-                    if (!string.IsNullOrWhiteSpace(codeValue))
+            // Merge internal + external parameters into final key-value set
+            var keyValuesForEligibility = new Dictionary<int, object>(parameterDictionary);
+            
+            string Normalize(string name)
+            {
+                if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+                return MyRegex2().Replace(name.Trim(), "").ToLowerInvariant();
+            }
+            
+            var skipWords = new[] { "message", "error", "success" };
+
+            bool ShouldSkip(string name)
+            {
+                var norm = Normalize(name);
+                return skipWords.Any(sw => norm.Contains(sw));
+            }
+
+            foreach (var apiResult in externalApiResults)
+            {
+                var flattened = FlattenJson(apiResult.Value);
+
+                foreach (var kv in flattened)
+                {
+                    var outputNameRaw = kv.Key?.Trim();
+                    var outputValue = kv.Value;
+
+                    if (string.IsNullOrWhiteSpace(outputNameRaw))
+                        continue;
+
+                    if (ShouldSkip(outputNameRaw))
+                        continue;
+
+                    var normalizedOutputName = Normalize(outputNameRaw);
+
+                    //  Try to find API parameter (Output direction)
+                    var apiOutputParam = apiParameters.FirstOrDefault(ap =>
+                        ap.ParameterDirection.Equals("Output", StringComparison.OrdinalIgnoreCase) &&
+                        Normalize(ap.ParameterName ?? "") == normalizedOutputName);
+
+                    bool isMapped = false;
+
+                    if (apiOutputParam != null)
                     {
-                        // Check if code exists in the list with a different name
-                        var duplicateCodeDifferentName = _uow.ListItemRepository.Query()
-                            .Any(li => li.ListId == listId &&
-                                       li.Code.ToLower() == codeValue!.ToLower() &&
-                                       (li.ItemName ?? "").ToLower() != (nameValue ?? "").ToLower());
-
-                        if (duplicateCodeDifferentName)
+                        //Try to find mapping for this API Output parameter
+                        var apiMap = apiMappings.FirstOrDefault(m => m.ApiParameterId == apiOutputParam.ApiParamterId);
+                        if (apiMap != null)
                         {
-                            return new BREIntegrationResponses
+                            var mappedInternalParam = parameters.FirstOrDefault(p => p.ParameterId == apiMap.ParameterId);
+                            if (mappedInternalParam != null)
                             {
-                                RequestId = requestId,
-                                Message = $"Duplicate code '{codeValue}' already exists in list '{listName}' with a different Item name.",
-                                MandatoryParameters = [codeKey, nameKey]
-                            };
+                                // Only add if not already present from internal parameters
+                                if (!keyValuesForEligibility.ContainsKey(mappedInternalParam.ParameterId))
+                                {
+                                    keyValuesForEligibility[mappedInternalParam.ParameterId] = outputValue!;
+                                }
+                                isMapped = true;
+                            }
+                        }
+
+                        // If no mapping, try direct match
+                        if (!isMapped)
+                        {
+                            var directInternal = parameters.FirstOrDefault(p =>
+                                Normalize(p.ParameterName ?? "") == Normalize(apiOutputParam.ParameterName ?? ""));
+
+                            if (directInternal != null)
+                            {
+                                // Only add if not already present from internal parameters
+                                if (!keyValuesForEligibility.ContainsKey(directInternal.ParameterId))
+                                {
+                                    keyValuesForEligibility[directInternal.ParameterId] = outputValue!;
+                                }
+                                isMapped = true;
+                            }
+                        }
+                    }
+
+                    // Fallback to direct internal parameter name match
+                    else 
+                    {
+                        var fallbackInternal = parameters.FirstOrDefault(p =>
+                            Normalize(p.ParameterName ?? "") == normalizedOutputName);
+
+                        if (fallbackInternal != null)
+                        {
+                            if (!keyValuesForEligibility.ContainsKey(fallbackInternal.ParameterId))
+                            {
+                                keyValuesForEligibility[fallbackInternal.ParameterId] = outputValue!;
+                            }
                         }
                     }
                 }
             }
-
-            return null;
+            return keyValuesForEligibility;
         }
+
+        private async Task<BREIntegrationResponses> CreateFinalResponse(EvaluationHistory evaluation, ScoringResult scoreResult, EligibleAmountResults eligibilityResult, double processingTimeSeconds, string requestId, Dictionary<int, object> keyValuesForEligibility, List<Parameter> parameters, int tenantId)
+        {
+            //  Save Evaluation History
+            evaluation.EvaluationTimeStamp = DateTime.UtcNow;
+            evaluation.CreditScore = scoreResult.CustomerScore;
+
+            evaluation.TenantId = tenantId;
+            evaluation.ProcessingTime = Math.Round(processingTimeSeconds, 2);
+            var breRequestWithNames = keyValuesForEligibility.ToDictionary(
+                kv => parameters.FirstOrDefault(p => p.ParameterId == kv.Key)?.ParameterName ?? kv.Key.ToString(),
+                kv => kv.Value
+            );
+
+            // Serialize using parameter names
+            evaluation.BreRequest = JsonSerializer.Serialize(breRequestWithNames, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            }); 
+            
+            _uow.EvaluationHistoryRepository.Update(evaluation);
+            
+            var result = TransformToResponse(eligibilityResult!, (long)(processingTimeSeconds * 1000), requestId, evaluation, scoreResult);
+            evaluation.BreResponse = JsonSerializer.Serialize(result);
+            var eligibleCount = result.EligibleProducts?.Count ?? 0;
+            var nonEligibleCount = result.NonEligibleProducts?.Count ?? 0;
+
+            var status = eligibleCount > 0 ? "Approved" : "Rejected";
+            evaluation.Outcome = $"{status}: {eligibleCount} Eligible and {nonEligibleCount} Non Eligible Products";
+            await _uow.CompleteAsync();
+
+            // Transform final response
+            var finalResponse = new BREIntegrationResponses
+            {
+                RequestId = result.RequestId,
+                CustomerScore = result.CustomerScore,
+                ProbabilityOfDefault = result.ProbabilityOfDefault,
+                ProcessingTimeMs = result.ProcessingTimeMs,
+                Timestamp = DateTime.UtcNow,
+
+                EligibleProducts = [.. result.EligibleProducts!.Select(p => new EligibleProducts
+                {
+                    ProductCode = p.ProductCode,
+                    ProductName = p.ProductName,
+                    MaxFinancingPercentage = p.MaxFinancingPercentage,
+                    ProductCapAmount = p.ProductCapAmount
+
+                })],
+
+                NonEligibleProducts = result.NonEligibleProducts ?? []
+            };
+
+            return finalResponse;
+        }
+
+        //private BREIntegrationResponses? ValidateListTypeParameters(Dictionary<string, object> keyValues, int tenantId, string requestId)
+        //{
+        //    var listTypeParameters = (
+        //        from f in _uow.FactorRepository.Query()
+        //        join p in _uow.ParameterRepository.Query()
+        //            on f.ParameterId equals p.ParameterId
+        //        join c in _uow.ConditionRepository.Query()
+        //            on f.ConditionId equals c.ConditionId
+        //        where f.TenantId == tenantId
+        //              && (
+        //                    c.ConditionValue!.ToLower() == "in list" ||
+        //                    c.ConditionValue.ToLower() == "not in list"
+        //                 )
+        //        select p.ParameterName
+        //    )
+        //    .Distinct()
+        //    .ToList();
+
+        //    foreach (var param in listTypeParameters)
+        //    {
+        //        // Check if the parameter name from DB already ends with "Name" or "Code"
+        //        bool paramEndsWithName = param.EndsWith("Name", StringComparison.OrdinalIgnoreCase);
+        //        bool paramEndsWithCode = param.EndsWith("Code", StringComparison.OrdinalIgnoreCase);
+
+        //        string codeKey, nameKey;
+
+        //        if (paramEndsWithName)
+        //        {
+        //            // Parameter already ends with "Name", so we need its Code counterpart
+        //            string baseName = param[..^4]; // Remove "Name"
+        //            codeKey = baseName + "Code";
+        //            nameKey = param; // Keep original
+        //        }
+        //        else if (paramEndsWithCode)
+        //        {
+        //            string baseName = param[..^4];
+        //            codeKey = param;
+        //            nameKey = baseName + "Name";
+        //        }
+        //        else
+        //        {
+
+        //            codeKey = param + "Code";
+        //            nameKey = param + "Name";
+        //        }
+
+        //        // Now check what exists in the input
+        //        var hasOriginalParam = keyValues.Keys
+        //            .Any(k => k.Equals(param, StringComparison.OrdinalIgnoreCase));
+
+        //        var hasCode = keyValues.Keys
+        //            .Any(k => k.Equals(codeKey, StringComparison.OrdinalIgnoreCase));
+
+        //        var hasName = keyValues.Keys
+        //            .Any(k => k.Equals(nameKey, StringComparison.OrdinalIgnoreCase));
+        //        if (!hasOriginalParam && !hasCode && !hasName)
+        //        {
+        //            continue;
+        //        }
+        //        // If  parameter (without suffix) is provided, reject it
+        //        if (hasOriginalParam && !paramEndsWithName && !paramEndsWithCode)
+        //        {
+        //            return new BREIntegrationResponses
+        //            {
+        //                RequestId = requestId,
+        //                Message = $"'{param}' is a list-type parameter. Please provide '{param}Code' and '{param}Name',.",
+        //                MandatoryParameters = [codeKey, nameKey]
+        //            };
+        //        }
+
+        //        // Check if we have the required pair
+        //        bool hasRequiredPair = false;
+
+        //        if (paramEndsWithName)
+        //        {
+        //            hasRequiredPair = hasCode && hasOriginalParam;
+        //        }
+        //        else if (paramEndsWithCode)
+        //        {
+        //            hasRequiredPair = hasOriginalParam && hasName;
+        //        }
+        //        else
+        //        {
+        //            hasRequiredPair = hasCode && hasName;
+        //        }
+
+        //        if (!hasRequiredPair)
+        //        {
+        //            return new BREIntegrationResponses
+        //            {
+        //                RequestId = requestId,
+        //                Message = $"'{param}' is a list-type parameter. You need to provide both Code and Name values.",
+        //                MandatoryParameters = [codeKey, nameKey]
+        //            };
+        //        }
+
+        //        if (hasCode)
+        //        {
+        //            var codeValue = keyValues.First(k => k.Key.Equals(codeKey, StringComparison.OrdinalIgnoreCase))
+        //                .Value?.ToString();
+        //            if (string.IsNullOrWhiteSpace(codeValue))
+        //            {
+        //                return new BREIntegrationResponses
+        //                {
+        //                    RequestId = requestId,
+        //                    Message = $"'{codeKey}' cannot be empty.",
+        //                    MandatoryParameters = [codeKey, nameKey]
+        //                };
+        //            }
+        //        }
+
+        //        if (hasName)
+        //        {
+        //            var nameValue = keyValues.First(k => k.Key.Equals(nameKey, StringComparison.OrdinalIgnoreCase))
+        //                .Value?.ToString();
+        //            if (string.IsNullOrWhiteSpace(nameValue))
+        //            {
+        //                return new BREIntegrationResponses
+        //                {
+        //                    RequestId = requestId,
+        //                    Message = $"'{nameKey}' cannot be empty.",
+        //                    MandatoryParameters = [codeKey, nameKey]
+        //                };
+        //            }
+        //        }
+        //        var factor = _uow.FactorRepository.Query()
+        //            .FirstOrDefault(f => f.TenantId == tenantId && f.ParameterId ==
+        //                _uow.ParameterRepository.Query().First(p => p.ParameterName == param).ParameterId);
+
+        //        var listName = factor?.Value1?.Trim();
+
+        //        if (string.IsNullOrEmpty(listName))
+        //            continue;
+
+        //        var list = _uow.ManagedListRepository.Query()
+        //            .FirstOrDefault(l => l.ListName == listName);
+
+        //        if (list == null)
+        //            continue;
+
+        //        var listId = list.ListId;
+
+        //        if (hasCode)
+        //        {
+        //            var codeValue = keyValues.First(k => k.Key.Equals(codeKey, StringComparison.OrdinalIgnoreCase))
+        //                .Value?.ToString();
+
+        //            var nameValue = keyValues.First(k => k.Key.Equals(nameKey, StringComparison.OrdinalIgnoreCase))
+        //                .Value?.ToString();
+
+        //            if (!string.IsNullOrWhiteSpace(codeValue))
+        //            {
+        //                // Check if code exists in the list with a different name
+        //                var duplicateCodeDifferentName = _uow.ListItemRepository.Query()
+        //                    .Any(li => li.ListId == listId &&
+        //                               li.Code.ToLower() == codeValue!.ToLower() &&
+        //                               (li.ItemName ?? "").ToLower() != (nameValue ?? "").ToLower());
+
+        //                if (duplicateCodeDifferentName)
+        //                {
+        //                    return new BREIntegrationResponses
+        //                    {
+        //                        RequestId = requestId,
+        //                        Message = $"Duplicate code '{codeValue}' already exists in list '{listName}' with a different Item name.",
+        //                        MandatoryParameters = [codeKey, nameKey]
+        //                    };
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return null;
+        //}
 
 
         private static Dictionary<string, object?> FlattenJson(object? obj, string prefix = "")
         {
             var result = new Dictionary<string, object?>();
-            if (obj == null) return result;
+            FlattenJsonHelper(obj, prefix, result);
+            return result;
+        }
+
+        private static void FlattenJsonHelper(object? obj, string prefix, Dictionary<string, object?> result)
+        {
+            if (obj == null) return;
 
             if (obj is JsonElement jsonElement)
             {
@@ -2626,12 +2524,8 @@ namespace MEligibilityPlatform.Application.Services
                     case JsonValueKind.Object:
                         foreach (var property in jsonElement.EnumerateObject())
                         {
-                            // keep prefix chain
-                            var nested = FlattenJson(property.Value,
-                                string.IsNullOrEmpty(prefix) ? property.Name : $"{property.Name}");
-
-                            foreach (var kv in nested)
-                                result[kv.Key] = kv.Value;
+                            FlattenJsonHelper(property.Value,
+                                string.IsNullOrEmpty(prefix) ? property.Name : $"{prefix}.{property.Name}", result);
                         }
                         break;
 
@@ -2639,15 +2533,13 @@ namespace MEligibilityPlatform.Application.Services
                         int index = 0;
                         foreach (var element in jsonElement.EnumerateArray())
                         {
-                            var nested = FlattenJson(element, $"{index}");
-                            foreach (var kv in nested)
-                                result[kv.Key] = kv.Value;
+                            FlattenJsonHelper(element, $"{prefix}.{index}", result);
                             index++;
                         }
                         break;
 
                     default:
-                        result[prefix.Trim('_')] = jsonElement.ToString();
+                        result[prefix.Trim('.')] = jsonElement.ToString();
                         break;
                 }
             }
@@ -2655,27 +2547,21 @@ namespace MEligibilityPlatform.Application.Services
             {
                 foreach (var kv in dict)
                 {
-                    var nested = FlattenJson(kv.Value,
-                        string.IsNullOrEmpty(prefix) ? kv.Key : $"{kv.Key}");
-
-                    foreach (var nestedKv in nested)
-                        result[nestedKv.Key] = nestedKv.Value;
+                    FlattenJsonHelper(kv.Value,
+                        string.IsNullOrEmpty(prefix) ? kv.Key : $"{prefix}.{kv.Key}", result);
                 }
             }
             else
             {
-                result[prefix.Trim('_')] = obj;
+                result[prefix.Trim('.')] = obj;
             }
-
-            return result;
         }
-
-
 
         public async Task<Dictionary<string, Dictionary<string, object>>> CallAllExternalApisDynamic(Dictionary<int, object> inputKeyValues, EvaluationHistory Evalution)
         {
             var results = new Dictionary<string, Dictionary<string, object>>();
 
+            // Fetch active APIs with node information
             var apis = _uow.NodeApiRepository.GetAll().Where(api => api.IsActive).ToList();
             var nodes = _uow.NodeModelRepository.GetAll().ToList();
 
@@ -2688,76 +2574,85 @@ namespace MEligibilityPlatform.Application.Services
                                   api.Apiname,
                                   api.HttpMethodType,
                                   FullUrl = node.NodeUrl + "/" + api.Apiname,
-                                  api.RequestBody,
-                                  api.RequestParameters,
-                                  Headers = api.Header
+                                  Headers = api.Header,
+                                  api.ExecutionOrder
                               }).ToList();
+
+            if (activeApis.Count == 0)
+                return results;
+
+            // Pre-fetch all data needed for parameter resolution
+            var apiIds = activeApis.Select(a => a.Apiid).ToList();
+            var allApiParameters = _uow.ApiParametersRepository.GetAll()
+                .Where(p => p.ApiId.HasValue && apiIds.Contains(p.ApiId.Value))
+                .ToList();
+            
+            var allMappings = _uow.ApiParameterMapsRepository.Query()
+                 .Where(m => apiIds.Contains(m.ApiId))
+                 .ToList();
+
             var allInternalParams = _uow.ParameterRepository.GetAll().ToList();
 
-            foreach (var api in activeApis)
+            // Build lookup dictionaries for O(1) access
+            var mappingsByApiParamId = allMappings.ToDictionary(m => m.ApiParameterId, m => m);
+            var normalizedInternalParams = allInternalParams
+                .ToDictionary(p => Normalize(p.ParameterName), p => p);
+
+            //  Group APIs by execution order and process in parallel within each group
+            var apiGroups = activeApis.GroupBy(a => a.ExecutionOrder).OrderBy(g => g.Key);
+
+            foreach (var group in apiGroups)
             {
-                try
+                // Process each API sequentially
+                foreach (var api in group)
                 {
-                    // Step 2: Get API parameters & mappings
-                    var parameters = _uow.ApiParametersRepository.GetAll().Where(p => p.ApiId == api.Apiid).ToList();
-                    var mappings = _uow.ApiParameterMapsRepository.GetAll()
-                        .Where(m => parameters.Select(p => p.ApiParamterId).Contains(m.ApiParameterId))
-                        .ToList();
-
-                    var requestBody = new Dictionary<string, object>();
-
-                    // Step 3: Build API payload dynamically
-                    foreach (var param in parameters.Where(p =>
-                     p.ParameterDirection.Equals("Input", StringComparison.OrdinalIgnoreCase)))
+                    try
                     {
-                        object? value = null;
+                        var parameters = allApiParameters.Where(p => p.ApiId == api.Apiid).ToList();
+                        var requestBody = new Dictionary<string, object>();
 
-                        var map = mappings.FirstOrDefault(m => m.ApiParameterId == param.ApiParamterId);
-
-                        if (map != null && inputKeyValues.TryGetValue(map.ParameterId, out var mappedVal))
+                        // Build payload dynamically
+                        foreach (var param in parameters.Where(p => p.ParameterDirection.Equals("Input", StringComparison.OrdinalIgnoreCase)))
                         {
-                            value = mappedVal;
+                            object? value = null;
+
+                            if (mappingsByApiParamId.TryGetValue(param.ApiParamterId, out var mapping) &&
+                                inputKeyValues.TryGetValue(mapping.ParameterId, out var mappedValue))
+                            {
+                                value = mappedValue;
+                            }
+                            else if (normalizedInternalParams.TryGetValue(Normalize(param.ParameterName), out var matchedInternal) &&
+                                     inputKeyValues.TryGetValue(matchedInternal.ParameterId, out var internalValue))
+                            {
+                                value = internalValue;
+                            }
+                            else if (inputKeyValues.TryGetValue(param.ApiParamterId, out var directValue))
+                            {
+                                value = directValue;
+                            }
+
+                            if (value is string strVal && string.IsNullOrWhiteSpace(strVal))
+                                continue;
+
+                            requestBody[param.ParameterName] = value ?? string.Empty;
                         }
-                        else
-                        {
 
-                            var normalizedParamName = Normalize(param.ParameterName);
-                            var matchedInternal = allInternalParams.FirstOrDefault(p =>
-                                Normalize(p.ParameterName) == normalizedParamName);
+                        // Call API sequentially
+                        var response = await CallExternalApiAsync(
+                            api.FullUrl,
+                            api.HttpMethodType,
+                            requestBody,
+                            api.Apiid,
+                            Evalution,
+                            api.Headers);
 
-                            if (matchedInternal != null && inputKeyValues.TryGetValue(matchedInternal.ParameterId, out var internalVal))
-                            {
-                                value = internalVal;
-                            }
-                            else if (inputKeyValues.TryGetValue(param.ApiParamterId, out var directVal))
-                            {
-                                value = directVal; // fallback direct
-                            }
-                            else
-                            {
-                                value = param.DefaultValue; // fallback default
-                            }
-                        }
-
-                        if (value is string strVal && string.IsNullOrWhiteSpace(strVal))
-                            continue;
-
-                        requestBody[param.ParameterName] = value ?? string.Empty;
+                        var outputData = JsonSerializer.Deserialize<Dictionary<string, object>>(response) ?? [];
+                        results[api.Apiname] = outputData;
                     }
-
-                    //if (api.FullUrl.Contains("breintegration"))
-                    //    continue;
-
-                    //  Call API dynamically
-                    var response = await CallExternalApiAsync(api.FullUrl, api.HttpMethodType, requestBody, api.Apiid, Evalution, api.Headers);
-
-                    //  Deserialize response JSON
-                    var outputData = JsonSerializer.Deserialize<Dictionary<string, object>>(response) ?? [];
-                    results[api.Apiname] = outputData;
-                }
-                catch (Exception ex)
-                {
-                    results[api.Apiname] = new Dictionary<string, object> { { "Error", ex.Message } };
+                    catch (Exception ex)
+                    {
+                        results[api.Apiname] = new Dictionary<string, object> { { "Error", ex.Message } };
+                    }
                 }
             }
 
@@ -2773,97 +2668,72 @@ namespace MEligibilityPlatform.Application.Services
         }
         public async Task<string> CallExternalApiAsync(string url, string httpMethod, object? payload, int nodeApiId, EvaluationHistory? evaluation = null, string? headersJson = null)
         {
-            using var client = new HttpClient();
-            HttpResponseMessage response;
-
-            if (!string.IsNullOrWhiteSpace(headersJson))
+            try
             {
-                var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(headersJson);
+                using var client = _httpClientFactory.CreateClient();
+                using var requestMessage = new HttpRequestMessage(new HttpMethod(httpMethod), url);
 
-                if (headers != null)
+                //  Add Headers
+                if (!string.IsNullOrWhiteSpace(headersJson))
                 {
-                    foreach (var header in headers)
+                    var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(headersJson);
+                    if (headers != null)
                     {
-                        var key = header.Key?.Trim() ?? "";
-                        var value = header.Value?.Trim() ?? "";
-
-                        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(value))
-                            continue;
-
-                        if (key.Equals("x-api-key", StringComparison.OrdinalIgnoreCase))
+                        foreach (var kv in headers)
                         {
-                            if (!client.DefaultRequestHeaders.Contains("x-api-key"))
-                                client.DefaultRequestHeaders.Add("x-api-key", value);
-                        }
-                        else
-                        {
-                            if (!client.DefaultRequestHeaders.Contains(key))
-                                client.DefaultRequestHeaders.Add(key, value);
+                            if (string.IsNullOrWhiteSpace(kv.Key) || string.IsNullOrWhiteSpace(kv.Value)) continue;
+                            
+                            // Try adding to request headers, if fails (e.g. Content-Type), ignore as it will be set by content
+                            requestMessage.Headers.TryAddWithoutValidation(kv.Key, kv.Value);
                         }
                     }
                 }
-            }
 
-            string responseBody = "{}";
+                string requestJson = "{}";
 
-            try
-            {
-                Dictionary<string, object>? rawPayload = null;
-
+                //  Add Payload / Query String
                 if (payload != null)
                 {
-                    if (payload is JsonElement jsonElement)
-                        rawPayload = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonElement.GetRawText());
-                    else if (payload is Dictionary<string, object> dict)
-                        rawPayload = dict;
-                    else
-                        rawPayload = JsonSerializer.Deserialize<Dictionary<string, object>>(JsonSerializer.Serialize(payload));
-                }
-
-                var normalizedPayload = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                if (rawPayload != null)
-                {
+                    // Normalize payload keys (trim and case-insensitive)
+                    // We simply serialize it to a dictionary with clean keys to match previous behavior logic but simplified
+                    var rawPayload = JsonSerializer.Deserialize<Dictionary<string, object>>(JsonSerializer.Serialize(payload)) ?? [];
+                    var normalizedPayload = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                    
                     foreach (var kv in rawPayload)
                     {
                         var key = kv.Key?.Trim().Replace(" ", string.Empty) ?? string.Empty;
-                        normalizedPayload[key] = kv.Value;
+                        if (!string.IsNullOrEmpty(key))
+                            normalizedPayload[key] = kv.Value;
+                    }
+
+                    requestJson = normalizedPayload.Count > 0 ? JsonSerializer.Serialize(normalizedPayload) : "{}";
+
+                    if (httpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (normalizedPayload.Count > 0)
+                        {
+                            var query = string.Join("&", normalizedPayload.Select(kv =>
+                                $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value?.ToString() ?? string.Empty)}"));
+                            requestMessage.RequestUri = new Uri(url.Contains('?') ? $"{url}&{query}" : $"{url}?{query}");
+                        }
+                    }
+                    else
+                    {
+                        // POST, PUT, DELETE, etc.
+                        requestMessage.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
                     }
                 }
 
-                string requestJson = JsonSerializer.Serialize(normalizedPayload);
+                //  Send Request
+                using var response = await client.SendAsync(requestMessage);
+                var responseBody = await response.Content.ReadAsStringAsync();
 
-          
-
-                if (httpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (normalizedPayload.Count > 0)
-                    {
-                        var query = string.Join("&", normalizedPayload.Select(kv =>
-                            $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value?.ToString() ?? string.Empty)}"));
-                        url = url.Contains('?') ? $"{url}&{query}" : $"{url}?{query}";
-                    }
-                    response = await client.GetAsync(url);
-                }
-                else
-                {
-                    var json = (normalizedPayload.Count > 0) ? JsonSerializer.Serialize(normalizedPayload) : "{}";
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                    response = httpMethod.ToUpper() switch
-                    {
-                        "POST" => await client.PostAsync(url, content),
-                        "PUT" => await client.PutAsync(url, content),
-                        "DELETE" => await client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, url) { Content = content }),
-                        _ => await client.PostAsync(url, content)
-                    };
-                }
-
-                responseBody = await response.Content.ReadAsStringAsync();
                 if (string.IsNullOrWhiteSpace(responseBody))
                 {
                     responseBody = $"No response returned. Status: {(int)response.StatusCode} {response.ReasonPhrase}";
                 }
-         
+
+                //  Log Transaction
                 if (_uow.IntegrationApiEvaluationRepository != null && evaluation != null)
                 {
                     var log = new IntegrationApiEvaluation
@@ -2871,13 +2741,14 @@ namespace MEligibilityPlatform.Application.Services
                         NodeApiId = nodeApiId,
                         ApiResponse = responseBody,
                         ApiRequest = requestJson,
-                        EvaluationHistoryId = evaluation.EvaluationHistoryId, // link to main evaluation
+                        EvaluationHistoryId = evaluation.EvaluationHistoryId,
                         EvaluationTimeStamp = DateTime.Now
                     };
                     _uow.IntegrationApiEvaluationRepository.Add(log);
                     await _uow.CompleteAsync();
                 }
 
+                //  Return Result
                 if (!response.IsSuccessStatusCode)
                 {
                     return JsonSerializer.Serialize(new
@@ -2908,17 +2779,21 @@ namespace MEligibilityPlatform.Application.Services
 
         public async Task<string> CallExternalApiWithMappingAsync(DynamicApiRequest request)
         {
-            // Step 1: Get API configuration
-            var apiInfo = (from api in _uow.NodeApiRepository.GetAll()
-                           join node in _uow.NodeModelRepository.GetAll() on api.NodeId equals node.NodeId
-                           where (node.NodeUrl + "/" + api.Apiname) == request.Url
+            //Fetch active APIs with node information
+            var apis = _uow.NodeApiRepository.GetAll().Where(api => api.IsActive).ToList();
+            var nodes = _uow.NodeModelRepository.GetAll().ToList();
+            //  Get API configuration
+            var apiInfo = (from api in apis
+                           join node in nodes on api.NodeId equals node.NodeId
+                           orderby api.ExecutionOrder
                            select new
                            {
                                api.Apiid,
                                api.Apiname,
                                api.HttpMethodType,
                                FullUrl = node.NodeUrl + "/" + api.Apiname,
-                               Headers = api.Header
+                               Headers = api.Header,
+                               api.ExecutionOrder
                            }).FirstOrDefault();
 
             Dictionary<string, object> mappedPayload;
@@ -2927,9 +2802,8 @@ namespace MEligibilityPlatform.Application.Services
 
             if (apiInfo != null)
             {
-                // --- Configuration exists: use mapping logic ---
 
-                // Step 2: Load parameter definitions and mappings
+                //  Load parameter definitions and mappings
                 var parameters = _uow.ApiParametersRepository.GetAll()
                     .Where(p => p.ApiId == apiInfo.Apiid)
                     .ToList();
@@ -2940,7 +2814,7 @@ namespace MEligibilityPlatform.Application.Services
 
                 var internalParams = _uow.ParameterRepository.GetAll().ToList();
 
-                // Step 3: Build payload using mapping rules
+                //  Build payload using mapping rules
                 mappedPayload = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var param in parameters.Where(p => p.ParameterDirection.Equals("Input", StringComparison.OrdinalIgnoreCase)))
@@ -2998,7 +2872,7 @@ namespace MEligibilityPlatform.Application.Services
                 httpMethod = request.HttpMethod ?? "POST"; // default POST if not specified
             }
 
-            // Step 4: Call API
+            //  Call API
             var result = await CallExternalApiAsync(
                 request.Url,
                 httpMethod,
@@ -3349,10 +3223,6 @@ namespace MEligibilityPlatform.Application.Services
                     }
                 };
 
-                // Save request + response + no error
-                //evaluation.FutureWorksApiRequest = JsonSerializer.Serialize(futureWorksRequest);
-                //evaluation.FutureWorksApiResponse = JsonSerializer.Serialize(mockResponse);
-
                 return mockResponse;
             }
             catch (Exception ex)
@@ -3610,18 +3480,8 @@ namespace MEligibilityPlatform.Application.Services
             return new string([.. input.Where(char.IsDigit)]);
         }
 
-
-        /// <summary>
-        /// Extracts the parameter or factor name from a validation message
-        /// Example: "Validation failed for condition: Blacklist Expected Blacklist = False"
-        /// Returns "Blacklist"
-        /// </summary>
-
-
         /// <summary>
         /// Normalize a string: remove punctuation, lowercase, and trim
-
-
 
         [GeneratedRegex("([a-z])([A-Z])")]
         private static partial Regex MyRegex1();
@@ -3639,8 +3499,6 @@ namespace MEligibilityPlatform.Application.Services
 
 
     }
-
-
     // Custom Exception
     public class BREIntegrationException : Exception
     {
