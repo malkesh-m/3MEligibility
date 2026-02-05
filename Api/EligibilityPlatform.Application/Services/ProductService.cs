@@ -225,7 +225,7 @@ namespace MEligibilityPlatform.Application.Services
         public ProductListModel GetById(int tenantId, int id)
         {
             // Retrieves products filtered by entity ID and product ID.
-            var products = _uow.ProductRepository.Query().Where(w => w.ProductId == id && w.TenantId == tenantId);
+            var products = _uow.ProductRepository.Query().Where(w => w.ProductId == id && w.TenantId == tenantId).ToList();
 
             // Maps the product entity to a list model and returns.
             return _mapper.Map<ProductListModel>(products);
@@ -263,7 +263,7 @@ namespace MEligibilityPlatform.Application.Services
             var createdBy = products.CreatedBy;
             var oldImagePath = products.ProductImagePath;
 
-            // Handle file upload if a new file is provided
+            // Handle file upload/removal from wwwroot
             if (model.ProductImageFile != null)
             {
                 // Delete old file if it exists
@@ -277,6 +277,15 @@ namespace MEligibilityPlatform.Application.Services
                     model.ProductImageFile,
                     model.TenantId,
                     _webHostEnvironment.WebRootPath);
+            }
+            else if (model.RemoveOldImage)
+            {
+                if (!string.IsNullOrWhiteSpace(oldImagePath))
+                {
+                    FileUploadHelper.DeleteFile(oldImagePath, _webHostEnvironment.WebRootPath);
+                }
+
+                model.ProductImagePath = null;
             }
             else
             {

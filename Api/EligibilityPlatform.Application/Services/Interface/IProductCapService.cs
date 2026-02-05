@@ -42,7 +42,7 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// </summary>
         /// <param name="id">The unique identifier of the product.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of <see cref="ProductCapModel"/> objects associated with the specified product.</returns>
-        Task<List<ProductCapModel>> GetByProductId(int id);
+        Task<List<ProductCapModel>> GetByProductId(int id, int tenantId);
 
         /// <summary>
         /// Retrieves all product cap records.

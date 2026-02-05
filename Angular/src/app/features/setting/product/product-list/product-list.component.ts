@@ -52,6 +52,7 @@ export class ProductListComponent {
   uploadProgress: number = 0;
   isDragging: boolean = false;
   isUploading: boolean = false;  // Separate flag for upload loading
+  imageRemoved: boolean = false;
   loggedInUser: any = null;
   isExceptionRule: boolean = false;
   isDataReady: boolean = false;
@@ -153,6 +154,7 @@ export class ProductListComponent {
 
     // Store the file for upload
     this.selectedImageFile = file;
+    this.imageRemoved = false;
 
     // Create preview using object URL (much faster than base64)
     if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
@@ -160,17 +162,17 @@ export class ProductListComponent {
     }
     this.imagePreview = URL.createObjectURL(file);
   }
-
-  removeImage() {
-    // Clean up object URL to prevent memory leaks
-    if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
-      URL.revokeObjectURL(this.imagePreview);
-    }
-    this.selectedImageFile = null;
-    this.imagePreview = '';
-    this.uploadProgress = 0;
+removeImage() {
+  if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
+    URL.revokeObjectURL(this.imagePreview);
   }
 
+  this.selectedImageFile = null;
+  this.imagePreview = '';
+  this.uploadProgress = 0;
+
+  this.imageRemoved = this.isEditing && !!this.editingItem?.ProductImagePath;
+}
   sanitizeCode(event: any) {
     event.target.value = this.utilityService.sanitizeCode(event.target.value);
   }
@@ -189,11 +191,13 @@ export class ProductListComponent {
     });
   }
   fetchProductList() {
+    this.isLoading=true;
     this.productService.getInfoListName().subscribe({
       next: (response) => {
         this.ProductListDetails = response.data;
         console.log(response.data)
         console.log("response.datafetchProductList")
+    this.isLoading=false;
 
       },
       error: (err) => {
@@ -206,6 +210,7 @@ export class ProductListComponent {
     this.imagePreview = '';
     this.selectedImageFile = null;
     this.uploadProgress = 0;
+    this.imageRemoved = false;
     this.formVisible = true;
     this.isInsertNewRecord = true;
     this.isEditing = false;
@@ -254,6 +259,7 @@ export class ProductListComponent {
           exceptionId: hasException ? event.data.ExceptionId : null,
           maxEligibleAmount: event.data['Stream Cap'] ?? ''
         });
+        this.imageRemoved = false;
 
         if (hasException) {
           this.formData.get('exceptionId')?.enable();
@@ -530,35 +536,34 @@ export class ProductListComponent {
   }
 
 
-  async onSubmit() {
-    if (this.formData.invalid) {
-      return;
-    }
-    const formData = new FormData();
+async onSubmit() {
+  if (this.formData.invalid) return;
 
-    // Append form fields
-    formData.append('Code', this.formData.value.code || '');
-    formData.append('ProductName', this.formData.value.productName || '');
-    formData.append('CategoryId', this.formData.value.productCategory || '');
-    formData.append('Narrative', this.formData.value.narrative || '');
-    formData.append('Description', this.formData.value.description || '');
-    formData.append('EntityId', this.formData.value.entityId || '');
-    formData.append('MaxEligibleAmount', this.formData.value.maxEligibleAmount || '');
+  const formData = new FormData();
 
-    // Process image - Direct upload
-    if (this.selectedImageFile) {
-      formData.append('ProductImageFile', this.selectedImageFile, this.selectedImageFile.name);
-    }
+  // Append form fields
+  formData.append('Code', this.formData.value.code || '');
+  formData.append('ProductName', this.formData.value.productName || '');
+  formData.append('CategoryId', this.formData.value.productCategory || '');
+  formData.append('Narrative', this.formData.value.narrative || '');
+  formData.append('Description', this.formData.value.description || '');
+  formData.append('EntityId', this.formData.value.entityId || '');
+  formData.append('MaxEligibleAmount', this.formData.value.maxEligibleAmount || '');
 
-    // Call appropriate method based on insert/update mode
-    if (this.isInsertNewRecord) {
-      this.addInfoDetails(formData);
-    } else {
-      formData.append('ProductId', this.updatedIndexId.toString());
-      this.updateInfoDetails(formData);
-    }
+  // Append new image if selected
+  if (this.selectedImageFile) {
+    formData.append('ProductImageFile', this.selectedImageFile, this.selectedImageFile.name);
   }
 
+  formData.append('RemoveOldImage', this.imageRemoved ? 'true' : 'false');
+
+  if (this.isInsertNewRecord) {
+    this.addInfoDetails(formData);
+  } else {
+    formData.append('ProductId', this.updatedIndexId.toString());
+    this.updateInfoDetails(formData);
+  }
+}
 
 
 
@@ -859,6 +864,7 @@ export class ProductListComponent {
     this.selectedImageFile = null;
     this.imagePreview = '';
     this.uploadProgress = 0;
+    this.imageRemoved = false;
   }
 
   onSelectProductItem(value: any) {

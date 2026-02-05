@@ -129,7 +129,7 @@ export class ParametersComponent {
     textarea.style.height = textarea.scrollHeight + 'px';
   }
   ngOnInit(): void {
-    this.fetchEntitiesList();
+    // this.fetchEntitiesList();
     this.fetchAllParameters();
     this.fetchConditions();
     this.fetchDataTypes();

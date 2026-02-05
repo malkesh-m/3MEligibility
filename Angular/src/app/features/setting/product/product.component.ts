@@ -183,10 +183,13 @@ export class ProductComponent {
   }
 
   fetchCategoriesList(action?: string) {
+    this.isLoading=true;
     this.productService.getCategoriesList().subscribe({
       next: (response) => {
         this.categoriesList = response.data;
         this.applyFilter(action);
+            this.isLoading=false;
+
       },
       error: (error) => {
         this.categoriesList = [];
@@ -195,12 +198,15 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+      this.isLoading=false;
+
       }
     })
     this.isTableDataUpdated = false;
   }
 
   fetchInfoList(action?: string) {
+        this.isLoading=true;
     this.productService.getInfoList().subscribe({
       next: (response) => {
         this.infoList = response.data.map((product: Product) => {
@@ -211,6 +217,7 @@ export class ProductComponent {
           return product;
         });
         this.applyFilter(action);
+            this.isLoading=false;
 
       },
       error: (error) => {
@@ -220,6 +227,7 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
+      this.isLoading=false;
       }
     })
   }

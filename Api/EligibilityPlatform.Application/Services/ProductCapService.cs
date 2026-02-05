@@ -84,10 +84,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The product ID.</param>
         /// <returns>A list of ProductCapModel for the specified product ID.</returns>
-        public async Task<List<ProductCapModel>> GetByProductId(int id)
+        public async Task<List<ProductCapModel>> GetByProductId(int id,int tenantId)
         {
             // Retrieves product caps filtered by product ID
-            var entity = await _uow.ProductCapRepository.Query().Where(p => p.ProductId == id).ToListAsync();
+            var entity = await _uow.ProductCapRepository.Query().Where(p => p.ProductId == id&& p.TenantId==tenantId).ToListAsync();
             // Throws exception if no product caps found for the product ID
             if (entity.Count == 0)
                 throw new Exception("Product Cap not found.");

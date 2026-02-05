@@ -2076,9 +2076,6 @@ namespace MEligibilityPlatform.Application.Services
 
         [GeneratedRegex(@"\d+")]
         private static partial Regex MyRegex();
-
-
-
         public async Task<BREIntegrationResponses> ProcessBREIntegration(Dictionary<string, object> KeyValues, int TenantId, string? RequestId)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -2675,19 +2672,6 @@ namespace MEligibilityPlatform.Application.Services
 
 
 
-        private static int? TryParseNullableInt(string? input)
-        {
-            return int.TryParse(input, out var result) ? result : (int?)null;
-        }
-        private static DateTime? TryParseNullableDateTime(string? input)
-        {
-            return DateTime.TryParse(input, out var result) ? result : (DateTime?)null;
-        }
-
-        private static decimal? TryParseNullableDecimal(string? input)
-        {
-            return decimal.TryParse(input, out var result) ? result : (decimal?)null;
-        }
         public async Task<Dictionary<string, Dictionary<string, object>>> CallAllExternalApisDynamic(Dictionary<int, object> inputKeyValues, EvaluationHistory Evalution)
         {
             var results = new Dictionary<string, Dictionary<string, object>>();
@@ -2848,20 +2832,7 @@ namespace MEligibilityPlatform.Application.Services
 
                 string requestJson = JsonSerializer.Serialize(normalizedPayload);
 
-                // Store request in EvaluationHistory
-                //if (evaluation != null)
-                //{
-                //    if (url.Contains("simah", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.SIMAHApiRequest = requestJson;
-                //    else if (url.Contains("mozn", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.MoznApiRequest = requestJson;
-                //    else if (url.Contains("flip", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.FlipApiRequest = requestJson;
-                //    else if (url.Contains("Yaqeen", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.YaqeenApiRequest = requestJson;
-                //    else if (url.Contains("Future", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.FutureWorksApiRequest = requestJson;
-                //}
+          
 
                 if (httpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
                 {
@@ -2892,21 +2863,7 @@ namespace MEligibilityPlatform.Application.Services
                 {
                     responseBody = $"No response returned. Status: {(int)response.StatusCode} {response.ReasonPhrase}";
                 }
-                //// Store response in EvaluationHistory
-                //if (evaluation != null)
-                //{
-                //    if (url.Contains("simah", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.SIMAHApiResponse = responseBody;
-                //    else if (url.Contains("mozn", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.MoznApiResponse = responseBody;
-                //    else if (url.Contains("flip", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.FlipApiResponse = responseBody;
-                //    else if (url.Contains("Yaqeen", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.YaqeenApiResponse = responseBody;
-                //    else if (url.Contains("future", StringComparison.OrdinalIgnoreCase))
-                //        evaluation.FutureWorksApiResponse = responseBody;
-                //}
-
+         
                 if (_uow.IntegrationApiEvaluationRepository != null && evaluation != null)
                 {
                     var log = new IntegrationApiEvaluation

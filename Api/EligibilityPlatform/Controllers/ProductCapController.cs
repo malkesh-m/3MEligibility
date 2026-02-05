@@ -75,8 +75,10 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getbyproductid/{id}")]
         public async Task<IActionResult> GetByProductId(int id)
         {
+            var tenantId = User.GetTenantId();
+
             // Retrieves product cap records by product ID
-            var result = await _productCapService.GetByProductId(id);
+            var result = await _productCapService.GetByProductId(id,tenantId);
             // Checks if records were found
             if (result != null)
             {

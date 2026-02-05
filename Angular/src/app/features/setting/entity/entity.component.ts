@@ -118,7 +118,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
   async ngOnInit() {
     await Promise.all([this.fetchCountries(), this.fetchCities()]);
     //this.getCurrencyList();
-    this.fetchEntitiesList(); // Fetch entities options
+    // this.fetchEntitiesList(); // Fetch entities options
     console.log(environment.production)
     console.log("environment.production")
 

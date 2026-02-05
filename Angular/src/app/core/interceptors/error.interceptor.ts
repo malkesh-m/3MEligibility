@@ -23,7 +23,6 @@ export class GlobalErrorInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
 
-    // 🚫 Prevent infinite logging loop
     if (req.url.includes('/api/log')) {
       return next.handle(req);
     }

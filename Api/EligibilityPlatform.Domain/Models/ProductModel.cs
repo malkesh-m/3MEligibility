@@ -54,6 +54,7 @@ namespace MEligibilityPlatform.Domain.Models
     }
     public class ProductAddUpdateModel : ProductModel
     {
+        public bool RemoveOldImage { get; set; }
         [JsonIgnore]
         public string? CreatedBy { get; set; }
         [JsonIgnore]
