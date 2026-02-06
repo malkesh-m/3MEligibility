@@ -72,46 +72,47 @@ namespace MEligibilityPlatform.Application.Services
             var allProductIds = allProducts.Select(p => p.ProductId).ToList();
 
             // Retrieves all product caps for the specified entity from the repository
-            var productCap = _uow.ProductCapRepository.Query()
-                .Where(p => p.Product.TenantId == tenantId)
+            var productCap = _uow.ProductCapRepository.Query().
+                Include(p=>p.Product)
+                .Where(p => p.TenantId == tenantId)
                 .ToList();
 
-            // Retrieves exception products with their related data for the specified entity
-            var exceptionProducts = _uow.ExceptionProductRepository.Query()
-           .Include(e => e.ExceptionManagement).AsNoTracking()
-           .Select(e => new ExceptionProduct
-           {
-               ExceptionProductId = e.ExceptionProductId,
-               ExceptionManagementId = e.ExceptionManagementId,
-               ProductId = e.ProductId,
-               ExceptionManagement = e.ExceptionManagement,
-               Product = new Product
-               {
-                   ProductId = e.Product.ProductId,
-                   ProductName = e.Product.ProductName,
-                   CategoryId = e.Product.CategoryId,
-                   TenantId = e.Product.TenantId,
-                   Code = e.Product.Code,
-                   ProductImagePath = e.Product.ProductImagePath,
-                   Narrative = e.Product.Narrative,
-                   Description = e.Product.Description,
-                   UpdatedByDateTime = e.Product.UpdatedByDateTime,
-                   CreatedBy = e.Product.CreatedBy,
-                   CreatedByDateTime = e.Product.CreatedByDateTime,
-                   UpdatedBy = e.Product.UpdatedBy,
-                   IsImport = e.Product.IsImport,
-                   MaxEligibleAmount = e.Product.MaxEligibleAmount,
-                   Category = e.Product.Category,
-                   //Entity = e.Product.Entity,
-                   ExceptionProducts = e.Product.ExceptionProducts,
-                   HistoryPcs = e.Product.HistoryPcs,
-                   Pcard = e.Product.Pcard,
-                   ProductCaps = e.Product.ProductCaps,
-                   ProductParams = e.Product.ProductParams,
-                   ProductCapAmounts = e.Product.ProductCapAmounts
-               }
-           })
-           .ToList();
+           // // Retrieves exception products with their related data for the specified entity
+           // var exceptionProducts = _uow.ExceptionProductRepository.Query()
+           //.Include(e => e.ExceptionManagement).AsNoTracking()
+           //.Select(e => new ExceptionProduct
+           //{
+           //    ExceptionProductId = e.ExceptionProductId,
+           //    ExceptionManagementId = e.ExceptionManagementId,
+           //    ProductId = e.ProductId,
+           //    ExceptionManagement = e.ExceptionManagement,
+           //    Product = new Product
+           //    {
+           //        ProductId = e.Product.ProductId,
+           //        ProductName = e.Product.ProductName,
+           //        CategoryId = e.Product.CategoryId,
+           //        TenantId = e.Product.TenantId,
+           //        Code = e.Product.Code,
+           //        ProductImagePath = e.Product.ProductImagePath,
+           //        Narrative = e.Product.Narrative,
+           //        Description = e.Product.Description,
+           //        UpdatedByDateTime = e.Product.UpdatedByDateTime,
+           //        CreatedBy = e.Product.CreatedBy,
+           //        CreatedByDateTime = e.Product.CreatedByDateTime,
+           //        UpdatedBy = e.Product.UpdatedBy,
+           //        IsImport = e.Product.IsImport,
+           //        MaxEligibleAmount = e.Product.MaxEligibleAmount,
+           //        Category = e.Product.Category,
+           //        //Entity = e.Product.Entity,
+           //        ExceptionProducts = e.Product.ExceptionProducts,
+           //        HistoryPcs = e.Product.HistoryPcs,
+           //        Pcard = e.Product.Pcard,
+           //        ProductCaps = e.Product.ProductCaps,
+           //        ProductParams = e.Product.ProductParams,
+           //        ProductCapAmounts = e.Product.ProductCapAmounts
+           //    }
+           //})
+           //.ToList();
 
             // Processes business rules and card validations to determine valid products
             var (validProductIds, ruleResults) = ProcessRulesAndCards(tenantId, keyValues);
@@ -125,7 +126,7 @@ namespace MEligibilityPlatform.Application.Services
                 validProductIds,
                 ruleResults,
                 tenantId);
-            var exceptionRules = _uow.ExceptionManagementRepository.Query();
+            //var exceptionRules = _uow.ExceptionManagementRepository.Query();
             // Checks for products with exception handling
             //var exceptionHandledProducts = CheckProductWithException(tenantId, keyValues, exceptionRules);
 
@@ -582,7 +583,7 @@ namespace MEligibilityPlatform.Application.Services
 
                 // Retrieves product cap amounts for the current product
                 var ProductCapAmount = _uow.ProductCapAmountRepository.Query()
-                    .Where(p => p.ProductId == item.ProductId);
+                    .Where(p => p.ProductId == item.ProductId&&p.TenantId==tenantId);
 
                 // Evaluates each cap amount against provided parameters
                 foreach (var cap in ProductCapAmount)
@@ -1675,7 +1676,7 @@ namespace MEligibilityPlatform.Application.Services
                                     valueToValidate = rawValue!;
                                 //}
 
-                                var detail = Validate(condition, factor, valueToValidate, datatype.DataTypeName);
+                                var detail = Validate(condition, factor, valueToValidate, tenantId,datatype.DataTypeName);
                                 detail.ParameterId = factor.ParameterId;
                                 detail.FactorName = factor.FactorName;
                                 isValidationPassed = detail.IsValid;
@@ -1744,7 +1745,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="datatype">The data type of the values being compared.</param>
         /// <param name="productId">The ID of the product being validated (optional).</param>
         /// <returns>A ValidationDetail containing the validation outcome.</returns>
-        private ValidationDetail Validate(Condition condition, Factor factor, object value, string? datatype = null, int? productId = null)
+        private ValidationDetail Validate(Condition condition, Factor factor, object value,int tenantId, string? datatype = null, int? productId = null)
         {
 
             //string? codeValue = null;
@@ -1853,7 +1854,7 @@ namespace MEligibilityPlatform.Application.Services
                         }
 
                         // Try to find the list by its name
-                        var list = _uow.ManagedListRepository.Query().FirstOrDefault(l => l.ListName == listName);
+                        var list = _uow.ManagedListRepository.Query().FirstOrDefault(l => l.ListName == listName&&tenantId==l.TenantId);
 
                         // If list doesn't exist, assume the value must match Value1 directly
                         if (list == null)
@@ -1863,7 +1864,7 @@ namespace MEligibilityPlatform.Application.Services
                         }
                         // Fetch items belonging to that list
                         var listId = list.ListId;
-                        var listItems = _uow.ListItemRepository.Query().Where(l => l.ListId == listId).Select(l => l.ItemName).ToList();
+                        var listItems = _uow.ListItemRepository.Query().Where(l => l.ListId == listId&&l.TenantId==tenantId).Select(l => l.ItemName).ToList();
 
                         // Validate provided value exists in list items
                         var existsInDb = listItems.Any(item =>string.Equals(item?.Trim(), providedValue?.Trim(), StringComparison.OrdinalIgnoreCase));
@@ -1897,7 +1898,7 @@ namespace MEligibilityPlatform.Application.Services
                         }
 
                         var list = _uow.ManagedListRepository.Query()
-                            .FirstOrDefault(l => l.ListName == listName);
+                            .FirstOrDefault(l => l.ListName == listName&&l.TenantId==tenantId);
 
                         if (list == null)
                         {
@@ -1906,7 +1907,7 @@ namespace MEligibilityPlatform.Application.Services
                         }
                         var listId = list.ListId;
                         var listItems = _uow.ListItemRepository.Query()
-                            .Where(l => l.ListId == listId)
+                            .Where(l => l.ListId == listId && l.TenantId == tenantId)
                             .Select(l => l.ItemName)
                             .ToList();
 
@@ -2076,15 +2077,15 @@ namespace MEligibilityPlatform.Application.Services
             try
             {
                 // Fetch necessary data
-                var parameters = _uow.ParameterRepository.GetAll().ToList();
-                var apiParameters = _uow.ApiParametersRepository.GetAll().ToList();
-                var apiMappings = _uow.ApiParameterMapsRepository.GetAll().ToList();
+                var parameters = _uow.ParameterRepository.Query().Where(t=>t.TenantId==TenantId).ToList();
+                var apiParameters = _uow.ApiParametersRepository.Query().Where(t => t.TenantId == TenantId).ToList();
+                var apiMappings = _uow.ApiParameterMapsRepository.Query().Where(t => t.TenantId == TenantId).ToList();
 
                 //  Resolve Parameters
                 var parameterDictionary = MapParameterNamesToIds(KeyValues, TenantId, parameters);
 
                 //  Call External APIs and Merge Results
-                var keyValuesForEligibility = await CallExternalApis(parameterDictionary, evaluation, apiParameters, apiMappings, parameters);
+                var keyValuesForEligibility = await CallExternalApis(parameterDictionary, evaluation, apiParameters, apiMappings, parameters,TenantId);
 
                 //  Scoring
                 var scoreResult = new ScoringResult();
@@ -2177,9 +2178,9 @@ namespace MEligibilityPlatform.Application.Services
             return parameterDictionary;
         }
 
-        private async Task<Dictionary<int, object>> CallExternalApis(Dictionary<int, object> parameterDictionary, EvaluationHistory evaluation, List<ApiParameter> apiParameters, List<ApiParameterMap> apiMappings, List<Parameter> parameters)
+        private async Task<Dictionary<int, object>> CallExternalApis(Dictionary<int, object> parameterDictionary, EvaluationHistory evaluation, List<ApiParameter> apiParameters, List<ApiParameterMap> apiMappings, List<Parameter> parameters,int TenantId)
         {
-            var externalApiResults = await CallAllExternalApisDynamic(parameterDictionary, evaluation);
+            var externalApiResults = await CallAllExternalApisDynamic(parameterDictionary, evaluation,TenantId);
 
             // Merge internal + external parameters into final key-value set
             var keyValuesForEligibility = new Dictionary<int, object>(parameterDictionary);
@@ -2557,7 +2558,7 @@ namespace MEligibilityPlatform.Application.Services
             }
         }
 
-        public async Task<Dictionary<string, Dictionary<string, object>>> CallAllExternalApisDynamic(Dictionary<int, object> inputKeyValues, EvaluationHistory Evalution)
+        public async Task<Dictionary<string, Dictionary<string, object>>> CallAllExternalApisDynamic(Dictionary<int, object> inputKeyValues, EvaluationHistory Evalution,int TenantId)
         {
             var results = new Dictionary<string, Dictionary<string, object>>();
 
@@ -2568,6 +2569,7 @@ namespace MEligibilityPlatform.Application.Services
             var activeApis = (from api in apis
                               join node in nodes on api.NodeId equals node.NodeId
                               orderby api.ExecutionOrder
+                              where api.TenantId==TenantId &&node.TenantId==TenantId
                               select new
                               {
                                   api.Apiid,
@@ -2588,10 +2590,10 @@ namespace MEligibilityPlatform.Application.Services
                 .ToList();
             
             var allMappings = _uow.ApiParameterMapsRepository.Query()
-                 .Where(m => apiIds.Contains(m.ApiId))
+                 .Where(m => apiIds.Contains(m.ApiId)&&m.TenantId==TenantId)
                  .ToList();
 
-            var allInternalParams = _uow.ParameterRepository.GetAll().ToList();
+            var allInternalParams = _uow.ParameterRepository.Query().Where(t => t.TenantId == TenantId).ToList();
 
             // Build lookup dictionaries for O(1) access
             var mappingsByApiParamId = allMappings.ToDictionary(m => m.ApiParameterId, m => m);

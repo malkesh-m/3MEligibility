@@ -16,7 +16,7 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// <param name="keyValues">A dictionary of key-value pairs containing validation and filtering parameters.</param>
         /// <returns>An <see cref="EligibleAmountResults"/> object containing the eligible products and their amounts.</returns>
         EligibleAmountResults GetAllEligibleProducts(int tenantId, Dictionary<int, object> keyValues);
-        Task<BREIntegrationResponses> ProcessBREIntegration(Dictionary<string, object> KeyValues, int TenentId, string? RequestId);
+        Task<BREIntegrationResponses> ProcessBREIntegration(Dictionary<string, object> KeyValues, int TenantId, string? RequestId);
         Task<object> CallMOZNApi(MOZNRequest request, EvaluationHistory evaluation);
         Task<object> CallFLIPApi(string nationalId, EvaluationHistory evaluation);
         Task<object> CallYaqeenApi(string nationalId, EvaluationHistory evaluation);

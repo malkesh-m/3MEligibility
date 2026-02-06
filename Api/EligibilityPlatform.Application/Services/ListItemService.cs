@@ -49,13 +49,13 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(ListItemCreateUpdateModel model)
         { 
-            var duplicateCode = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.Code == p.Code);
+            var duplicateCode = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.Code == p.Code && p.TenantId == model.TenantId);
             if (duplicateCode)
             {
                 // Throws exception if parameter name already exists
                 throw new Exception("Code already exists in this List");
             }
-            var res = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.ItemName == p.ItemName);
+            var res = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.ItemName == p.ItemName&&p.TenantId==model.TenantId);
             if (res)
             {
                 // Throws exception if parameter name already exists
@@ -121,13 +121,13 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Update(ListItemCreateUpdateModel model)
         {
-            var duplicateCode = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.Code == p.Code && model.ItemId != p.ItemId);
+            var duplicateCode = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.Code == p.Code && model.ItemId != p.ItemId && p.TenantId == model.TenantId);
             if (duplicateCode)
             {
                 // Throws exception if parameter name already exists
                 throw new Exception("Code already exists in this List");
             }
-            var res = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.ItemName == p.ItemName && model.ItemId != p.ItemId);
+            var res = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.ItemName == p.ItemName && model.ItemId != p.ItemId && p.TenantId == model.TenantId);
             if (res)
             {
                 // Throws exception if parameter name already exists
@@ -140,8 +140,7 @@ namespace MEligibilityPlatform.Application.Services
             var Item = _uow.ListItemRepository.GetById(model.ItemId);
             // Sets the update timestamp to current UTC time
             model.UpdatedByDateTime = DateTime.UtcNow;
-            // Sets the update timestamp to current UTC time again (redundant)
-            model.UpdatedByDateTime = DateTime.UtcNow;
+        
             var userName = Item.CreatedBy;
             // Updates the list item with mapped data from the model
             _uow.ListItemRepository.Update(_mapper.Map<ListItemCreateUpdateModel, ListItem>(model, Item));
@@ -261,10 +260,10 @@ namespace MEligibilityPlatform.Application.Services
             var worksheet = package.Workbook.Worksheets[0];
             string[] expectedHeaders =
             [
-        "ListName*",
-        "ItemName*",
-        "ListId*",
-        "Code*"
+                "ListName*",
+                "ItemName*",
+                "ListId*",
+                "Code*"
              ];
 
             static bool Same(string a, string b)
