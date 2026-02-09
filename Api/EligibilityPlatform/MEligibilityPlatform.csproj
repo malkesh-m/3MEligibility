@@ -31,7 +31,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\EligibilityPlatform.Application\MEligibilityPlatform.Application.csproj" />
 	  <ProjectReference Include="..\EligibilityPlatform.Infrastructure\MEligibilityPlatform.Infrastructure.csproj" />
 	</ItemGroup>
 

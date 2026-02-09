@@ -7,22 +7,22 @@ using System.Threading.Tasks;
 
 namespace MEligibilityPlatform.Application.Constants
 {
-    
-        public static class Permissions
+
+    public static class Permissions
+    {
+        public static List<string> GetRegisteredPermissions()
         {
-            public static List<string> GetRegisteredPermissions()
+            var permissions = new List<string>();
+            foreach (var field in typeof(Permissions)
+                     .GetNestedTypes()
+                     .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)))
             {
-                var permissions = new List<string>();
-                foreach (var field in typeof(Permissions)
-                         .GetNestedTypes()
-                         .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)))
-                {
-                    var value = field.GetValue(null)?.ToString();
-                    if (!string.IsNullOrEmpty(value))
-                        permissions.Add(value);
-                }
-                return permissions;
+                var value = field.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(value))
+                    permissions.Add(value);
             }
+            return permissions;
+        }
         public static class ApiDetails
         {
             public const string Create = "Permissions.ApiDetails.Create";
@@ -73,7 +73,7 @@ namespace MEligibilityPlatform.Application.Constants
 
         public static class BulkImport
         {
-    
+
             public const string View = "Permissions.BulkImport.View";
             public const string DownloadImportedFile = "Permissions.BulkImport.Download";
             public const string Import = "Permissions.BulkImport.Import";
@@ -226,7 +226,7 @@ namespace MEligibilityPlatform.Application.Constants
             public const string Export = "Permissions.ManagedList.Export";
             public const string Import = "Permissions.ManagedList.Import";
         }
-  
+
         public static class MapFunction
         {
             public const string Create = "Permissions.MapFunction.Create";
@@ -307,12 +307,12 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Product
         {
-                public const string Create = "Permissions.Product.Create";
-                public const string Delete = "Permissions.Product.Delete";
-                public const string Edit = "Permissions.Product.Edit";
-                public const string View = "Permissions.Product.View";
-                public const string Export = "Permissions.Product.Export";
-                public const string Import = "Permissions.Product.Import";
+            public const string Create = "Permissions.Product.Create";
+            public const string Delete = "Permissions.Product.Delete";
+            public const string Edit = "Permissions.Product.Edit";
+            public const string View = "Permissions.Product.View";
+            public const string Export = "Permissions.Product.Export";
+            public const string Import = "Permissions.Product.Import";
 
         }
         public static class ProductParam
@@ -405,20 +405,5 @@ namespace MEligibilityPlatform.Application.Constants
 
 
         }
-        public static class Brands
-            {
-                public const string Create = "Permissions.Brands.Create";
-                public const string Delete = "Permissions.Brands.Delete";
-                public const string Edit = "Permissions.Brands.Edit";
-                public const string View = "Permissions.Brands.View";
-            }
-
-            public static class Customers
-            {
-                public const string Create = "Permissions.Customers.Create";
-                public const string Delete = "Permissions.Customers.Delete";
-                public const string Edit = "Permissions.Customers.Edit";
-                public const string View = "Permissions.Customers.View";
-            }
-        }
+    }
 }

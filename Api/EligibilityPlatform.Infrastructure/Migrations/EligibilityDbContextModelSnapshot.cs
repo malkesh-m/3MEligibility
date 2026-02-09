@@ -51,7 +51,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex("RulesEruleId");
 
-                    b.ToTable("EruleParameter");
+                    b.ToTable("EruleParameter", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.AmountEligibility", b =>
@@ -121,7 +121,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "ApiId" }, "IX_ApiParameters_ApiId");
 
-                    b.ToTable("ApiParameters");
+                    b.ToTable("ApiParameters", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.ApiParameterMap", b =>
@@ -193,7 +193,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "NodeApiApiid" }, "IX_ApiResponses_NodeApiApiid");
 
-                    b.ToTable("ApiResponses");
+                    b.ToTable("ApiResponses", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.Apidetail", b =>
@@ -264,7 +264,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("AppSettingId");
 
-                    b.ToTable("AppSettings");
+                    b.ToTable("AppSettings", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.Audit", b =>
@@ -804,7 +804,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("EvaluationHistoryId");
 
-                    b.ToTable("EvaluationHistories");
+                    b.ToTable("EvaluationHistories", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.ExceptionManagement", b =>
@@ -876,7 +876,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.HasIndex(new[] { "TenantId" }, "IX_ExceptionManagement_TenantId")
                         .HasDatabaseName("IX_ExceptionManagement_TenantId1");
 
-                    b.ToTable("ExceptionManagements");
+                    b.ToTable("ExceptionManagements", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.ExceptionProduct", b =>
@@ -965,7 +965,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Factors_TenantId");
 
-                    b.ToTable("Factors");
+                    b.ToTable("Factors", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.GroupRole", b =>
@@ -987,7 +987,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.HasIndex("GroupId")
                         .HasDatabaseName("IX_GroupRole_GroupId");
 
-                    b.ToTable("GroupRoles");
+                    b.ToTable("GroupRoles", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.HistoryEc", b =>
@@ -1118,7 +1118,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex("TranId");
 
-                    b.ToTable("HistoryParameters");
+                    b.ToTable("HistoryParameters", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.HistoryPc", b =>
@@ -1226,7 +1226,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ImportDocuments");
+                    b.ToTable("ImportDocuments", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.IntegrationApiEvaluation", b =>
@@ -1258,7 +1258,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex("NodeApiId");
 
-                    b.ToTable("IntegrationApiEvaluation");
+                    b.ToTable("IntegrationApiEvaluation", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.ListItem", b =>
@@ -1311,7 +1311,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex("ListId");
 
-                    b.ToTable("ListItems");
+                    b.ToTable("ListItems", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.Log", b =>
@@ -1597,7 +1597,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Nodes_TenantId");
 
-                    b.ToTable("Nodes");
+                    b.ToTable("Nodes", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.NodeApi", b =>
@@ -2181,7 +2181,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RejectionReasons");
+                    b.ToTable("RejectionReasons", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.Role", b =>
@@ -2218,7 +2218,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.HasIndex("RoleId")
                         .HasDatabaseName("IX_Role_RoleId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.Screen", b =>
@@ -2286,7 +2286,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.HasKey("GroupId")
                         .HasName("PK__Security__149AF30AF87E70F1");
 
-                    b.ToTable("SecurityGroups");
+                    b.ToTable("SecurityGroups", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.Setting", b =>
@@ -2307,7 +2307,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Settings_TenantId");
 
-                    b.ToTable("Settings");
+                    b.ToTable("Settings", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.SystemParameter", b =>
@@ -2328,7 +2328,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SystemParameters");
+                    b.ToTable("SystemParameters", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.User", b =>
@@ -2392,7 +2392,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "TenantId" }, "IX_Users_TenantId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.UserGroup", b =>
@@ -2427,7 +2427,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("IX_UserGroup_UserId");
 
-                    b.ToTable("UserGroups");
+                    b.ToTable("UserGroups", (string)null);
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.UserStatus", b =>
@@ -2480,7 +2480,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
 
                     b.HasIndex("UsersUserId");
 
-                    b.ToTable("SecurityGroupUser");
+                    b.ToTable("SecurityGroupUser", (string)null);
                 });
 
             modelBuilder.Entity("EcardDetail", b =>

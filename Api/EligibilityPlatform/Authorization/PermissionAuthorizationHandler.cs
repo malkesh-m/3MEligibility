@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using MEligibilityPlatform.Application.Services.Interface;
 using System.Security.Claims;
+using MEligibilityPlatform.Domain.Entities;
 
-namespace MEligibilityPlatform.Infrastructure.Authorization
+namespace MEligibilityPlatform.Authorization
 {
     public sealed class PermissionAuthorizationHandler(IUserService userService)
                 : AuthorizationHandler<PermissionRequirement>
@@ -13,14 +14,9 @@ namespace MEligibilityPlatform.Infrastructure.Authorization
             AuthorizationHandlerContext context,
             PermissionRequirement requirement)
         {
-            var userIdClaim = context.User.Claims
-                   .FirstOrDefault(c =>
-                       c.Type.Equals("user_id", StringComparison.OrdinalIgnoreCase))
-                   ?.Value;
-            if (!int.TryParse(userIdClaim, out var userId))
-                return;
-
-            var permissions = await _userService.GetUserPermissionsAsync(userId);
+            var userIdClaim = context.User.GetUserId(); ;
+         
+            var permissions = await _userService.GetUserPermissionsAsync(userIdClaim);
 
             if (permissions.Contains(requirement.Permission))
             {

@@ -6,7 +6,7 @@ using CsvHelper;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
-using MEligibilityPlatform.Domain.Helper;
+using MEligibilityPlatform.Application.Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;

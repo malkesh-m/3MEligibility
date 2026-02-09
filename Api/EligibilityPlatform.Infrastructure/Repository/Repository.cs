@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Enums;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -34,8 +33,8 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         /// Initializes a new instance of the <see cref="Repository{T}"/> class.
         /// </summary>
         /// <param name="context">The database context used for data operations.</param>
-        /// <param name="httpContextAccessor">Provides access to the current HTTP context for user-related data.</param>
-        public Repository(EligibilityDbContext context, IHttpContextAccessor httpContextAccessor)
+        /// <param name="userContext">Provides access to the current user/request context.</param>
+        public Repository(EligibilityDbContext context, IUserContextService userContext)
         {
             // Initializes the database context dependency
             _context = context;
@@ -43,17 +42,14 @@ namespace MEligibilityPlatform.Infrastructure.Repository
             _entity = context.Set<T>();
             // Sets the maker-checker entity set
             _makerCheckerEntity = context.Set<MakerChecker>();
-          var   tenantId=httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "tenant_id") != null ? int.Parse(httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "tenant_id")?.Value!) : 0;
+            var tenantId = userContext?.GetTenantId() ?? 0;
             // Determines if maker-checker pattern is enabled from settings
-            isMakerCheckerEnable = context.Set<Setting>().Where(t=>t.TenantId==tenantId).FirstOrDefault()?.IsMakerCheckerEnable ?? false;
-            // Extracts user ID from HTTP context claims
-            if (httpContextAccessor != null && httpContextAccessor.HttpContext != null)
-            {
-                userId = int.TryParse(httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value, out int parsedUserId) ? parsedUserId : 0;
-            }
-            // Gets controller and action names from HTTP context
-            var controller = GetControllerName(httpContextAccessor!);
-            var action = GetActionName(httpContextAccessor!);
+            isMakerCheckerEnable = context.Set<Setting>().Where(t => t.TenantId == tenantId).FirstOrDefault()?.IsMakerCheckerEnable ?? false;
+            // Extracts user ID from current user context
+            userId = userContext?.GetUserId() ?? 0;
+            // Gets controller and action names from current user context
+            var controller = userContext?.GetControllerName();
+            var action = userContext?.GetActionName();
             // Determines if current user is a checker
             isChecker = controller == "MakerChecker" && action == "StatusUpdate";
         }
@@ -309,23 +305,6 @@ namespace MEligibilityPlatform.Infrastructure.Repository
             // Maker-checker is used if enabled, entity is not excluded, and user is not a checker
             isMakerCheckerEnable && entityName != nameof(EvaluationHistory) && entityName != nameof(User) && entityName != nameof(IntegrationApiEvaluation) && entityName != nameof(MakerChecker) && entityName != nameof(Setting) && entityName != nameof(HistoryPc) && !isChecker;
 
-        /// <summary>
-        /// Gets the current controller name from the HTTP context.
-        /// </summary>
-        /// <param name="httpContext">The HTTP context accessor.</param>
-        /// <returns>The controller name, or null if not available.</returns>
-        public string? GetControllerName(IHttpContextAccessor httpContext) =>
-            // Extracts controller name from route data
-            httpContext.HttpContext?.GetRouteData()?.Values["controller"]?.ToString();
-
-        /// <summary>
-        /// Gets the current action name from the HTTP context.
-        /// </summary>
-        /// <param name="httpContext">The HTTP context accessor.</param>
-        /// <returns>The action name, or null if not available.</returns>
-        public string? GetActionName(IHttpContextAccessor httpContext) =>
-            // Extracts action name from route data
-            httpContext.HttpContext?.GetRouteData()?.Values["action"]?.ToString();
     }
     public class MakerCheckerException(string message) : Exception(message)
     {

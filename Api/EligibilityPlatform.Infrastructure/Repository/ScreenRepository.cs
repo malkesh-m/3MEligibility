@@ -1,7 +1,7 @@
-﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
@@ -14,10 +14,10 @@ namespace MEligibilityPlatform.Infrastructure.Repository
     /// Initializes a new instance of the <see cref="ScreenRepository"/> class.
     /// </remarks>
     /// <param name="context">The database context used for data operations.</param>
-    /// <param name="httpContext">Provides access to the current HTTP context for user-related data.</param>
+    /// <param name="userContext">Provides access to the current HTTP context for user-related data.</param>
     public class ScreenRepository(
         EligibilityDbContext context,
-        IHttpContextAccessor httpContext) : Repository<Screen>(context, httpContext), IScreenRepository
+        IUserContextService userContext) : Repository<Screen>(context, userContext), IScreenRepository
     {
 
         /// <summary>
@@ -39,3 +39,5 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         }
     }
 }
+
+

@@ -1,15 +1,13 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Repository.MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Infrastructure.Context;
 using MEligibilityPlatform.Infrastructure.Repository;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using IIntegrationApiEvaluationRepository = MEligibilityPlatform.Application.Repository.IIntegrationApiEvaluationRepository;
 
 namespace MEligibilityPlatform.Infrastructure.UnitOfWork
@@ -22,9 +20,9 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
     /// Initializes a new instance of the <see cref="UnitOfWork"/> class.
     /// </remarks>
     /// <param name="dbContext">The database context used for data operations.</param>
-    /// <param name="httpContext">Provides access to the current HTTP context for user-related data.</param>
-    /// <exception cref="ArgumentNullException">Thrown when dbContext or httpContext is null.</exception>
-    public partial class UnitOfWork(EligibilityDbContext dbContext, IHttpContextAccessor httpContext) : IUnitOfWork
+    /// <param name="userContext">Provides access to the current user/request context.</param>
+    /// <exception cref="ArgumentNullException">Thrown when dbContext or userContext is null.</exception>
+    public partial class UnitOfWork(EligibilityDbContext dbContext, IUserContextService userContext) : IUnitOfWork
     {
         #region Properties
         private CategoryRepository? _categoryRepository;
@@ -40,313 +38,313 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         /// <summary>
         /// Gets the bulk import repository.
         /// </summary>
-        public IBulkImportRepository BulkImportRepository => _bulkImportRepository ??= new BulkImportRepository(_dbContext, _httpContext);
+        public IBulkImportRepository BulkImportRepository => _bulkImportRepository ??= new BulkImportRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the category repository.
         /// </summary>
-        public ICategoryRepository CategoryRepository => _categoryRepository ??= new CategoryRepository(_dbContext, _httpContext);
+        public ICategoryRepository CategoryRepository => _categoryRepository ??= new CategoryRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the user repository.
         /// </summary>
-        public IUserRepository UserRepository => _userRepository ??= new UserRepository(_dbContext, _httpContext);
+        public IUserRepository UserRepository => _userRepository ??= new UserRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the security group repository.
         /// </summary>
-        public ISecurityGroupRepository SecurityGroupRepository => _securityGroupRepository ??= new SecurityGroupRepository(_dbContext, _httpContext);
+        public ISecurityGroupRepository SecurityGroupRepository => _securityGroupRepository ??= new SecurityGroupRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the user group repository.
         /// </summary>
-        public IUserGroupRepository UserGroupRepository => _userGroupRepository ??= new UserGroupRepository(_dbContext, _httpContext);
+        public IUserGroupRepository UserGroupRepository => _userGroupRepository ??= new UserGroupRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the screen repository.
         /// </summary>
-        public IScreenRepository ScreenRepository => _screenRepository ??= new ScreenRepository(_dbContext, _httpContext);
+        public IScreenRepository ScreenRepository => _screenRepository ??= new ScreenRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the role repository.
         /// </summary>
-        public IRoleRepository RoleRepository => _roleRepository ??= new RoleRepository(_dbContext, _httpContext);
+        public IRoleRepository RoleRepository => _roleRepository ??= new RoleRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the group role repository.
         /// </summary>
-        public IGroupRoleRepository GroupRoleRepository => _groupRoleRepository ??= new GroupRoleRepository(_dbContext, _httpContext);
+        public IGroupRoleRepository GroupRoleRepository => _groupRoleRepository ??= new GroupRoleRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the user status repository.
         /// </summary>
-        public IUserStatusRepository UserStatusRepository => _userStatusRepository ??= new UserStatusRepository(_dbContext, _httpContext);
+        public IUserStatusRepository UserStatusRepository => _userStatusRepository ??= new UserStatusRepository(_dbContext, _userContext);
 
         private ApiDetailRepository? _apiDetailRepository;
 
         /// <summary>
         /// Gets the API detail repository.
         /// </summary>
-        public IApiDetailRepository ApiDetailRepository => _apiDetailRepository ??= new ApiDetailRepository(_dbContext, _httpContext);
+        public IApiDetailRepository ApiDetailRepository => _apiDetailRepository ??= new ApiDetailRepository(_dbContext, _userContext);
 
         private CityRepository? _cityRepository;
 
         /// <summary>
         /// Gets the city repository.
         /// </summary>
-        public ICityRepository CityRepository => _cityRepository ??= new CityRepository(_dbContext, _httpContext);
+        public ICityRepository CityRepository => _cityRepository ??= new CityRepository(_dbContext, _userContext);
 
         private AuditRepository? _auditRepository;
 
         /// <summary>
         /// Gets the audit repository.
         /// </summary>
-        public IAuditRepository AuditRepository => _auditRepository ??= new AuditRepository(_dbContext, _httpContext);
+        public IAuditRepository AuditRepository => _auditRepository ??= new AuditRepository(_dbContext, _userContext);
 
         private ConditionRepository? _conditionRepository;
 
         /// <summary>
         /// Gets the condition repository.
         /// </summary>
-        public IConditionRepository ConditionRepository => _conditionRepository ??= new ConditionRepository(_dbContext, _httpContext);
+        public IConditionRepository ConditionRepository => _conditionRepository ??= new ConditionRepository(_dbContext, _userContext);
 
         private CountryRepository? _countryRepository;
 
         /// <summary>
         /// Gets the country repository.
         /// </summary>
-        public ICountryRepository CountryRepository => _countryRepository ??= new CountryRepository(_dbContext, _httpContext);
+        public ICountryRepository CountryRepository => _countryRepository ??= new CountryRepository(_dbContext, _userContext);
 
         private EntityRepository? _entityRepository;
 
         /// <summary>
         /// Gets the entity repository.
         /// </summary>
-        public IEntityRepository EntityRepository => _entityRepository ??= new EntityRepository(_dbContext, _httpContext);
+        public IEntityRepository EntityRepository => _entityRepository ??= new EntityRepository(_dbContext, _userContext);
 
         private ParameterRepository? _parameterRepository;
 
         /// <summary>
         /// Gets the parameter repository.
         /// </summary>
-        public IParameterRepository ParameterRepository => _parameterRepository ??= new ParameterRepository(_dbContext, _httpContext);
+        public IParameterRepository ParameterRepository => _parameterRepository ??= new ParameterRepository(_dbContext, _userContext);
 
         private CurrencyRepository? _currencyRepository;
 
         /// <summary>
         /// Gets the currency repository.
         /// </summary>
-        public ICurrencyRepository CurrencyRepository => _currencyRepository ??= new CurrencyRepository(_dbContext, _httpContext);
+        public ICurrencyRepository CurrencyRepository => _currencyRepository ??= new CurrencyRepository(_dbContext, _userContext);
 
         private DataTypeRepository? _daTypeRepository;
 
         /// <summary>
         /// Gets the data type repository.
         /// </summary>
-        public IDataTypeRepository DataTypeRepository => _daTypeRepository ??= new DataTypeRepository(_dbContext, _httpContext);
+        public IDataTypeRepository DataTypeRepository => _daTypeRepository ??= new DataTypeRepository(_dbContext, _userContext);
 
         private EcardRepository? _ecardRepository;
 
         /// <summary>
         /// Gets the e-card repository.
         /// </summary>
-        public IEcardRepository EcardRepository => _ecardRepository ??= new EcardRepository(_dbContext, _httpContext);
+        public IEcardRepository EcardRepository => _ecardRepository ??= new EcardRepository(_dbContext, _userContext);
 
         private EruleRepository? _eruleRepository;
 
         /// <summary>
         /// Gets the e-rule repository.
         /// </summary>
-        public IEruleRepository EruleRepository => _eruleRepository ??= new EruleRepository(_dbContext, _httpContext);
+        public IEruleRepository EruleRepository => _eruleRepository ??= new EruleRepository(_dbContext, _userContext);
 
         private FactorRepository? _factorRepository;
 
         /// <summary>
         /// Gets the factor repository.
         /// </summary>
-        public IFactorRepository FactorRepository => _factorRepository ??= new FactorRepository(_dbContext, _httpContext);
+        public IFactorRepository FactorRepository => _factorRepository ??= new FactorRepository(_dbContext, _userContext);
 
         private HistoryEcRepository? _historyEcRepository;
 
         /// <summary>
         /// Gets the history EC repository.
         /// </summary>
-        public IHistoryEcRepository HistoryEcRepository => _historyEcRepository ??= new HistoryEcRepository(_dbContext, _httpContext);
+        public IHistoryEcRepository HistoryEcRepository => _historyEcRepository ??= new HistoryEcRepository(_dbContext, _userContext);
 
         private HistoryErRepository? _historyErRepository;
 
         /// <summary>
         /// Gets the history ER repository.
         /// </summary>
-        public IHistoryErRepository HistoryErRepository => _historyErRepository ??= new HistoryErRepository(_dbContext, _httpContext);
+        public IHistoryErRepository HistoryErRepository => _historyErRepository ??= new HistoryErRepository(_dbContext, _userContext);
 
         private HistoryParameterRepository? _historyParameterRepository;
 
         /// <summary>
         /// Gets the history parameter repository.
         /// </summary>
-        public IHistoryParameterRepository HistoryParameterRepository => _historyParameterRepository ??= new HistoryParameterRepository(_dbContext, _httpContext);
+        public IHistoryParameterRepository HistoryParameterRepository => _historyParameterRepository ??= new HistoryParameterRepository(_dbContext, _userContext);
 
         private HistoryPcRepository? _historyPcRepository;
 
         /// <summary>
         /// Gets the history PC repository.
         /// </summary>
-        public IHistoryPcRepository HistoryPcRepository => _historyPcRepository ??= new HistoryPcRepository(_dbContext, _httpContext);
+        public IHistoryPcRepository HistoryPcRepository => _historyPcRepository ??= new HistoryPcRepository(_dbContext, _userContext);
 
         private ListItemRepository? _listItemRepository;
 
         /// <summary>
         /// Gets the list item repository.
         /// </summary>
-        public IListItemRepository ListItemRepository => _listItemRepository ??= new ListItemRepository(_dbContext, _httpContext);
+        public IListItemRepository ListItemRepository => _listItemRepository ??= new ListItemRepository(_dbContext, _userContext);
 
         private ManagedListRepository? _managedListRepository;
 
         /// <summary>
         /// Gets the managed list repository.
         /// </summary>
-        public IManagedListRepository ManagedListRepository => _managedListRepository ??= new ManagedListRepository(_dbContext, _httpContext);
+        public IManagedListRepository ManagedListRepository => _managedListRepository ??= new ManagedListRepository(_dbContext, _userContext);
 
         private MappingFunctionRepository? _mappingFunctionRepository;
 
         /// <summary>
         /// Gets the mapping function repository.
         /// </summary>
-        public IMappingFunctionRepository MappingFunctionRepository => _mappingFunctionRepository ??= new MappingFunctionRepository(_dbContext, _httpContext);
+        public IMappingFunctionRepository MappingFunctionRepository => _mappingFunctionRepository ??= new MappingFunctionRepository(_dbContext, _userContext);
 
         private NodeRepository? _nodeRepository;
 
         /// <summary>
         /// Gets the node model repository.
         /// </summary>
-        public INodeModelRepository NodeModelRepository => _nodeRepository ??= new NodeRepository(_dbContext, _httpContext);
+        public INodeModelRepository NodeModelRepository => _nodeRepository ??= new NodeRepository(_dbContext, _userContext);
 
         private NodeApiRepository? _nodeApiRepository;
 
         /// <summary>
         /// Gets the node API repository.
         /// </summary>
-        public INodeApiRepository NodeApiRepository => _nodeApiRepository ??= new NodeApiRepository(_dbContext, _httpContext);
+        public INodeApiRepository NodeApiRepository => _nodeApiRepository ??= new NodeApiRepository(_dbContext, _userContext);
 
         private ParamtersMapRepository? _paramtersMapRepository;
 
         /// <summary>
         /// Gets the parameters map repository.
         /// </summary>
-        public IParamtersMapRepository ParamtersMapRepository => _paramtersMapRepository ??= new ParamtersMapRepository(_dbContext, _httpContext);
+        public IParamtersMapRepository ParamtersMapRepository => _paramtersMapRepository ??= new ParamtersMapRepository(_dbContext, _userContext);
 
         private PcardRepository? _pcardRepository;
 
         /// <summary>
         /// Gets the PCard repository.
         /// </summary>
-        public IPcardRepository PcardRepository => _pcardRepository ??= new PcardRepository(_dbContext, _httpContext);
+        public IPcardRepository PcardRepository => _pcardRepository ??= new PcardRepository(_dbContext, _userContext);
 
         private ProductRepository? _productRepository;
 
         /// <summary>
         /// Gets the product repository.
         /// </summary>
-        public IProductRepository ProductRepository => _productRepository ??= new ProductRepository(_dbContext, _httpContext);
+        public IProductRepository ProductRepository => _productRepository ??= new ProductRepository(_dbContext, _userContext);
 
         private ProductparamRepository? _productparamRepository;
 
         /// <summary>
         /// Gets the product parameter repository.
         /// </summary>
-        public IProductParamRepository ProductParamRepository => _productparamRepository ??= new ProductparamRepository(_dbContext, _httpContext);
+        public IProductParamRepository ProductParamRepository => _productparamRepository ??= new ProductparamRepository(_dbContext, _userContext);
 
         private MakerCheckerRepository? _makercheckerRepository;
 
         /// <summary>
         /// Gets the maker-checker repository.
         /// </summary>
-        public IMakerCheckerRepository MakerCheckerRepository => _makercheckerRepository ??= new MakerCheckerRepository(_dbContext, _httpContext);
+        public IMakerCheckerRepository MakerCheckerRepository => _makercheckerRepository ??= new MakerCheckerRepository(_dbContext, _userContext);
 
         private SettingRepository? _settingRepository;
 
         /// <summary>
         /// Gets the setting repository.
         /// </summary>
-        public ISettingRepository SettingRepository => _settingRepository ??= new SettingRepository(_dbContext, _httpContext);
+        public ISettingRepository SettingRepository => _settingRepository ??= new SettingRepository(_dbContext, _userContext);
 
         private ImportDocumentRepository? _ImportDocumentHistoryRepository;
 
         /// <summary>
         /// Gets the import document repository.
         /// </summary>
-        public IImportDocumentRepository ImportDocumentHistoryRepository => _ImportDocumentHistoryRepository ??= new ImportDocumentRepository(_dbContext, _httpContext);
+        public IImportDocumentRepository ImportDocumentHistoryRepository => _ImportDocumentHistoryRepository ??= new ImportDocumentRepository(_dbContext, _userContext);
 
         private AppSettingRepository? _appSettingRepository;
 
         /// <summary>
         /// Gets the application setting repository.
         /// </summary>
-        public IAppSettingRepository AppSettingRepository => _appSettingRepository ??= new AppSettingRepository(_dbContext, _httpContext);
+        public IAppSettingRepository AppSettingRepository => _appSettingRepository ??= new AppSettingRepository(_dbContext, _userContext);
 
         private ExceptionManagementRepository? _exceptionManagementRepository;
 
         /// <summary>
         /// Gets the exception management repository.
         /// </summary>
-        public IExceptionManagementRepository ExceptionManagementRepository => _exceptionManagementRepository ??= new ExceptionManagementRepository(_dbContext, _httpContext);
+        public IExceptionManagementRepository ExceptionManagementRepository => _exceptionManagementRepository ??= new ExceptionManagementRepository(_dbContext, _userContext);
 
         private AmountEligibilityRepository? _AmountEligibilityRepository;
 
         /// <summary>
         /// Gets the amount eligibility repository.
         /// </summary>
-        public IAmountEligibilityRepository AmountEligibilityRepository => _AmountEligibilityRepository ??= new AmountEligibilityRepository(_dbContext, _httpContext);
+        public IAmountEligibilityRepository AmountEligibilityRepository => _AmountEligibilityRepository ??= new AmountEligibilityRepository(_dbContext, _userContext);
 
         private ApiResponsesRepository? _ApiResponsesRepository;
 
         /// <summary>
         /// Gets the API responses repository.
         /// </summary>
-        public IApiResponsesRepository ApiResponsesRepository => _ApiResponsesRepository ??= new ApiResponsesRepository(_dbContext, _httpContext);
+        public IApiResponsesRepository ApiResponsesRepository => _ApiResponsesRepository ??= new ApiResponsesRepository(_dbContext, _userContext);
 
         private ApiParametersRepository? _ApiParametersRepository;
 
         /// <summary>
         /// Gets the API parameters repository.
         /// </summary>
-        public IApiParametersRepository ApiParametersRepository => _ApiParametersRepository ??= new ApiParametersRepository(_dbContext, _httpContext);
+        public IApiParametersRepository ApiParametersRepository => _ApiParametersRepository ??= new ApiParametersRepository(_dbContext, _userContext);
 
         private ApiParameterMapsRepository? _ApiParameterMapsRepository;
 
         /// <summary>
         /// Gets the API parameter maps repository.
         /// </summary>
-        public IApiParameterMapsRepository ApiParameterMapsRepository => _ApiParameterMapsRepository ??= new ApiParameterMapsRepository(_dbContext, _httpContext);
+        public IApiParameterMapsRepository ApiParameterMapsRepository => _ApiParameterMapsRepository ??= new ApiParameterMapsRepository(_dbContext, _userContext);
 
         private ProductCapRepostitory? _ProductCapRepostitory;
 
         /// <summary>
         /// Gets the product cap repository.
         /// </summary>
-        public IProductCapRepository ProductCapRepository => _ProductCapRepostitory ??= new ProductCapRepostitory(_dbContext, _httpContext);
+        public IProductCapRepository ProductCapRepository => _ProductCapRepostitory ??= new ProductCapRepostitory(_dbContext, _userContext);
 
         private ExceptionProductRepository? _ExceptionProductRepostitory;
 
         /// <summary>
         /// Gets the exception product repository.
         /// </summary>
-        public IExceptionProductRepository ExceptionProductRepository => _ExceptionProductRepostitory ??= new ExceptionProductRepository(_dbContext, _httpContext);
+        public IExceptionProductRepository ExceptionProductRepository => _ExceptionProductRepostitory ??= new ExceptionProductRepository(_dbContext, _userContext);
 
         private EvaluationHistoryRepository? _EvaluationHistoryRepository;
 
         /// <summary>
         /// Gets the evaluation history repository.
         /// </summary>
-        public IEvaluationHistoryRepository EvaluationHistoryRepository => _EvaluationHistoryRepository ??= new EvaluationHistoryRepository(_dbContext, _httpContext);
+        public IEvaluationHistoryRepository EvaluationHistoryRepository => _EvaluationHistoryRepository ??= new EvaluationHistoryRepository(_dbContext, _userContext);
 
         private EruleMasterRepository? _EruleMasterRepository;
 
         /// <summary>
         /// Gets the e-rule master repository.
         /// </summary>
-        public IEruleMasterRepository EruleMasterRepository => _EruleMasterRepository ??= new EruleMasterRepository(_dbContext, _httpContext);
+        public IEruleMasterRepository EruleMasterRepository => _EruleMasterRepository ??= new EruleMasterRepository(_dbContext, _userContext);
         #endregion
 
         private ProductCapAmountRepository? _ProductCapAmountRepository;
@@ -354,46 +352,46 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         /// <summary>
         /// Gets the product cap amount repository.
         /// </summary>
-        public IProductCapAmountRepository ProductCapAmountRepository => _ProductCapAmountRepository ??= new ProductCapAmountRepository(_dbContext, _httpContext);
+        public IProductCapAmountRepository ProductCapAmountRepository => _ProductCapAmountRepository ??= new ProductCapAmountRepository(_dbContext, _userContext);
 
         private LogRepository? _LogRepository;
 
         /// <summary>
         /// Gets the log repository.
         /// </summary>
-        public ILogRepository LogRepository => _LogRepository ??= new LogRepository(_dbContext, _httpContext);
+        public ILogRepository LogRepository => _LogRepository ??= new LogRepository(_dbContext, _userContext);
         private IntegrationApiEvaluationRepository? _integrationApiEvaluationRepository;
 
         /// <summary>
         /// Gets the product cap amount repository.
         /// </summary>
-        public IIntegrationApiEvaluationRepository IntegrationApiEvaluationRepository => _integrationApiEvaluationRepository ??= new IntegrationApiEvaluationRepository(_dbContext, _httpContext);
+        public IIntegrationApiEvaluationRepository IntegrationApiEvaluationRepository => _integrationApiEvaluationRepository ??= new IntegrationApiEvaluationRepository(_dbContext, _userContext);
 
         private RejectionReasonRepository? _rejectionReasonRepository;
 
         /// <summary>
         /// Gets the product cap amount repository.
         /// </summary>
-        public IRejectionReasonRepository RejectionReasonRepository => _rejectionReasonRepository ??= new RejectionReasonRepository(_dbContext, _httpContext);
+        public IRejectionReasonRepository RejectionReasonRepository => _rejectionReasonRepository ??= new RejectionReasonRepository(_dbContext, _userContext);
 
         private SystemParameterRepository? _systemParameterRepository;
 
         /// <summary>
         /// Gets the source parameter repository.
         /// </summary>
-        public ISystemParameterRepository SystemParameterRepository => _systemParameterRepository ??= new SystemParameterRepository(_dbContext, _httpContext);
+        public ISystemParameterRepository SystemParameterRepository => _systemParameterRepository ??= new SystemParameterRepository(_dbContext, _userContext);
 
         private ParameterBindingRepository? _parameterBindingRepository;
 
         /// <summary>
         /// Gets the parameter binding repository.
         /// </summary>
-        public IParameterBindingRepository ParameterBindingRepository => _parameterBindingRepository ??= new ParameterBindingRepository(_dbContext, _httpContext);
+        public IParameterBindingRepository ParameterBindingRepository => _parameterBindingRepository ??= new ParameterBindingRepository(_dbContext, _userContext);
 
         #region Readonlys
 
         private readonly EligibilityDbContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        private readonly IHttpContextAccessor _httpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
+        private readonly IUserContextService _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
 
         #endregion
 
@@ -409,9 +407,8 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
             var addedEntries = _dbContext.ChangeTracker.Entries()
                       .Where(e => e.State == EntityState.Added)
             .ToList();
-            var httpContext = _dbContext.GetService<IHttpContextAccessor>()?.HttpContext;
-            var controller = httpContext?.GetRouteData()?.Values["controller"]?.ToString();
-            var action = httpContext?.GetRouteData()?.Values["action"]?.ToString();
+            var controller = _userContext.GetControllerName();
+            var action = _userContext.GetActionName();
             bool isChecker = controller == "MakerChecker" && action == "StatusUpdate";
 
 
@@ -533,3 +530,4 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         #endregion
     }
 }
+

@@ -4,7 +4,7 @@
   </div>
   <div class="list-wrap">
     <mat-accordion multi>
-      <mat-expansion-panel *ngIf="(permissions$ | async)?.includes('Permissions.Dashboard.View')"
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.DashBoard.Access')"
         [expanded]="step() === -1" (opened)="setStep(-1)" hideToggle>
         <mat-expansion-panel-header>
           <!-- <mat-panel-title>Setup</mat-panel-title> -->
@@ -19,7 +19,7 @@
           </mat-nav-list>-->
       </mat-expansion-panel>
       <!-- Setup Section -->
-      <mat-expansion-panel [expanded]="step() === 0" (opened)="setStep(0)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.Setup.Access')" [expanded]="step() === 0" (opened)="setStep(0)" hideToggle>
         <mat-expansion-panel-header>
           <!-- <mat-panel-title>Setup</mat-panel-title> -->
           <mat-panel-title>
@@ -42,7 +42,7 @@
       </mat-expansion-panel>
 
       <!-- Conditions Section -->
-      <mat-expansion-panel [expanded]="step() === 1" (opened)="setStep(1)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.Conditions.Access')" [expanded]="step() === 1" (opened)="setStep(1)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">rule</mat-icon>
@@ -65,7 +65,7 @@
       </mat-expansion-panel>
 
       <!-- Connections Section -->
-      <mat-expansion-panel [expanded]="step() === 2" (opened)="setStep(2)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.Connections.Access')" [expanded]="step() === 2" (opened)="setStep(2)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">link</mat-icon>
@@ -81,7 +81,7 @@
       </mat-expansion-panel>
 
       <!-- Security Section -->
-      <mat-expansion-panel [expanded]="step() === 3" (opened)="setStep(3)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.Security.Access')" [expanded]="step() === 3" (opened)="setStep(3)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">security</mat-icon>
@@ -98,7 +98,7 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <mat-expansion-panel [expanded]="step() === 4" (opened)="setStep(4)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.MakerChecker.Access')"  [expanded]="step() === 4" (opened)="setStep(4)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">check_circle</mat-icon>
@@ -114,7 +114,7 @@
             'History' | translate }}</a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel [expanded]="step() === 5" (opened)="setStep(5)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.Logs.Access')" [expanded]="step() === 5" (opened)="setStep(5)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">history</mat-icon>
@@ -130,7 +130,7 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <mat-expansion-panel [expanded]="step() === 6" (opened)="setStep(6)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.Configuration.Access')" [expanded]="step() === 6" (opened)="setStep(6)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">settings</mat-icon>
@@ -153,7 +153,7 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <mat-expansion-panel [expanded]="step() === 7" (opened)="setStep(7)" hideToggle>
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.BulkImport.Access')" [expanded]="step() === 7" (opened)="setStep(7)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">file_upload</mat-icon>

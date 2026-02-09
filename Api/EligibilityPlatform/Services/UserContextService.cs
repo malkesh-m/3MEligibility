@@ -1,4 +1,6 @@
-﻿using MEligibilityPlatform.Application.Services.Interface;
+using MEligibilityPlatform;
+using MEligibilityPlatform.Application.Services.Interface;
+using Microsoft.AspNetCore.Routing;
 
 namespace MEligibilityPlatform.Services
 {
@@ -19,11 +21,45 @@ namespace MEligibilityPlatform.Services
         public int GetUserId()
         {
             // Accesses the current HTTP context and retrieves the UserId claim from the user's claims principal
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.Claims
-                .FirstOrDefault(c => c.Type == "UserId")?.Value;
-
-            // Converts the claim value from string to integer and returns the result
-            return Convert.ToInt32(userIdClaim);
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user.GetUserIdOrDefault();
         }
+
+        /// <summary>
+        /// Retrieves the Tenant ID from the current HTTP context claims.
+        /// </summary>
+        /// <returns>The Tenant ID as an integer, or 0 when unavailable.</returns>
+        public int GetTenantId()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user.GetTenantIdOrDefault();
+        }
+
+        /// <summary>
+        /// Retrieves the current user name from claims.
+        /// </summary>
+        public string? GetUserName()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user.GetUserNameOrDefault();
+        }
+
+        /// <summary>
+        /// Retrieves the remote IP address for the current request.
+        /// </summary>
+        public string? GetIpAddress() =>
+            _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+
+        /// <summary>
+        /// Retrieves the current controller name from route data.
+        /// </summary>
+        public string? GetControllerName() =>
+            _httpContextAccessor.HttpContext?.GetRouteData()?.Values["controller"]?.ToString();
+
+        /// <summary>
+        /// Retrieves the current action name from route data.
+        /// </summary>
+        public string? GetActionName() =>
+            _httpContextAccessor.HttpContext?.GetRouteData()?.Values["action"]?.ToString();
     }
 }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace MEligibilityPlatform.Domain.Helper
+namespace MEligibilityPlatform.Application.Helper
 {
     /// <summary>
     /// Helper class for managing file uploads to the wwwroot directory.

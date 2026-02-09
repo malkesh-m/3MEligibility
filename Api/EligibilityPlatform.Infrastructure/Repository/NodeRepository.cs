@@ -1,7 +1,7 @@
-﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
 {
@@ -13,10 +13,12 @@ namespace MEligibilityPlatform.Infrastructure.Repository
     /// Initializes a new instance of the <see cref="NodeRepository"/> class.
     /// </remarks>
     /// <param name="context">The database context used for data operations.</param>
-    /// <param name="httpContext">Provides access to the current HTTP context for user-related data.</param>
+    /// <param name="userContext">Provides access to the current HTTP context for user-related data.</param>
     public class NodeRepository(
         EligibilityDbContext context,
-        IHttpContextAccessor httpContext) : Repository<Node>(context, httpContext), INodeModelRepository
+        IUserContextService userContext) : Repository<Node>(context, userContext), INodeModelRepository
     {
     }
 }
+
+

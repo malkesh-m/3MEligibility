@@ -10,7 +10,12 @@ namespace MEligibilityPlatform.Infrastructure.Context
         {
             var optionsBuilder = new DbContextOptionsBuilder<EligibilityDbContext>();
 
-            var connectionString = "Server=110.226.124.45;Port=3306;Database=3MEligibility;User=3MEligibilityUser;Password=3MEligibilityUser#10012026;";
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory()) // project root
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 

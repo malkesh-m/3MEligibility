@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,12 +7,13 @@ using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
 {
-    public class RejectionReasonRepository(EligibilityDbContext context, IHttpContextAccessor httpContext) : Repository<RejectionReasons>(context, httpContext), IRejectionReasonRepository
+    public class RejectionReasonRepository(EligibilityDbContext context, IUserContextService userContext) : Repository<RejectionReasons>(context, userContext), IRejectionReasonRepository
     {
-        private readonly IHttpContextAccessor _httpContext = httpContext;
     }
 }
+
+

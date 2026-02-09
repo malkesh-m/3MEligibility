@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
 {
@@ -18,10 +18,12 @@ namespace MEligibilityPlatform.Infrastructure.Repository
     /// Initializes a new instance of the <see cref="EruleMasterRepository"/> class.
     /// </remarks>
     /// <param name="eligibilityDbContext">The database context used for data operations.</param>
-    /// <param name="contextAccessor">Provides access to the current HTTP context for user-related data.</param>
+    /// <param name="userContext">Provides access to the current HTTP context for user-related data.</param>
     public class EruleMasterRepository(
         EligibilityDbContext eligibilityDbContext,
-        IHttpContextAccessor contextAccessor) : Repository<EruleMaster>(eligibilityDbContext, contextAccessor), IEruleMasterRepository
+        IUserContextService userContext) : Repository<EruleMaster>(eligibilityDbContext, userContext), IEruleMasterRepository
     {
     }
 }
+
+

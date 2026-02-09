@@ -3,16 +3,14 @@ using System.Text;
 using System.Threading.RateLimiting;
 using MEligibilityPlatform;
 using MEligibilityPlatform.Application.Constants;
-using MEligibilityPlatform.Application.Middleware;
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Services;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
+using MEligibilityPlatform.Authorization;
 using MEligibilityPlatform.Converters;
 using MEligibilityPlatform.Domain.Models;
-using MEligibilityPlatform.Infrastructure.Authorization;
 using MEligibilityPlatform.Infrastructure.Context;
-using MEligibilityPlatform.Infrastructure.Middleware;
 using MEligibilityPlatform.Infrastructure.Repository;
 using MEligibilityPlatform.Infrastructure.UnitOfWork;
 using MEligibilityPlatform.Middleware;
@@ -53,8 +51,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuditInterceptor>();
-var sqlServerVersion = ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"));
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var sqlServerVersion = ServerVersion.AutoDetect(connectionString);
 
 builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
 {

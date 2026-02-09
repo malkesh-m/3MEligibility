@@ -1,8 +1,8 @@
-﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
@@ -15,20 +15,15 @@ namespace MEligibilityPlatform.Infrastructure.Repository
     /// Initializes a new instance of the <see cref="UserGroupRepository"/> class.
     /// </remarks>
     /// <param name="context">The database context used for data operations.</param>
-    /// <param name="httpContext">Provides access to the current HTTP context for user-related data.</param>
+    /// <param name="userContext">Provides access to the current HTTP context for user-related data.</param>
     public class UserGroupRepository(
         EligibilityDbContext context,
-        IHttpContextAccessor httpContext) : Repository<UserGroup>(context, httpContext), IUserGroupRepository
+        IUserContextService userContext) : Repository<UserGroup>(context, userContext), IUserGroupRepository
     {
         /// <summary>
         /// The database context instance for data operations.
         /// </summary>
         //private readonly EligibilityDbContext _context = context;
-
-        /// <summary>
-        /// The HTTP context accessor instance for accessing current HTTP context.
-        /// </summary>
-        private readonly IHttpContextAccessor _httpContext = httpContext;
 
         /// <summary>
         /// Checks if any group roles exist for the specified group ID.
@@ -92,3 +87,4 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         }
     }
 }
+

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
 {
@@ -18,10 +18,12 @@ namespace MEligibilityPlatform.Infrastructure.Repository
     /// Initializes a new instance of the <see cref="EvaluationHistoryRepository"/> class.
     /// </remarks>
     /// <param name="eligibilityDbContext">The database context used for data operations.</param>
-    /// <param name="httpContextAccessor">Provides access to the current HTTP context for user-related data.</param>
+    /// <param name="userContextAccessor">Provides access to the current HTTP context for user-related data.</param>
     public class EvaluationHistoryRepository(
         EligibilityDbContext eligibilityDbContext,
-        IHttpContextAccessor httpContextAccessor) : Repository<EvaluationHistory>(eligibilityDbContext, httpContextAccessor), IEvaluationHistoryRepository
+        IUserContextService userContextAccessor) : Repository<EvaluationHistory>(eligibilityDbContext, userContextAccessor), IEvaluationHistoryRepository
     {
     }
 }
+
+

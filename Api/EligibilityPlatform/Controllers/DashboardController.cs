@@ -4,7 +4,6 @@ using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MEligibilityPlatform.Application.Attributes;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MEligibilityPlatform.Controllers

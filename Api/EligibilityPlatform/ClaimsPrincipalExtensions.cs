@@ -27,6 +27,14 @@ namespace MEligibilityPlatform
                 ? int.Parse(tenantIdClaim.Value)
                 : throw new Exception("TenantId claim not found.");
         }
+
+        public static int GetTenantIdOrDefault(this ClaimsPrincipal? user, int defaultValue = 0)
+        {
+            var tenantIdClaim = user?.FindFirst("tenant_id")?.Value
+                ?? user?.FindFirst("TenantId")?.Value;
+
+            return int.TryParse(tenantIdClaim, out var tenantId) ? tenantId : defaultValue;
+        }
         public static string GetUserSubId(this ClaimsPrincipal user)
         {
             var subIdClaim = user?.FindFirst(ClaimTypes.NameIdentifier);
@@ -45,6 +53,12 @@ namespace MEligibilityPlatform
 
             return nameClaim == null ? throw new Exception("User Name claim not found.") : nameClaim.Value;
         }
+
+        public static string? GetUserNameOrDefault(this ClaimsPrincipal? user)
+        {
+            return user?.FindFirst("preferred_username")?.Value
+                ?? user?.Identity?.Name;
+        }
         /// <summary>
         /// Retrieves the UserId claim from the current <see cref="ClaimsPrincipal"/>.
         /// </summary>
@@ -57,6 +71,14 @@ namespace MEligibilityPlatform
             return userIdClaim != null
                 ? int.Parse(userIdClaim.Value)
                 : throw new Exception("UserId claim not found.");
+        }
+
+        public static int GetUserIdOrDefault(this ClaimsPrincipal? user, int defaultValue = 0)
+        {
+            var userIdClaim = user?.FindFirst("UserId")?.Value
+                ?? user?.FindFirst("user_id")?.Value;
+
+            return int.TryParse(userIdClaim, out var userId) ? userId : defaultValue;
         }
     }
 }

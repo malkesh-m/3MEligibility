@@ -1,5 +1,4 @@
 ﻿using Azure.Identity;
-using MEligibilityPlatform.Application.Attributes;
 using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Services;
 using MEligibilityPlatform.Application.Services.Interface;
@@ -246,7 +245,6 @@ namespace MEligibilityPlatform.Controllers
         /// 
         [Authorize(Policy = Permissions.Rule.Edit)]
 
-        [RequirePermission("Edit Rule")]
 
         [HttpPut("updatestatus")]
         public async Task<IActionResult> UpdateStatus(int eruleId, bool isActive)

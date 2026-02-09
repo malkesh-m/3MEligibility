@@ -1,21 +1,21 @@
 ﻿using System.Collections.Concurrent;
 using MEligibilityPlatform.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
+using MEligibilityPlatform.Application.Services.Interface;
 
-namespace MEligibilityPlatform.Infrastructure.Middleware
+namespace MEligibilityPlatform.Middleware
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AuditInterceptor"/> class.
     /// </summary>
-    /// <param name="httpContextAccessor">Provides access to the current HTTP context for capturing user and request details.</param>
-    public class AuditInterceptor(IHttpContextAccessor httpContextAccessor) : SaveChangesInterceptor
+    /// <param name="userContext">Provides access to the current user/request context for capturing user and request details.</param>
+    public class AuditInterceptor(IUserContextService userContext) : SaveChangesInterceptor
     {
         private readonly ConcurrentBag<AuditInfo> _pendingAuditInfos = [];
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IUserContextService _userContext = userContext;
 
         /// <summary>
         /// Called before EF Core saves changes. Captures pending audits for all tracked entities.
@@ -244,16 +244,9 @@ namespace MEligibilityPlatform.Infrastructure.Middleware
                     oldValueJson = SerializeWithoutExcludedFields(entry.OriginalValues);
                 }
 
-                var ip = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
-                var claims = _httpContextAccessor.HttpContext?.User.Claims;
-
-                var userName = claims?.FirstOrDefault(c =>
-                    string.Equals(c.Type, "preferred_username", StringComparison.OrdinalIgnoreCase))?.Value;
-
-                var tenantIdString = claims?.FirstOrDefault(c =>
-                    string.Equals(c.Type, "tenant_id", StringComparison.OrdinalIgnoreCase))?.Value;
-
-                int tenantId = int.TryParse(tenantIdString, out var tId) ? tId : 0;
+                var ip = _userContext.GetIpAddress();
+                var userName = _userContext.GetUserName();
+                int tenantId = _userContext.GetTenantId();
                 string actionName = entry.State switch
                 {
                     EntityState.Modified => "Update",

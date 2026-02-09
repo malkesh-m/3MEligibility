@@ -1,7 +1,7 @@
-﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
@@ -13,8 +13,8 @@ namespace MEligibilityPlatform.Infrastructure.Repository
    /// Initializes a new instance of the <see cref="UserRepository"/> class.
    /// </remarks>
    /// <param name="context">The database context used for data operations.</param>
-   /// <param name="httpContext">Provides access to the current HTTP context for user-related data.</param>
-    public class UserRepository(EligibilityDbContext context, IHttpContextAccessor httpContext) : Repository<User>(context, httpContext), IUserRepository
+   /// <param name="userContext">Provides access to the current HTTP context for user-related data.</param>
+    public class UserRepository(EligibilityDbContext context, IUserContextService userContext) : Repository<User>(context, userContext), IUserRepository
     {
 
         
@@ -61,3 +61,4 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         //}
     }
 }
+

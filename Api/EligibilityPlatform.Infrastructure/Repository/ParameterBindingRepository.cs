@@ -1,7 +1,7 @@
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Infrastructure.Context;
-using Microsoft.AspNetCore.Http;
+using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Infrastructure.Repository
 {
@@ -10,7 +10,9 @@ namespace MEligibilityPlatform.Infrastructure.Repository
     /// </summary>
     public class ParameterBindingRepository(
         EligibilityDbContext context,
-        IHttpContextAccessor httpContext) : Repository<ParameterBinding>(context, httpContext), IParameterBindingRepository
+        IUserContextService userContext) : Repository<ParameterBinding>(context, userContext), IParameterBindingRepository
     {
     }
 }
+
+
