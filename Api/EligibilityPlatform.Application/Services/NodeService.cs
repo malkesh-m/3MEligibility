@@ -1,7 +1,7 @@
 ﻿using System.Xml.Linq;
 using AutoMapper;
 using MEligibilityPlatform.Application.Extensions;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;

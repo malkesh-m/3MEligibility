@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;

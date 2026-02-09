@@ -5,7 +5,7 @@ using System.Linq.Dynamic.Core;
 using System.Numerics;
 using AutoMapper;
 using CsvHelper;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
@@ -403,15 +403,15 @@ namespace MEligibilityPlatform.Application.Services
             // Result message string
             var resultMessage = "";
             string[] requiredHeaders =
-       [
-            "factorName*",
-            "parameter*",
-            "parameterId*",
-            "condition*",
-            "conditionId*",
-            "value1*",
-            "value2"
-       ];
+               [
+                    "factorName*",
+                    "parameter*",
+                    "parameterId*",
+                    "condition*",
+                    "conditionId*",
+                    "value1*",
+                    "value2"
+               ];
 
             // Read header row
             var excelHeaders = new List<string>();

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using MailKit.Security;
 using Microsoft.Extensions.Options;

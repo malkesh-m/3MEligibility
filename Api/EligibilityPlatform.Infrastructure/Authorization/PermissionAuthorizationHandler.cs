@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using System.Security.Claims;
 
 namespace MEligibilityPlatform.Infrastructure.Authorization

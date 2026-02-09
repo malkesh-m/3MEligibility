@@ -1,4 +1,4 @@
-﻿using MEligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 

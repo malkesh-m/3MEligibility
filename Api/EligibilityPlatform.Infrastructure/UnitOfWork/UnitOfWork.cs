@@ -463,8 +463,9 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
                     var match = MySqlTableRegex().Match(ex.InnerException.Message);
                     var dependentTable = match.Success ? match.Groups[1].Value : "UnknownDependentTable";
 
-                    var principalEntry = ex.Entries?.FirstOrDefault();
-                    var principalTable = principalEntry != null
+                    var principalEntry = ex.Entries != null && ex.Entries.Count > 0
+                        ? ex.Entries[0]
+                        : null; var principalTable = principalEntry != null
                         ? _dbContext.Model
                             .FindEntityType(principalEntry.Entity.GetType())
                             ?.GetTableName()

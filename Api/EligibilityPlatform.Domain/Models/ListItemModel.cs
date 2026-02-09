@@ -20,6 +20,8 @@ namespace MEligibilityPlatform.Domain.Models
         public string? CreatedBy { get; set; }
         public DateTime CreatedByDateTime { get; set; }
         public string? UpdatedBy { get; set; }
+        public int TenantId { get; set; }
+
         public bool IsImport { get; set; }
     }
     public class ListItemCreateUpdateModel

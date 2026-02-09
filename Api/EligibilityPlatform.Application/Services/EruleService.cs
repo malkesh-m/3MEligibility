@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Text;
 using AutoMapper;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;

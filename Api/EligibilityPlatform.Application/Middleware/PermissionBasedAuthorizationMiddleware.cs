@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -219,19 +219,18 @@ namespace MEligibilityPlatform.Application.Middleware
                 //userId?? "Annoymouns", controller, action, requestBody, responseBody, statusCode);
 
                 _logger.LogInformation(
-        "API Call {@LogDetails}",
-        new
-        {
-            User = string.IsNullOrEmpty(userId) ? "Anonymous" : userId,
-            Controller = controller,
-            Action = action,
-            Request = string.IsNullOrEmpty(requestBody) ? "" : requestBody,
-            Response = string.IsNullOrEmpty(responseBody) ? "" : responseBody,
-            Status = statusCode,
-            ExecutionTimeMs = executionTimeMs
-        });
-
-            }
+                    "API Call {@LogDetails}",
+                    new
+                    {
+                        User = string.IsNullOrEmpty(userId) ? "Anonymous" : userId,
+                        Controller = controller,
+                        Action = action,
+                        Request = string.IsNullOrEmpty(requestBody) ? "" : requestBody,
+                        Response = string.IsNullOrEmpty(responseBody) ? "" : responseBody,
+                        Status = statusCode,
+                        ExecutionTimeMs = executionTimeMs
+                    });
+                 }
 
         }
 

@@ -1,4 +1,4 @@
-﻿namespace MEligibilityPlatform.Application.Services.Inteface
+﻿namespace MEligibilityPlatform.Application.Services.Interface
 {
     /// <summary>
     /// Service interface for user context management operations.

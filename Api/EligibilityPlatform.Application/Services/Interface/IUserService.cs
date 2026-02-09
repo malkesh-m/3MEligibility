@@ -4,7 +4,7 @@ using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace MEligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Interface
 {
     /// <summary>
     /// Service interface for user management operations.

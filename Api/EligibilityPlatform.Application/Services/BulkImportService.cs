@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 using AutoMapper;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
@@ -181,7 +181,7 @@ namespace MEligibilityPlatform.Application.Services
                         results.Add(await ImportList(worksheet, createdBy, tenantId));
                         break;
                     case "listitem":
-                        results.Add(await ImportListIteams(worksheet, createdBy));
+                        results.Add(await ImportListIteams(worksheet, createdBy,tenantId));
                         break;
                     //case "customer-parameter":
                     //    results.Add(await ImportParameterCustomer( worksheet, 1, createdBy));
@@ -193,10 +193,10 @@ namespace MEligibilityPlatform.Application.Services
                         results.Add(await ImportFactor(worksheet, createdBy, tenantId));
                         break;
                     case "category":
-                        results.Add(await ImportCategory(worksheet, createdBy));
+                        results.Add(await ImportCategory(worksheet, createdBy,tenantId));
                         break;
                     case "stream":
-                        results.Add(await ImportInfo(worksheet, createdBy));
+                        results.Add(await ImportInfo(worksheet, createdBy, tenantId));
                         break;
                     case "details":
                         results.Add(await ImportDetails(worksheet, createdBy));
@@ -571,7 +571,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the list item data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportListIteams(ExcelWorksheet worksheet, string createdBy)
+        public async Task<string> ImportListIteams(ExcelWorksheet worksheet, string createdBy,int  tenantId)
         {
             // Gets the number of data rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -645,7 +645,9 @@ namespace MEligibilityPlatform.Application.Services
                         ListId = int.TryParse(ListId, out int listId) ? listId : 0,
                         // Sets the created by user
                         CreatedBy = createdBy,
-                        UpdatedBy = createdBy
+                        UpdatedBy = createdBy,
+                        TenantId=tenantId
+                        
                     };
                     // Adds model to the list
                     models.Add(model);
@@ -668,6 +670,7 @@ namespace MEligibilityPlatform.Application.Services
                     // Sets creation and update timestamps
                     model.CreatedByDateTime = DateTime.UtcNow;
                     model.UpdatedByDateTime = DateTime.UtcNow;
+                    
                     // Adds list item to repository
                     _uow.ListItemRepository.Add(_mapper.Map<ListItem>(model));
                     // Increments inserted records count
@@ -1167,7 +1170,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the category data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportCategory(ExcelWorksheet worksheet, string createdBy)
+        public async Task<string> ImportCategory(ExcelWorksheet worksheet, string createdBy,int tenantId)
         {
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -1221,10 +1224,10 @@ namespace MEligibilityPlatform.Application.Services
                     // Reads category description from column 2
                     var CatDescription = worksheet.Cells[row, 2].Text;
                     // Reads entity ID from column 4
-                    var TenantId = worksheet.Cells[row, 4].Text;
+                    //var TenantId = worksheet.Cells[row, 4].Text;
 
                     // Check for empty or invalid fields
-                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) || !int.TryParse(TenantId, out _))
+                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) )
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1240,7 +1243,7 @@ namespace MEligibilityPlatform.Application.Services
                         // Sets category description from Excel data
                         CatDescription = CatDescription,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        TenantId = int.TryParse(TenantId, out int tenantId) ? tenantId : 0,
+                        TenantId = tenantId,
                         // Sets creator identifier
                         CreatedBy = createdBy
                     };
@@ -1312,7 +1315,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the product info data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportInfo(ExcelWorksheet worksheet, string createdBy)
+        public async Task<string> ImportInfo(ExcelWorksheet worksheet, string createdBy,int tenantId)
         {
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -1403,7 +1406,7 @@ namespace MEligibilityPlatform.Application.Services
                         // Parses and sets category ID, defaults to 0 if invalid
                         CategoryId = int.TryParse(CategoryId, out int categoryId) ? categoryId : 0,
                         // Parses and sets entity ID, defaults to 0 if invalid
-                        TenantId = int.TryParse(TenantId, out int tenantId) ? tenantId : 0,
+                        TenantId = tenantId,
                         // Sets narrative from Excel data
                         Narrative = Narrative,
                         // Sets creator identifier
@@ -2615,10 +2618,10 @@ namespace MEligibilityPlatform.Application.Services
 
                     // Check product exists
                     var product = await _uow.ProductRepository.Query()
-    .Where(p => p.ProductName != null &&
-                p.ProductName.ToLower() == ProductName.ToLower())
-    .FirstOrDefaultAsync();
-                    if (product == null)
+                        .Where(p => p.ProductName != null &&
+                                    p.ProductName == ProductName)
+                        .FirstOrDefaultAsync();
+                                        if (product == null)
                     {
                         skippedRecordsCount++;
                         resultMessage += $"Provide correct Stream name '{ProductName}' for PCard '{PcardName}'. ";

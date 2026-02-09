@@ -1,6 +1,6 @@
 ﻿using MEligibilityPlatform.Application.Attributes;
 using MEligibilityPlatform.Application.Constants;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -192,6 +192,7 @@ namespace MEligibilityPlatform.Controllers
         public async Task<IActionResult> ImportListIteams(IFormFile file)
         {
             var userName = User.GetUserName();
+            var tenantId = User.GetTenantId();  
             // Validates if file exists and has content
             if (file == null || file.Length == 0)
                 // Returns bad request if no file is uploaded
@@ -199,7 +200,7 @@ namespace MEligibilityPlatform.Controllers
             try
             {
                 // Imports list items from the uploaded file stream
-                string resultMessage = await _listItemService.ImportListIteams(file.OpenReadStream(), userName ?? "");
+                string resultMessage = await _listItemService.ImportListIteams(file.OpenReadStream(), userName ?? "", tenantId);
                 // Returns success response with import result message
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }

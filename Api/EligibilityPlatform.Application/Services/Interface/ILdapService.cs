@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MEligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Interface
 {
     public interface ILdapService
     {

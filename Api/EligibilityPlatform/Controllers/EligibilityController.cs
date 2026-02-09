@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using MEligibilityPlatform.Application.Middleware;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -75,23 +75,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost("breintegrationalignment")]
         public async Task<IActionResult> BREIntegrationAlignment([FromBody] Dictionary<string, object> KeyValues, [FromQuery] int TenantId, [FromHeader] string? RequestId)
         {
-            try
-            {
+          
                 var result = await _eligibleProductsService.ProcessBREIntegration(KeyValues, TenantId, RequestId);
                 return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-                var requestId = RequestId ?? Guid.NewGuid().ToString();
-                return StatusCode(500, new
-                {
-                    RequestId = requestId,
-                    Error = "Internal server error",
-                    Details = ex.Message
-                });
-            }
-        }
+            
+         }
         [ApiKeyAuth]
         // POST: api/moznapi/CallMOZNApi
         [HttpGet("moznapi")]

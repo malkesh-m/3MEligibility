@@ -2,7 +2,7 @@
 //using System.Text.Json;
 //using System.Xml.Linq;
 //using AutoMapper;
-//using MEligibilityPlatform.Application.Services.Inteface;
+//using MEligibilityPlatform.Application.Services.Interface;
 //using MEligibilityPlatform.Application.UnitOfWork;
 //using MEligibilityPlatform.Domain.Models;
 //using Microsoft.OpenApi;

@@ -2,7 +2,7 @@
 using MEligibilityPlatform.Domain.Models;
 using ValidationResult = MEligibilityPlatform.Domain.Models.ValidationResult;
 
-namespace MEligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Interface
 {
     /// <summary>
     /// Service interface for validation operations.

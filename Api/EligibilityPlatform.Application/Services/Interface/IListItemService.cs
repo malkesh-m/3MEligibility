@@ -1,6 +1,6 @@
 ﻿using MEligibilityPlatform.Domain.Models;
 
-namespace MEligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Interface
 {
     /// <summary>
     /// Service interface for list item management operations.
@@ -62,7 +62,7 @@ namespace MEligibilityPlatform.Application.Services.Inteface
         /// <param name="fileStream">The stream containing the list item data to import.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, containing a status message string.</returns>
-        Task<string> ImportListIteams(Stream fileStream, string createdBy);
+        Task<string> ImportListIteams(Stream fileStream, string createdBy, int tenantId);
 
         /// <summary>
         /// Downloads a template file for list item import.

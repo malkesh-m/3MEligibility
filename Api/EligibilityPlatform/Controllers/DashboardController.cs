@@ -1,6 +1,6 @@
 ﻿using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Services;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

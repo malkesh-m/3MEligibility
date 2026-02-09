@@ -1,7 +1,7 @@
 ﻿using MEligibilityPlatform.Domain.Models;
 using MEligibilityPlatform.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
-namespace Middleware
+namespace MEligibilityPlatform.Middleware
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ExceptionHandlingMiddleware"/> class.
@@ -26,7 +26,7 @@ namespace Middleware
             }
             catch (MakerCheckerException ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "MakerCheckerException occurred: {ErrorMessage}", ex.Message);
 
                 context.Response.StatusCode = StatusCodes.Status200OK;
                 context.Response.ContentType = "application/json";
@@ -40,7 +40,7 @@ namespace Middleware
 
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Unhandled exception occurred: {ErrorMessage}", ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
         }

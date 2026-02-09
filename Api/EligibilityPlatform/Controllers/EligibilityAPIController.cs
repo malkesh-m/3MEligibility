@@ -1,4 +1,4 @@
-﻿using MEligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MEligibilityPlatform.Controllers

@@ -8,7 +8,7 @@ using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
@@ -920,7 +920,7 @@ namespace MEligibilityPlatform.Application.Services
             var scoreParam = _uow.ParameterRepository.Query()
                 .FirstOrDefault(p =>
                     keyValues.Keys.Contains(p.ParameterId) &&
-                    p.ParameterName!.Trim().ToLower() == "score");
+                    p.ParameterName!.Trim() == "score");
 
             if (scoreParam != null &&
                 keyValues.TryGetValue(scoreParam.ParameterId, out var value))
@@ -2277,6 +2277,17 @@ namespace MEligibilityPlatform.Application.Services
             }
             return keyValuesForEligibility;
         }
+        private static readonly JsonSerializerOptions _jsonOptions =
+            new()
+            {
+                WriteIndented = true
+            };
+        private static readonly string[] sourceArray =
+                [
+                   "No Rule Match",
+                   "Could not find eligible amount criteria.",
+                   "Customer's score does not satisfy eligibility requirements."
+                ];
 
         private async Task<BREIntegrationResponses> CreateFinalResponse(EvaluationHistory evaluation, ScoringResult scoreResult, EligibleAmountResults eligibilityResult, double processingTimeSeconds, string requestId, Dictionary<int, object> keyValuesForEligibility, List<Parameter> parameters, int tenantId)
         {
@@ -2292,11 +2303,9 @@ namespace MEligibilityPlatform.Application.Services
             );
 
             // Serialize using parameter names
-            evaluation.BreRequest = JsonSerializer.Serialize(breRequestWithNames, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            }); 
-            
+            evaluation.BreRequest =
+                 JsonSerializer.Serialize(breRequestWithNames, _jsonOptions);
+
             _uow.EvaluationHistoryRepository.Update(evaluation);
             
             var result = TransformToResponse(eligibilityResult!, (long)(processingTimeSeconds * 1000), requestId, evaluation, scoreResult);
@@ -2946,7 +2955,7 @@ namespace MEligibilityPlatform.Application.Services
             // Check if there is a binding for this system parameter (case-insensitive)
             var binding = _uow.ParameterBindingRepository.Query()
                 .Include(b => b.SystemParameter)
-                .FirstOrDefault(b => b.TenantId == tenantId && b.SystemParameter!.Name.ToLower() == systemParameterName.ToLower());
+                .FirstOrDefault(b => b.TenantId == tenantId && b.SystemParameter!.Name == systemParameterName);
 
             if (binding?.MappedParameterId != null)
             {
@@ -2977,7 +2986,7 @@ namespace MEligibilityPlatform.Application.Services
 
             // Also check if any parameter with this name (case-insensitive) exists in mappedKeyValues
             var defaultParam = _uow.ParameterRepository.Query()
-                .FirstOrDefault(p => p.TenantId == tenantId && p.ParameterName!.ToLower() == systemParameterName.ToLower());
+                .FirstOrDefault(p => p.TenantId == tenantId && p.ParameterName == systemParameterName);
             if (defaultParam != null && mappedKeyValues.TryGetValue(defaultParam.ParameterId, out var mappedVal))
             {
                 return mappedVal;
@@ -3311,12 +3320,7 @@ namespace MEligibilityPlatform.Application.Services
 
             // Normalize skip failure reasons ONCE
             var skipFailureReasonsNormalized = new HashSet<string>(
-                new[]
-                {
-                   "No Rule Match",
-                   "Could not find eligible amount criteria.",
-                   "Customer's score does not satisfy eligibility requirements."
-                }.Select(NormalizeForMatch)
+            sourceArray.Select(NormalizeForMatch)
             );
 
             if (eligibilityResult.Products != null)

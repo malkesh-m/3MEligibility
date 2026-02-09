@@ -6,7 +6,6 @@ using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Middleware;
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Services;
-using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Converters;
@@ -24,10 +23,9 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Middleware;
 using Serilog;
 using AuthenticationService = MEligibilityPlatform.Application.Services.AuthenticationService;
-using IAuthenticationService = MEligibilityPlatform.Application.Services.Inteface.IAuthenticationService;
+using IAuthenticationService = MEligibilityPlatform.Application.Services.Interface.IAuthenticationService;
 
 //Log.Information("Starting 3M Eligibility Platform API application.");
 
@@ -363,7 +361,7 @@ builder.Services.AddRateLimiter(options =>
         {
             isSuccess = false,
             message = "Too many requests. Please try again later."
-        });
+        }, cancellationToken: token);
     };
 });
 

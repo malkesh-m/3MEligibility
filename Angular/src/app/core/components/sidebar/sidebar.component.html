@@ -57,9 +57,9 @@
           <a *ngIf="hasPermission('Permissions.PCard.View')" mat-list-item routerLink="setting/product-cards">{{ 'Product
             Cards' | translate
             }}</a>
-          <a *ngIf="hasPermission('Permissions.Exception.View')" mat-list-item routerLink="setting/exception">{{
+          <!-- <a *ngIf="hasPermission('Permissions.Exception.View')" mat-list-item routerLink="setting/exception">{{
             'Exception Management' |
-            translate }}</a>
+            translate }}</a> -->
           <a *ngIf="hasPermission('Permissions.ParameterBinding.View')" mat-list-item routerLink="setting/parameter-binding">{{ 'Parameter Binding' | translate }}</a>
         </mat-nav-list>
       </mat-expansion-panel>

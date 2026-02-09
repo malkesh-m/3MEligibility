@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using Microsoft.Extensions.Configuration;
 using Novell.Directory.Ldap;
 
 namespace MEligibilityPlatform.Application.Services
 {
-    public class LdapService(IConfiguration configuration) : ILdapService
+    public class LdapService() : ILdapService
     {
         //private readonly string _ldapServer = configuration["Ldap:Server"]!;
         //private readonly int _ldapPort = int.Parse(configuration["Ldap:Port"]!);

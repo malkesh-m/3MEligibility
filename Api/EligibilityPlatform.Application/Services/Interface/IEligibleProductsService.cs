@@ -1,7 +1,7 @@
 ﻿using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 
-namespace MEligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Interface
 {
     /// <summary>
     /// Service interface for eligible products operations.

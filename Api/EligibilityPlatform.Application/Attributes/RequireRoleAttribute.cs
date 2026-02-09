@@ -1,4 +1,4 @@
-﻿using MEligibilityPlatform.Application.Services.Inteface;
+﻿using MEligibilityPlatform.Application.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -7,14 +7,9 @@ namespace MEligibilityPlatform.Application.Attributes
 {
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class RequirePermissionAttribute : Attribute, IAsyncAuthorizationFilter
+    public class RequirePermissionAttribute(string permission) : Attribute, IAsyncAuthorizationFilter
     {
-        private readonly string _permission;
-
-        public RequirePermissionAttribute(string permission)
-        {
-            _permission = permission;
-        }
+        private readonly string _permission = permission;
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {

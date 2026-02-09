@@ -1,6 +1,6 @@
 ﻿using MEligibilityPlatform.Domain.Models;
 
-namespace MEligibilityPlatform.Application.Services.Inteface
+namespace MEligibilityPlatform.Application.Services.Interface
 {
     /// <summary>
     /// Service interface for history EC management operations.

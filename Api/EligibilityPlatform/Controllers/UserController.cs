@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using MEligibilityPlatform.Application.Attributes;
 using MEligibilityPlatform.Application.Constants;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;

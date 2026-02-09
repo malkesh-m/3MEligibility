@@ -3,7 +3,6 @@ using System.Formats.Asn1;
 using System.Globalization;
 using AutoMapper;
 using CsvHelper;
-using MEligibilityPlatform.Application.Services.Inteface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using LicenseContext = OfficeOpenXml.LicenseContext;
+using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Application.Services
 {
@@ -507,13 +507,12 @@ namespace MEligibilityPlatform.Application.Services
                     var Code = worksheet.Cells[row, 1].Text;
                     var ProductName = worksheet.Cells[row, 2].Text;
                     var CategoryId = worksheet.Cells[row, 4].Text;
-                    var TenantId = worksheet.Cells[row, 6].Text; //TODO: Why to import from excel?
                     var imageUrl = worksheet.Cells[row, 7].Text;
                     var Narrative = worksheet.Cells[row, 8].Text;
                     var Description = worksheet.Cells[row, 9].Text;
 
                     // Checks for missing or invalid data and skips the row if found.
-                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || !int.TryParse(TenantId, out _) || string.IsNullOrWhiteSpace(imageUrl))
+                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || string.IsNullOrWhiteSpace(imageUrl))
                     {
                         skippedRecordsCount++;
                         continue;
@@ -527,7 +526,7 @@ namespace MEligibilityPlatform.Application.Services
                         ProductName = ProductName,
                         CategoryId = int.Parse(CategoryId),
                         Narrative = Narrative,
-                        TenantId = int.Parse(TenantId),
+                        TenantId = tenantId,
                         UpdatedBy = createdBy,
                         CreatedByDateTime = DateTime.UtcNow,
                         UpdatedByDateTime = DateTime.UtcNow,

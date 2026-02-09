@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using AutoMapper;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
@@ -250,7 +250,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="fileStream">The file stream containing the Excel data to import.</param>
         /// <param name="createdBy">The user who is performing the import operation.</param>
         /// <returns>A task that represents the asynchronous operation, with a string message describing the result.</returns>
-        public async Task<string> ImportListIteams(Stream fileStream, string createdBy)
+        public async Task<string> ImportListIteams(Stream fileStream, string createdBy,int tenantId)
         {
             // Sets EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -324,7 +324,8 @@ namespace MEligibilityPlatform.Application.Services
                         ItemName = ItemName,
                         ListId = int.Parse(ListId),
                         CreatedBy = createdBy,
-                        Code = Code
+                        Code = Code,
+                        TenantId = tenantId
                     };
                     models.Add(model);
                 }

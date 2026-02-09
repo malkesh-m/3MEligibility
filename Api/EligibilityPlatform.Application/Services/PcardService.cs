@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using CsvHelper;
-using MEligibilityPlatform.Application.Services.Inteface;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
@@ -381,9 +381,9 @@ namespace MEligibilityPlatform.Application.Services
 
                     // Check product exists
                     var product = await _uow.ProductRepository.Query()
-.Where(p => p.ProductName != null &&
-       p.ProductName.ToLower() == ProductName.ToLower())
-.FirstOrDefaultAsync();
+                    .Where(p => p.ProductName != null &&
+                           p.ProductName == ProductName)
+                    .FirstOrDefaultAsync();
 
                     if (product == null)
                     {
