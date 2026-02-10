@@ -1,5 +1,5 @@
 ﻿using System.Xml.Linq;
-using AutoMapper;
+using MapsterMapper;
 using MEligibilityPlatform.Application.Extensions;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
@@ -100,7 +100,8 @@ namespace MEligibilityPlatform.Application.Services
         public NodeListModel GetById(int tenantId, int id)
         {
             // Retrieves the specific node by entity ID and node ID
-            var node = _uow.NodeModelRepository.Query().FirstOrDefault(f => f.NodeId == id && f.TenantId == tenantId);
+            var node = _uow.NodeModelRepository.Query().FirstOrDefault(f => f.NodeId == id && f.TenantId == tenantId) ?? throw new Exception($"Node with ID {id} not found for tenant {tenantId}");
+            ;
             // Maps the node to NodeListModel object
             return _mapper.Map<NodeListModel>(node);
         }

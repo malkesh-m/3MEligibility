@@ -40,6 +40,14 @@ namespace MEligibilityPlatform.Middleware
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task InvokeAsync(HttpContext context)
         {
+            var contentType = context.Request.ContentType;
+
+            if (!string.IsNullOrEmpty(contentType) &&
+                contentType.StartsWith("multipart/", StringComparison.OrdinalIgnoreCase))
+            {
+                await _next(context);
+                return;
+            }
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = 0L;
 

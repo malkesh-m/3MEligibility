@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
-using AutoMapper;
+using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;

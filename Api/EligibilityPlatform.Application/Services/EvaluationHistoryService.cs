@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
+using MapsterMapper;
 using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
@@ -126,7 +126,7 @@ namespace MEligibilityPlatform.Application.Services
             /// Retrieves the evaluation history entity by ID and entity ID.
             /// </summary>
             var entity = await _uow.EvaluationHistoryRepository.Query()
-                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == tenantId);
+                .FirstOrDefaultAsync(x => x.EvaluationHistoryId == id && x.TenantId == tenantId) ?? throw new Exception($"EvaluationHistory with ID {id} not found for tenant {tenantId}");
 
             /// <summary>
             /// Maps the entity to an evaluation history model.

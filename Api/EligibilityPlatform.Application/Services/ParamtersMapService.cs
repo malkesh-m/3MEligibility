@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -88,7 +88,7 @@ namespace MEligibilityPlatform.Application.Services
         {
             // Query for the specific parameter map entity
             var paramtersMaps = _uow.ParamtersMapRepository.Query()
-                .FirstOrDefault(pm => pm.Apiid == apiId && pm.NodeId == nodeId && pm.ParameterId == parameterId);
+                .FirstOrDefault(pm => pm.Apiid == apiId && pm.NodeId == nodeId && pm.ParameterId == parameterId) ?? throw new Exception($"ParamtersMap with ApiId {apiId}, NodeId {nodeId}, ParameterId {parameterId} not found");
             // Map entity to model
             return _mapper.Map<ParamtersMapModel>(paramtersMaps);
         }

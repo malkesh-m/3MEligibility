@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using AutoMapper;
+using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -132,7 +132,7 @@ namespace MEligibilityPlatform.Application.Services
         public ProductParamListModel GetById(int productId, int parameterId, int tenantId)
         {
             // Finds the product parameter by composite key
-            var product = _uow.ProductParamRepository.Query().FirstOrDefault(pp => pp.ProductId == productId && pp.ParameterId == parameterId && pp.TenantId == tenantId);
+            var product = _uow.ProductParamRepository.Query().FirstOrDefault(pp => pp.ProductId == productId && pp.ParameterId == parameterId && pp.TenantId == tenantId) ?? throw new Exception($"ProductParam with ProductId {productId}, ParameterId {parameterId}, TenantId {tenantId} not found");
             // Maps the entity to list model and returns
             return _mapper.Map<ProductParamListModel>(product);
         }
@@ -160,9 +160,9 @@ namespace MEligibilityPlatform.Application.Services
                                IsRequired = pp.IsRequired,
                                ProductName = p.ProductName,
                                ParameterName = param.ParameterName
-                           }).FirstOrDefault();
+                           }).FirstOrDefault() ?? throw new Exception($"ProductParam with ProductId {productId} not found for tenant {tenantId}");
             // Maps the entity to list model and returns
-            return _mapper.Map<ProductParamListModel>(product);
+            return _mapper.Map<ProductParamListModel>(product) ;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using MEligibilityPlatform.Application.Services.Interface;
+﻿using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="CategoryListModel"/> objects.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.View")]
+        [Authorize(Policy = Permissions.Category.View)]
 
         [HttpGet("getall")]
         public IActionResult GetAll()
@@ -50,7 +51,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the category.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="CategoryListModel"/> if found; otherwise, not found.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.View")]
+        [Authorize(Policy = Permissions.Category.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -85,7 +86,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="category">The <see cref="CategoryCreateUpdateModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.Create")]
+        [Authorize(Policy = Permissions.Category.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(CategoryCreateUpdateModel category)
@@ -135,7 +136,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="category">The <see cref="CategoryUpdateModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.Edit")]
+        [Authorize(Policy = Permissions.Category.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(CategoryUpdateModel category)
@@ -183,7 +184,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="id">The unique identifier of the category to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.Delete")]
+        [Authorize(Policy = Permissions.Category.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -215,7 +216,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="ids">The list of unique identifiers of the categories to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.Delete")]
+        [Authorize(Policy = Permissions.Category.Delete)]
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
@@ -250,7 +251,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="createdBy">The creator of the import.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.Import")]
+        [Authorize(Policy = Permissions.Category.Import)]
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportCategory(IFormFile file)
@@ -301,7 +302,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="selectedCategoryIds">The list of selected category IDs to export.</param>
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
-        [Authorize(Policy = "Permissions.Category.Export")]
+        [Authorize(Policy = Permissions.Category.Export)]
 
         [HttpPost("export")]
         public async Task<IActionResult> ExportCategory([FromBody] List<int> selectedCategoryIds)

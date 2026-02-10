@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
-using System.Text;
 using System.Threading.RateLimiting;
+using Mapster;
+using MapsterMapper;
 using MEligibilityPlatform;
 using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Repository;
@@ -19,7 +20,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using AuthenticationService = MEligibilityPlatform.Application.Services.AuthenticationService;
@@ -256,8 +256,13 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+MapsterConfig.Register();
 
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+
+builder.Services.AddScoped<IMapper, ServiceMapper>();
+
+
 var rateLimitSection = builder.Configuration.GetSection("RateLimit");
 int GetInt(string key, int defaultValue)
 {

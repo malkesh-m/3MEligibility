@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Data;
 using System.Text;
-using AutoMapper;
+using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -267,7 +267,7 @@ namespace MEligibilityPlatform.Application.Services
         public EruleListModel GetById(int tenantId, int id)
         {
             // Retrieves the rule by ID and entity ID
-            var erule = _uow.EruleRepository.Query().FirstOrDefault(f => f.EruleId == id && f.TenantId == tenantId);
+            var erule = _uow.EruleRepository.Query().FirstOrDefault(f => f.EruleId == id && f.TenantId == tenantId) ?? throw new Exception($"Erule with ID {id} not found for tenant {tenantId}");
 
             // Maps the rule to list model
             var model = _mapper.Map<EruleListModel>(erule);

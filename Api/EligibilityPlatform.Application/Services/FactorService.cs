@@ -3,7 +3,7 @@ using System.Formats.Asn1;
 using System.Globalization;
 using System.Linq.Dynamic.Core;
 using System.Numerics;
-using AutoMapper;
+using MapsterMapper;
 using CsvHelper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;

@@ -1,4 +1,4 @@
-﻿//using AutoMapper;
+﻿//using MapsterMapper;
 //using MEligibilityPlatform.Application.Services.Interface;
 //using MEligibilityPlatform.Application.UnitOfWork;
 //using MEligibilityPlatform.Domain.Entities;

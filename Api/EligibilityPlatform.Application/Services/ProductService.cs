@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Formats.Asn1;
 using System.Globalization;
-using AutoMapper;
+using MapsterMapper;
 using CsvHelper;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;

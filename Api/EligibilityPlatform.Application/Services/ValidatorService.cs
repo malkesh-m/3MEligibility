@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Text.RegularExpressions;
-using AutoMapper;
+using Mapster;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;

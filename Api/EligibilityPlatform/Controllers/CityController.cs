@@ -1,4 +1,5 @@
-﻿using MEligibilityPlatform.Application.Services.Interface;
+﻿using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,7 @@ namespace MEligibilityPlatform.Controllers
         /// Retrieves all city records.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="CityModel"/> objects.</returns>
-        [Authorize(Policy = "Permissions.City.View")]
+        [Authorize(Policy = Permissions.City.View)]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -46,7 +47,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the city.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="CityModel"/> if found; otherwise, not found.</returns>
-        [Authorize(Policy = "Permissions.City.View")]
+        [Authorize(Policy = Permissions.City.View)]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -80,7 +81,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="city">The <see cref="CityModel"/> to add.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Policy = "Permissions.City.Create")]
+        [Authorize(Policy = Permissions.City.Create)]
 
         [HttpPost]
         public async Task<IActionResult> Post(CityModel city)
@@ -112,7 +113,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="city">The <see cref="CityModel"/> to update.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Policy = "Permissions.City.Edit")]
+        [Authorize(Policy = Permissions.City.Edit)]
 
         [HttpPut]
         public async Task<IActionResult> Put(CityModel city)
@@ -144,7 +145,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the city to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Policy = "Permissions.City.Delete")]
+        [Authorize(Policy = Permissions.City.Delete)]
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -165,7 +166,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="ids">The list of unique identifiers of the cities to delete.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Policy = "Permissions.City.Delete")]
+        [Authorize(Policy = Permissions.City.Delete)]
 
         [HttpDelete("multipledelete")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)

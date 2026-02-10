@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -148,7 +148,7 @@ namespace MEligibilityPlatform.Application.Services
         {
             // Queries for the first NodeApi entity matching the node ID
             var nodeApi = _uow.NodeApiRepository.Query()
-                            .FirstOrDefault(x => x.NodeId == nodeId);
+                            .FirstOrDefault(x => x.NodeId == nodeId) ?? throw new Exception($"NodeApi with NodeId {nodeId} not found"); ;
 
             // Maps the entity to NodeApiListModel object
             return _mapper.Map<NodeApiListModel>(nodeApi);
