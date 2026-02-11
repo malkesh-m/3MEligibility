@@ -121,18 +121,6 @@ export class RulesComponent {
   editselectedRule: boolean = false;
   EditEruleMaster: boolean = false;
   parentRules: any[] = [];
-  exceptions: any[] = [
-    { exceptionID: 17, exceptionName: "For Product" },
-    { exceptionID: 18, exceptionName: "string" },
-    { exceptionID: 19, exceptionName: "gdfg" },
-    { exceptionID: 20, exceptionName: "gsdf" },
-    { exceptionID: 21, exceptionName: "test" },
-    { exceptionID: 22, exceptionName: "test Updated" },
-    { exceptionID: 25, exceptionName: "test" },
-    { exceptionID: 28, exceptionName: "age exception" },
-    { exceptionID: 30, exceptionName: "Corporate Gurantee" },
-    { exceptionID: 31, exceptionName: "Age Exception" }
-  ];
 
 
   constructor(
@@ -777,22 +765,22 @@ export class RulesComponent {
     })
   }
 
-  fetchAllExceptions() {
-    this.exceptionsService.getExceptionList().subscribe({
-      next: (response) => {
-        if (response.isSuccess) {
-          this.exceptions = response.data.map((exc: any) => ({ ...exc, exceptionID: Number(exc.exceptionID) }));
-        }
-      }, error: (error) => {
-        this._snackBar.open(error.message, 'Close', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-        });
-        console.log("rules :", error)
-      }
-    })
-  }
+  // fetchAllExceptions() {
+  //   this.exceptionsService.getExceptionList().subscribe({
+  //     next: (response) => {
+  //       if (response.isSuccess) {
+  //         this.exceptions = response.data.map((exc: any) => ({ ...exc, exceptionID: Number(exc.exceptionID) }));
+  //       }
+  //     }, error: (error) => {
+  //       this._snackBar.open(error.message, 'Close', {
+  //         duration: 3000,
+  //         horizontalPosition: 'right',
+  //         verticalPosition: 'top',
+  //       });
+  //       console.log("rules :", error)
+  //     }
+  //   })
+  // }
   editRuleMaster(payload: any) {
     this.IfAddNewVersion = false;
     this.IEditRuleVersion = false;

@@ -18,6 +18,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="entityId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="UserGetModel"/> objects containing all user records for the specified entity.</returns>
         Task<ApiResponse<List<UserGetModel>>> GetAll(int tenantId);
+        Task<ApiResponse<UserGetModel>> GetById(int userId);
 
         ///// <summary>
         ///// Retrieves a specific user record by its identifier within a specific entity.
@@ -150,7 +151,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         //UserGetModel Logout(int id);
         void RemoveUserPermissionsCache(int userId);
 
-        Task<List<string>> GetUserPermissionsAsync(int userId);
+        Task<List<string>> GetUserPermissionsAsync(int userId,int tenantId);
 
     }
 }

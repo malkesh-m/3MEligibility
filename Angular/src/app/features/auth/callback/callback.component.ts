@@ -4,8 +4,8 @@ import { OidcAuthService } from '../../../core/services/auth/oidc-auth.service';
 
 @Component({
     selector: 'app-callback',
-    template: '<div class="loading">Processing login...</div>',
-    styles: ['.loading { text-align: center; padding: 50px; font-size: 18px; }'],
+    templateUrl: './callback.component.html',
+    styleUrl: './callback.component.scss',
     standalone: false
 })
 export class CallbackComponent implements OnInit {

@@ -79,6 +79,7 @@ namespace MEligibilityPlatform.Controllers
             var UserName = User.GetUserName();
             userGroupModel.CreatedBy = UserName;
             userGroupModel.UpdatedBy = UserName;
+            userGroupModel.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {

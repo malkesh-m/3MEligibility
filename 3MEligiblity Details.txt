@@ -23,5 +23,6 @@ Password - 123Pa$$word!
 
 Server identity api url
 https://identityapi.3m-technology.com/index.html
+
 ================================================
 {"state":"6af8e96a-90e2-4628-a01c-bf6b7db71481","nonce":"4ad33e79-3b14-48f5-b52d-b0bd2a240b18","redirectUri":"https%3A%2F%2Flocalhost%3A4200%2Fauthentication%2Flogin-callback","pkceCodeVerifier":"bBgiO32M4sfpNUoVynMbnd1hDQTnUxoKfWD2dcdwoH9bBXojv0coDcD3clBqytKP3yxQFSWUeFzd7GbTB9dE3ua8p5N4TRDD","expires":1768227238444}

@@ -28,6 +28,8 @@ namespace MEligibilityPlatform.Domain.Models
         [Range(1, int.MaxValue, ErrorMessage = "Group ID must be a positive integer.")]
         public int GroupId { get; set; }
         [JsonIgnore]
+        public int TenantId { get; set; }
+        [JsonIgnore]
         public DateTime UpdatedByDateTime { get; set; }
         [JsonIgnore]
 

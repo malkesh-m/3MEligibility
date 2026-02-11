@@ -171,7 +171,7 @@ namespace MEligibilityPlatform.Application.Services
                     NationalId = e.NationalId,
                     LoanNo = e.LoanNo,
                     EvaluationTimeStamp = e.EvaluationTimeStamp,
-                    OutCome = e.Outcome,
+                    Outcome = e.Outcome,
                     FailurReason = e.FailurReason,
                     CreditScore = e.CreditScore,
                     PreviousApplication = e.PreviousApplication ?? 0

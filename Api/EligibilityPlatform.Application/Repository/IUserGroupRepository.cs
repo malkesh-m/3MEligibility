@@ -37,5 +37,13 @@ namespace MEligibilityPlatform.Application.Repository
         /// <param name="groupId">The unique identifier of the group.</param>
         /// <returns>A task that represents the asynchronous operation, containing the removed <see cref="UserGroup"/> entity.</returns>
         Task<UserGroup?> DeleteUserGroupAsync(int userId, int groupId);
+
+        /// <summary>
+        /// Assigns a user to a security group with tenant isolation.
+        /// </summary>
+        /// <param name="userId">The ID of the user to assign.</param>
+        /// <param name="groupId">The ID of the group to assign the user to.</param>
+        /// <param name="tenantId">The tenant ID for multi-tenant isolation.</param>
+        /// <returns>A task that represents the asynchronous operation, containing the created UserGroup entity, or null if the group doesn't exist or doesn't belong to the tenant.</returns>
     }
 }

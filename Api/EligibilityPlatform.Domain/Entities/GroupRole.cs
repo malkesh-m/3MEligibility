@@ -3,11 +3,13 @@ using System.Data;
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class GroupRole
+public partial class GroupRole : ITenantEntity
 {
     public int RoleId { get; set; }
 
     public int GroupId { get; set; }
+
+    public int TenantId { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
 

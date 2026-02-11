@@ -24,7 +24,6 @@ public partial class Parameter : ITenantEntity
     public int? ConditionId { get; set; }
 
     public string? FactorOrder { get; set; }
-
     public DateTime UpdatedByDateTime { get; set; }
 
     public string CreatedBy { get; set; } = string.Empty;

@@ -127,7 +127,54 @@ namespace MEligibilityPlatform.Application.Services
             response.EnsureSuccessStatusCode();
 
             var data = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserGetModel>>>();
+            
+            // Enrich with groups from local database (filtered by tenantId for multi-tenant isolation)
+            
             return data ?? new ApiResponse<List<UserGetModel>>();
+        }
+        public async Task<ApiResponse<UserGetModel>> GetById(int userId)
+        {
+            var client = _httpClientFactory.CreateClient("MIdentityAPI");
+            var response = await client.GetAsync($"api/v1/Users/{userId}");
+            // Executes the query and returns the results as a list.
+            response.EnsureSuccessStatusCode();
+
+            var data = await response.Content.ReadFromJsonAsync<ApiResponse<UserGetModel>>();
+
+            // Enrich with groups from local database (filtered by tenantId for multi-tenant isolation)
+
+            return data ?? new ApiResponse<UserGetModel>();
+        }
+        /// <summary>
+        /// Gets user groups for a specific user, filtered by tenant ID for multi-tenant isolation.
+        /// </summary>
+        /// <param name="userId">The user ID.</param>
+        /// <param name="tenantId">The tenant ID to filter groups.</param>
+        /// <returns>A list of GroupModel representing the user's groups within the tenant.</returns>
+        private async Task<List<GroupModel>> GetUserGroupsAsync(int userId, int tenantId)
+        {
+            try
+            {
+                // Join UserGroup with SecurityGroup to filter by TenantId
+                // UserGroup doesn't have TenantId, but SecurityGroup does
+                var groups = await (from ug in _uow.UserGroupRepository.Query()
+                                   join sg in _uow.SecurityGroupRepository.Query()
+                                   on ug.GroupId equals sg.GroupId
+                                   where ug.UserId == userId && sg.TenantId == tenantId
+                                   select new GroupModel
+                                   {
+                                       GroupId = sg.GroupId,
+                                       GroupName = sg.GroupName ?? ""
+                                   }).ToListAsync();
+
+                return groups ?? [];
+            }
+            catch (Exception ex)
+            {
+                // Log error and return empty list to prevent crashes
+                Console.WriteLine($"Error getting groups for user {userId} in tenant {tenantId}: {ex.Message}");
+                return  [];
+            }
         }
 
         ///// <summary>
@@ -819,24 +866,26 @@ namespace MEligibilityPlatform.Application.Services
             // Returns the list of roles.
             return roles;
         }
-        public async Task<List<string>> GetUserPermissionsAsync(int userId)
+        public async Task<List<string>> GetUserPermissionsAsync(int userId,int tenantId)
         {
             var cacheKey = $"PERMISSIONS_USER_{userId}";
 
-            if (_cache.TryGetValue(cacheKey, out List<string>? permissions))
-                if (permissions != null)
-                {
-                    return permissions;
-                }
+            if (_cache.TryGetValue(cacheKey, out List<string>? permissions) && permissions != null)
+                return permissions;
 
             permissions = await (
-           from ug in _uow.UserGroupRepository.Query()
-           join gr in _uow.GroupRoleRepository.Query() on ug.GroupId equals gr.GroupId
-           join r in _uow.RoleRepository.Query() on gr.RoleId equals r.RoleId
-           where ug.UserId == userId && r.RoleAction != null
-           select r.RoleAction).Distinct().ToListAsync();
+                      from ug in _uow.UserGroupRepository.Query()
+                      join gr in _uow.GroupRoleRepository.Query()
+                          on new { ug.GroupId, ug.TenantId } equals new { gr.GroupId, gr.TenantId }
+                      join r in _uow.RoleRepository.Query().AsNoTracking()
+                          on gr.RoleId equals r.RoleId
+                      where ug.UserId == userId
+                            && ug.TenantId == tenantId
+                            && r.RoleAction != null
+                         select r.RoleAction ).Distinct().ToListAsync();
 
             _cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(30));
+
             return permissions;
         }
         public void RemoveUserPermissionsCache(int userId)

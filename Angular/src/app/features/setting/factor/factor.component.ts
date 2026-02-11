@@ -184,6 +184,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
 
                     });
                 }
+            this.isLoading = false;
             },
             error: (error) => {
                 console.error('Error fetching entities:', error);

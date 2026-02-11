@@ -43,6 +43,7 @@ namespace MEligibilityPlatform.Application.Services
                 {
                     GroupId = groupRoleModel.GroupId,
                     RoleId = roleId,
+                    TenantId = groupRoleModel.TenantId,
                     UpdatedByDateTime = DateTime.UtcNow
                 })
                 .ToList();

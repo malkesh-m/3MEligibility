@@ -29,6 +29,13 @@ namespace MEligibilityPlatform.Application.Repository
         /// <param name="groupId">The unique identifier of the group.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of role identifiers associated with the group.</returns>
         Task<List<int>> GetGroupRoles(int groupId);
+
+        /// <summary>
+        /// Retrieves all role identifiers associated with a specific group, filtered by tenant ID.
+        /// </summary>
+        /// <param name="groupId">The unique identifier of the group.</param>
+        /// <param name="tenantId">The tenant ID for multi-tenant isolation.</param>
+        /// <returns>A task that represents the asynchronous operation, containing a list of role identifiers associated with the group within the tenant.</returns>
     }
 }
 

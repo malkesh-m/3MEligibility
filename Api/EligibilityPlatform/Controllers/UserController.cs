@@ -50,12 +50,21 @@ namespace MEligibilityPlatform.Controllers
         public async Task<IActionResult> Me()
         {
             var userId = User.GetUserId();
-            
+            var tenantId = User.GetTenantId();
             // Retrieves all users for the current entity
-            var result = await _userService.GetUserPermissionsAsync(userId);
+            var result = await _userService.GetUserPermissionsAsync(userId,tenantId);
             var data = new {userId,permissions=result };
             // Returns success response with the list of users
             return Ok(data);
+        }
+        [Authorize]
+        [HttpGet("getbyid")]
+        public async Task<IActionResult> GetById(int userId)
+        {
+            // Retrieves all users for the current entity
+            var result = await _userService.GetById(userId);
+            // Returns success response with the list of users
+            return Ok(result);
         }
 
         //    /// <summary>

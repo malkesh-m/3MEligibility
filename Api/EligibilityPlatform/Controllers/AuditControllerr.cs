@@ -201,7 +201,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to delete multiple audit records.
             /// </summary>
-            await _AuditService.MultiPleDelete(ids);
+            await _AuditService.MultipleDelete(ids);
 
             /// <summary>
             /// Returns successful response indicating the audit records were deleted.

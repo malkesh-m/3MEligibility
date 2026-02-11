@@ -64,7 +64,7 @@ namespace MEligibilityPlatform.Application.Services
             if (res)
             {
                 // Throws exception if parameter name already exists
-                throw new Exception("Parameter name already exists in this entity");
+                throw new Exception("Parameter name already exists in this tenant");
             }
 
             // Maps the incoming model to Parameter entity
@@ -229,32 +229,34 @@ namespace MEligibilityPlatform.Application.Services
         /// <exception cref="Exception">Thrown when the parameter name already exists in the entity.</exception>
         public async Task Update(ParameterAddUpdateModel model)
         {
-            // Checks if parameter name already exists for another parameter in the same entity
-            var res = _uow.ParameterRepository.Query().Any(p => p.ParameterName == model.ParameterName && p.ParameterId != model.ParameterId && p.TenantId == model.TenantId);
-            if (res)
-            {
-                // Throws exception if parameter name already exists
-                throw new Exception("Parameter name already exists in this entity");
-            }
+            var exists = await _uow.ParameterRepository.Query()
+                .AnyAsync(p => p.ParameterName == model.ParameterName
+                               && p.ParameterId != model.ParameterId
+                               && p.TenantId == model.TenantId);
 
-            // Retrieves the existing parameter with computed values
-            var parameters = _uow.ParameterRepository.Query()
+            if (exists)
+                throw new Exception("Parameter name already exists in this tenant");
+
+            var parameter = await _uow.ParameterRepository.Query()
                 .Include(x => x.ComputedValues)
-                .FirstOrDefault(f => f.ParameterId == model.ParameterId && f.TenantId == model.TenantId) ?? throw new Exception("Parameter Not exists in this entity");
-            var createdBy = parameters.CreatedBy;
-            // Maps the updated model to the existing entity
-            var parameterEntities = _mapper.Map<ParameterModel, Parameter>(model, parameters);
-            parameters.CreatedBy = createdBy;
-            // Sets the update timestamp to current UTC time
-            parameterEntities.UpdatedByDateTime = DateTime.UtcNow;
-            parameterEntities.UpdatedByDateTime = DateTime.UtcNow;
+                .FirstOrDefaultAsync(f => f.ParameterId == model.ParameterId
+                                          && f.TenantId == model.TenantId)
+                ?? throw new Exception("Parameter does not exist in this tenant");
 
-            // Updates the parameter entity in the repository
-            _uow.ParameterRepository.Update(parameterEntities);
-            // Commits the changes to the database
+            var createdBy = parameter.CreatedBy;
+            var createdDate = parameter.CreatedByDateTime;
+
+            _mapper.Map(model, parameter);
+
+            parameter.CreatedBy = createdBy;
+            parameter.CreatedByDateTime = createdDate;
+
+            parameter.UpdatedByDateTime = DateTime.UtcNow;
+            parameter.UpdatedBy = model.UpdatedBy ?? "System";
+
             await _uow.CompleteAsync();
-        }
 
+        }
         /// <summary>
         /// Exports selected parameters to an Excel file.
         /// </summary>

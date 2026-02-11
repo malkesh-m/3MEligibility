@@ -1,10 +1,12 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class UserGroup
+public partial class UserGroup : ITenantEntity
 {
     public int UserId { get; set; }
 
     public int GroupId { get; set; }
+
+    public int TenantId { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
 

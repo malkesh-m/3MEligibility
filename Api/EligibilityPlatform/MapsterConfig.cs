@@ -36,6 +36,7 @@ namespace MEligibilityPlatform
             TypeAdapterConfig<Ecard, EcardModel>.NewConfig().TwoWays();
             TypeAdapterConfig<Ecard, EcardAddUpdateModel>.NewConfig().TwoWays();
             TypeAdapterConfig<Ecard, EcardListModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<EvaluationHistory, EvaluationHistoryModel>.NewConfig().TwoWays();
 
             TypeAdapterConfig<Erule, EruleModel>.NewConfig().TwoWays();
             TypeAdapterConfig<Erule, EruleListModel>.NewConfig().TwoWays();

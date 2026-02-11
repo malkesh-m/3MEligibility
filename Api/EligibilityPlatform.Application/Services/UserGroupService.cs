@@ -33,7 +33,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<string> Add(UserGroupCreateUpdateModel userGroupModel)
         {
             string result = "";
-            var alreadyExist = _uow.UserGroupRepository.Query().Any(u => u.UserId == userGroupModel.UserId && u.GroupId == userGroupModel.GroupId);
+            var alreadyExist = _uow.UserGroupRepository.Query().Any(u => u.UserId == userGroupModel.UserId && u.GroupId == userGroupModel.GroupId && u.TenantId == userGroupModel.TenantId);
             if (alreadyExist)
             {
                 result = "User already added in this group";

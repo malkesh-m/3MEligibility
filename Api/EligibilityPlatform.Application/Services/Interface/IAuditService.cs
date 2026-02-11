@@ -49,6 +49,6 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="ids">A list of unique identifiers of the audit records to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task MultiPleDelete(List<int> ids);
+        Task MultipleDelete(List<int> ids);
     }
 }

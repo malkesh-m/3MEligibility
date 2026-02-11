@@ -19,7 +19,7 @@ namespace MEligibilityPlatform.Domain.Models
         public string LoanNo { get; set; } = string.Empty;
         public DateTime EvaluationTimeStamp { get; set; }
         [StringLength(1000, ErrorMessage = "Outcome cannot exceed 1000 characters.")]
-        public string? OutCome { get; set; }
+        public string? Outcome { get; set; }
         [StringLength(1000, ErrorMessage = "FailurReason cannot exceed 1000 characters.")]
         public string? FailurReason { get; set; }
         [Range(0, int.MaxValue, ErrorMessage = "CreditScore cannot be negative.")]

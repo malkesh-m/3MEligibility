@@ -83,6 +83,9 @@ namespace MEligibilityPlatform.Domain.Models
         public string Culture { get; set; } = string.Empty;
 
         public string DisplayName { get; set; } = string.Empty;
+
+        // Groups from local database (enriched)
+        public List<GroupModel> Groups { get; set; } = [];
     }
 
     public class UserAddModel : UserModel

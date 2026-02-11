@@ -153,6 +153,7 @@ builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<INodeApiRepository, NodeApiRepository>();
 builder.Services.AddScoped<ILdapService, LdapService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddScoped<ITenantOnboardingService, TenantOnboardingService>();
 
 //builder.Services.AddScoped<IDynamicApiService, DynamicApiService>();
 

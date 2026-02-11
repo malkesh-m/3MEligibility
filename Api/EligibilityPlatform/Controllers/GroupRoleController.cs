@@ -48,6 +48,7 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(GroupRoleModel groupRoleModel)
         {
+            groupRoleModel.TenantId = User.GetTenantId();
             // Validates the model state
             if (!ModelState.IsValid)
             {

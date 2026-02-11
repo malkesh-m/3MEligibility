@@ -49,10 +49,26 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A list of SecurityGroupModel representing all security groups.</returns>
         public List<SecurityGroupModel> GetAll(int tenantId)
         {
-            // Retrieves all security groups from the repository
-            var securityGroups = _uow.SecurityGroupRepository.GetAllByTenantId(tenantId);
-            // Maps the security groups to SecurityGroupModel objects
-            return _mapper.Map<List<SecurityGroupModel>>(securityGroups);
+            try
+            {
+                // Retrieves all security groups from the repository filtered by tenantId
+                var securityGroups = _uow.SecurityGroupRepository.GetAllByTenantId(tenantId);
+                
+                if (securityGroups == null || !securityGroups.Any())
+                {
+                    // Return empty list instead of crashing
+                    return [];
+                }
+                
+                // Maps the security groups to SecurityGroupModel objects
+                return _mapper.Map<List<SecurityGroupModel>>(securityGroups.ToList());
+            }
+            catch (Exception ex)
+            {
+                // Log the error and return empty list to prevent crashes
+                Console.WriteLine($"Error getting security groups for tenant {tenantId}: {ex.Message}");
+                return [];
+            }
         }
 
         /// <summary>
@@ -62,8 +78,10 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The SecurityGroupModel for the specified ID.</returns>
         public SecurityGroupModel GetById(int id,int tenantId)
         {
-            // Retrieves the specific security group by ID
-            var securityGroup = _uow.SecurityGroupRepository.Query().Where(s=>s.GroupId==id && s.TenantId==tenantId) ?? throw new KeyNotFoundException("security Group not found");
+            // Retrieves the specific security group by ID and tenantId for multi-tenant isolation
+            var securityGroup = _uow.SecurityGroupRepository.Query()
+                .FirstOrDefault(s => s.GroupId == id && s.TenantId == tenantId) ?? throw new KeyNotFoundException($"Security Group with ID {id} not found for tenant {tenantId}");
+
             // Maps the security group to SecurityGroupModel object
             return _mapper.Map<SecurityGroupModel>(securityGroup);
         }

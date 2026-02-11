@@ -107,7 +107,7 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="ids">A list of audit record IDs to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task MultiPleDelete(List<int> ids)
+        public async Task MultipleDelete(List<int> ids)
         {
             // Iterates through each ID in the list
             foreach (var id in ids)
