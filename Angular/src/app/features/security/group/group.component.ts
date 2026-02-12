@@ -178,8 +178,37 @@ export class GroupComponent implements OnInit,AfterViewInit {
       }
 
       let completedCount = 0;
+      const alreadyAssigned: string[] = [];
+      const usersToAssign = selectedUsers.filter(user => {
+        const isAssigned = this.assignedUserDataSource.data.some((item: any) =>
+          item.id === user.id && item.groupId === Number(this.selectedGroupName)
+        );
+        if (isAssigned) {
+          alreadyAssigned.push(user.displayName ?? user.email);
+          return false;
+        }
+        return true;
+      });
 
-      selectedUsers.forEach(user => {
+      if (alreadyAssigned.length > 0) {
+        const selectedGroupId = Number(this.selectedGroupName);
+        const groupName =
+          this.records.find(g => g.groupId === selectedGroupId)?.groupName ??
+          this.selectedGroupName ??
+          'selected group';
+
+        this._snackBar.open(
+          `User already present in group: ${groupName}`,
+          'Okay',
+          { horizontalPosition: 'right', verticalPosition: 'top', duration: 4000 }
+        );
+      }
+
+      if (usersToAssign.length === 0) {
+        return;
+      }
+
+      usersToAssign.forEach(user => {
         const payload = {
           groupId: this.selectedGroupName,
           userId: user.id

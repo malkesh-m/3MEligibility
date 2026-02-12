@@ -20,7 +20,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="id">The ID of the API detail record to retrieve.</param>
         /// <returns>The <see cref="ApiDetailListModel"/> with the specified ID.</returns>
         ApiDetailListModel GetById(int id);
-        Task<List<ApiListModel>> GetAllApiDetailsWithNode();
+        Task<List<ApiListModel>> GetAllApiDetailsWithNode(int tenantId);
 
         /// <summary>
         /// Adds a new API detail record.

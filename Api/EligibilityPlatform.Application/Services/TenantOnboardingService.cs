@@ -10,17 +10,19 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace MEligibilityPlatform.Application.Services
 {
     /// <summary>
     /// Service for automated tenant onboarding with all required initial data.
     /// </summary>
-    public class TenantOnboardingService(IUnitOfWork uow, IUserService userService, IHttpClientFactory httpClientFactory) : ITenantOnboardingService
+    public class TenantOnboardingService(IUnitOfWork uow, IUserService userService, IHttpClientFactory httpClientFactory,IConfiguration configuration) : ITenantOnboardingService
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IUserService _userService = userService;
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly IConfiguration _configuration = configuration;
 
         /// <summary>
         /// Onboards a new tenant with all required initial data.
@@ -189,14 +191,16 @@ namespace MEligibilityPlatform.Application.Services
                 CreatedByDateTime = now,
                 UpdatedByDateTime = now,
                 RejectionReason = rejectionMessage,
-                RejectionReasonCode =rejectionCode
+                RejectionReasonCode =rejectionCode,
+                IsMandatory=true
             };
         }
 
         public async Task<ApiResponse<TenantModel>> GetById(int tenantId)
         {
+            var version = _configuration["MIdentityAPI:Version"] ?? "1";
             var client = _httpClientFactory.CreateClient("MIdentityAPI");
-            var response = await client.GetAsync($"api/v1/Tenants/{tenantId}");
+            var response = await client.GetAsync($"api/v{version}/Tenants/{tenantId}");
             // Executes the query and returns the results as a list.
             response.EnsureSuccessStatusCode();
 

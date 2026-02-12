@@ -133,6 +133,7 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<ApiParameter>(entity =>
         {
             entity.HasKey(e => e.ApiParamterId);
+            entity.HasIndex(e => e.TenantId, "IX_ApiParameter_TenantId");
 
             entity.HasIndex(e => e.ApiId, "IX_ApiParameters_ApiId");
 
@@ -177,6 +178,7 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<ApiParameterMap>(entity =>
         {
             entity.ToTable("ApiParameterMaps");
+            entity.HasIndex(e => e.TenantId, "IX_ApiParameterMap_TenantId");
 
             entity.HasIndex(e => e.ApiParameterId, "IX_ApisParameterMaps_ApiParameterId");
 
@@ -190,7 +192,8 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<Audit>(entity =>
         {
             entity.ToTable("Audit");
-
+            entity.HasIndex(e => e.TenantId, "Audit_TenantId");
+           
             entity.Property(e => e.ActionDate).HasColumnType("datetime");
             entity.Property(e => e.ActionName).HasMaxLength(50);
             entity.Property(e => e.FieldName).HasMaxLength(50);
@@ -339,6 +342,7 @@ public partial class EligibilityDbContext : DbContext
         });
         modelBuilder.Entity<EvaluationHistory>(entity =>
         {
+            entity.HasIndex(e => e.TenantId, "IX_EvaluationHistory_TenantId");
 
             entity.Property(e => e.LoanNo)
         .HasMaxLength(50)
@@ -471,6 +475,7 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<GroupRole>(entity =>
         {
             entity.HasKey(e => new { e.RoleId, e.GroupId }).HasName("PK__GroupRol__3BB3612C136B1C77");
+            entity.HasIndex(e => e.TenantId, "IX_GroupRole_TenantId");
 
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
                 entity.HasIndex(gr => gr.GroupId)
@@ -595,6 +600,7 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<ListItem>(entity =>
         {
             entity.HasKey(e => e.ItemId).HasName("PK__ListItem__727E838B4F37F516");
+            entity.HasIndex(e => e.TenantId, "IX_ListItem_TenantId");
 
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.ItemName).HasMaxLength(200);
@@ -701,6 +707,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("NodeAPIs");
 
             entity.HasIndex(e => e.NodeId, "NodeAPIs.IX_NodeAPIs_NodeId");
+            entity.HasIndex(e => e.TenantId, "NodeAPIs.IX_NodeAPIs_TenantId");
 
             entity.Property(e => e.Apiid).HasColumnName("APIId");
             entity.Property(e => e.Apidesc)
@@ -779,6 +786,7 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<ParameterBinding>(entity =>
         {
             entity.ToTable("ParameterBinding");
+            entity.HasIndex(e => e.TenantId, "IX_ParameterBinding_TenantId");
 
             entity.HasKey(e => e.Id);
 
@@ -921,6 +929,7 @@ public partial class EligibilityDbContext : DbContext
             entity.ToTable("ProductCap");
 
             entity.HasIndex(e => e.ProductId, "IX_ProductCap_ProductId");
+            entity.HasIndex(e => e.TenantId, "IX_ProductCap_TenantId");
 
             entity.Property(e => e.ProductCapPercentage).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ProductId).HasColumnName("ProductId");
@@ -985,6 +994,7 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<SecurityGroup>(entity =>
         {
             entity.HasKey(e => e.GroupId).HasName("PK__Security__149AF30AF87E70F1");
+            entity.HasIndex(e => e.TenantId, "IX_SecurityGroup_TenantId");
 
             entity.Property(e => e.GroupId).HasColumnName("GroupID");
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
@@ -1042,6 +1052,7 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<UserGroup>(entity =>
         {
             entity.HasKey(e => new { e.UserId, e.GroupId }).HasName("PK__UserGrou__A6C1637AF327336E");
+            entity.HasIndex(e => e.TenantId, "IX_UserGroup_TenantId");
 
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
@@ -1072,6 +1083,8 @@ public partial class EligibilityDbContext : DbContext
         modelBuilder.Entity<ProductCapAmount>(entity =>
         {
             entity.ToTable("ProductCapAmount");
+            entity.HasIndex(e => e.TenantId, "IX_ProductCapAmount_TenantId");
+            entity.HasIndex(e => e.ProductId, "IX_ProductCapAmount_ProductId");
 
             entity.HasKey(e => e.Id);
             entity.HasOne(pca => pca.Product)

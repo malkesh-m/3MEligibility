@@ -45,6 +45,7 @@ namespace MEligibilityPlatform.Application.Services
         private readonly ILdapService _ldaService = ldapService;
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         // The token expiration time span (1 hour).
+
         private readonly TimeSpan _tokenExpiration = TimeSpan.FromHours(1);
         /// <summary>
         /// Adds a new user to the database, including optional image upload.
@@ -121,21 +122,23 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A list of UserGetModel representing all users for the entity.</returns>
         public async Task<ApiResponse<List<UserGetModel>>> GetAll(int tenantId)
         {
+            var version = _configuration["MIdentityAPI:Version"] ?? "1";
             var client = _httpClientFactory.CreateClient("MIdentityAPI");
-            var response = await client.GetAsync($"api/v1/Users/GetAllByTenantId/{tenantId}");
+            var response = await client.GetAsync($"api/v{version}/Users/GetAllByTenantId/{tenantId}");
             // Executes the query and returns the results as a list.
             response.EnsureSuccessStatusCode();
 
             var data = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserGetModel>>>();
             
-            // Enrich with groups from local database (filtered by tenantId for multi-tenant isolation)
             
             return data ?? new ApiResponse<List<UserGetModel>>();
         }
         public async Task<ApiResponse<UserGetModel>> GetById(int userId)
         {
+            var version = _configuration["MIdentityAPI:Version"] ?? "1";
+
             var client = _httpClientFactory.CreateClient("MIdentityAPI");
-            var response = await client.GetAsync($"api/v1/Users/{userId}");
+            var response = await client.GetAsync($"api/v{version}/Users/GetAllByTenantId/s/{userId}");
             // Executes the query and returns the results as a list.
             response.EnsureSuccessStatusCode();
 

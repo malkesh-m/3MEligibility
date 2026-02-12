@@ -118,7 +118,9 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Validates the model state before processing.
             /// </summary>
-            /// 
+            var tenantId = User.GetTenantId(); 
+
+
             if (!ModelState.IsValid)
             {
                 /// <summary>
@@ -130,7 +132,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to add a new API detail.
             /// </summary>
-            var data = await _apiDetailService.GetAllApiDetailsWithNode();
+            var data = await _apiDetailService.GetAllApiDetailsWithNode(tenantId);
 
             /// <summary>
             /// Returns successful response indicating the API detail was created.

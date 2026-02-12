@@ -126,9 +126,9 @@ namespace MEligibilityPlatform.Application.Services
             await _uow.CompleteAsync();
         }
 
-        public async Task<List<ApiListModel>> GetAllApiDetailsWithNode()
+        public async Task<List<ApiListModel>> GetAllApiDetailsWithNode(int tenantId)
         {
-            return await _nodeApiRepository.Query()
+            return await _nodeApiRepository.Query().Where(n=>n.TenantId==tenantId)
      .Join(_nodeModelRepository.Query(),
            api => api.NodeId,
            node => node.NodeId,
