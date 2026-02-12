@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NgForm } from '@angular/forms';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { environment } from '../../../../environments/environment';
 
 export interface EntityRecord {
@@ -112,7 +112,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
     private utilityService: UtilityService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private rolesService: RolesService
+    private PermissionsService: PermissionsService
   ) { }
 
   async ngOnInit() {
@@ -124,8 +124,8 @@ export class EntityComponent implements OnInit, AfterViewInit {
 
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
   onEntityNameInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -803,3 +803,6 @@ export class EntityComponent implements OnInit, AfterViewInit {
     }
   }
 }
+
+
+

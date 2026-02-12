@@ -161,8 +161,9 @@
 
 <app-table #tableChild [cols]="cardsColumnsAry" [checkedSelectedId]="deleteKeyForMultiple" [rows]="filteredCards"
   [displayedColumns]="cardsColumnsAry" [header]="cardsHeaderAry" (actionEvent)="tableRowAction($event)"
-  [hasValidationAction]="true" [editRoleId]="'Permissions.ECard.Edit'" [deleteRoleId]="'Permissions.ECard.Delete'" [validateRoleId]="'65'">
+  [hasValidationAction]="true" [editPermissionId]="'Permissions.ECard.Edit'" [deletePermissionId]="'Permissions.ECard.Delete'" [validatePermissionId]="'65'">
 </app-table>
 
 <!-- Full-page Loader -->
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
+

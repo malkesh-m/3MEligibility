@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MakerCheckerDetailsDialogComponent } from './maker-checker-details-dialog/maker-checker-details-dialog.component';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-maker-checker',
@@ -29,11 +29,11 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
   isUploading: boolean = false;
   isDownloading: boolean = false;
 
-  constructor(private dialog: MatDialog, private Makerservice: MakerCheckerService, private rolesService: RolesService) {
+  constructor(private dialog: MatDialog, private Makerservice: MakerCheckerService, private PermissionsService: PermissionsService) {
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   ngAfterViewInit(): void {
@@ -119,3 +119,6 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
     });
   }
 }
+
+
+

@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserprogileService } from '../../../core/services/security/userprofile.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 export interface personalDetailRecord {
   entityName: string | null,
@@ -78,7 +78,7 @@ export class UserprofileComponent {
     }
   ];
   
-  constructor(private authService: AuthService, private userprofileService: UserprogileService,private rolesService:RolesService) { }
+  constructor(private authService: AuthService, private userprofileService: UserprogileService,private PermissionsService:PermissionsService) { }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
@@ -109,8 +109,8 @@ export class UserprofileComponent {
     });
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   switchTab(tab: string): void {
@@ -168,3 +168,6 @@ export class UserprofileComponent {
     }
   }
 }
+
+
+

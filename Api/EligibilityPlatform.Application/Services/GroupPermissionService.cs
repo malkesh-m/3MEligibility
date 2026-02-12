@@ -1,4 +1,4 @@
-﻿using MapsterMapper;
+using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -13,11 +13,11 @@ namespace MEligibilityPlatform.Application.Services
     /// Service class for managing group-role associations.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="GroupRoleService"/> class.
+    /// Initializes a new instance of the <see cref="GroupPermissionService"/> class.
     /// </remarks>
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
-    public class GroupRoleService(IUnitOfWork uow, IMapper mapper,IMemoryCache cache,IUserService userService) : IGroupRoleService
+    public class GroupPermissionService(IUnitOfWork uow, IMapper mapper,IMemoryCache cache,IUserService userService) : IGroupPermissionService
     {
         /// <summary>
         /// The unit of work instance for data access and persistence operations.
@@ -32,29 +32,29 @@ namespace MEligibilityPlatform.Application.Services
         /// <summary>
         /// Adds group-role assignments based on the given model.
         /// </summary>
-        /// <param name="groupRoleModel">
+        /// <param name="groupPermissionModel">
         /// The model containing the group ID and list of roles to assign.
         /// </param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Add(GroupRoleModel groupRoleModel)
+        public async Task Add(GroupPermissionModel groupPermissionModel)
         {
-            var groupRoles = groupRoleModel.RoleIds
-                .Select(roleId => new GroupRole
+            var groupRoles = groupPermissionModel.PermissionIds
+                .Select(roleId => new GroupPermission
                 {
-                    GroupId = groupRoleModel.GroupId,
-                    RoleId = roleId,
-                    TenantId = groupRoleModel.TenantId,
+                    GroupId = groupPermissionModel.GroupId,
+                    PermissionId = roleId,
+                    TenantId = groupPermissionModel.TenantId,
                     UpdatedByDateTime = DateTime.UtcNow
                 })
                 .ToList();
      
             // Add all mappings at once
-            _uow.GroupRoleRepository.AddRange(groupRoles);
+            _uow.GroupPermissionRepository.AddRange(groupRoles);
             // Commit changes
             await _uow.CompleteAsync();
 
             var userIds = await _uow.UserGroupRepository.Query()
-              .Where(x => x.GroupId == groupRoleModel.GroupId)
+              .Where(x => x.GroupId == groupPermissionModel.GroupId)
              .Select(x => x.UserId)
              .ToListAsync();
             foreach (var userId in userIds)
@@ -66,13 +66,13 @@ namespace MEligibilityPlatform.Application.Services
         /// <summary>
         /// Retrieves all group-role mappings.
         /// </summary>
-        /// <returns>A list of <see cref="GroupRoleModel"/> instances.</returns>
-        public List<GroupRoleModel> GetAll()
+        /// <returns>A list of <see cref="GroupPermissionModel"/> instances.</returns>
+        public List<GroupPermissionModel> GetAll()
         {
             // Retrieve all groupRole entities.
-            var groupRoles = _uow.GroupRoleRepository.GetAll();
+            var groupRoles = _uow.GroupPermissionRepository.GetAll();
             // Map entities to models using AutoMapper.
-            return _mapper.Map<List<GroupRoleModel>>(groupRoles);
+            return _mapper.Map<List<GroupPermissionModel>>(groupRoles);
         }
 
         /// <summary>
@@ -85,25 +85,25 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<bool> GetBySecurityGroupId(int groupId)
         {
             // Check existence in repository.
-            return await _uow.GroupRoleRepository.GetBySecurityGroupId(groupId);
+            return await _uow.GroupPermissionRepository.GetBySecurityGroupId(groupId);
         }
 
         /// <summary>
         /// Removes specified roles from a given group.
         /// </summary>
-        /// <param name="groupRoleModel">
+        /// <param name="groupPermissionModel">
         /// The model containing the group ID and list of roles to remove.
         /// </param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Remove(GroupRoleModel groupRoleModel)
+        public async Task Remove(GroupPermissionModel groupPermissionModel)
         {
-            var itemsToRemove = new List<GroupRole>();
+            var itemsToRemove = new List<GroupPermission>();
 
             // Collect all mappings to remove
-            foreach (var roleId in groupRoleModel.RoleIds)
+            foreach (var roleId in groupPermissionModel.PermissionIds)
             {
-                var item = await _uow.GroupRoleRepository
-                    .GetGroupRole(groupRoleModel.GroupId, roleId);
+                var item = await _uow.GroupPermissionRepository
+                    .GetGroupPermission(groupPermissionModel.GroupId, roleId);
 
                 if (item != null)
                 {
@@ -114,12 +114,12 @@ namespace MEligibilityPlatform.Application.Services
             // Remove all at once
             if (itemsToRemove.Count != 0)
             {
-                _uow.GroupRoleRepository.RemoveRange(itemsToRemove);
+                _uow.GroupPermissionRepository.RemoveRange(itemsToRemove);
             }
             // Commit changes
             await _uow.CompleteAsync();
             var userIds = await _uow.UserGroupRepository.Query()
-            .Where(x => x.GroupId == groupRoleModel.GroupId)
+            .Where(x => x.GroupId == groupPermissionModel.GroupId)
             .Select(x => x.UserId)
             .ToListAsync();
             foreach (var userId in userIds)
@@ -133,19 +133,19 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="groupId">The ID of the group.</param>
         /// <returns>
-        /// A list of <see cref="AssignedRoleModel"/> representing assigned roles.
+        /// A list of <see cref="AssignedPermissionModel"/> representing assigned roles.
         /// </returns>
-        public async Task<IList<AssignedRoleModel>> GetAssignedRoles(int groupId)
+        public async Task<IList<AssignedPermissionModel>> GetAssignedPermissions(int groupId)
         {
-            // Query existing mappings including related Role entity.
-            return await _uow.GroupRoleRepository.Query()
-                .Include(i => i.Role)
+            // Query existing mappings including related Permission entity.
+            return await _uow.GroupPermissionRepository.Query()
+                .Include(i => i.Permission)
                 .Where(w => w.GroupId == groupId)
-                .Select(s => new AssignedRoleModel
+                .Select(s => new AssignedPermissionModel
                 {
                     GroupId = s.GroupId,
-                    RoleAction = s.Role.RoleAction ?? "",
-                    RoleId = s.RoleId
+                    PermissionAction = s.Permission.PermissionAction ?? "",
+                    PermissionId = s.PermissionId
                 })
                 .ToListAsync();
         }
@@ -155,28 +155,29 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="groupId">The ID of the group.</param>
         /// <returns>
-        /// A list of <see cref="AssignedRoleModel"/> representing unassigned roles.
+        /// A list of <see cref="AssignedPermissionModel"/> representing unassigned roles.
         /// </returns>
-        public async Task<IList<AssignedRoleModel>> GetUnAssignedRoles(int groupId)
+        public async Task<IList<AssignedPermissionModel>> GetUnAssignedPermissions(int groupId)
         {
             // Retrieve all roles.
-            var roles = _uow.RoleRepository.GetAll();
+            var roles = _uow.PermissionRepository.GetAll();
             // Identify IDs already assigned to the group.
-            var assignedRoleIds = _uow.GroupRoleRepository.Query()
-                .Include(i => i.Role)
+            var assignedPermissionIds = _uow.GroupPermissionRepository.Query()
+                .Include(i => i.Permission)
                 .Where(w => w.GroupId == groupId)
-                .Select(s => s.RoleId);
+                .Select(s => s.PermissionId);
 
-            // Query roles that are not in assignedRoleIds.
-            return await _uow.RoleRepository.Query()
-                .Where(w => !assignedRoleIds.Contains(w.RoleId))
-                .Select(s => new AssignedRoleModel
+            // Query roles that are not in assignedPermissionIds.
+            return await _uow.PermissionRepository.Query()
+                .Where(w => !assignedPermissionIds.Contains(w.PermissionId))
+                .Select(s => new AssignedPermissionModel
                 {
                     GroupId = groupId,
-                    RoleAction = s.RoleAction ?? "",
-                    RoleId = s.RoleId
+                    PermissionAction = s.PermissionAction ?? "",
+                    PermissionId = s.PermissionId
                 })
                 .ToListAsync();
         }
     }
 }
+

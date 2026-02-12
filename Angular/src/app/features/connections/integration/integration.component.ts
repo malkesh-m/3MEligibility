@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
 import { FactorsService } from '../../../core/services/setting/factors.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { HttpClient, HttpHeaders }  from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UtilityService } from '../../../core/services/utility/utils';
@@ -413,7 +413,7 @@ deleteMapping(id: number) {
     const param = this.apiParameters.find(p => p.apiParameterId === apiParameterId);
     return param ? param.parameterName : apiParameterId;
   }
-  constructor(private integrationService: IntegrationService, private fb: FormBuilder, private rolesService: RolesService, private parameterService: ParameterService, private dialog: MatDialog, private factorsService: FactorsService, private http: HttpClient, private utilityService: UtilityService) {
+  constructor(private integrationService: IntegrationService, private fb: FormBuilder, private PermissionsService: PermissionsService, private parameterService: ParameterService, private dialog: MatDialog, private factorsService: FactorsService, private http: HttpClient, private utilityService: UtilityService) {
     this.nodeForm = this.fb.group({
       code: ['', [Validators.required]],
       description: [''],
@@ -726,8 +726,8 @@ deleteMapping(id: number) {
       defaultValue: row.defaultValue
     });
   }
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
   addApiParameter() {
     if (!this.apiParameterForm.value.apiId && this.selectedApi?.apiid) {
@@ -1920,3 +1920,6 @@ deleteMapping(id: number) {
   }
 
 }
+
+
+

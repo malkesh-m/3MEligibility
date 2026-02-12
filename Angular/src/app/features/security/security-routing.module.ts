@@ -3,16 +3,16 @@ import { RouterModule, Routes } from '@angular/router';
 import { SecurityComponent } from './security.component';
 import { UserComponent } from './user/user.component';
 import { GroupComponent } from './group/group.component';
-import { RoleComponent } from './role/role.component';
+import { PermissionComponent } from './permission/permission.component';
 import { UserprofileComponent } from './userprofile/userprofile.component';
-import { roleGuard } from '../../core/guards/role/role.guard';
+import { permissionGuard } from '../../core/guards/permission/permission.guard';
 
 const routes: Routes = [
   {path: '', redirectTo: 'user', pathMatch: 'full' },
   { path: '', component: SecurityComponent },
   { path: 'user', component: UserComponent},
   { path: 'group', component: GroupComponent},
-  { path: 'role', component: RoleComponent},
+  { path: 'permission', component: PermissionComponent},
   { path: 'userprofile', component: UserprofileComponent }
 ];
 
@@ -21,3 +21,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class SecurityRoutingModule { }
+
+

@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Http;
@@ -90,15 +90,15 @@ namespace MEligibilityPlatform.Application.Services.Interface
         ///// Retrieves roles associated with a specific group identifier.
         ///// </summary>
         ///// <param name="groupId">The unique identifier of the group.</param>
-        ///// <returns>A task that represents the asynchronous operation, containing a list of <see cref="RoleModel"/> objects associated with the group.</returns>
-        //Task<List<RoleModel>> GetRolesByGroupId(int groupId);
+        ///// <returns>A task that represents the asynchronous operation, containing a list of <see cref="PermissionModel"/> objects associated with the group.</returns>
+        //Task<List<PermissionModel>> GetRolesByGroupId(int groupId);
 
         ///// <summary>
         ///// Retrieves roles associated with multiple group identifiers.
         ///// </summary>
         ///// <param name="groupIds">A list of group models containing group identifiers.</param>
-        ///// <returns>A task that represents the asynchronous operation, containing a list of <see cref="RoleModel"/> objects associated with the groups.</returns>
-        //Task<List<RoleModel>> GetRolesByGroupIds(List<GroupModel> groupIds);
+        ///// <returns>A task that represents the asynchronous operation, containing a list of <see cref="PermissionModel"/> objects associated with the groups.</returns>
+        //Task<List<PermissionModel>> GetRolesByGroupIds(List<GroupModel> groupIds);
 
         ///// <summary>
         ///// Verifies the current password for a user.
@@ -155,3 +155,4 @@ namespace MEligibilityPlatform.Application.Services.Interface
 
     }
 }
+

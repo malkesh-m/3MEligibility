@@ -11,7 +11,7 @@ import { NgForm } from '@angular/forms';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { MatSort } from '@angular/material/sort';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-lists',
@@ -71,7 +71,7 @@ export class ListsComponent {
     private dialog: MatDialog,
     private utilityService: UtilityService,
     private authService: AuthService,
-    private rolesService:RolesService
+    private PermissionsService:PermissionsService
   ) { }
 
   ngOnInit(): void {
@@ -99,8 +99,8 @@ export class ListsComponent {
       (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Export'));
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   toggleColumn(column: string, afterColumn: string) {
@@ -832,3 +832,6 @@ export class ListsComponent {
   }
 
 }
+
+
+

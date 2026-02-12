@@ -33,7 +33,7 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         public async Task<bool> GetByUserGroupId(int groupId)
         {
             // Executes a query to check if any group roles exist for the specified group ID
-            return await _context.GroupRoles.AnyAsync(gr => gr.GroupId == groupId);
+            return await _context.GroupPermissions.AnyAsync(gr => gr.GroupId == groupId);
         }
 
         /// <summary>

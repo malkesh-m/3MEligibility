@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace MEligibilityPlatform.Domain.Models
@@ -42,26 +42,27 @@ namespace MEligibilityPlatform.Domain.Models
         public string? UpdatedBy { get; set; }
     }
 
-    public class AssignedAndUnAssignedRoleModel
+    public class AssignedAndUnAssignedPermissionModel
     {
-        public int RoleId { get; set; }
+        public int PermissionId { get; set; }
         public int GroupId { get; set; }
-        public required string RoleAction { get; set; }
+        public required string PermissionAction { get; set; }
         public bool IsAssigned { get; set; }
     }
 
-    public class AssignedRoleModel
+    public class AssignedPermissionModel
     {
-        public int RoleId { get; set; }
+        public int PermissionId { get; set; }
         public int GroupId { get; set; }
-        public required string RoleAction { get; set; }
+        public required string PermissionAction { get; set; }
         public DateTime UpdatedByDateTime { get; set; }
     }
 
-    public class UnAssignedRoleModel
+    public class UnAssignedPermissionModel
     {
-        public int RoleId { get; set; }
+        public int PermissionId { get; set; }
         public int GroupId { get; set; }
-        public required string RoleAction { get; set; }
+        public required string PermissionAction { get; set; }
     }
 }
+

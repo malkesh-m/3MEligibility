@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -160,12 +160,12 @@ namespace MEligibilityPlatform.Application.Constants
             public const string Export = "Permissions.Factor.Export";
             public const string Import = "Permissions.Factor.Import";
         }
-        public static class GroupRole
+        public static class GroupPermission
         {
-            public const string Create = "Permissions.GroupRole.Create";
-            public const string Delete = "Permissions.GroupRole.Delete";
-            public const string Edit = "Permissions.GroupRole.Edit";
-            public const string View = "Permissions.GroupRole.View";
+            public const string Create = "Permissions.GroupPermission.Create";
+            public const string Delete = "Permissions.GroupPermission.Delete";
+            public const string Edit = "Permissions.GroupPermission.Edit";
+            public const string View = "Permissions.GroupPermission.View";
         }
         public static class HistoryEc
         {
@@ -325,12 +325,12 @@ namespace MEligibilityPlatform.Application.Constants
             public const string Import = "Permissions.ProductParam.Import";
 
         }
-        public static class Role
+        public static class Permission
         {
-            public const string Create = "Permissions.Role.Create";
-            public const string Delete = "Permissions.Role.Delete";
-            public const string Edit = "Permissions.Role.Edit";
-            public const string View = "Permissions.Role.View";
+            public const string Create = "Permissions.Permission.Create";
+            public const string Delete = "Permissions.Permission.Delete";
+            public const string Edit = "Permissions.Permission.Edit";
+            public const string View = "Permissions.Permission.View";
 
 
         }
@@ -407,3 +407,4 @@ namespace MEligibilityPlatform.Application.Constants
         }
     }
 }
+

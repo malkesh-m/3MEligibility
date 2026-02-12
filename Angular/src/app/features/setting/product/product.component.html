@@ -64,16 +64,16 @@
   <div *ngSwitchCase="'Category'">
     <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
       [columnsDisplayAry]="categoryTableColumnAry" [headerDisplayAry]="categoryTableHeaderAry"
-      [listAry]="categoriesList" [editRoleId]="'Permissions.Category.Edit'"
-      [deleteRoleId]="'Permissions.Category.Delete'" [currentTab]="activeTab">
+      [listAry]="categoriesList" [editPermissionId]="'Permissions.Category.Edit'"
+      [deletePermissionId]="'Permissions.Category.Delete'" [currentTab]="activeTab">
     </app-product-list>
   </div>
 
   <div *ngSwitchCase="'Info'">
     <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
       [columnsDisplayAry]="infoTableColumnAry" [headerDisplayAry]="infoTableHeaderAry" [listAry]="infoList"
-      [currentTab]="activeTab" [categoryList]="categoriesList" [editRoleId]="'Permissions.Product.Edit'"
-      [deleteRoleId]="'Permissions.Product.Delete'">
+      [currentTab]="activeTab" [categoryList]="categoriesList" [editPermissionId]="'Permissions.Product.Edit'"
+      [deletePermissionId]="'Permissions.Product.Delete'">
     </app-product-list>
 
   </div>
@@ -82,7 +82,7 @@
   <div *ngSwitchCase="'Details'">
     <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
       [columnsDisplayAry]="detailsTableColumnAry" [headerDisplayAry]="detailsTableHeaderAry" [listAry]="detailsList"
-      [productList]="infoList" [currentTab]="activeTab" [editRoleId]="'113'" [deleteRoleId]="'114'">
+      [productList]="infoList" [currentTab]="activeTab" [editPermissionId]="'113'" [deletePermissionId]="'114'">
     </app-product-list>
     <!--<div *ngIf="!isDataReady" class="loading-container">
       <p>Loading data, please wait...</p>

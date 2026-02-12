@@ -15,7 +15,7 @@ import { UtilityService } from '../../../../core/services/utility/utils';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 //import { ValidatorDialogComponent } from '../../../../core/components/validator-dialog/validator-dialog.component';
 import { ValidationDialogService } from '../../../../core/services/setting/validation-dialog.service';
-import { RolesService } from '../../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../../core/services/setting/permission.service';
 import { ExceptionManagementService } from '../../../../core/services/setting/exception-management.service';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
@@ -132,7 +132,7 @@ export class RulesComponent {
     private validationDialogService: ValidationDialogService,
     private dialog: MatDialog,
     private utilityService: UtilityService,
-    private rolesService: RolesService,
+    private PermissionsService: PermissionsService,
     private exceptionsService: ExceptionManagementService
   ) {
 
@@ -192,8 +192,8 @@ export class RulesComponent {
     });
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   isRangeOperator(): boolean {
@@ -2384,3 +2384,6 @@ private formatDateForInputUTC(date: string | Date): string {
     this.paginatedRules = this.parentRules.slice(startIndex, endIndex);
   }
 }
+
+
+

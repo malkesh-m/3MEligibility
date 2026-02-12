@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MEligibilityPlatform.Application.Services.Interface;
@@ -511,3 +511,4 @@ namespace MEligibilityPlatform.Controllers
         public string? SampleValue { get; set; }
     }
 }
+

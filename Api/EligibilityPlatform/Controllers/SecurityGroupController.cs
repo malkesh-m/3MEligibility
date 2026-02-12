@@ -1,4 +1,4 @@
-﻿using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -13,14 +13,14 @@ namespace MEligibilityPlatform.Controllers
      /// </remarks>
      /// <param name="securityGroupService">The security group service for managing security groups.</param>
      /// <param name="userGroupService">The user group service for managing user-group relationships.</param>
-     /// <param name="groupRoleService">The group role service for managing group-role relationships.</param>
+     /// <param name="groupPermissionService">The group role service for managing group-role relationships.</param>
     [Route("api/securitygroup")]
     [ApiController]
-    public class SecurityGroupController(ISecurityGroupService securityGroupService, IUserGroupService userGroupService, IGroupRoleService groupRoleService) : ControllerBase
+    public class SecurityGroupController(ISecurityGroupService securityGroupService, IUserGroupService userGroupService, IGroupPermissionService groupPermissionService) : ControllerBase
     {
         private readonly ISecurityGroupService _securityGroupService = securityGroupService;
         private readonly IUserGroupService _userGroupService = userGroupService;
-        private readonly IGroupRoleService _groupRoleService = groupRoleService;
+        private readonly IGroupPermissionService _groupPermissionService = groupPermissionService;
 
         /// <summary>
         /// Retrieves all security groups from the system.
@@ -158,7 +158,7 @@ namespace MEligibilityPlatform.Controllers
             }
 
             // Checks if there are roles assigned to this security group
-            var rolesAssigned = await _groupRoleService.GetBySecurityGroupId(id);
+            var rolesAssigned = await _groupPermissionService.GetBySecurityGroupId(id);
             if (rolesAssigned)
             {
                 // Returns error response if roles are assigned to the group
@@ -218,7 +218,7 @@ namespace MEligibilityPlatform.Controllers
                 }
 
                 // Checks if there are roles assigned to this security group
-                var rolesAssigned = await _groupRoleService.GetBySecurityGroupId(id);
+                var rolesAssigned = await _groupPermissionService.GetBySecurityGroupId(id);
                 if (rolesAssigned)
                 {
                     // Returns error response if roles are assigned to the group
@@ -241,3 +241,4 @@ namespace MEligibilityPlatform.Controllers
         }
     }
 }
+

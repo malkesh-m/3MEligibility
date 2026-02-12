@@ -11,7 +11,7 @@ import { ParameterService } from '../../../core/services/setting/parameter.servi
 import { UtilityService } from '../../../core/services/utility/utils';
 import { NgForm, NgModel } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 export interface FactorRecord {
     factorName: string;
@@ -103,7 +103,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
   loggedInUser: any = null;
   SelectMultiple: boolean = false;
 
-    constructor(private factorsService: FactorsService, private dialog: MatDialog,private rolesService:RolesService, private parameterService: ParameterService, private utilityService: UtilityService,private authService: AuthService) { }
+    constructor(private factorsService: FactorsService, private dialog: MatDialog,private PermissionsService:PermissionsService, private parameterService: ParameterService, private utilityService: UtilityService,private authService: AuthService) { }
     
     async ngOnInit() {
         await Promise.all([this.fetchParametersList(), this.fetchConditonsList()]);
@@ -112,8 +112,8 @@ export class FactorsComponent implements OnInit, AfterViewInit {
 
     }
 
-    hasPermission(roleId: string): boolean {
-        return this.rolesService.hasPermission(roleId);
+    hasPermission(permissionId: string): boolean {
+        return this.PermissionsService.hasPermission(permissionId);
       }
   showMaxLengthWarning: boolean = false;
   onEntityNameInput(event: Event): void {
@@ -1014,3 +1014,6 @@ export class FactorsComponent implements OnInit, AfterViewInit {
         });
     }
 }
+
+
+

@@ -2,21 +2,21 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
-export class RolesService {
+export class PermissionsService {
 
   private permissionsSubject = new BehaviorSubject<string[]>([]);
   permissions$ = this.permissionsSubject.asObservable();
 
   constructor() {
-    const stored = localStorage.getItem('userRoles');
+    const stored = localStorage.getItem('userPermissions');
     if (stored) {
       this.permissionsSubject.next(JSON.parse(stored));
     }
   }
 
-  setRoles(permissions: string[] = []): void {
+  setPermissions(permissions: string[] = []): void {
     this.permissionsSubject.next(permissions);
-    localStorage.setItem('userRoles', JSON.stringify(permissions));
+    localStorage.setItem('userPermissions', JSON.stringify(permissions));
   }
 
 hasPermission(permission: string): boolean {
@@ -27,8 +27,9 @@ hasPermission(permission: string): boolean {
     .includes(permission.toLowerCase());
 }
 
-  clearRoles(): void {
+  clearPermissions(): void {
     this.permissionsSubject.next([]);
-    localStorage.removeItem('userRoles');
+    localStorage.removeItem('userPermissions');
   }
 }
+

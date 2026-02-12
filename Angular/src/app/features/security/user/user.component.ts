@@ -17,7 +17,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { EntityService } from '../../../core/services/setting/entity.service';
 
 
@@ -88,10 +88,10 @@ export class UserComponent implements OnInit {
   };
     toastr: any;
 
-  constructor(private userService: UserService,private rolesService:RolesService,private entityService:EntityService) { }
+  constructor(private userService: UserService,private PermissionsService:PermissionsService,private entityService:EntityService) { }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
   passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
   ngOnInit() {
@@ -459,3 +459,6 @@ export class UserComponent implements OnInit {
     }
   }
 }
+
+
+

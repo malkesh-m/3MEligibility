@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
-import { RolesService } from '../../services/setting/role.service';
+import { PermissionsService } from '../../services/setting/permission.service';
 @Component({
   selector: 'app-table',
   standalone: false,
@@ -32,13 +32,13 @@ export class TableComponent {
   pageSize: number = 10;
   currentPage: number = 0;
   @Input() displayedColumns: string[] = [];
-  @Input() editRoleId: string = '';
-  @Input() deleteRoleId: string = '';
-  @Input() validateRoleId: string = '';
+  @Input() editPermissionId: string = '';
+  @Input() deletePermissionId: string = '';
+  @Input() validatePermissionId: string = '';
 
   constructor(
     private dialog: MatDialog,
-    private rolesService:RolesService
+    private PermissionsService:PermissionsService
   ) { }
 
   ngAfterViewInit() {
@@ -62,8 +62,8 @@ export class TableComponent {
     this.updatePaginatedRows();
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
   
   get finalColumns(): string[] {
@@ -203,3 +203,7 @@ export class TableComponent {
   }
 
 }
+
+
+
+

@@ -12,7 +12,7 @@ import { DeleteDialogComponent } from '../../../../core/components/delete-dialog
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ValidationDialogService } from '../../../../core/services/setting/validation-dialog.service';
 import { ParameterService } from '../../../../core/services/setting/parameter.service';
-import { RolesService } from '../../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-product-cards',
@@ -77,7 +77,7 @@ export class ProductCardsComponent implements OnInit {
     private validationDialogService: ValidationDialogService,
     private dialog: MatDialog,
     private authService: AuthService,
-    private rolesService:RolesService
+    private PermissionsService:PermissionsService
   ) {
     this.expressionForm = this.fb.group({
       ProductCardName: ['', [Validators.required]],
@@ -89,8 +89,8 @@ export class ProductCardsComponent implements OnInit {
     });
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   sanitizeCode(event: any) {
@@ -1031,3 +1031,6 @@ export class ProductCardsComponent implements OnInit {
   }
 
 }
+
+
+

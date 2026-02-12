@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MEligibilityPlatform.Application.Constants;
@@ -316,7 +316,7 @@ namespace MEligibilityPlatform.Controllers
         //                user.Issuspended,
         //                GroupName = user.SecurityGroup.GroupName ?? ""
         //            },
-        //            GroupRoles = groupRole ?? []
+        //            GroupPermissions = groupRole ?? []
         //        });
         //    }
         //    /// <summary>
@@ -541,7 +541,7 @@ namespace MEligibilityPlatform.Controllers
         //};
 
         //        if (user.SecurityGroup != null)
-        //            claims.Add(new Claim(ClaimTypes.Role, user.SecurityGroup.GroupId.ToString()));
+        //            claims.Add(new Claim(ClaimTypes.Permission, user.SecurityGroup.GroupId.ToString()));
 
         //        var securityKey = new SymmetricSecurityKey(
         //            Encoding.UTF8.GetBytes(_key)
@@ -560,3 +560,4 @@ namespace MEligibilityPlatform.Controllers
         //    }
     }
 }
+

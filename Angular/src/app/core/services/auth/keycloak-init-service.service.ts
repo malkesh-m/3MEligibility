@@ -121,11 +121,11 @@ export class KeycloakService {
     return this.keycloak?.tokenParsed?.['preferred_username'] || '';
   }
 
-  getUserRoles(): string[] {
+  getUserPermissions(): string[] {
     return this.keycloak?.tokenParsed?.['realm_access']?.['roles'] || [];
   }
 
-  hasRole(role: string): boolean {
-    return this.getUserRoles().includes(role);
+  hasPermission(permission: string): boolean {
+    return this.getUserPermissions().includes(permission);
   }
 }

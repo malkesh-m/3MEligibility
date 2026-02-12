@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { UtilityService } from '../../../../core/services/utility/utils';
 import { FactorsService } from '../../../../core/services/setting/factors.service';
 import { ExceptionManagementService } from '../../../../core/services/setting/exception-management.service';
-import { RolesService } from '../../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../../core/services/setting/permission.service';
 
 export interface ExceptionRecord {
   [x: string]: any;
@@ -69,7 +69,7 @@ export class ExceptionManagementComponent {
   constructor(
     private utilityService: UtilityService,
     private factorsService: FactorsService,
-    private exceptionService: ExceptionManagementService,private rolesService:RolesService) {
+    private exceptionService: ExceptionManagementService,private PermissionsService:PermissionsService) {
       this.fetchTableData()
   }
 
@@ -83,8 +83,8 @@ export class ExceptionManagementComponent {
     this.formVisible = false;
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   applyFilter(event: Event): void {
@@ -289,3 +289,6 @@ export class ExceptionManagementComponent {
   }
 
 }
+
+
+

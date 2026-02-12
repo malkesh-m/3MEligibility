@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ValidatorDialogComponent } from '../../../../core/components/validator-dialog/validator-dialog.component';
 import { ValidationDialogService } from '../../../../core/services/setting/validation-dialog.service';
-import { RolesService } from '../../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-cards',
@@ -83,7 +83,7 @@ export class CardsComponent {
     private parameterService: ParameterService,
     private rulesService: RulesService,
     private validationDialogService: ValidationDialogService,
-    private rolesService:RolesService
+    private PermissionsService:PermissionsService
   ) {
     this.expressionForm = this.fb.group({
       CardName: ['', Validators.required],
@@ -92,8 +92,8 @@ export class CardsComponent {
     });
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   sanitizeCode(event: any) {
@@ -972,3 +972,6 @@ export class CardsComponent {
     processValidation();
   }
 }
+
+
+

@@ -1,4 +1,4 @@
-﻿using MapsterMapper;
+using MapsterMapper;
 using CsvHelper.Configuration;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
@@ -31,7 +31,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="ecardService">The ecard service instance for ecard operations.</param>
     /// <param name="entityService">The entity service instance for entity operations.</param>
     /// <param name="eruleService">The erule service instance for erule operations.</param>
-    /// <param name="groupRoleService">The group role service instance for group role operations.</param>
+    /// <param name="groupPermissionService">The group role service instance for group role operations.</param>
     /// <param name="historyEcService">The history EC service instance for EC history operations.</param>
     /// <param name="historyErService">The history ER service instance for ER history operations.</param>
     /// <param name="historyParameterService">The history parameter service instance for parameter history operations.</param>
@@ -54,7 +54,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="productCapAmountService">The product cap amount service instance for product cap amount operations.</param>
     public class MakerCheckerService(IUnitOfWork uow, IMapper mapper, IFactorService factorService, IParameterService parameterService,
         IApiDetailService apiDetailService, ICategoryService categoryService, ICityService cityService, IConditionService conditionService, ICountryService countryService,
-        ICurrencyService currencyService, IDataTypeService dataTypeService, IEcardService ecardService, /*IEntityService entityService,*/ IEruleService eruleService, IGroupRoleService groupRoleService,
+        ICurrencyService currencyService, IDataTypeService dataTypeService, IEcardService ecardService, /*IEntityService entityService,*/ IEruleService eruleService, IGroupPermissionService groupPermissionService,
         IHistoryEcService historyEcService, IHistoryErService historyErService, IHistoryParameterService historyParameterService, IHistoryPcService historyPcService,
         IListItemService listItemService, IManagedListService managedListService, IMappingfunctionService mappingfunctionService, INodeApiService nodeApiService, INodeService nodeService, IParamtersMapService paramtersMapService,
         IPcardService pcardService, IProductService productService, IProductParamservice productParamservice, /*IUserService userService,*/ IExceptionManagementService exceptionManagement, IProductCapService productCapService,
@@ -79,7 +79,7 @@ namespace MEligibilityPlatform.Application.Services
         private readonly IEcardService _ecardService = ecardService;
         //private readonly IEntityService _entityService = entityService;
         private readonly IEruleService _eruleService = eruleService;
-        private readonly IGroupRoleService _groupRoleService = groupRoleService;
+        private readonly IGroupPermissionService _groupPermissionService = groupPermissionService;
         private readonly IHistoryEcService _historyEcService = historyEcService;
         private readonly IHistoryErService _historyErService = historyErService;
         private readonly IHistoryParameterService _historyParameterService = historyParameterService;
@@ -1451,3 +1451,4 @@ namespace MEligibilityPlatform.Application.Services
         }
     }
 }
+

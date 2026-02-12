@@ -30,8 +30,8 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         private SecurityGroupRepository? _securityGroupRepository;
         private UserGroupRepository? _userGroupRepository;
         private ScreenRepository? _screenRepository;
-        private RoleRepository? _roleRepository;
-        private GroupRoleRepository? _groupRoleRepository;
+        private PermissionRepository? _permissionRepository;
+        private GroupPermissionRepository? _groupPermissionRepository;
         private UserStatusRepository? _userStatusRepository;
         private BulkImportRepository? _bulkImportRepository;
 
@@ -68,12 +68,12 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         /// <summary>
         /// Gets the role repository.
         /// </summary>
-        public IRoleRepository RoleRepository => _roleRepository ??= new RoleRepository(_dbContext, _userContext);
+        public IPermissionRepository PermissionRepository => _permissionRepository ??= new PermissionRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the group role repository.
         /// </summary>
-        public IGroupRoleRepository GroupRoleRepository => _groupRoleRepository ??= new GroupRoleRepository(_dbContext, _userContext);
+        public IGroupPermissionRepository GroupPermissionRepository => _groupPermissionRepository ??= new GroupPermissionRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the user status repository.
@@ -530,4 +530,5 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         #endregion
     }
 }
+
 

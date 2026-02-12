@@ -3,7 +3,7 @@ import { ProductsService } from '../../../core/services/setting/products.service
 import { ProductListComponent } from './product-list/product-list.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 interface Product {
   productId: number;
@@ -90,7 +90,7 @@ export class ProductComponent {
     'Details': 2
   };
 
-  constructor(private productService: ProductsService, private rolesService: RolesService, private cdr: ChangeDetectorRef, private authService: AuthService) { }
+  constructor(private productService: ProductsService, private PermissionsService: PermissionsService, private cdr: ChangeDetectorRef, private authService: AuthService) { }
 
   ngOnInit() {
     if (this.activeTab === 'Category') {
@@ -122,8 +122,8 @@ export class ProductComponent {
       (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Export')) || (this.activeTab === 'Details' && this.hasPermission('116'));
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   insertNewRecord() {
@@ -482,3 +482,6 @@ export class ProductComponent {
     }
   }
 }
+
+
+

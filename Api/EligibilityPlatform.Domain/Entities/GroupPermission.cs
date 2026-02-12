@@ -3,9 +3,9 @@ using System.Data;
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class GroupRole : ITenantEntity
+public partial class GroupPermission : ITenantEntity
 {
-    public int RoleId { get; set; }
+    public int PermissionId { get; set; }
 
     public int GroupId { get; set; }
 
@@ -15,5 +15,5 @@ public partial class GroupRole : ITenantEntity
 
     public virtual SecurityGroup Group { get; set; } = null!;
 
-    public virtual Role Role { get; set; } = null!;
+    public virtual Permission Permission { get; set; } = null!;
 }

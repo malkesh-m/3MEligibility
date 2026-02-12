@@ -21,7 +21,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { QuillModule } from 'ngx-quill';
 import { GroupComponent } from './group/group.component';
-import { RoleComponent } from './role/role.component';
+import { PermissionComponent } from './permission/permission.component';
 import { UserprofileComponent } from './userprofile/userprofile.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,7 +29,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @NgModule({
-  declarations: [UserComponent,SecurityComponent, GroupComponent,RoleComponent, UserprofileComponent],
+  declarations: [UserComponent,SecurityComponent, GroupComponent,PermissionComponent, UserprofileComponent],
   imports: [
     CommonModule,
     SecurityRoutingModule,

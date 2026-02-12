@@ -17,7 +17,7 @@ import { MakerCheckerConfigComponent } from './maker-checker-config/maker-checke
 import { BulkImportComponent } from './bulk-import/bulk-import.component';
 import { MakerCheckerHistoryComponent } from './maker-checker/maker-checker-history/maker-checker-history.component';
 import { ExceptionManagementComponent } from './conditions/exception-management/exception-management.component';
-import { roleGuard } from '../../core/guards/role/role.guard';
+import { permissionGuard } from '../../core/guards/permission/permission.guard';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuditLogComponent } from './Audit/audit-log/audit-log.component';
@@ -27,9 +27,9 @@ import { ParameterBindingComponent } from './parameter-binding/parameter-binding
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '', component: SettingComponent },
-  { path: 'entity', component: EntityComponent, canActivate: [roleGuard], data: { requiredRoleId: 9 } },
-  { path: 'factors', component: FactorsComponent/*, canActivate: [roleGuard], data: { requiredRoleId: 8 } */ },
-  { path: 'parameters', component: ParametersComponent /*, canActivate: [roleGuard], data: { requiredRoleId: 10 }*/ },
+  { path: 'entity', component: EntityComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 9 } },
+  { path: 'factors', component: FactorsComponent/*, canActivate: [permissionGuard], data: { requiredPermissionId: 8 } */ },
+  { path: 'parameters', component: ParametersComponent /*, canActivate: [permissionGuard], data: { requiredPermissionId: 10 }*/ },
   { path: 'lists', component: ListsComponent },
 
   {
@@ -39,7 +39,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ProductListComponent },
       { path: 'info', component: ProductListComponent },
-      { path: 'details', component: ProductListComponent, canActivate: [roleGuard], data: { requiredRoleId: 51 } },
+      { path: 'details', component: ProductListComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 51 } },
     ],
   },
   { path: 'rules', component: RulesComponent },
@@ -63,3 +63,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class SettingRoutingModule { }   
+
+

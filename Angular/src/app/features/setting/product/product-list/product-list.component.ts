@@ -30,8 +30,8 @@ export class ProductListComponent {
 
   @Output() updateTableRows = new EventEmitter<any>()
   @Output() addFormData = new EventEmitter<any>()
-  @Input() editRoleId: string = '';
-  @Input() deleteRoleId: string = '';
+  @Input() editPermissionId: string = '';
+  @Input() deletePermissionId: string = '';
 
 
   ProductListDetails: any = [];
@@ -1144,3 +1144,4 @@ async onSubmit() {
     exceptionControl?.updateValueAndValidity();
   }
 }
+

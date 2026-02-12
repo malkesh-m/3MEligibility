@@ -1,12 +1,12 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class Role
+public partial class Permission
 {
-    public int RoleId { get; set; }
+    public int PermissionId { get; set; }
 
     public int? ScreenId { get; set; }
 
-    public string? RoleAction { get; set; }
+    public string? PermissionAction { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
 
@@ -16,5 +16,5 @@ public partial class Role
 
     public string? UpdatedBy { get; set; }
 
-    public virtual ICollection<GroupRole> GroupRoles { get; set; } = [];
+    public virtual ICollection<GroupPermission> GroupPermissions { get; set; } = [];
 }

@@ -53,7 +53,7 @@ public partial class EligibilityDbContext : DbContext
 
     public virtual DbSet<Factor> Factors { get; set; }
 
-    public virtual DbSet<GroupRole> GroupRoles { get; set; }
+    public virtual DbSet<GroupPermission> GroupPermissions { get; set; }
 
     public virtual DbSet<HistoryEc> HistoryEcs { get; set; }
 
@@ -92,7 +92,7 @@ public partial class EligibilityDbContext : DbContext
 
     public virtual DbSet<ProductParam> ProductParams { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Permission> Permissions { get; set; }
 
     public virtual DbSet<Screen> Screens { get; set; }
 
@@ -472,22 +472,23 @@ public partial class EligibilityDbContext : DbContext
                 .HasConstraintName("FK__Factors__Paramet__1EA48E88");
         });
 
-        modelBuilder.Entity<GroupRole>(entity =>
+        modelBuilder.Entity<GroupPermission>(entity =>
         {
-            entity.HasKey(e => new { e.RoleId, e.GroupId }).HasName("PK__GroupRol__3BB3612C136B1C77");
-            entity.HasIndex(e => e.TenantId, "IX_GroupRole_TenantId");
+            entity.ToTable("GroupPermissions");
+            entity.HasKey(e => new { e.PermissionId, e.GroupId }).HasName("PK__GroupPerm__3BB3612C136B1C77");
+            entity.HasIndex(e => e.TenantId, "IX_GroupPermission_TenantId");
 
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-                entity.HasIndex(gr => gr.GroupId)
-                .HasDatabaseName("IX_GroupRole_GroupId");
-            entity.HasOne(d => d.Group).WithMany(p => p.GroupRoles)
+            entity.HasIndex(gr => gr.GroupId)
+                .HasDatabaseName("IX_GroupPermission_GroupId");
+            entity.HasOne(d => d.Group).WithMany(p => p.GroupPermissions)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GroupRole__Group__1F98B2C1");          
-            entity.HasOne(d => d.Role).WithMany(p => p.GroupRoles)
-                .HasForeignKey(d => d.RoleId)
+                .HasConstraintName("FK__GroupPerm__Group__1F98B2C1");          
+            entity.HasOne(d => d.Permission).WithMany(p => p.GroupPermissions)
+                .HasForeignKey(d => d.PermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GroupRole__RoleI__208CD6FA");
+                .HasConstraintName("FK__GroupPerm__PermI__208CD6FA");
         });
         modelBuilder.Entity<HistoryEc>(entity =>
         {
@@ -964,17 +965,18 @@ public partial class EligibilityDbContext : DbContext
                 .HasConstraintName("FK__ProductPa__Produ__3F115E1A");
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<Permission>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1AD71FF567");
-             entity.HasIndex(r => r.RoleId)
-                .HasDatabaseName("IX_Role_RoleId");
+            entity.ToTable("Permissions");
+            entity.HasKey(e => e.PermissionId).HasName("PK__Permissions__8AFACE1AD71FF567");
+             entity.HasIndex(r => r.PermissionId)
+                .HasDatabaseName("IX_Permission_PermissionId");
         
               
-            entity.Property(e => e.RoleId).ValueGeneratedNever();
+            entity.Property(e => e.PermissionId).ValueGeneratedNever();
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-            entity.Property(e => e.RoleAction).HasMaxLength(50);
+            entity.Property(e => e.PermissionAction).HasMaxLength(50);
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
 

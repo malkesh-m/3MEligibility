@@ -10,7 +10,7 @@ import { ParameterService } from '../../../../../core/services/setting/parameter
 import { ValidationDialogService } from '../../../../../core/services/setting/validation-dialog.service';
 import { RulesService } from '../../../../../core/services/setting/rules.service';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
-import { RolesService } from '../../../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../../../core/services/setting/permission.service';
 import { ProductsService } from '../../../../../core/services/setting/products.service';
 import { forkJoin } from 'rxjs';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
@@ -132,7 +132,7 @@ export class ExceptionFormComponent {
     private parameterService: ParameterService,
     private validationDialogService: ValidationDialogService,
     private dialog: MatDialog,
-    private rolesService: RolesService,
+    private PermissionsService: PermissionsService,
     private productsService: ProductsService,
     private exceptionsService: ExceptionManagementService,
     private utilityService: UtilityService
@@ -1116,3 +1116,5 @@ export class ExceptionFormComponent {
     });
   }
 }
+
+

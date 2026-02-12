@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
@@ -11,11 +11,11 @@ namespace MEligibilityPlatform.Application.Services
     /// Service class for managing role operations.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="RoleService"/> class.
+    /// Initializes a new instance of the <see cref="PermissionService"/> class.
     /// </remarks>
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
-    public class RoleService(IUnitOfWork uow, IMapper mapper) : IRoleService
+    public class PermissionService(IUnitOfWork uow, IMapper mapper) : IPermissionService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -30,20 +30,20 @@ namespace MEligibilityPlatform.Application.Services
         /// <summary>
         /// Adds a new role to the database.
         /// </summary>
-        /// <param name="roleModel">The RoleModel containing the data to add.</param>
+        /// <param name="roleModel">The PermissionModel containing the data to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Add(RoleCreateUpdateModel roleModel)
+        public async Task Add(PermissionCreateUpdateModel permissionModel)
         {
-            // Gets the last role to determine the next RoleId
-            var lastRole = await _uow.RoleRepository.GetLastRole();
-            // Sets the new RoleId (increments from last role or starts at 1)
-            int newId = lastRole == null ? 1 : lastRole.RoleId + 1;
-            roleModel.RoleId = newId;
-            roleModel.CreatedByDateTime = DateTime.Now;
+            // Gets the last role to determine the next PermissionId
+            var lastPermission = await _uow.PermissionRepository.GetLastPermission();
+            // Sets the new PermissionId (increments from last role or starts at 1)
+            int newId = lastPermission == null ? 1 : lastPermission.PermissionId + 1;
+            permissionModel.PermissionId = newId;
+            permissionModel.CreatedByDateTime = DateTime.Now;
             // Sets the update timestamp to current UTC time
-            roleModel.UpdatedByDateTime = DateTime.UtcNow;
-            // Maps the incoming model to Role entity and adds to repository
-            _uow.RoleRepository.Add(_mapper.Map<Role>(roleModel));
+            permissionModel.UpdatedByDateTime = DateTime.UtcNow;
+            // Maps the incoming model to Permission entity and adds to repository
+            _uow.PermissionRepository.Add(_mapper.Map<Permission>(permissionModel));
             // Commits the changes to the database
             await _uow.CompleteAsync();
         }
@@ -51,26 +51,26 @@ namespace MEligibilityPlatform.Application.Services
         /// <summary>
         /// Gets all roles.
         /// </summary>
-        /// <returns>A list of RoleModel representing all roles.</returns>
-        public List<RoleModel> GetAll()
+        /// <returns>A list of PermissionModel representing all roles.</returns>
+        public List<PermissionModel> GetAll()
         {
             // Retrieves all roles from the repository
-            var roles = _uow.RoleRepository.GetAll();
-            // Maps the roles to RoleModel objects
-            return _mapper.Map<List<RoleModel>>(roles);
+            var roles = _uow.PermissionRepository.GetAll();
+            // Maps the roles to PermissionModel objects
+            return _mapper.Map<List<PermissionModel>>(roles);
         }
 
         /// <summary>
         /// Gets a role by its ID.
         /// </summary>
         /// <param name="id">The role ID to retrieve.</param>
-        /// <returns>The RoleModel for the specified ID.</returns>
-        public RoleModel GetById(int id)
+        /// <returns>The PermissionModel for the specified ID.</returns>
+        public PermissionModel GetById(int id)
         {
             // Retrieves the specific role by ID
-            var role = _uow.RoleRepository.GetById(id);
-            // Maps the role to RoleModel object
-            return _mapper.Map<RoleModel>(role);
+            var permission = _uow.PermissionRepository.GetById(id);
+            // Maps the role to PermissionModel object
+            return _mapper.Map<PermissionModel>(permission);
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace MEligibilityPlatform.Application.Services
         public async Task Remove(int id)
         {
             // Retrieves the role by ID
-            var item = _uow.RoleRepository.GetById(id);
+            var item = _uow.PermissionRepository.GetById(id);
             // Removes the role from the repository
-            _uow.RoleRepository.Remove(item);
+            _uow.PermissionRepository.Remove(item);
             // Commits the changes to the database
             await _uow.CompleteAsync();
         }
@@ -91,22 +91,23 @@ namespace MEligibilityPlatform.Application.Services
         /// <summary>
         /// Updates an existing role.
         /// </summary>
-        /// <param name="roleModel">The RoleModel containing updated data.</param>
+        /// <param name="roleModel">The PermissionModel containing updated data.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Update(RoleCreateUpdateModel roleModel)
+        public async Task Update(PermissionCreateUpdateModel permissionModel)
         {
             // Retrieves the existing role by ID
-            var item = _uow.RoleRepository.GetById(roleModel.RoleId);
+            var item = _uow.PermissionRepository.GetById(permissionModel.PermissionId);
             // Sets the update timestamp to current UTC time
-            roleModel.UpdatedByDateTime = DateTime.UtcNow;
-            roleModel.CreatedByDateTime = item.CreatedByDateTime;
+            permissionModel.UpdatedByDateTime = DateTime.UtcNow;
+            permissionModel.CreatedByDateTime = item.CreatedByDateTime;
             var createdBy = item.CreatedBy;
 
             // Updates the role with mapped data from the model
-            _uow.RoleRepository.Update(_mapper.Map<RoleCreateUpdateModel, Role>(roleModel, item));
+            _uow.PermissionRepository.Update(_mapper.Map<PermissionCreateUpdateModel, Permission>(permissionModel, item));
             item.CreatedBy = createdBy;
             // Commits the changes to the database
             await _uow.CompleteAsync();
         }
     }
 }
+

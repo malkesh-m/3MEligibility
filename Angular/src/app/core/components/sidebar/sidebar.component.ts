@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RolesService } from '../../services/setting/role.service';
+import { PermissionsService } from '../../services/setting/permission.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth/auth.service';
 export class SidebarComponent {
   step = signal(0);
 
-    permissions$ = this.rolesService.permissions$;
+    permissions$ = this.PermissionsService.permissions$;
 
   setStep(index: number) {
     this.step.set(index);
@@ -21,12 +21,12 @@ export class SidebarComponent {
 
 
 
-  constructor(private rolesService: RolesService, private authService: AuthService) {}
+  constructor(private PermissionsService: PermissionsService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.authService.loadUserPermissions().subscribe({
       next: () => {
-        this.rolesService.permissions$.subscribe(perms => {
+        this.PermissionsService.permissions$.subscribe(perms => {
           this.permissions.set(perms);
         });
       },
@@ -41,7 +41,10 @@ export class SidebarComponent {
     this.authService.loadUserPermissions()
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 }
+
+
+

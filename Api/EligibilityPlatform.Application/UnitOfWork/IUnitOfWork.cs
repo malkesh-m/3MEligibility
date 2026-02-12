@@ -1,4 +1,4 @@
-﻿using MEligibilityPlatform.Application.Repository;
+using MEligibilityPlatform.Application.Repository;
 using MEligibilityPlatform.Application.Repository.MEligibilityPlatform.Application.Repository;
 
 namespace MEligibilityPlatform.Application.UnitOfWork
@@ -163,12 +163,12 @@ namespace MEligibilityPlatform.Application.UnitOfWork
         /// <summary>
         /// Gets the role repository.
         /// </summary>
-        IRoleRepository RoleRepository { get; }
+        IPermissionRepository PermissionRepository { get; }
 
         /// <summary>
         /// Gets the group role repository.
         /// </summary>
-        IGroupRoleRepository GroupRoleRepository { get; }
+        IGroupPermissionRepository GroupPermissionRepository { get; }
 
         /// <summary>
         /// Gets the user status repository.
@@ -272,3 +272,4 @@ namespace MEligibilityPlatform.Application.UnitOfWork
         #endregion
     }
 }
+

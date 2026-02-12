@@ -5,7 +5,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { UserService } from '../../../core/services/security/user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { NgForm } from '@angular/forms';
 
@@ -84,7 +84,7 @@ export class GroupComponent implements OnInit,AfterViewInit {
   isDownloading: boolean = false
   isUploading: boolean = false
   message: string = "Loading data, please wait...";
-  constructor(private groupService: GroupService, private utilityService: UtilityService, private cdr: ChangeDetectorRef, private userService: UserService, private rolesService: RolesService) { }
+  constructor(private groupService: GroupService, private utilityService: UtilityService, private cdr: ChangeDetectorRef, private userService: UserService, private PermissionsService: PermissionsService) { }
 
   ngOnInit(): void {
     this.fetchGroupList();
@@ -100,8 +100,8 @@ export class GroupComponent implements OnInit,AfterViewInit {
       (this.activeTab === 'assignedUser' && this.hasPermission('45'));
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   sanitizeCode(event: any) {
@@ -567,3 +567,6 @@ export class GroupComponent implements OnInit,AfterViewInit {
     }
   }
 }
+
+
+

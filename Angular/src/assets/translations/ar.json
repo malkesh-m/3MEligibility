@@ -19,7 +19,7 @@
   "Computed Value": "القيمة المحسوبة",
   "Parameter Exact Value": "القيمة الفعلية",
   "Add Factor": "إضافة عامل",
-  "Add Role": "إضافة دور",
+  "Add Permission": "إضافة دور",
   "Address": "العنوان",
   "Google Location": "موقع جوجل",
   "An Eligibility System..": "نظام الأهلية المتكامل مع حافلة بيانات الخدمة يبسط عمليات اتخاذ القرار من خلال دمج مصادر بيانات متعددة، وتطبيق قواعد عمل قابلة للتكوين، وتوفير نتائج شفافة. يقلل من التعقيد من خلال فصل المنطق الأساسي عن الخدمات الأساسية ويضمن تحديثات سريعة لمعايير الأهلية دون إصلاحات تكنولوجيا المعلومات. يؤدي ذلك إلى تحسين تجربة العملاء، وكفاءة العمليات، والامتثال.",
@@ -27,9 +27,9 @@
   "API Details": "تفاصيل واجهة برمجة التطبيقات",
   "API Name": "اسم واجهة برمجة التطبيقات",
   "Are you sure you want to delete the records? This action cannot be undone.": "هل أنت متأكد من أنك تريد حذف السجلات؟ لا يمكن التراجع عن هذا الإجراء.",
-  "Assigned Roles": "الأدوار المعينة",
+  "Assigned Permissions": "الأدوار المعينة",
   "Assigned Users": "المستخدمون المعينون",
-  "Available Roles": "الأدوار المتاحة",
+  "Available Permissions": "الأدوار المتاحة",
   "Back to Login": "العودة لتسجيل الدخول",
   "CardName": "اسم البطاقة",
   "Calling Parameter": "معامل الاتصال",
@@ -154,8 +154,8 @@
   "Profile": "ملف تعريف",
   "Re-enter New Password": "أعد إدخال كلمة المرور الجديدة",
   "Remove": "إزالة",
-  "Remove Role": "إزالة الدور",
-  "Roles": "الأدوار",
+  "Remove Permission": "إزالة الدور",
+  "Permissions": "الأدوار",
   "Rule Description": "وصف القاعدة",
   "Rule Name": "اسم القاعدة",
   "Rules": "القواعد",
@@ -274,3 +274,4 @@
   "Exception Rule": "قاعدة الاستثناء",
   "Product Cap": "غطاء المنتج"
 }
+

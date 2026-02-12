@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 using Mapster;
 using MapsterMapper;
@@ -118,8 +118,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISecurityGroupService, SecurityGroupService>();
 builder.Services.AddScoped<IUserGroupService, UserGroupService>();
 builder.Services.AddScoped<IScreenService, ScreenService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IGroupRoleService, GroupRoleService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IGroupPermissionService, GroupPermissionService>();
 builder.Services.AddScoped<IUserStatusService, UserStatusService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -431,3 +431,4 @@ finally
 {
     Log.CloseAndFlush();
 }
+

@@ -41,13 +41,13 @@
       <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
       <td class="cellStyling" mat-cell *matCellDef="let row">
         <mat-icon class="clickable-icon" color="primary" (click)="actionEvent.emit({ action: 'edit', data: row })"
-          matTooltip="{{ 'Edit' | translate }}" *ngIf="hasPermission(editRoleId)">edit</mat-icon>
+          matTooltip="{{ 'Edit' | translate }}" *ngIf="hasPermission(editPermissionId)">edit</mat-icon>
         <mat-icon class="clickable-icon" color="warn" (click)="deleterow(row)"
-          matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission(deleteRoleId)">delete</mat-icon>
+          matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission(deletePermissionId)">delete</mat-icon>
         @if (hasValidationAction)
         {
           <mat-icon class="clickable-icon" color="accent" (click)="actionEvent.emit({ action: 'validate', data: row })"
-                    matTooltip="{{ 'Validate' | translate }}" *ngIf="hasPermission(validateRoleId)">check_circle</mat-icon>
+                    matTooltip="{{ 'Validate' | translate }}" *ngIf="hasPermission(validatePermissionId)">check_circle</mat-icon>
         }
       </td>
     </ng-container>
@@ -61,3 +61,4 @@
 <mat-paginator class="paginator" [length]="rows.length" [pageSize]="pageSize" [pageSizeOptions]="[10, 25, 50, 100]"
   (page)="onPageChange($event)">
 </mat-paginator>
+

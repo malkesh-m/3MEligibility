@@ -6,7 +6,7 @@ import { IntegrationService } from '../../../core/services/connections/integrati
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 export interface mappingFormData {
   nodeId: number | null,
@@ -88,7 +88,7 @@ export class MappingComponent {
     mappingTree: '',
     mapping: ''
   };
-  constructor(private fb: FormBuilder, private mappingService: MappingService,private rolesService:RolesService, private integrationService: IntegrationService) {
+  constructor(private fb: FormBuilder, private mappingService: MappingService,private PermissionsService:PermissionsService, private integrationService: IntegrationService) {
     this.mappingForm = this.fb.group({
       nodeId: [null, [Validators.required]],
       apiid: [null, [Validators.required]],
@@ -98,8 +98,8 @@ export class MappingComponent {
     });
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   async ngOnInit(): Promise<void> {
@@ -451,3 +451,6 @@ export class MappingComponent {
   }
 
 }
+
+
+

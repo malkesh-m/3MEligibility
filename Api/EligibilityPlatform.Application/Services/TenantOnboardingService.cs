@@ -1,4 +1,4 @@
-﻿using MapsterMapper;
+using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -109,17 +109,17 @@ namespace MEligibilityPlatform.Application.Services
                 _uow.UserGroupRepository.Add(userGroup);
 
 
-                var roles = await _uow.RoleRepository.Query().ToListAsync();
+                var roles = await _uow.PermissionRepository.Query().ToListAsync();
 
-                var groupRoles = roles.Select(role => new GroupRole
+                var groupRoles = roles.Select(role => new GroupPermission
                 {
-                    RoleId = role.RoleId,
+                    PermissionId = role.PermissionId,
                     GroupId = adminGroup.GroupId,
                     TenantId = request.TenantId,
                     UpdatedByDateTime = now
                 }).ToList();
 
-                _uow.GroupRoleRepository.AddRange(groupRoles);
+                _uow.GroupPermissionRepository.AddRange(groupRoles);
 
 
                 var dataTypes = await _uow.DataTypeRepository.Query().ToListAsync();
@@ -235,7 +235,7 @@ namespace MEligibilityPlatform.Application.Services
                     await _uow.UserGroupRepository.Query()
                         .AnyAsync(x => x.TenantId == tenantId)
                     ||
-                    await _uow.GroupRoleRepository.Query()
+                    await _uow.GroupPermissionRepository.Query()
                         .AnyAsync(x => x.TenantId == tenantId);
 
                 if (isAlreadyOnboarded)

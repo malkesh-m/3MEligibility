@@ -5,7 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-bulk-import',
@@ -44,13 +44,13 @@ export class BulkImportComponent {
   loggedInUser: any = null;
   createdBy:string='';
   
-  constructor(private bulkImportService: BulkImportService,private authService: AuthService,private rolesService:RolesService){}
+  constructor(private bulkImportService: BulkImportService,private authService: AuthService,private PermissionsService:PermissionsService){}
   ngOnInit() {
    this.fetchBulkImportHistory();
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   ngAfterViewInit() {
@@ -207,3 +207,6 @@ export class BulkImportComponent {
       });
   }
 }
+
+
+

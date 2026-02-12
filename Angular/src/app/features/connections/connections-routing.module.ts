@@ -3,13 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { ConnectionsComponent } from './connections.component';
 import { IntegrationComponent } from './integration/integration.component';
 import { MappingComponent } from './mapping/mapping.component';
-import { roleGuard } from '../../core/guards/role/role.guard';
+import { permissionGuard } from '../../core/guards/permission/permission.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'integration', pathMatch: 'full' },
   { path: '', component: ConnectionsComponent },
-  { path: 'integration', component: IntegrationComponent,canActivate: [roleGuard], data: { requiredRoleId: "Permissions.Integration.View"} },
-  { path: 'mapping', component: MappingComponent,canActivate: [roleGuard], data: { requiredRoleId: 6 } }
+  { path: 'integration', component: IntegrationComponent,canActivate: [permissionGuard], data: { requiredPermissionId: "Permissions.Integration.View"} },
+  { path: 'mapping', component: MappingComponent,canActivate: [permissionGuard], data: { requiredPermissionId: 6 } }
 ];
 
 
@@ -18,3 +18,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class ConnectionsRoutingModule { }
+
+

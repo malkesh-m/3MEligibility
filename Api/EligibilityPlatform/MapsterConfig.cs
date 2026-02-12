@@ -1,4 +1,4 @@
-﻿using MapsterMapper;
+using MapsterMapper;
 using Mapster;
 using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
@@ -52,8 +52,8 @@ namespace MEligibilityPlatform
             TypeAdapterConfig<UserStatus, UserStatusModel>.NewConfig().TwoWays();
             TypeAdapterConfig<UserStatus, UserStatusAddModel>.NewConfig().TwoWays();
 
-            TypeAdapterConfig<Role, RoleModel>.NewConfig().TwoWays();
-            TypeAdapterConfig<Role, RoleCreateUpdateModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<Permission, PermissionModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<Permission, PermissionCreateUpdateModel>.NewConfig().TwoWays();
 
             TypeAdapterConfig<SecurityGroup, SecurityGroupModel>.NewConfig().TwoWays();
             TypeAdapterConfig<SecurityGroup, SecurityGroupUpdateModel>.NewConfig().TwoWays();
@@ -61,7 +61,7 @@ namespace MEligibilityPlatform
             TypeAdapterConfig<UserGroup, UserGroupModel>.NewConfig().TwoWays();
             TypeAdapterConfig<UserGroup, UserGroupCreateUpdateModel>.NewConfig().TwoWays();
 
-            TypeAdapterConfig<GroupRole, GroupRoleModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<GroupPermission, GroupPermissionModel>.NewConfig().TwoWays();
             TypeAdapterConfig<Screen, ScreenModel>.NewConfig().TwoWays();
 
       

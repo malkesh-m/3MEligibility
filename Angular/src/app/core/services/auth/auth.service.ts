@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, throwError, from, of } from 'rxjs';
 import { catchError, tap, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { OidcAuthService } from './oidc-auth.service';
-import { RolesService } from '../setting/role.service';
+import { PermissionsService } from '../setting/permission.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private injector: Injector,
-    private rolesService: RolesService
+    private PermissionsService: PermissionsService
   ) {
     const savedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<any | null>(savedUser ? JSON.parse(savedUser) : null);
@@ -38,8 +38,8 @@ export class AuthService {
         localStorage.setItem('token', user.token);
         localStorage.setItem('currentUser', JSON.stringify(user));
         this.currentUserSubject.next(user);
-        if (user?.groupRoles) {
-          this.rolesService.setRoles(Object.values(user.groupRoles));
+        if (user?.groupPermissions) {
+          this.PermissionsService.setPermissions(Object.values(user.groupPermissions));
         }
       }),
       catchError(this.handleError)
@@ -118,7 +118,7 @@ export class AuthService {
   }
 loadUserPermissions() {
   return this.http.get<any>(`${this.apiUrl}/user/me`).pipe(
-    tap(res => this.rolesService.setRoles(res.permissions || []))
+    tap(res => this.PermissionsService.setPermissions(res.permissions || []))
   );
 }
 
@@ -126,3 +126,5 @@ loadUserPermissions() {
     return !!localStorage.getItem('token');
   }
 }
+
+

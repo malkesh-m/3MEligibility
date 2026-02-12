@@ -12,7 +12,7 @@ import { ParameterService } from "../../../../../core/services/setting/parameter
 import { ValidationDialogService } from "../../../../../core/services/setting/validation-dialog.service";
 import { MatDialog } from "@angular/material/dialog";
 import { UtilityService } from "../../../../../core/services/utility/utils";
-import { RolesService } from "../../../../../core/services/setting/role.service";
+import { PermissionsService } from "../../../../../core/services/setting/permission.service";
 import { ExceptionManagementService } from "../../../../../core/services/setting/exception-management.service";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { DeleteDialogComponent } from "../../../../../core/components/delete-dialog/delete-dialog.component";
@@ -117,7 +117,7 @@ export class ExceptionParameterFormComponent {
     private validationDialogService: ValidationDialogService,
     private dialog: MatDialog,
     private utilityService: UtilityService,
-    private rolesService:RolesService,
+    private PermissionsService:PermissionsService,
     private exceptionsService: ExceptionManagementService
   ) {
     
@@ -167,8 +167,8 @@ export class ExceptionParameterFormComponent {
     });
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   isRangeOperator(): boolean {
@@ -1311,3 +1311,6 @@ export class ExceptionParameterFormComponent {
     })
   }
 }
+
+
+

@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MakerCheckerService } from '../../../../core/services/setting/makerchecker.service';
-import { RolesService } from '../../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-maker-checker-details-dialog',
@@ -22,7 +22,7 @@ export class MakerCheckerDetailsDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private snackBar: MatSnackBar,
     private makerCheckerService: MakerCheckerService,
-    private rolesService: RolesService
+    private PermissionsService: PermissionsService
   ) {
     // Handle both MakerChecker & Audit log formats
     const oldValue = data.oldValueJson || data.oldValue;
@@ -98,8 +98,8 @@ export class MakerCheckerDetailsDialogComponent {
     return Array.isArray(value);
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   closeDialog(): void {
@@ -148,3 +148,6 @@ export class MakerCheckerDetailsDialogComponent {
       });
   }
 }
+
+
+

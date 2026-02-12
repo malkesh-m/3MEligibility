@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { ComputedValueModel, ComputedValuesDialogComponent } from './computed-values-dialog/computed-values-dialog.component';
 type TabKeys = 'product' | 'customer';
@@ -102,7 +102,7 @@ export class ParametersComponent {
   showMaxLengthWarning = false;
   computedValuesData: ComputedValueModel[] | null | undefined;
 
-  constructor(private parameterService: ParameterService, private entityService: EntityService, private rolesService: RolesService, private dialog: MatDialog, private utilityService: UtilityService, private fb: FormBuilder, private authService: AuthService) {
+  constructor(private parameterService: ParameterService, private entityService: EntityService, private PermissionsService: PermissionsService, private dialog: MatDialog, private utilityService: UtilityService, private fb: FormBuilder, private authService: AuthService) {
     this.expressionForm = this.fb.group({
       parameterName: ['', Validators.required],
       dataTypeId: ['', Validators.required],
@@ -147,8 +147,8 @@ export class ParametersComponent {
     conditionId: ''
   };
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   toggleColumn(column: string, afterColumn: string): void {
@@ -836,6 +836,9 @@ export class ParametersComponent {
   }
 
 }
+
+
+
 
 
 

@@ -6,7 +6,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class RoleService {
+export class PermissionService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
@@ -15,22 +15,22 @@ export class RoleService {
     return this.http.get<any>(`${this.apiUrl}/securitygroup/getall`).pipe(catchError(this.handleError))
   }
 
-  getUnAssignedRolesByGroupId(groupId:number) {
-    return this.http.get<any>(`${this.apiUrl}/grouprole/getUnAssignedRolesByGroupId?groupId=${groupId}`).pipe(catchError(this.handleError))
+  getUnAssignedPermissionsByGroupId(groupId:number) {
+    return this.http.get<any>(`${this.apiUrl}/grouppermission/getUnAssignedPermissionsByGroupId?groupId=${groupId}`).pipe(catchError(this.handleError))
   }
 
-  getAssignedRolesByGroupId(groupId:number) {
-    return this.http.get<any>(`${this.apiUrl}/grouprole/getAssignedRolesByGroupId?groupId=${groupId}`).pipe(catchError(this.handleError))
+  getAssignedPermissionsByGroupId(groupId:number) {
+    return this.http.get<any>(`${this.apiUrl}/grouppermission/getAssignedPermissionsByGroupId?groupId=${groupId}`).pipe(catchError(this.handleError))
   }
 
-  addRole(payload: any) {
+  addPermission(payload: any) {
     return this.http
-      .post<any>(`${this.apiUrl}/grouprole`, payload)
+      .post<any>(`${this.apiUrl}/grouppermission`, payload)
       .pipe(catchError(this.handleError));
   }
 
-  deleteRole(payload: any) {
-    return this.http.delete<any>(`${this.apiUrl}/grouprole`, { body: payload }).pipe(catchError(this.handleError));
+  deletePermission(payload: any) {
+    return this.http.delete<any>(`${this.apiUrl}/grouppermission`, { body: payload }).pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

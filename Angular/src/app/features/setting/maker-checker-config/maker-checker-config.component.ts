@@ -3,7 +3,7 @@ import { MakerCheckerService } from '../../../core/services/setting/makerchecker
 import { MatDialog } from '@angular/material/dialog';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-maker-checker-config',
@@ -25,15 +25,15 @@ export class MakerCheckerConfigComponent implements OnInit {
       this.isDataReady.set(true);
     }
   });
-  constructor(private dialog: MatDialog,private rolesService:RolesService,private utilityService: UtilityService) {}
+  constructor(private dialog: MatDialog,private PermissionsService:PermissionsService,private utilityService: UtilityService) {}
 
   ngOnInit(): void {
     this.service.getMakerCheckerConfig();  // API call sets the signal
    
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   toggleMakerChecker(event: any) {
@@ -84,3 +84,6 @@ export class MakerCheckerConfigComponent implements OnInit {
   }
 
 }
+
+
+

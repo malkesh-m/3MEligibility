@@ -323,9 +323,10 @@
     <div>
         <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple"
             [displayedColumns]="columnsDisplayAry" [header]="headerDisplayAry" [rows]="rows"
-            (actionEvent)="tableRowAction($event)" [editRoleId]="editRoleId" [deleteRoleId]="deleteRoleId">
+            (actionEvent)="tableRowAction($event)" [editPermissionId]="editPermissionId" [deletePermissionId]="deletePermissionId">
         </app-table>
 
 
     </div>
 </div>
+

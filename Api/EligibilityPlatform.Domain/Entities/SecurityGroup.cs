@@ -1,4 +1,4 @@
-﻿namespace MEligibilityPlatform.Domain.Entities;
+namespace MEligibilityPlatform.Domain.Entities;
 
 public partial class SecurityGroup : ITenantEntity
 {
@@ -11,7 +11,7 @@ public partial class SecurityGroup : ITenantEntity
 
     public virtual ICollection<User> Users { get; set; } = [];
     public virtual ICollection<UserGroup> UserGroups { get; set; } = [];
-    public virtual ICollection<GroupRole> GroupRoles { get; set; } = [];
+    public virtual ICollection<GroupPermission> GroupPermissions { get; set; } = [];
     public DateTime UpdatedByDateTime { get; set; } = DateTime.Now;
     public string? CreatedBy { get; set; }
     public DateTime CreatedByDateTime { get; set; }
@@ -19,3 +19,4 @@ public partial class SecurityGroup : ITenantEntity
     public int TenantId { get; set; }
 
 }
+

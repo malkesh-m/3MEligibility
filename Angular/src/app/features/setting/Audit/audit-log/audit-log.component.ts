@@ -6,7 +6,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MakerCheckerService } from '../../../../core/services/setting/makerchecker.service';
-import { RolesService } from '../../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../../core/services/setting/permission.service';
 import { MakerCheckerDetailsDialogComponent } from '../../maker-checker/maker-checker-details-dialog/maker-checker-details-dialog.component';
 
 @Component({
@@ -115,3 +115,5 @@ export class AuditLogComponent {
     });
   }
 }
+
+

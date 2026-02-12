@@ -1,11 +1,11 @@
 import { Component, inject, OnInit, ViewChild } from "@angular/core";
-import { RoleService } from "../../../core/services/security/role.service";
+import { PermissionService } from "../../../core/services/security/permission.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatSort } from "@angular/material/sort";
 import { MatPaginator } from "@angular/material/paginator";
-import { RolesService } from "../../../core/services/setting/role.service";
+import { PermissionsService } from "../../../core/services/setting/permission.service";
 
 export interface GroupRecord {
     groupId: number | null;
@@ -13,42 +13,42 @@ export interface GroupRecord {
     groupDesc: string;
 }
 
-export interface RoleRecord {
-    roleId: number;
+export interface PermissionRecord {
+    permissionId: number;
     groupId: number;
-    roleAction: string;
+    permissionAction: string;
     selected: boolean;
 }
 
 @Component({
-  selector: 'app-role',
+  selector: 'app-permission',
   standalone: false,
-  templateUrl: './role.component.html',
-  styleUrl: './role.component.scss'
+  templateUrl: './permission.component.html',
+  styleUrl: './permission.component.scss'
 })
 
-export class RoleComponent implements OnInit {
+export class PermissionComponent implements OnInit {
   records: GroupRecord[] = [];
-  roleRecord: RoleRecord[] = [];
-  roleAssigndataSource = new MatTableDataSource<RoleRecord>(this.roleRecord);
-  roleUnAssigndataSource = new MatTableDataSource<RoleRecord>(this.roleRecord);
+  permissionRecord: PermissionRecord[] = [];
+  permissionAssignedDataSource = new MatTableDataSource<PermissionRecord>(this.permissionRecord);
+  permissionUnassignedDataSource = new MatTableDataSource<PermissionRecord>(this.permissionRecord);
   private _snackBar = inject(MatSnackBar);
-  activeTab: string = 'AssignedRoles';
+  activeTab: string = 'AssignedPermissions';
   searchTerm: string = '';
   menuVisible = false;
   formVisible = false;
-  selectedRoleId: number[] = [];
-  availableRoles: any[] = [];
-  assignedRoles: any[] = [];
-  selectedRoleIds: number[] = [];
+  selectedPermissionId: number[] = [];
+  availablePermissions: any[] = [];
+  assignedPermissions: any[] = [];
+  selectedPermissionIds: number[] = [];
   selectedGroupId: number | null = null;
-  requestBody: { groupId: number; roleIds: number[] } = {
+  requestBody: { groupId: number; permissionIds: number[] } = {
     groupId: 0,
-    roleIds: [],
+    permissionIds: [],
   };
   selectedRows: Set<number> = new Set();
   selectedRowsItem: Set<number> = new Set();
-  displayedColumns: string[] = ['roleAction']; // Original columns
+  displayedColumns: string[] = ['permissionAction']; // Original columns
   combinedColumns: string[] = []; // To include 'select' column
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -56,31 +56,31 @@ export class RoleComponent implements OnInit {
   message: string = "Loading data, please wait...";
   isUploading: boolean = false;
   isDownloading: boolean = false;
-  constructor(private roleService: RoleService, private rolesService: RolesService) { }
+  constructor(private permissionService: PermissionService, private PermissionsService: PermissionsService) { }
 
   ngOnInit(): void {
     this.combinedColumns = ['select', ...this.displayedColumns];
     this.fetchGroupList();
   }
 
-  hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+  hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
 
   switchTab(tab: string): void {
     this.activeTab = tab;
     if (this.selectedGroupId !== null) {
-      if (tab === 'AssignedRoles') {
-        this.getAssignedRolesByGroupId(this.selectedGroupId!);
+      if (tab === 'AssignedPermissions') {
+        this.getAssignedPermissionsByGroupId(this.selectedGroupId!);
       } else {
-        this.getUnAssignedRolesByGroupId(this.selectedGroupId!);
+        this.getUnAssignedPermissionsByGroupId(this.selectedGroupId!);
       }
     }
   }
 
   fetchGroupList() {
     this.isLoading = true;
-    this.roleService.getGroupList().subscribe({
+    this.permissionService.getGroupList().subscribe({
       next: (response) => {
         this.records = response.data.map((item: any) => ({
           groupId: item.groupId,
@@ -101,24 +101,24 @@ export class RoleComponent implements OnInit {
 
   onSelect(event: any): void {
     this.selectedGroupId = event.target.value;
-    this.getAssignedRolesByGroupId(this.selectedGroupId!);
+    this.getAssignedPermissionsByGroupId(this.selectedGroupId!);
   }
 
-  onSelectRole(event: Event): void {
+  onSelectPermission(event: Event): void {
     const selectedOptions = (event.target as HTMLSelectElement).selectedOptions;
-    this.selectedRoleIds = Array.from(selectedOptions).map((option) => +option.value);
+    this.selectedPermissionIds = Array.from(selectedOptions).map((option) => +option.value);
   }
 
-  deleteRole() {
+  deletePermission() {
     this.requestBody.groupId = this.selectedGroupId!;
-    this.requestBody.roleIds = this.selectedRoleIds;
-    this.roleService.deleteRole(this.requestBody).subscribe({
+    this.requestBody.permissionIds = this.selectedPermissionIds;
+    this.permissionService.deletePermission(this.requestBody).subscribe({
       next: (response) => {
         if (response.isSuccess) {
-          this.selectedRoleIds = []
-          //this.getUnAssignedRolesByGroupId(this.requestBody.groupId);
-          this.getAssignedRolesByGroupId(this.requestBody.groupId);
-          this._snackBar.open("Role Removed successfully.", 'Okay', {
+          this.selectedPermissionIds = []
+          //this.getUnAssignedPermissionsByGroupId(this.requestBody.groupId);
+          this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
+          this._snackBar.open("Permission removed successfully.", 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
@@ -133,24 +133,24 @@ export class RoleComponent implements OnInit {
     });
   }
 
-  addRole() {
+  addPermission() {
     this.requestBody.groupId = this.selectedGroupId!;
-    this.requestBody.roleIds = this.selectedRoleIds;
-    if (!this.requestBody.roleIds || this.requestBody.roleIds.length === 0) {
-      this._snackBar.open("Please select at least one role.", 'Okay', {
+    this.requestBody.permissionIds = this.selectedPermissionIds;
+    if (!this.requestBody.permissionIds || this.requestBody.permissionIds.length === 0) {
+      this._snackBar.open("Please select at least one permission.", 'Okay', {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000,
       });
       return;
     }
-    this.roleService.addRole(this.requestBody).subscribe({
+    this.permissionService.addPermission(this.requestBody).subscribe({
       next: (response) => {
         if (response.isSuccess) {
-          this.selectedRoleIds = [];
-          this.getUnAssignedRolesByGroupId(this.requestBody.groupId);
-          this.getAssignedRolesByGroupId(this.requestBody.groupId);
-          this._snackBar.open("Role Added successfully.", 'Okay', {
+          this.selectedPermissionIds = [];
+          this.getUnAssignedPermissionsByGroupId(this.requestBody.groupId);
+          this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
+          this._snackBar.open("Permission added successfully.", 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
@@ -173,22 +173,22 @@ export class RoleComponent implements OnInit {
      
     
 
-    getUnAssignedRolesByGroupId(groupId: number) {
+    getUnAssignedPermissionsByGroupId(groupId: number) {
       this.isLoading = true;
-        this.roleService.getUnAssignedRolesByGroupId(groupId).subscribe({
+        this.permissionService.getUnAssignedPermissionsByGroupId(groupId).subscribe({
             next: (response) => {
-                this.roleUnAssigndataSource.data = response.data.map((item: any) => ({
-                    roleId: item.roleId,
+                this.permissionUnassignedDataSource.data = response.data.map((item: any) => ({
+                    permissionId: item.permissionId,
                     groupId: item.groupId,
-                    roleAction: item.roleAction
+                    permissionAction: item.permissionAction
                 }));
-                this.roleUnAssigndataSource.paginator = this.paginator;
-                this.roleUnAssigndataSource.sort = this.sort;
+                this.permissionUnassignedDataSource.paginator = this.paginator;
+                this.permissionUnassignedDataSource.sort = this.sort;
                 this.isLoading = false;
             },
             error: (error) => {
-                this.roleAssigndataSource.data = [];
-                this.roleUnAssigndataSource.data = [];
+                this.permissionAssignedDataSource.data = [];
+                this.permissionUnassignedDataSource.data = [];
                 this._snackBar.open(error.message, 'Okay', {
                     horizontalPosition: 'right',
                     verticalPosition: 'top', duration: 3000,
@@ -198,22 +198,22 @@ export class RoleComponent implements OnInit {
         });
     }
 
-    getAssignedRolesByGroupId(groupId: number) {
+    getAssignedPermissionsByGroupId(groupId: number) {
       this.isLoading = true;
-        this.roleService.getAssignedRolesByGroupId(groupId).subscribe({
+        this.permissionService.getAssignedPermissionsByGroupId(groupId).subscribe({
             next: (response) => {
-                this.roleAssigndataSource.data = response.data.map((item: any) => ({
-                    roleId: item.roleId,
+                this.permissionAssignedDataSource.data = response.data.map((item: any) => ({
+                    permissionId: item.permissionId,
                     groupId: item.groupId,
-                    roleAction: item.roleAction
+                    permissionAction: item.permissionAction
                 }));
-                this.roleAssigndataSource.paginator = this.paginator;
-                this.roleAssigndataSource.sort = this.sort;
+                this.permissionAssignedDataSource.paginator = this.paginator;
+                this.permissionAssignedDataSource.sort = this.sort;
                 this.isLoading = false;
             },
             error: (error) => {
-                this.roleAssigndataSource.data = [];
-                this.roleUnAssigndataSource.data = [];
+                this.permissionAssignedDataSource.data = [];
+                this.permissionUnassignedDataSource.data = [];
 
                 this._snackBar.open(error.message, 'Okay', {
                     horizontalPosition: 'right',
@@ -224,20 +224,24 @@ export class RoleComponent implements OnInit {
         });
     }
 
-    onCheckboxChange(entity: RoleRecord): void {
+    onCheckboxChange(entity: PermissionRecord): void {
         if (entity.selected) {
-            this.selectedRoleIds.push(entity.roleId);
+            this.selectedPermissionIds.push(entity.permissionId);
         } else {
-            this.selectedRoleIds = this.selectedRoleIds.filter(id => id !== entity.roleId);
+            this.selectedPermissionIds = this.selectedPermissionIds.filter(id => id !== entity.permissionId);
         }
     }
 
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-        if (this.activeTab === 'AvailableRoles') {
-            this.roleUnAssigndataSource.filter = filterValue;
-            this.roleUnAssigndataSource.paginator = this.paginator;
-            this.roleUnAssigndataSource.sort = this.sort;
+        if (this.activeTab === 'AvailablePermissions') {
+            this.permissionUnassignedDataSource.filter = filterValue;
+            this.permissionUnassignedDataSource.paginator = this.paginator;
+            this.permissionUnassignedDataSource.sort = this.sort;
         }
     }
 }
+
+
+
+

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductsService } from '../../../core/services/setting/products.service';
 import { ProductCapAmountService } from '../../../core/services/setting/product-cap-amount.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RolesService } from '../../../core/services/setting/role.service';
+import { PermissionsService } from '../../../core/services/setting/permission.service';
 
 @Component({
   selector: 'app-product-cap-amount',
@@ -22,7 +22,7 @@ export class ProductCapAmountComponent {
   formvisible: boolean = false;
   isLoading: boolean = false;
   message: string = "Loading data, please wait...";
-  constructor(private fb: FormBuilder, private productservice:ProductsService,private productAmountService:ProductCapAmountService,private rolesService: RolesService) { }
+  constructor(private fb: FormBuilder, private productservice:ProductsService,private productAmountService:ProductCapAmountService,private PermissionsService: PermissionsService) { }
   ngOnInit(): void {
     this.ProductCapForm = this.fb.group({
       id: [],
@@ -40,8 +40,8 @@ export class ProductCapAmountComponent {
       this.onProductSelected(+productId);
     });
   }
-    hasPermission(roleId: string): boolean {
-    return this.rolesService.hasPermission(roleId);
+    hasPermission(permissionId: string): boolean {
+    return this.PermissionsService.hasPermission(permissionId);
   }
   onSubmit() {
     //this.isSubmitted = true;
@@ -247,4 +247,7 @@ export class ProductCapAmountComponent {
     this.formvisible = true;
   }
 }
+
+
+
 
