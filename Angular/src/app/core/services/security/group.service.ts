@@ -74,4 +74,8 @@ export class GroupService {
   deleteAssignedUser(userId: number | null, groupId: number | null) {
     return this.http.delete<any>(`${this.apiUrl}/usergroup/deleteByUserIdAndGroupId?userId=${userId}&groupId=${groupId}`).pipe(catchError(this.handleError))
   }
+
+  getUserGroupCount(userId: number) {
+    return this.http.get<any>(`${this.apiUrl}/usergroup/count?userId=${userId}`).pipe(catchError(this.handleError))
+  }
 }

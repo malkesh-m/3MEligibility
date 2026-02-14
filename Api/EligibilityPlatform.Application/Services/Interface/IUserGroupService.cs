@@ -1,4 +1,5 @@
-﻿using MEligibilityPlatform.Domain.Models;
+﻿using MEligibilityPlatform.Domain.Enums;
+using MEligibilityPlatform.Domain.Models;
 
 namespace MEligibilityPlatform.Application.Services.Interface
 {
@@ -56,5 +57,42 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="groupId">The unique identifier of the group to check.</param>
         /// <returns>A task that represents the asynchronous operation, containing true if the group exists; otherwise, false.</returns>
         Task<bool> GetByUserGroupsId(int groupId);
+
+        /// <summary>
+        /// Gets the number of users assigned to a group within a tenant.
+        /// </summary>
+        /// <param name="groupId">The group ID.</param>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>The number of users in the group.</returns>
+        Task<int> GetUserCountByGroupId(int groupId, int tenantId);
+
+        /// <summary>
+        /// Gets the number of groups a user belongs to within a tenant.
+        /// </summary>
+        /// <param name="userId">The user ID.</param>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>The number of groups assigned to the user.</returns>
+        Task<int> GetGroupCountByUserId(int userId, int tenantId);
+
+        /// <summary>
+        /// Retrieves group names for a specific user within a tenant.
+        /// </summary>
+        /// <param name="userId">The user ID.</param>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>A list of group names the user belongs to.</returns>
+        Task<List<string>> GetGroupNamesForUser(int userId, int tenantId);
+        Task<Dictionary<int, string>> GetGroupNamesByIds(List<int> groupIds,int tenantId);
+        
+
+        /// <summary>
+        /// Retrieves a group name by group ID within a tenant.
+        /// </summary>
+        /// <param name="groupId">The group ID.</param>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>The group name if found; otherwise, null.</returns>
+        Task<string?> GetGroupNameById(int groupId, int tenantId);
+        Rank GetRank(string groupName);
+        Rank GetHighestRank(IEnumerable<string> groupNames);
+
     }
 }

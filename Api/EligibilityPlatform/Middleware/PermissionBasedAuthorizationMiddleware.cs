@@ -1,16 +1,5 @@
-﻿using System.IO;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
-using MEligibilityPlatform.Application.Services.Interface;
+﻿
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace MEligibilityPlatform.Middleware
 {
@@ -84,7 +73,7 @@ namespace MEligibilityPlatform.Middleware
                 {
                     await _next(context);
                     elapsedMs = stopwatch.ElapsedMilliseconds;
-                    await LogRequestAndResponse(context, requestBody, userName ?? "Anonymous", controllerName ?? "", actionName ?? "", elapsedMs);
+                    //await LogRequestAndResponse(context, requestBody, userName ?? "Anonymous", controllerName ?? "", actionName ?? "", elapsedMs);
                     await RestoreResponseStream(context, responseBody, originalBodyStream);
                     return;
                 }
@@ -109,7 +98,7 @@ namespace MEligibilityPlatform.Middleware
                     // Continue the request normally
                     await _next(context);
                     elapsedMs = stopwatch.ElapsedMilliseconds;
-                    await LogRequestAndResponse(context, requestBody, userName ?? "Anonymous", controllerName ?? "", actionName ?? "", elapsedMs);
+                    //await LogRequestAndResponse(context, requestBody, userName ?? "Anonymous", controllerName ?? "", actionName ?? "", elapsedMs);
                     await RestoreResponseStream(context, responseBody, originalBodyStream);
                     return;
                 }
@@ -117,7 +106,7 @@ namespace MEligibilityPlatform.Middleware
                 // If no Authorize attribute, proceed normally
                 await _next(context);
                 elapsedMs = stopwatch.ElapsedMilliseconds;
-                await LogRequestAndResponse(context, requestBody, userName ?? "Anonymous", controllerName ?? "", actionName ?? "", elapsedMs);
+                //await LogRequestAndResponse(context, requestBody, userName ?? "Anonymous", controllerName ?? "", actionName ?? "", elapsedMs);
                 await RestoreResponseStream(context, responseBody, originalBodyStream);
             }
             catch (Exception ex)
@@ -192,57 +181,57 @@ namespace MEligibilityPlatform.Middleware
         /// <param name="userId">The ID or name of the user making the request.</param>
         /// <param name="controller">The controller name from route data.</param>
         /// <param name="action">The action name from route data.</param>
-        private async Task LogRequestAndResponse(HttpContext context, string requestBody, string userId, string controller, string action, long executionTimeMs)
-        {
-            // Trims controller name
-            controller = controller.Trim();
+        //private async Task LogRequestAndResponse(HttpContext context, string requestBody, string userId, string controller, string action, long executionTimeMs)
+        //{
+        //    // Trims controller name
+        //    controller = controller.Trim();
 
-            // Skips logging for Log and Audit controllers
-            if (controller != "Log" && controller != "Audit")
-            {
-                // Reads response body content
-                var responseBody = await ReadResponseBodyAsync(context.Response);
-                // Gets response status code
-                var statusCode = context.Response.StatusCode;
+        //    // Skips logging for Log and Audit controllers
+        //    if (controller != "Log" && controller != "Audit")
+        //    {
+        //        // Reads response body content
+        //        var responseBody = await ReadResponseBodyAsync(context.Response);
+        //        // Gets response status code
+        //        var statusCode = context.Response.StatusCode;
 
-                // Creates log message with request/response details
+        //        // Creates log message with request/response details
 
-                //_logger.LogInformation(
-                //    "| User: {User} | Controller: {Controller} | Action: {Action} | Path: {Path} | Request: {Request} | Response: {Response} | Status: {Status}",
-                //    userId,
-                //    controller,
-                //    action,
-                //    context.Request.Path,
-                //    requestBody,
-                //    responseBody,
-                //    statusCode
-                //);
-                //if (controller = null)
-                //{
-                //}
-                //var logMessage = $"API Call | User: {userId} | Controller: {controller} | Action: {action}  " +
-                //                 $"Request: {requestBody}  Response: {responseBody} | Status: {statusCode}";
-                //// Logs information message
-                //_logger.LogInformation(logMessage);
-                //            _logger.LogInformation(
-                //      "API Call | User: {UserId} | Controller: {Controller} | Action: {Action} | Request: {RequestBody} | Response: {ResponseBody} | Status: {StatusCode}",
-                //userId?? "Annoymouns", controller, action, requestBody, responseBody, statusCode);
+        //        //_logger.LogInformation(
+        //        //    "| User: {User} | Controller: {Controller} | Action: {Action} | Path: {Path} | Request: {Request} | Response: {Response} | Status: {Status}",
+        //        //    userId,
+        //        //    controller,
+        //        //    action,
+        //        //    context.Request.Path,
+        //        //    requestBody,
+        //        //    responseBody,
+        //        //    statusCode
+        //        //);
+        //        //if (controller = null)
+        //        //{
+        //        //}
+        //        //var logMessage = $"API Call | User: {userId} | Controller: {controller} | Action: {action}  " +
+        //        //                 $"Request: {requestBody}  Response: {responseBody} | Status: {statusCode}";
+        //        //// Logs information message
+        //        //_logger.LogInformation(logMessage);
+        //        //            _logger.LogInformation(
+        //        //      "API Call | User: {UserId} | Controller: {Controller} | Action: {Action} | Request: {RequestBody} | Response: {ResponseBody} | Status: {StatusCode}",
+        //        //userId?? "Annoymouns", controller, action, requestBody, responseBody, statusCode);
 
-                _logger.LogInformation(
-                    "API Call {@LogDetails}",
-                    new
-                    {
-                        User = string.IsNullOrEmpty(userId) ? "Anonymous" : userId,
-                        Controller = controller,
-                        Action = action,
-                        Request = string.IsNullOrEmpty(requestBody) ? "" : requestBody,
-                        Response = string.IsNullOrEmpty(responseBody) ? "" : responseBody,
-                        Status = statusCode,
-                        ExecutionTimeMs = executionTimeMs
-                    });
-                 }
+        //        _logger.LogInformation(
+        //            "API Call {@LogDetails}",
+        //            new
+        //            {
+        //                User = string.IsNullOrEmpty(userId) ? "Anonymous" : userId,
+        //                Controller = controller,
+        //                Action = action,
+        //                Request = string.IsNullOrEmpty(requestBody) ? "" : requestBody,
+        //                Response = string.IsNullOrEmpty(responseBody) ? "" : responseBody,
+        //                Status = statusCode,
+        //                ExecutionTimeMs = executionTimeMs
+        //            });
+        //         }
 
-        }
+        //}
 
         /// <summary>
         /// Restores the original response stream after reading and logging the response body.

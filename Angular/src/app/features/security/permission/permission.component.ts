@@ -19,7 +19,6 @@ export interface PermissionRecord {
     permissionAction: string;
     selected: boolean;
 }
-
 @Component({
   selector: 'app-permission',
   standalone: false,
@@ -28,6 +27,7 @@ export interface PermissionRecord {
 })
 
 export class PermissionComponent implements OnInit {
+  // Show all permissions returned by the API (no whitelist filtering).
   records: GroupRecord[] = [];
   permissionRecord: PermissionRecord[] = [];
   permissionAssignedDataSource = new MatTableDataSource<PermissionRecord>(this.permissionRecord);
@@ -57,6 +57,18 @@ export class PermissionComponent implements OnInit {
   isUploading: boolean = false;
   isDownloading: boolean = false;
   constructor(private permissionService: PermissionService, private PermissionsService: PermissionsService) { }
+
+  private readonly moduleOrder: string[] = [
+    'Dashboard',
+    'Setup',
+    'Conditions',
+    'Connections',
+    'Security',
+    'Maker Checker',
+    'Logs',
+    'Configuration',
+    'Bulk Import'
+  ];
 
   ngOnInit(): void {
     this.combinedColumns = ['select', ...this.displayedColumns];
@@ -181,7 +193,8 @@ export class PermissionComponent implements OnInit {
                     permissionId: item.permissionId,
                     groupId: item.groupId,
                     permissionAction: item.permissionAction
-                }));
+                }))
+                .sort((a:any, b:any) => this.comparePermissions(a.permissionAction, b.permissionAction));
                 this.permissionUnassignedDataSource.paginator = this.paginator;
                 this.permissionUnassignedDataSource.sort = this.sort;
                 this.isLoading = false;
@@ -206,13 +219,14 @@ export class PermissionComponent implements OnInit {
                     permissionId: item.permissionId,
                     groupId: item.groupId,
                     permissionAction: item.permissionAction
-                }));
+                }))
+                .sort((a:any, b:any) => this.comparePermissions(a.permissionAction, b.permissionAction));
                 this.permissionAssignedDataSource.paginator = this.paginator;
                 this.permissionAssignedDataSource.sort = this.sort;
                 this.isLoading = false;
             },
             error: (error) => {
-                this.permissionAssignedDataSource.data = [];
+                this.permissionAssignedDataSource.data = []; 
                 this.permissionUnassignedDataSource.data = [];
 
                 this._snackBar.open(error.message, 'Okay', {
@@ -232,7 +246,7 @@ export class PermissionComponent implements OnInit {
         }
     }
 
-    applyFilter(event: Event) {
+  applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
         if (this.activeTab === 'AvailablePermissions') {
             this.permissionUnassignedDataSource.filter = filterValue;
@@ -240,8 +254,65 @@ export class PermissionComponent implements OnInit {
             this.permissionUnassignedDataSource.sort = this.sort;
         }
     }
+
+    formatPermissionAction(action: string): string {
+        if (!action) {
+            return '';
+        }
+        const withoutPrefix = action.replace(/^Permissions\./i, '');
+        const parts = withoutPrefix.split('.');
+        const resource = parts.shift() ?? withoutPrefix;
+        const resourceLabel = this.normalizeModuleName(resource);
+        if (parts.length === 0) {
+            return resourceLabel;
+        }
+        const actionLabel = parts.map(p => this.toTitleWords(p)).join(' ');
+        return `${resourceLabel}: ${actionLabel}`;
+    }
+
+    private toTitleWords(value: string): string {
+        return value
+            .replace(/([a-z])([A-Z])/g, '$1 $2')
+            .replace(/_/g, ' ')
+            .trim();
+    }
+
+    private normalizeModuleName(value: string): string {
+        const name = this.toTitleWords(value);
+        if (name.toLowerCase() === 'dashboard') return 'Dashboard';
+        if (name.toLowerCase() === 'maker checker') return 'Maker Checker';
+        if (name.toLowerCase() === 'bulk import') return 'Bulk Import';
+        if (name.toLowerCase() === 'product cap amount') return 'Product Cap Amount';
+        if (name.toLowerCase() === 'product cap') return 'Product Cap';
+        if (name.toLowerCase() === 'api parameter maps') return 'API Parameter Maps';
+        if (name.toLowerCase() === 'api parameters') return 'API Parameters';
+        if (name.toLowerCase() === 'api details') return 'API Details';
+        if (name.toLowerCase() === 'pcard') return 'P Card';
+        return name;
+    }
+
+    private comparePermissions(a: string, b: string): number {
+        const aMeta = this.permissionSortMeta(a);
+        const bMeta = this.permissionSortMeta(b);
+        if (aMeta.isAccess !== bMeta.isAccess) {
+            return aMeta.isAccess ? -1 : 1;
+        }
+        if (aMeta.moduleIndex !== bMeta.moduleIndex) {
+            return aMeta.moduleIndex - bMeta.moduleIndex;
+        }
+        return aMeta.label.localeCompare(bMeta.label);
+    }
+
+    private permissionSortMeta(action: string): { isAccess: boolean; moduleIndex: number; label: string } {
+        const withoutPrefix = (action || '').replace(/^Permissions\./i, '');
+        const parts = withoutPrefix.split('.');
+        const resource = parts.shift() ?? withoutPrefix;
+        const actionLabel = parts.join(' ');
+        const isAccess = actionLabel.toLowerCase() === 'access';
+        const moduleName = this.normalizeModuleName(resource);
+        const moduleIndex = Math.max(0, this.moduleOrder.indexOf(moduleName));
+        const label = this.formatPermissionAction(action);
+        return { isAccess, moduleIndex, label };
+    }
+
 }
-
-
-
-

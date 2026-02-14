@@ -437,45 +437,64 @@ export class ParametersComponent {
   }
 
   deleteParameter(parameter: Parameter): void {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the parameter: "${parameter.parameterName}"?`
-    );
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete the parameter: "${parameter.parameterName}"?`
+    }
+  });
+  
+  dialogRef.afterClosed().subscribe(result => {
 
-    if (confirmDelete) {
-      this.parameterService.deleteParameter(parameter.parameterId).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this.parameters = this.parameters.filter(
-              (param) => param.parameterId !== parameter.parameterId
-            );
-            this.dataSource.data = this.parameters.filter((param) => param.identifier === (this.activeTab === 'customer' ? 1 : 2));
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-            this.fetchAllParameters();
-            this.closeForm()
-          }
-          else {
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-          }
-        },
+    if (!result?.delete) return;
 
-        error: (error) => {
-          console.log(error);
-          const msg = error.error?.message || error.message || 'Something went wrong.';
-          this._snackBar.open(msg, 'Okay', {
+    this.parameterService.deleteParameter(parameter.parameterId).subscribe({
+      next: (response) => {
+
+        if (response.isSuccess) {
+
+          this.parameters = this.parameters.filter(
+            param => param.parameterId !== parameter.parameterId
+          );
+
+          this.dataSource.data = this.parameters.filter(
+            param => param.identifier === (this.activeTab === 'customer' ? 1 : 2)
+          );
+
+          this._snackBar.open(response.message, 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
           });
+
+          this.fetchAllParameters();
+          this.closeForm();
+
+        } else {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
         }
-      });
-    }
-  }
+      },
+
+      error: (error) => {
+        console.log(error);
+
+        const msg = error.error?.message || error.message || 'Something went wrong.';
+
+        this._snackBar.open(msg, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
+    });
+  });
+}
 
   toggleMenu(): void {
     this.menuVisible = !this.menuVisible;

@@ -73,3 +73,18 @@
     }
   }
 
+.clickable-icon.disabled {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.self-tag {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c757d;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+}

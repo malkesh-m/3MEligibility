@@ -922,50 +922,95 @@ payload.validTo   = formValue.validTo   ? this.toUTCDateString(formValue.validTo
     })
   }
 
-  deleteRule(id: number) {
+deleteRule(id: number) {
+
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: 'Are you sure you want to delete this rule?'
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
     this.ruleService.deleteSingleRule(id).subscribe({
       next: (response) => {
+
         this._snackBar.open(response.message, 'Okay', {
           horizontalPosition: 'right',
-          verticalPosition: 'top', duration: 3000
+          verticalPosition: 'top',
+          duration: 3000
         });
-        this.refreshRules();
+
+        if (response.isSuccess) {
+          this.refreshRules();
+        }
+
       },
       error: (error) => {
-        this._snackBar.open(error, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top', duration: 3000
-        });
+        this._snackBar.open(
+          error?.error?.message || error.message || 'Something went wrong.',
+          'Okay',
+          {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          }
+        );
       }
-    })
-  }
+    });
+
+  });
+}
   deleteEruleMaster(Erule: any) {
 
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the Rule: "${Erule.eruleName}"?`
-    );
-    if (confirmDelete) {
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete the Rule: "${Erule.eruleName}"?`
+    }
+  });
 
-      this.ruleService.deleteEruleMaster(Erule.eruleMasterId).subscribe({
-        next: (response) => {
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.ruleService.deleteEruleMaster(Erule.eruleMasterId).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
           this.refreshRules();
           this.selectedRules.clear();
           this.cancelEvent();
-        },
-        error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-          this.selectedRules.clear();
         }
-      })
-    }
-  }
+
+      },
+      error: (error) => {
+
+        this._snackBar.open(
+          error?.error?.message || error.message || 'Something went wrong.',
+          'Okay',
+          {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          }
+        );
+
+        this.selectedRules.clear();
+      }
+    });
+
+  });
+}
   selectedRules = new Set<any>();
 
   // Toggle rule selection
@@ -1265,26 +1310,48 @@ payload.validTo   = formValue.validTo   ? this.toUTCDateString(formValue.validTo
     }, 0);
   }
 
-  deleteRecord(event: any) {
-    if (confirm(`Are you sure you want to delete Rule: "${event.version}"?`)) {
-      this.ruleService.deleteSingleRule(event.eruleId).subscribe({
-        next: (response) => {
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-          this.refreshRules();
-        },
-        error: (error) => {
-          this._snackBar.open(error, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-        }
-      })
-    }
+deleteRecord(event: any) {
 
-  }
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete Rule Version: "${event.version}"?`
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.ruleService.deleteSingleRule(event.eruleId).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
+          this.refreshRules();
+        }
+
+      },
+      error: (error) => {
+        this._snackBar.open(
+          error?.error?.message || error.message || 'Something went wrong.',
+          'Okay',
+          {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          }
+        );
+      }
+    });
+
+  });
+}
 private toUTCDateString(dateStr: string | null): string | null {
   if (!dateStr) return null;
   const [year, month, day] = dateStr.split('-').map(Number);

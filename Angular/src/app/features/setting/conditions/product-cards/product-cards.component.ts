@@ -779,30 +779,49 @@ export class ProductCardsComponent implements OnInit {
     })
   }
 
-  deleteProductCard(productCardId: number,productCard:string) {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the Product Card: "${productCard}"?`
-    );
-    if (confirmDelete) {
-      this.productsCardService.deleteProductCard(productCardId).subscribe({
-        next: (response) => {
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-          this.formVisible = false;
+ deleteProductCard(productCardId: number, productCard: string) {
 
-          this.fetchAllProductCards();
-        },
-        error: (error) => {
-          this._snackBar.open(error, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-        }
-      })
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete the Product Card: "${productCard}"?`
     }
-  }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.productsCardService.deleteProductCard(productCardId).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
+          this.formVisible = false;
+          this.fetchAllProductCards();
+        }
+
+      },
+      error: (error) => {
+        this._snackBar.open(
+          error?.error?.message || error.message || 'Something went wrong.',
+          'Okay',
+          {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          }
+        );
+      }
+    });
+
+  });
+}
 
   deleteCheckedMultipleCards() {
     let listOfSelectedIds = new Set(this.tableChild.selectedRowsItem)

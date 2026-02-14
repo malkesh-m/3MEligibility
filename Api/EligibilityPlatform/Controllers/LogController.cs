@@ -4,7 +4,6 @@ using MEligibilityPlatform.Domain.Entities;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.MicrosoftExtensions;
 
 namespace MEligibilityPlatform.Controllers
 {
@@ -49,7 +48,7 @@ namespace MEligibilityPlatform.Controllers
         public IActionResult LogFrontendError(FrontendErrorLog error)
         {
             // Gets the current user's name
-            var UserName = User.GetUserName();
+            var UserName = User.GetUserNameOrDefault() ?? "Anonymous";
             // Logs the frontend error with detailed information
             //_logger.LogError(
             //    "Frontend exception | User: {User} | Component: {Component} | Path: {Path} | Request: {Request} | Exception: {Exception} | Status: {Status} | UserAgent: {UserAgent}",

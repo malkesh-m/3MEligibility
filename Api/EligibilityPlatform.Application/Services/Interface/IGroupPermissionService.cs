@@ -48,6 +48,14 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="groupId">The unique identifier of the security group.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of <see cref="AssignedPermissionModel"/> objects representing assigned roles.</returns>
         Task<IList<AssignedPermissionModel>> GetAssignedPermissions(int groupId);
+
+        /// <summary>
+        /// Removes all role assignments for a specific security group.
+        /// </summary>
+        /// <param name="groupId">The unique identifier of the security group.</param>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task RemoveByGroupId(int groupId, int tenantId);
     }
 }
 

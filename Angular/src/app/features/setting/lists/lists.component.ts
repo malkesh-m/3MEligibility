@@ -388,16 +388,26 @@ export class ListsComponent {
   }
 
   deleteList(list: any): void {
-    if (this.activeTab == 'lists') {
-      const confirmDelete = window.confirm(
-        `Are you sure you want to delete the list: "${list.listName}"?`
-      );
+    // if (this.activeTab == 'lists') {
+    //   const confirmDelete = window.confirm(
+    //     `Are you sure you want to delete the list: "${list.listName}"?`
+    //   );
 
-      if (confirmDelete) {
-        this.listsService.deleteParameter(list.listId).subscribe({
-          next: (response) => {
-            // Remove the list locally after successful API call
-            this.dataSource.data = this.dataSource.data.filter(
+    if (this.activeTab === 'lists') {
+
+  var matdialogRef = this.dialog.open(DeleteDialogComponent, {
+        data: {
+          title: 'Confirm',
+          message: `Are you sure you want to delete the list: "${list.listName}"?`
+        }
+      });
+      
+      matdialogRef.afterClosed().subscribe(result => {
+        if (result?.delete) {
+          this.listsService.deleteParameter(list.listId).subscribe({
+            next: (response) => {
+              // Remove the list locally after successful API call
+              this.dataSource.data = this.dataSource.data.filter(
               (item) => item.listId !== list.listId
             );
             this._snackBar.open(response.message, 'Close', {
@@ -418,13 +428,18 @@ export class ListsComponent {
           },
         });
       }
-    }
+    });}
+  
+      
     if (this.activeTab == 'listItems') {
-      const confirmDelete = window.confirm(
-        `Are you sure you want to delete the list: "${list.itemName}"?`
-      );
-
-      if (confirmDelete) {
+    var matdialogRef = this.dialog.open(DeleteDialogComponent, {
+        data: {
+          title: 'Confirm',
+          message: `Are you sure you want to delete the list item: "${list.listName}"?`
+        }
+      });
+ matdialogRef.afterClosed().subscribe(result => {
+        if (result?.delete) {
         this.listsService.deleteListItem(list.itemId).subscribe({
           next: (response) => {
             this.listItemDataSource.data = this.listItemDataSource.data.filter(
@@ -443,9 +458,9 @@ export class ListsComponent {
             console.error('Error deleting list:', error);
           },
         });
-      }
-
+      }});
     }
+    
 
   }
 

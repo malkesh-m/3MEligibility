@@ -32,8 +32,8 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         /// <returns>True if any group roles exist for the specified group ID; otherwise, false.</returns>
         public async Task<bool> GetByUserGroupId(int groupId)
         {
-            // Executes a query to check if any group roles exist for the specified group ID
-            return await _context.GroupPermissions.AnyAsync(gr => gr.GroupId == groupId);
+            // Executes a query to check if any users exist for the specified group ID
+            return await _context.UserGroups.AnyAsync(gr => gr.GroupId == groupId);
         }
 
         /// <summary>

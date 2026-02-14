@@ -4,8 +4,10 @@ import { ProductsService } from '../../../core/services/setting/products.service
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductCapService } from '../../../core/services/setting/product-cap.service';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
+import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
 // import { MatTableDataSource } from '@angular/material/table';
 // import { MatSort } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-product-cap',
@@ -32,7 +34,7 @@ export class ProductCapComponent implements OnInit {
   isDownloading: boolean = false;
   constructor(private fb: FormBuilder,
     private productservice: ProductsService,
-    private productcapservice: ProductCapService,private PermissionsService: PermissionsService) { }
+    private productcapservice: ProductCapService,private PermissionsService: PermissionsService,private dialog: MatDialog) { }
   isSubmitted = false;
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
@@ -235,37 +237,56 @@ export class ProductCapComponent implements OnInit {
     this.isEditMode = true;
     this.ProductCapForm.patchValue(item);
   }
-  deleteProductCap(element: any) {
+deleteProductCap(element: any): void {
 
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the Exception: "${element.id}"?`
-    );
-    if (confirmDelete) {
-      this.productcapservice.deleteProductCap(element.id).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-            const selectedProductId = this.ProductCapForm.get('productID')?.value;
-            if (selectedProductId) {
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete the Product Cap for "${element.productName}"?`
+    }
+  });
 
-              this.onProductSelected(selectedProductId);
-            }
+  dialogRef.afterClosed().subscribe((result: { delete: any; }) => {
+
+    if (!result?.delete) return;
+
+    this.productcapservice.deleteProductCap(element.id).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
+          const selectedProductId = this.ProductCapForm.get('productID')?.value;
+
+          if (selectedProductId) {
+            this.onProductSelected(selectedProductId);
           }
-        }, error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-          console.log("delete :", error)
         }
 
-      })
-    }
+      },
+      error: (error) => {
 
-  }
+        const message =
+          error?.error?.message ||
+          error?.message ||
+          'Something went wrong.';
+
+        this._snackBar.open(message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        console.error('Delete Product Cap Error:', error);
+      }
+    });
+
+  });
+}
 
   resetForm() {
     this.isEditMode = false;

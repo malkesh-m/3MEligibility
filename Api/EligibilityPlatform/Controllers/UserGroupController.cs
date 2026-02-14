@@ -1,5 +1,6 @@
 ﻿using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Services.Interface;
+using MEligibilityPlatform.Domain.Enums;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ namespace MEligibilityPlatform.Controllers
     [ApiController]
     public class UserGroupController(IUserGroupService userGroupService,IUserService userService,IMemoryCache cache) : ControllerBase
     {
+
         private readonly IUserGroupService _userGroupService = userGroupService;
         private readonly IUserService _userService = userService;
         private readonly IMemoryCache _cache = cache;
@@ -80,11 +82,31 @@ namespace MEligibilityPlatform.Controllers
             userGroupModel.CreatedBy = UserName;
             userGroupModel.UpdatedBy = UserName;
             userGroupModel.TenantId = User.GetTenantId();
+            var currentUserId = User.GetUserId();
             // Validates the model state
             if (!ModelState.IsValid)
             {
                 // Returns bad request if model validation fails
                 return BadRequest(ModelState);
+            }
+            var targetGroupName = await _userGroupService.GetGroupNameById(userGroupModel.GroupId, userGroupModel.TenantId);
+            if (string.IsNullOrWhiteSpace(targetGroupName))
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Group not found." });
+            }
+
+            var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, userGroupModel.TenantId);
+            var currentRank = _userGroupService.GetHighestRank(currentUserGroups);
+            var targetRank = _userGroupService.GetRank(targetGroupName);
+
+            if (targetRank == Rank.SuperAdmin && currentRank != Rank.SuperAdmin)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Super Admin can assign users to the Super Admin group." });
+            }
+
+            if (targetRank == Rank.Admin && currentRank != Rank.SuperAdmin)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Super Admin and Admin can assign users to the Admin group." });
             }
             // Adds the new user group
             var message = await _userGroupService.Add(userGroupModel);
@@ -122,11 +144,62 @@ namespace MEligibilityPlatform.Controllers
         [HttpDelete("deletebyuseridandgroupid")]
         public async Task<IActionResult> Delete(int userId, int groupId)
         {
+            var tenantId = User.GetTenantId();
+            var currentUserId = User.GetUserId();
+
+            var targetGroupName = await _userGroupService.GetGroupNameById(groupId, tenantId);
+            if (string.IsNullOrWhiteSpace(targetGroupName))
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Group not found." });
+            }
+
+            var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, tenantId);
+            var currentRank =_userGroupService.GetHighestRank(currentUserGroups);
+            var targetRank = _userGroupService.GetRank(targetGroupName);
+
+            if (targetRank == 0)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Invalid target group." });
+            }
+
+            if (targetRank == Rank.SuperAdmin && currentRank != Rank.SuperAdmin)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Super Admin can remove users from the Super Admin group." });
+            }
+
+            if (targetRank == Rank.SuperAdmin)
+            {
+                var superAdminCount = await _userGroupService.GetUserCountByGroupId(groupId, tenantId);
+                if (superAdminCount <= 1)
+                {
+                    return Ok(new ResponseModel { IsSuccess = false, Message = "You cannot remove the last Super Admin user." });
+                }
+            }
+
+            if (targetRank == Rank.Admin && currentRank < Rank.Admin)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Admin or Super Admin can remove users from the Admin group." });
+            }
+
             // Deletes the user group by user ID and group ID
             await _userGroupService.RemoveUserGroup(userId, groupId);
 
             // Returns success response after deletion
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
+        }
+
+        /// <summary>
+        /// Gets the number of groups a user belongs to within the current tenant.
+        /// </summary>
+        /// <param name="userId">The user ID.</param>
+        /// <returns>The group count.</returns>
+        [Authorize(Policy = Permissions.UserGroup.View)]
+        [HttpGet("count")]
+        public async Task<IActionResult> GetUserGroupCount(int userId)
+        {
+            var tenantId = User.GetTenantId();
+            var count = await _userGroupService.GetGroupCountByUserId(userId, tenantId);
+            return Ok(new ResponseModel { IsSuccess = true, Data = count, Message = GlobalcConstants.Success });
         }
     }
 }

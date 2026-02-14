@@ -1,9 +1,10 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using MapsterMapper;
+﻿using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Enums;
 using MEligibilityPlatform.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace MEligibilityPlatform.Application.Services
@@ -18,6 +19,9 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     public class UserGroupService(IUnitOfWork uow, IMapper mapper,IUserService userService) : IUserGroupService
     {
+        private const string SuperAdminGroupName = "Super Admin";
+        private const string AdminGroupName = "Admin";
+        private const string UserGroupName = "User";
         /// The unit of work instance for database operations.
         private readonly IUnitOfWork _uow = uow;
 
@@ -100,6 +104,64 @@ namespace MEligibilityPlatform.Application.Services
         }
 
         /// <summary>
+        /// Gets the number of users assigned to a group within a tenant.
+        /// </summary>
+        public async Task<int> GetUserCountByGroupId(int groupId, int tenantId)
+        {
+            return await _uow.UserGroupRepository.Query()
+                .Where(ug => ug.GroupId == groupId && (ug.TenantId == tenantId || ug.TenantId == 0))
+                .CountAsync();
+        }
+
+        /// <summary>
+        /// Gets the number of groups a user belongs to within a tenant.
+        /// </summary>
+        public async Task<int> GetGroupCountByUserId(int userId, int tenantId)
+        {
+            return await (from ug in _uow.UserGroupRepository.Query()
+                          join sg in _uow.SecurityGroupRepository.Query()
+                              on ug.GroupId equals sg.GroupId
+                          where ug.UserId == userId
+                                && sg.TenantId == tenantId
+                          select ug.GroupId)
+                .Distinct()
+                .CountAsync();
+        }
+
+        /// <summary>
+        /// Retrieves group names for a specific user within a tenant.
+        /// </summary>
+        public async Task<List<string>> GetGroupNamesForUser(int userId, int tenantId)
+        {
+            return await (from ug in _uow.UserGroupRepository.Query()
+                          join sg in _uow.SecurityGroupRepository.Query()
+                              on ug.GroupId equals sg.GroupId
+                          where ug.UserId == userId && sg.TenantId == tenantId
+                          select sg.GroupName ?? "")
+                .Distinct()
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Retrieves a group name by group ID within a tenant.
+        /// </summary>
+        public async Task<string?> GetGroupNameById(int groupId, int tenantId)
+        {
+            return await _uow.SecurityGroupRepository.Query()
+                .Where(sg => sg.GroupId == groupId && (sg.TenantId == tenantId || sg.TenantId == 0))
+                .Select(sg => sg.GroupName)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<Dictionary<int, string>> GetGroupNamesByIds(
+            List<int> groupIds,
+            int tenantId)
+        {
+            return await _uow.SecurityGroupRepository.Query()
+                .Where(sg => groupIds.Contains(sg.GroupId) &&
+                             (sg.TenantId == tenantId || sg.TenantId == 0))
+                .ToDictionaryAsync(sg => sg.GroupId, sg => sg.GroupName ?? "");
+        }
+        /// <summary>
         /// Removes a user group by its ID.
         /// </summary>
         /// <param name="id">The user group ID to remove.</param>
@@ -112,6 +174,36 @@ namespace MEligibilityPlatform.Application.Services
             _uow.UserGroupRepository.Remove(item);
             // Commits the changes to the database
             await _uow.CompleteAsync();
+        }
+        public  Rank GetRank(string groupName)
+        {
+            if (groupName.Equals(SuperAdminGroupName, StringComparison.OrdinalIgnoreCase))
+            {
+                return Rank.SuperAdmin;
+            }
+            if (groupName.Equals(AdminGroupName, StringComparison.OrdinalIgnoreCase))
+            {
+                return Rank.Admin;
+            }
+            if (groupName.Equals(UserGroupName, StringComparison.OrdinalIgnoreCase))
+            {
+                return Rank.User;
+            }
+            return Rank.None;
+        }
+        public Rank GetHighestRank(IEnumerable<string> groupNames)
+        {
+            var highest = Rank.None;
+            foreach (var groupName in groupNames)
+            {
+                    var rank = GetRank(groupName);
+                    ;
+                if (rank > highest)
+                {
+                    highest = rank;
+                }
+            }
+            return highest;
         }
 
         /// <summary>

@@ -575,12 +575,17 @@ export class FactorsComponent implements OnInit, AfterViewInit {
     }
 
     deleteFactor(row: any): void {
-        const confirmDelete = window.confirm(
-            `Are you sure you want to delete the factor: "${row.factorName}"?`
-        );
-        if (confirmDelete) {
-            this.performDelete(row);
+     const dialogRef = this.dialog.open(DeleteDialogComponent, {
+        data: {
+          title: 'Confirm',
+          message: `Are you sure you want to delete the factor: "${row.factorName}"?`
         }
+      });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.delete) {
+            this.performDelete(row);
+        }})
     }
 
     performDelete(row: any): void {

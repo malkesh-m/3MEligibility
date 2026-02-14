@@ -5,14 +5,19 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { UserService } from '../../../core/services/security/user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { NgForm } from '@angular/forms';
-
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { UserprogileService } from '../../../core/services/security/userprofile.service';
+import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
+import { Rank } from '../../../core/enum/rank.enum'; 
 export interface GroupRecord {
   groupId: number | null;
   groupName: string;
   groupDesc: string;
+  userCount?: number;
 }
 
 export interface AssignedUserRecord {
@@ -50,6 +55,10 @@ export interface requestBody {
   styleUrl: './group.component.scss'
 })
 export class GroupComponent implements OnInit,AfterViewInit {
+  private readonly superAdminGroupName = 'Super Admin';
+  private readonly adminGroupName = 'Admin';
+  private readonly userGroupName = 'User';
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   searchTerm: string = '';
@@ -59,7 +68,7 @@ export class GroupComponent implements OnInit,AfterViewInit {
   isEditMode = false;
   displayedColumns: string[] = ['groupName', 'groupDesc', 'actions'];
   assignedUserColumns: string[] = ['userName', 'email', 'mobileNo', 'actions'];
-
+Rank: any = Rank;
   records: GroupRecord[] = [];
   userRecords: UserRecord[] = [];
   assignedUserData: AssignedUserRecord[] = [];
@@ -84,11 +93,25 @@ export class GroupComponent implements OnInit,AfterViewInit {
   isDownloading: boolean = false
   isUploading: boolean = false
   message: string = "Loading data, please wait...";
-  constructor(private groupService: GroupService, private utilityService: UtilityService, private cdr: ChangeDetectorRef, private userService: UserService, private PermissionsService: PermissionsService) { }
+  currentUserGroups: string[] = [];
+  currentUserRank: number = 0;
+  currentUserId: number | null = null;
+
+  constructor(
+    private groupService: GroupService,
+    private utilityService: UtilityService,
+    private cdr: ChangeDetectorRef,
+    private userService: UserService,
+    private PermissionsService: PermissionsService,
+    private authService: AuthService,
+    private userprofileService: UserprogileService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit(): void {
     this.fetchGroupList();
     this.fetchUsersList();
+    this.loadCurrentUserGroups();
   }
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
@@ -102,6 +125,107 @@ export class GroupComponent implements OnInit,AfterViewInit {
 
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
+  }
+
+  canEditGroup(record: GroupRecord): boolean {
+    return this.hasPermission('Permissions.Group.Edit');
+  }
+
+  canDeleteGroup(record: GroupRecord): boolean {
+    if (!this.hasPermission('Permissions.Group.Delete')) {
+      return false;
+    }
+    if (this.isSuperAdminGroup(record.groupName)) {
+      return this.currentUserRank === 3 && (record.userCount ?? 0) > 1;
+    }
+    return true;
+  }
+
+  canDeleteAssignedUser(): boolean {
+    return this.hasPermission('Permissions.UserGroup.Delete');
+  }
+
+  private isSuperAdminGroup(groupName: string): boolean {
+    return groupName?.toLowerCase() === this.superAdminGroupName.toLowerCase();
+  }
+
+  private canManageSelectedGroup(): boolean {
+    if (!this.selectedGroupName) {
+      return false;
+    }
+    const selectedGroupId = Number(this.selectedGroupName);
+    const groupName = this.records.find(g => g.groupId === selectedGroupId)?.groupName ?? '';
+    if (this.isSuperAdminGroup(groupName)) {
+      if (this.hasPermission('Permissions.UserGroup.Delete')) {
+        return true;
+      }
+      return this.currentUserRank === 3;
+    }
+    return true;
+  }
+
+  private loadCurrentUserGroups(): void {
+    this.authService.currentUser$.subscribe((user) => {
+      const userId = user?.user?.userId ?? user?.userId;
+      if (!userId) {
+        this.authService.loadUserPermissions().subscribe({
+          next: (res: any) => {
+            const resolvedId = res?.userId ?? null;
+            if (resolvedId) {
+              this.currentUserId = resolvedId;
+              this.userprofileService.getUserProfileById(resolvedId).subscribe({
+                next: (response) => {
+                  const groups = response?.data?.groups ?? [];
+                  this.currentUserGroups = groups.map((g: any) => g.groupName).filter(Boolean);
+                  this.currentUserRank = this.getHighestRank(this.currentUserGroups);
+                },
+                error: () => {
+                  this.currentUserGroups = [];
+                  this.currentUserRank = 0;
+                }
+              });
+            }
+          }
+        });
+        return;
+      }
+      this.currentUserId = userId;
+      this.userprofileService.getUserProfileById(userId).subscribe({
+        next: (response) => {
+          const groups = response?.data?.groups ?? [];
+          this.currentUserGroups = groups.map((g: any) => g.groupName).filter(Boolean);
+          this.currentUserRank = this.getHighestRank(this.currentUserGroups);
+        },
+        error: () => {
+          this.currentUserGroups = [];
+          this.currentUserRank = 0;
+        }
+      });
+    });
+  }
+
+  private getHighestRank(groupNames: string[]): number {
+    let highest = 0;
+    for (const name of groupNames) {
+      const rank = this.getRank(name);
+      if (rank > highest) {
+        highest = rank;
+      }
+    }
+    return highest;
+  }
+
+  private getRank(groupName: string): number {
+    if (groupName?.toLowerCase() === this.superAdminGroupName.toLowerCase()) {
+      return 3;
+    }
+    if (groupName?.toLowerCase() === this.adminGroupName.toLowerCase()) {
+      return 2;
+    }
+    if (groupName?.toLowerCase() === this.userGroupName.toLowerCase()) {
+      return 1;
+    }
+    return 0;
   }
 
   sanitizeCode(event: any) {
@@ -141,8 +265,10 @@ export class GroupComponent implements OnInit,AfterViewInit {
       } else {
         this.groupService.addGroup(this.formData).subscribe({
           next: (response) => {
-            this.fetchGroupList();
-            this.closeForm();
+            if (response.isSuccess) {
+              this.fetchGroupList();
+              this.closeForm();
+            }
             this._snackBar.open(response.message, 'Okay', {
               horizontalPosition: 'right',
               verticalPosition: 'top',
@@ -390,13 +516,56 @@ export class GroupComponent implements OnInit,AfterViewInit {
   }
 
   editRecord(record: GroupRecord) {
+    if (!this.hasPermission('Permissions.Group.Edit')) {
+      this._snackBar.open('You do not have permission to edit groups.', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+      return;
+    }
+    if (this.isSuperAdminGroup(record.groupName)) {
+      this._snackBar.open('You can not edit this group.', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+      return;
+    }
     this.isEditMode = true;
     this.formVisible = true;
     this.formData = { ...record };
   }
 
   deleteRecord(record: GroupRecord) {
-    if (confirm(`Are you sure you want to delete Group: "${record.groupName}"?`)) {
+    if (!this.hasPermission('Permissions.Group.Delete')) {
+      this._snackBar.open('You do not have permission to delete groups.', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+      return;
+    }
+    if (this.isSuperAdminGroup(record.groupName)) {
+      this._snackBar.open('You cannot delete Super Admin group.', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+      return;
+    }
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm',
+        message: `Are you sure you want to delete Group: "${record.groupName}"?`,
+        confirmText: 'Confirm',
+        cancelText: 'Cancel'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result?.delete) {
+        return;
+      }
       this.groupService.deleteGroupWithId(Number(record.groupId)).subscribe({
         next: (response) => {
           if (response.isSuccess) {
@@ -416,7 +585,7 @@ export class GroupComponent implements OnInit,AfterViewInit {
           });
         },
       });
-    }
+    });
   }
 
   onSelect(event: any): void {
@@ -428,27 +597,108 @@ export class GroupComponent implements OnInit,AfterViewInit {
   }
 
   deleteAssignedUserRecord(record: AssignedUserRecord) {
-    console.log('Deleting assigned user record:', record);
-    if (confirm(`Are you sure you want to delete Assigned User: "${record.userName}"?`)) {
-      this.groupService.deleteAssignedUser(record.id,record.groupId).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
-          } else {
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000,
-            });
-          }
-        },
-        error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000,
-          });
-        }
+    if (!this.canManageSelectedGroup()) {
+      this._snackBar.open('You can not delete users from this group.', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
       });
+      return;
     }
+    const selectedGroupId = Number(this.selectedGroupName);
+    const selectedGroup = this.records.find(g => g.groupId === selectedGroupId);
+    if (selectedGroup && this.isSuperAdminGroup(selectedGroup.groupName) && this.assignedUserDataSource.data.length <= 1) {
+      this._snackBar.open('You cannot delete the last Super Admin user.', 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+      return;
+    }
+    const isSelf = this.isCurrentUser(record.id);
+    if (record.id === null) {
+      return;
+    }
+    this.groupService.getUserGroupCount(record.id).subscribe({
+      next: (response) => {
+        const groupCount = response?.data ?? 0;
+        let warningMessage = 'You will remove this user from the group. Do you want to continue?';
+        if (isSelf) {
+          warningMessage = 'You will lose access to this group. Do you want to continue?';
+        } else if (groupCount <= 1) {
+          warningMessage = 'This user will have no groups and will lose access. Do you want to continue?';
+        }
+        const dialogRef = this.dialog.open(DeleteDialogComponent, {
+          data: {
+            title: 'Confirm',
+            message: warningMessage,
+            confirmText: 'Confirm',
+            cancelText: 'Cancel'
+          }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if (!result?.delete) {
+            return;
+          }
+          console.log('Deleting assigned user record:', record);
+          this.groupService.deleteAssignedUser(record.id,record.groupId).subscribe({
+            next: (deleteResponse) => {
+              if (deleteResponse.isSuccess) {
+                this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
+              } else {
+                this._snackBar.open(deleteResponse.message, 'Okay', {
+                  horizontalPosition: 'right',
+                  verticalPosition: 'top', duration: 3000,
+                });
+              }
+            },
+            error: (error) => {
+              this._snackBar.open(error.message, 'Okay', {
+                horizontalPosition: 'right',
+                verticalPosition: 'top', duration: 3000,
+              });
+            }
+          });
+        });
+      },
+      error: (error) => {
+        this._snackBar.open(error.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top', duration: 3000,
+        });
+      }
+    });
+  }
+
+  private isCurrentUser(userId: number | null): boolean {
+    if (userId === null) {
+      return false;
+    }
+    if (this.currentUserId !== null) {
+      return Number(userId) === Number(this.currentUserId);
+    }
+    try {
+      const saved = localStorage.getItem('currentUser');
+      if (!saved) return false;
+      const parsed = JSON.parse(saved);
+      const storedId = parsed?.user?.userId ?? parsed?.userId ?? null;
+      if (storedId === null || storedId === undefined) return false;
+      return Number(userId) === Number(storedId);
+    } catch {
+      return false;
+    }
+  }
+
+  getAssignedUserDeleteTooltip(): string {
+    if (!this.selectedGroupName) {
+      return 'Delete';
+    }
+    const selectedGroupId = Number(this.selectedGroupName);
+    const selectedGroup = this.records.find(g => g.groupId === selectedGroupId);
+    if (selectedGroup && this.isSuperAdminGroup(selectedGroup.groupName) && this.assignedUserDataSource.data.length <= 1) {
+      return 'You cannot delete the last Super Admin user';
+    }
+    return 'Delete';
   }
 
   fetchAssignedUserbyId(groupId: string) {
@@ -498,9 +748,13 @@ export class GroupComponent implements OnInit,AfterViewInit {
         this.dataSource.data = response.data.map((item: any) => ({
           groupId: item.groupId,
           groupName: item.groupName,
-          groupDesc: item.groupDesc
+          groupDesc: item.groupDesc,
+          userCount: item.userCount
         }));
         this.records = response.data;
+        if (this.records.some(g => this.isSuperAdminGroup(g.groupName))) {
+          this.currentUserRank = Math.max(this.currentUserRank, 3);
+        }
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         this.isLoading = false;

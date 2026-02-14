@@ -1,7 +1,9 @@
+using System.Runtime.CompilerServices;
 using MapsterMapper;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
+using MEligibilityPlatform.Domain.Enums;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -17,18 +19,22 @@ namespace MEligibilityPlatform.Application.Services
     /// </remarks>
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
-    public class GroupPermissionService(IUnitOfWork uow, IMapper mapper,IMemoryCache cache,IUserService userService) : IGroupPermissionService
+    public class GroupPermissionService(IUnitOfWork uow, IMapper mapper,IMemoryCache cache,IUserService userService, IUserContextService userContext,IUserGroupService userGroupService) : IGroupPermissionService
     {
+        private const string SuperAdminGroupName = "Super Admin";
+
         /// <summary>
         /// The unit of work instance for data access and persistence operations.
         /// </summary>
         private readonly IUnitOfWork _uow = uow;
         private readonly IUserService _userService = userService;
+        private readonly IUserContextService _userContext = userContext;
         /// <summary>
         /// The AutoMapper instance for mapping between entities and models.
         /// </summary>
         private readonly IMapper _mapper = mapper;
         private readonly IMemoryCache _cache = cache;
+        private readonly IUserGroupService _userGroupService = userGroupService;
         /// <summary>
         /// Adds group-role assignments based on the given model.
         /// </summary>
@@ -38,7 +44,22 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(GroupPermissionModel groupPermissionModel)
         {
+            await EnsureCanEditGroupPermissions(groupPermissionModel.GroupId, groupPermissionModel.TenantId);
+
+            var isSuperAdminGroup = await _uow.SecurityGroupRepository.Query()
+                .AnyAsync(sg => sg.GroupId == groupPermissionModel.GroupId
+                                && sg.TenantId == groupPermissionModel.TenantId
+                                && sg.GroupName != null
+                                && sg.GroupName == SuperAdminGroupName);
+            // Super Admin can add permissions to Super Admin group (removal still blocked).
+
+            var existingPermissionIds = await _uow.GroupPermissionRepository.Query()
+                .Where(x => x.GroupId == groupPermissionModel.GroupId && x.TenantId == groupPermissionModel.TenantId)
+                .Select(x => x.PermissionId)
+                .ToListAsync();
+
             var groupRoles = groupPermissionModel.PermissionIds
+                .Where(roleId => !existingPermissionIds.Contains(roleId))
                 .Select(roleId => new GroupPermission
                 {
                     GroupId = groupPermissionModel.GroupId,
@@ -47,11 +68,13 @@ namespace MEligibilityPlatform.Application.Services
                     UpdatedByDateTime = DateTime.UtcNow
                 })
                 .ToList();
-     
-            // Add all mappings at once
-            _uow.GroupPermissionRepository.AddRange(groupRoles);
-            // Commit changes
-            await _uow.CompleteAsync();
+            if (groupRoles.Count != 0)
+            {
+                // Add all mappings at once
+                _uow.GroupPermissionRepository.AddRange(groupRoles);
+                // Commit changes
+                await _uow.CompleteAsync();
+            }
 
             var userIds = await _uow.UserGroupRepository.Query()
               .Where(x => x.GroupId == groupPermissionModel.GroupId)
@@ -97,6 +120,19 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Remove(GroupPermissionModel groupPermissionModel)
         {
+           
+            await EnsureCanEditGroupPermissions(groupPermissionModel.GroupId, groupPermissionModel.TenantId);
+
+            var isSuperAdminGroup = await _uow.SecurityGroupRepository.Query()
+                .AnyAsync(sg => sg.GroupId == groupPermissionModel.GroupId
+                                && sg.TenantId == groupPermissionModel.TenantId
+                                && sg.GroupName != null
+                                && sg.GroupName == SuperAdminGroupName);
+            if (isSuperAdminGroup)
+            {
+                throw new InvalidOperationException("Super Admin group permissions cannot be removed.");
+            }
+
             var itemsToRemove = new List<GroupPermission>();
 
             // Collect all mappings to remove
@@ -178,6 +214,74 @@ namespace MEligibilityPlatform.Application.Services
                 })
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Removes all role assignments for a specific security group.
+        /// </summary>
+        public async Task RemoveByGroupId(int groupId, int tenantId)
+        {
+            await EnsureCanEditGroupPermissions(groupId, tenantId);
+
+            var isSuperAdminGroup = await _uow.SecurityGroupRepository.Query()
+                .AnyAsync(sg => sg.GroupId == groupId
+                                && sg.TenantId == tenantId
+                                && sg.GroupName != null
+                                && sg.GroupName == SuperAdminGroupName);
+            if (isSuperAdminGroup)
+            {
+                throw new InvalidOperationException("Super Admin group permissions cannot be removed.");
+            }
+
+            var itemsToRemove = await _uow.GroupPermissionRepository.Query()
+                .Where(x => x.GroupId == groupId && x.TenantId == tenantId)
+                .ToListAsync();
+
+            if (itemsToRemove.Count != 0)
+            {
+                _uow.GroupPermissionRepository.RemoveRange(itemsToRemove);
+                await _uow.CompleteAsync();
+            }
+        }
+
+        private async Task EnsureCanEditGroupPermissions(int groupId, int tenantId)
+        {
+            var targetGroupName = await _uow.SecurityGroupRepository.Query()
+                .Where(sg => sg.GroupId == groupId && (sg.TenantId == tenantId || sg.TenantId == 0))
+                .Select(sg => sg.GroupName ?? "")
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(targetGroupName))
+            {
+                throw new InvalidOperationException("Group not found.");
+            }
+
+            var currentUserId = _userContext.GetUserId();
+            var currentUserGroupNames = await (from ug in _uow.UserGroupRepository.Query()
+                                               join sg in _uow.SecurityGroupRepository.Query()
+                                                   on ug.GroupId equals sg.GroupId
+                                               where ug.UserId == currentUserId
+                                                     && (ug.TenantId == tenantId || ug.TenantId == 0)
+                                                     && sg.TenantId == tenantId
+                                               select sg.GroupName ?? "")
+                .Distinct()
+                .ToListAsync();
+
+            var currentRank = _userGroupService.GetHighestRank(currentUserGroupNames);
+            var targetRank = _userGroupService.GetRank(targetGroupName);
+
+            if (targetRank == Rank.SuperAdmin && currentRank != Rank.SuperAdmin)
+            {
+                throw new InvalidOperationException("Only Super Admin can edit permissions for the Super Admin group.");
+            }
+
+            if (targetRank == Rank.Admin && currentRank < Rank.Admin)
+            {
+                throw new InvalidOperationException("Only Admin or Super Admin can edit permissions for the Admin group.");
+            }
+        }
+
+   
+
     }
 }
 

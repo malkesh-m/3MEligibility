@@ -471,39 +471,47 @@ removeImage() {
   }
 
   deleteCategoryWithId(id: number, categoryName: string) {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the category: "${categoryName}"? and all its related data?`
-    );
 
-    if (confirmDelete) {
-      this.productService.deleteCategoryWithId(id).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            console.log("response ", response)
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-
-            this.updateTableRows.emit({ event: 'CategoryList', action: 'delete' })
-          }
-          if (!response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-          }
-        },
-        error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-        }
-      })
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete the category: "${categoryName}"?`
     }
-  }
+  });
 
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.productService.deleteCategoryWithId(id).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
+          this.updateTableRows.emit({ event: 'CategoryList', action: 'delete' });
+        }
+
+      },
+      error: (error) => {
+        this._snackBar.open(
+          error?.error?.message || error.message || 'Something went wrong.',
+          'Okay',
+          {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          }
+        );
+      }
+    });
+
+  });
+}
   deleteCategoryWithMultiple(payload: any) {
     if (this.tableChild.selectedRows.size === 0) {
       alert('Please select at least one row to delete');
@@ -633,33 +641,45 @@ async onSubmit() {
     });
   }
 
-  deleteInfoWithId(id: number, productName: string) {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the Product: "${productName}"?`
-    );
+deleteInfoWithId(id: number, productName: string) {
 
-    if (confirmDelete) {
-      this.productService.deleteCategoryInfoWithId(id).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-            this.updateTableRows.emit({ event: 'InfoList', action: 'delete' })
-          }
-        },
-        error: (error) => {
-          console.log("error ", error)
-          this._snackBar.open(error.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-        }
-      })
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete the product: "${productName}"?`
     }
-  }
+  });
 
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.productService.deleteCategoryInfoWithId(id).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          this.updateTableRows.emit({ event: 'InfoList', action: 'delete' });
+        }
+      },
+
+      error: (error) => {
+        console.log("error ", error);
+
+        this._snackBar.open(error.message || 'Something went wrong', 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
+    });
+
+  });
+}
   deleteMultipleInfoItem(payload: any) {
     if (this.tableChild.selectedRows.size === 0) {
       alert('Please select at least one row to delete');

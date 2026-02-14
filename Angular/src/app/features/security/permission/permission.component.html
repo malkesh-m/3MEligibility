@@ -67,7 +67,7 @@
         </ng-container>
         <ng-container matColumnDef="permissionAction">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.permissionAction }} </td>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ formatPermissionAction(entity.permissionAction) }} </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="combinedColumns" class="tableHeader"></tr>
@@ -95,7 +95,7 @@
 
         <ng-container matColumnDef="permissionAction">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.permissionAction }} </td>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ formatPermissionAction(entity.permissionAction) }} </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="combinedColumns" class="tableHeader"></tr>
         <tr mat-row *matRowDef="let row; columns: combinedColumns;" class="select-row"></tr>

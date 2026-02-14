@@ -93,12 +93,16 @@
                 <td class="cellStyling" mat-cell *matCellDef="let list">
                     <mat-icon appUseractivity="User Click on Edit button"
               [componentName]="'GroupComponent'"
-              [actionType]="'ButtonClick'"class="clickable-icon" color="primary" (click)="editRecord(list)"
-                        matTooltip="{{ 'Edit' | translate }}" *ngIf="hasPermission('Permissions.Group.Edit')">edit</mat-icon>
+              [actionType]="'ButtonClick'" class="clickable-icon" color="primary"
+                        (click)="editRecord(list)"
+                        [matTooltip]="list.groupName === 'Super Admin' ? 'Super Admin group cannot be edited' : ('Edit' | translate)"
+                        *ngIf="hasPermission('Permissions.Group.Edit') && list.groupName !== 'Super Admin'">edit</mat-icon>
                     <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'GroupComponent'"
-              [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteRecord(list)" 
-                        matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission('Permissions.Group.Delete')">delete</mat-icon>
+              [actionType]="'ButtonClick'" class="clickable-icon" color="warn"
+                        (click)="deleteRecord(list)"
+                        [matTooltip]="list.groupName === 'Super Admin' ? 'You cannot delete Super Admin group' : ('Delete' | translate)"
+                        *ngIf="hasPermission('Permissions.Group.Delete') && list.groupName !== 'Super Admin'">delete</mat-icon>
                 </td>
             </ng-container>
 
@@ -164,7 +168,10 @@
         <ng-container matColumnDef="userName">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.displayName }} </td>
+            <td class="cellStyling" mat-cell *matCellDef="let entity">
+                {{ entity.displayName }}
+                <span *ngIf="currentUserId !== null && entity.id === currentUserId" class="self-tag">(You)</span>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="mobileNo">
@@ -191,7 +198,8 @@
                 <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'" class="clickable-icon"  color="warn" (click)="deleteAssignedUserRecord(entity)"
-                     matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission('Permissions.UserGroup.Delete')">delete</mat-icon>
+                     [matTooltip]="getAssignedUserDeleteTooltip()"
+                     *ngIf="canDeleteAssignedUser()">delete</mat-icon>
             </td>
         </ng-container>
 

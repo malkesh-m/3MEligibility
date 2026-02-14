@@ -24,6 +24,7 @@
     <mat-menu #languageMenu="matMenu">
         <button mat-menu-item (click)="changeLanguage('en')">EN</button>
         <button mat-menu-item (click)="changeLanguage('ar')">AR</button>
+        <button mat-menu-item (click)="changeLanguage('hi')">HI</button>
     </mat-menu>
     <button mat-icon-button [matMenuTriggerFor]="languageMenu" aria-label="Language" style="margin-right: 40px;">
         <mat-icon matTooltip="{{ 'Language' | translate }}">language</mat-icon>

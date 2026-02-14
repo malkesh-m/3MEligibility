@@ -1,5 +1,6 @@
 using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Services.Interface;
+using MEligibilityPlatform.Domain.Enums;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +16,13 @@ namespace MEligibilityPlatform.Controllers
     /// <param name="groupPermissionService">The group permission service.</param>
     [Route("api/grouppermission")]
     [ApiController]
-    public class GroupPermissionController(IGroupPermissionService groupPermissionService) : ControllerBase
+    public class GroupPermissionController(IGroupPermissionService groupPermissionService, IUserGroupService userGroupService) : ControllerBase
     {
         /// <summary>
         /// The group permission service instance.
         /// </summary>
         private readonly IGroupPermissionService _groupPermissionService = groupPermissionService;
+        private readonly IUserGroupService _userGroupService = userGroupService;
 
         /// <summary>
         /// Retrieves all group permission records.
@@ -29,12 +31,44 @@ namespace MEligibilityPlatform.Controllers
         /// 
         [Authorize(Policy = Permissions.GroupPermission.View)]
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            // Retrieves all group permission records
-            List<GroupPermissionModel> result = _groupPermissionService.GetAll();
-            // Returns success response with the retrieved group permission list
-            return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
+            var result = _groupPermissionService.GetAll();
+
+            var tenantId = User.GetTenantId();
+            var currentUserId = User.GetUserId();
+
+            var currentUserGroups = await _userGroupService
+                .GetGroupNamesForUser(currentUserId, tenantId);
+
+            var currentRank = _userGroupService.GetHighestRank(currentUserGroups);
+
+            // Collect distinct group IDs
+            var groupIds = result
+                .Select(r => r.GroupId)
+                .Distinct()
+                .ToList();
+
+            // Fetch all required group names in ONE call
+            var groupDictionary = await _userGroupService
+                .GetGroupNamesByIds(groupIds, tenantId);
+
+            // Filter in memory (no async here)
+            result = [.. result
+                .Where(gp =>
+                {
+                    if (!groupDictionary.TryGetValue(gp.GroupId, out var groupName))
+                        return false;
+
+                    return _userGroupService.GetRank(groupName) <= currentRank;
+                })];
+
+            return Ok(new ResponseModel
+            {
+                IsSuccess = true,
+                Data = result,
+                Message = GlobalcConstants.Success
+            });
         }
 
         /// <summary>
@@ -56,7 +90,14 @@ namespace MEligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
             // Adds the new group permission record
-            await _groupPermissionService.Add(groupPermissionModel);
+            try
+            {
+                await _groupPermissionService.Add(groupPermissionModel);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = ex.Message });
+            }
             // Returns success response for created operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
@@ -71,6 +112,8 @@ namespace MEligibilityPlatform.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(GroupPermissionModel groupPermissionModel)
         {
+            var tenantId = User.GetTenantId();
+            groupPermissionModel.TenantId = tenantId;
             // Validates the model state
             if (!ModelState.IsValid)
             {
@@ -78,7 +121,17 @@ namespace MEligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
             // Removes the group permission record
-            await _groupPermissionService.Remove(groupPermissionModel);
+            try
+            {
+                await _groupPermissionService.Remove(groupPermissionModel);
+            }
+            catch (InvalidOperationException ex)
+            {
+                var message = ex.Message == "Group not found."
+                    ? "You cannot remove permissions from this group."
+                    : ex.Message;
+                return Ok(new ResponseModel { IsSuccess = false, Message = message });
+            }
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -93,6 +146,15 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getassignedpermissionsbygroupid")]
         public async Task<IActionResult> GetAssignedPermissionsByGroupId(int groupId)
         {
+            var tenantId = User.GetTenantId();
+            var currentUserId = User.GetUserId();
+            var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, tenantId);
+            var currentRank = _userGroupService.GetHighestRank(currentUserGroups);
+            var targetGroupName = await _userGroupService.GetGroupNameById(groupId, tenantId) ?? "";
+            if (_userGroupService.GetRank(targetGroupName) > currentRank)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to view this group's permissions." });
+            }
             // Retrieves assigned permissions by group ID
             var result = await _groupPermissionService.GetAssignedPermissions(groupId);
             // Checks if any assigned permissions were found
@@ -117,6 +179,15 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getunassignedpermissionsbygroupid")]
         public async Task<IActionResult> GetUnAssignedPermissionsByGroupId(int groupId)
         {
+            var tenantId = User.GetTenantId();
+            var currentUserId = User.GetUserId();
+            var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, tenantId);
+            var currentRank = _userGroupService.GetHighestRank(currentUserGroups);
+            var targetGroupName = await _userGroupService.GetGroupNameById(groupId, tenantId) ?? "";
+            if (_userGroupService.GetRank(targetGroupName) > currentRank)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to view this group's permissions." });
+            }
             // Retrieves unassigned permissions by group ID
             var result = await _groupPermissionService.GetUnAssignedPermissions(groupId);
             // Checks if any unassigned permissions were found
@@ -131,5 +202,9 @@ namespace MEligibilityPlatform.Controllers
                 return NotFound(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NotFound });
             }
         }
+
+    
+
+    
     }
 }

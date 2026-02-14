@@ -238,35 +238,63 @@ message: string = "Loading data, please wait...";
       }
     });
   }
-deleteMapping(id: number) {
-  if (!confirm('Are you sure you want to delete this mapping?')) return;
+deleteMapping(id: number): void {
 
-  this.integrationService.deleteMapping(id).subscribe({
-    next: (response: any) => {
-      // Remove from local array
-      this.apiParameterMappings = this.apiParameterMappings.filter(m => m.id !== id);
-      this.apiParameterMappingsDataSource.data = this.apiParameterMappings;
-
-      // Show confirmation
-      this._snackBar.open(response.message || 'Mapping deleted successfully', 'Okay', {
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        duration: 3000
-      });
-      this.isEditMode = false;
-      //  Reset selected API to force clearing fields
-      this.selectedApi = null;
-      // Refresh API parameters & mappings (will clear them because selectedApi is null)
-      this.onApiChange();
-    },
-    error: (err) => {
-      console.error('Error deleting mapping:', err);
-      this._snackBar.open('Failed to delete mapping.', 'Okay', {
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        duration: 3000
-      });
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: 'Are you sure you want to delete this mapping?'
     }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.integrationService.deleteMapping(id).subscribe({
+      next: (response: any) => {
+
+        // Remove from local array
+        this.apiParameterMappings =
+          this.apiParameterMappings.filter(m => m.id !== id);
+
+        this.apiParameterMappingsDataSource.data =
+          this.apiParameterMappings;
+
+        // Show confirmation
+        this._snackBar.open(
+          response?.message || 'Mapping deleted successfully',
+          'Okay',
+          {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          }
+        );
+
+        this.isEditMode = false;
+        this.selectedApi = null;
+
+        // Refresh API parameters & mappings
+        this.onApiChange();
+      },
+      error: (err) => {
+
+        console.error('Error deleting mapping:', err);
+
+        const message =
+          err?.error?.message ||
+          err?.message ||
+          'Failed to delete mapping.';
+
+        this._snackBar.open(message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
+    });
+
   });
 }
 
@@ -686,31 +714,55 @@ deleteMapping(id: number) {
   //    this.apiParameterDataSource.data = [...this.apiParameterRecords];
   //  });
   //}
-  onDeleteApiParameter(row: any) {
-    if (confirm(`Are you sure you want to delete parameter: ${row.parameterName}?`)) {
-      this.integrationService.deleteApiParameter(row.apiParameterId).subscribe({
-        next: (res) => {
-          if (res.isSuccess) {
-            this._snackBar.open(res.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000,
-            });
-            this.loadApiParameters(); // refresh table after delete
-            this.selectedRows.clear();
+onDeleteApiParameter(row: any): void {
 
-          }
-        },
-        error: (err) => {
-          console.error('Error deleting API parameter:', err);
-          this._snackBar.open(err.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000,
-          });          this.selectedRows.clear();
-
-        }
-      });
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete parameter: "${row.parameterName}"?`
     }
-  }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.integrationService.deleteApiParameter(row.apiParameterId).subscribe({
+      next: (res) => {
+
+        this._snackBar.open(res.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (res.isSuccess) {
+          this.loadApiParameters();   // refresh table
+          this.selectedRows.clear();
+        }
+
+      },
+      error: (err) => {
+
+        console.error('Error deleting API parameter:', err);
+
+        const message =
+          err?.error?.message ||
+          err?.message ||
+          'Failed to delete API parameter.';
+
+        this._snackBar.open(message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        this.selectedRows.clear();
+      }
+    });
+
+  });
+}
   editApiParameter(row: ApiParameterRecord) {
     this.showApiParameterSection = true; // show the Add/Edit form
     this.isEditMode = true; // mark as edit
@@ -1807,71 +1859,105 @@ deleteMapping(id: number) {
     this.apidetailsForm.patchValue(this.nodeAPIDetailsformData);
   }
 
-  deleteNode(record: NodeRecord) {
-    if (confirm(`Are you sure you want to delete Node: ${record.nodeName}?`)) {
-      this.integrationService.deleteNode(Number(record.nodeId)).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this.fetchNodeList();
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000,
-            });
-          } else {
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000,
-            });
-          }
-          this.closeForm()
-          this.selectedRows.clear();
+ deleteNode(record: NodeRecord): void {
 
-        },
-        error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000,
-          });
-          this.selectedRows.clear();
-
-        },
-      });
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete Node: "${record.nodeName}"?`
     }
-  }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.integrationService.deleteNode(Number(record.nodeId)).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
+          this.fetchNodeList();
+        }
+
+        this.closeForm();
+        this.selectedRows.clear();
+
+      },
+      error: (error) => {
+
+        const message =
+          error?.error?.message ||
+          error?.message ||
+          'Failed to delete node.';
+
+        this._snackBar.open(message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        this.selectedRows.clear();
+      }
+    });
+
+  });
+}
   
-  deleteNodeAPI(record: APIRecord) {
-    if (confirm(`Are you sure you want to delete Node API: ${record.apiname}?`)) {
-      this.integrationService.deleteNodeAPI(Number(record.apiid)).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this.fetchNodeAPIList();
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000,
-            });
-          } else {
-            this._snackBar.open(response.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000,
-            });
+  deleteNodeAPI(record: APIRecord): void {
 
-          }
-          this.closeForm()
-          this.selectedRows.clear();
-
-        },
-        error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000,
-          });
-          this.selectedRows.clear();
-
-        },
-      });
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete Node API: "${record.apiname}"?`
     }
-  }
+  });
 
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.integrationService.deleteNodeAPI(Number(record.apiid)).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
+          this.fetchNodeAPIList();
+        }
+
+        this.closeForm();
+        this.selectedRows.clear();
+
+      },
+      error: (error) => {
+
+        const message =
+          error?.error?.message ||
+          error?.message ||
+          'Failed to delete Node API.';
+
+        this._snackBar.open(message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        this.selectedRows.clear();
+      }
+    });
+
+  });
+}
   deleteNodeDetails(record: APIDetailsRecord) {
     if (confirm(`Are you sure you want to delete Node Api Details: "${record.callingParamName}"?`)) {
       this.integrationService.deleteNodeDetails(Number(record.apidetailsId)).subscribe({

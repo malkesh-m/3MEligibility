@@ -1,5 +1,7 @@
 using MEligibilityPlatform.Application.Constants;
+using MEligibilityPlatform.Application.Services;
 using MEligibilityPlatform.Application.Services.Interface;
+using MEligibilityPlatform.Domain.Enums;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +20,7 @@ namespace MEligibilityPlatform.Controllers
     [ApiController]
     public class SecurityGroupController(ISecurityGroupService securityGroupService, IUserGroupService userGroupService, IGroupPermissionService groupPermissionService) : ControllerBase
     {
+
         private readonly ISecurityGroupService _securityGroupService = securityGroupService;
         private readonly IUserGroupService _userGroupService = userGroupService;
         private readonly IGroupPermissionService _groupPermissionService = groupPermissionService;
@@ -30,11 +33,19 @@ namespace MEligibilityPlatform.Controllers
         /// 
         [Authorize(Policy = Permissions.Group.View)]
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             var tenantId = User.GetTenantId();
             // Retrieves all security groups from the security group service
             List<SecurityGroupModel> result = _securityGroupService.GetAll(tenantId);
+            var currentUserId = User.GetUserId();
+            var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, tenantId);
+            var currentRank = _userGroupService.GetHighestRank(currentUserGroups);
+            result = [.. result.Where(g => _userGroupService.GetRank(g.GroupName ?? "") <= currentRank)];
+            foreach (var group in result)
+            {
+                group.UserCount = await _userGroupService.GetUserCountByGroupId(group.GroupId, tenantId);
+            }
             // Returns success response with the list of security groups
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -50,13 +61,21 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Group.View)]
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {  var tenantId = User.GetTenantId();
             // Retrieves a specific security group by its ID
             var result = _securityGroupService.GetById(id,tenantId);
             // Checks if the security group was found
             if (result != null)
             {
+                var currentUserId = User.GetUserId();
+                var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, tenantId);
+                var currentRank = _userGroupService.GetHighestRank(currentUserGroups);
+                if (_userGroupService.GetRank(result.GroupName ?? "") > currentRank)
+                {
+                    return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to view this group." });
+                }
+                result.UserCount = await _userGroupService.GetUserCountByGroupId(result.GroupId, tenantId);
                 // Returns success response with the security group data
                 return Ok(new ResponseModel { IsSuccess = false, Data = result, Message = GlobalcConstants.Success });
             }
@@ -94,7 +113,14 @@ namespace MEligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
             // Adds the new security group
-            await _securityGroupService.Add(securityGroupModel);
+            try
+            {
+                await _securityGroupService.Add(securityGroupModel);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = ex.Message });
+            }
             // Returns success response after creation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
@@ -123,7 +149,14 @@ namespace MEligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
             // Updates the existing security group
-            await _securityGroupService.Update(securityGroupModel);
+            try
+            {
+                await _securityGroupService.Update(securityGroupModel);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = ex.Message });
+            }
             // Returns success response after update
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
@@ -148,6 +181,13 @@ namespace MEligibilityPlatform.Controllers
                 // Returns error response if security group is not found
                 return Ok(new ResponseModel { IsSuccess = false, Message = "Security group not found." });
             }
+            var currentUserId = User.GetUserId();
+            var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, tenantId);
+            var currentRank = _userGroupService.GetHighestRank(currentUserGroups);
+            if (_userGroupService.GetRank(item.GroupName ?? "") > currentRank)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to delete this group." });
+            }
 
             // Checks if there are users assigned to this security group
             var usersAssigned = await _userGroupService.GetByUserGroupId(id);
@@ -161,8 +201,15 @@ namespace MEligibilityPlatform.Controllers
             var rolesAssigned = await _groupPermissionService.GetBySecurityGroupId(id);
             if (rolesAssigned)
             {
-                // Returns error response if roles are assigned to the group
-                return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are roles assigned to it." });
+                // Auto-remove roles when no users are assigned
+                try
+                {
+                    await _groupPermissionService.RemoveByGroupId(id, tenantId);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Ok(new ResponseModel { IsSuccess = false, Message = ex.Message });
+                }
             }
 
             // Additional check for user group assignments
@@ -174,7 +221,14 @@ namespace MEligibilityPlatform.Controllers
             }
 
             // Deletes the security group by its ID
-            await _securityGroupService.Remove(id);
+            try
+            {
+                await _securityGroupService.Remove(id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = ex.Message });
+            }
             // Returns success response after deletion
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -208,6 +262,13 @@ namespace MEligibilityPlatform.Controllers
                     // Returns error response if security group is not found
                     return Ok(new ResponseModel { IsSuccess = false, Message = "Security group not found." });
                 }
+                var currentUserId = User.GetUserId();
+                var currentUserGroups = await _userGroupService.GetGroupNamesForUser(currentUserId, tenantId);
+                var currentRank =_userGroupService. GetHighestRank(currentUserGroups);
+                if ( _userGroupService.GetRank(item.GroupName ?? "")> currentRank)
+                {
+                    return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to delete this group." });
+                }
 
                 // Checks if there are users assigned to this security group
                 var usersAssigned = await _userGroupService.GetByUserGroupId(id);
@@ -221,8 +282,15 @@ namespace MEligibilityPlatform.Controllers
                 var rolesAssigned = await _groupPermissionService.GetBySecurityGroupId(id);
                 if (rolesAssigned)
                 {
-                    // Returns error response if roles are assigned to the group
-                    return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are roles assigned to it." });
+                    // Auto-remove roles when no users are assigned
+                    try
+                    {
+                        await _groupPermissionService.RemoveByGroupId(id, tenantId);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        return Ok(new ResponseModel { IsSuccess = false, Message = ex.Message });
+                    }
                 }
 
                 // Additional check for user group assignments
@@ -235,10 +303,18 @@ namespace MEligibilityPlatform.Controllers
             }
 
             // Deletes multiple security groups by their IDs
-            await _securityGroupService.MultipleDelete(ids);
+            try
+            {
+                await _securityGroupService.MultipleDelete(ids);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Ok(new ResponseModel { IsSuccess = false, Message = ex.Message });
+            }
             // Returns success response after deletion
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
+
     }
 }
 

@@ -17,6 +17,8 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     public class SecurityGroupService(IUnitOfWork uow, IMapper mapper) : ISecurityGroupService
     {
+        private const string SuperAdminGroupName = "Super Admin";
+
         /// <summary>
         /// The unit of work instance for database operations.
         /// </summary>
@@ -34,6 +36,21 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(SecurityGroupUpdateModel securityGroupModel)
         {
+            var normalizedName = (securityGroupModel.GroupName ?? "").Trim().ToLower();
+            if (string.IsNullOrWhiteSpace(normalizedName))
+            {
+                throw new InvalidOperationException("Group name is required.");
+            }
+
+            var exists = await _uow.SecurityGroupRepository.Query()
+                .AnyAsync(sg => sg.TenantId == securityGroupModel.TenantId
+                                && sg.GroupName != null
+                                && sg.GroupName == normalizedName);
+            if (exists)
+            {
+                throw new InvalidOperationException("This group already exists.");
+            }
+
             securityGroupModel.CreatedByDateTime = DateTime.Now;
             // Sets the update timestamp to current UTC time
             securityGroupModel.UpdatedByDateTime = DateTime.UtcNow;
@@ -95,6 +112,14 @@ namespace MEligibilityPlatform.Application.Services
         {
             try
             {
+                var isSuperAdminGroup = await _uow.SecurityGroupRepository.Query()
+                    .AnyAsync(sg => sg.GroupId == id && sg.GroupName != null
+                                    && sg.GroupName== SuperAdminGroupName);
+                if (isSuperAdminGroup)
+                {
+                    throw new InvalidOperationException("Super Admin group cannot be deleted.");
+                }
+
                 // Retrieves the security group by ID
                 var item = _uow.SecurityGroupRepository.GetById(id);
                 // Removes the security group from the repository
@@ -116,6 +141,14 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Update(SecurityGroupUpdateModel securityGroupModel)
         {
+            var isSuperAdminGroup = await _uow.SecurityGroupRepository.Query()
+                .AnyAsync(sg => sg.GroupId == securityGroupModel.GroupId && sg.GroupName != null
+                                && sg.GroupName == SuperAdminGroupName);
+            if (isSuperAdminGroup)
+            {
+                throw new InvalidOperationException("Super Admin group cannot be edited.");
+            }
+
             // Retrieves the existing security group by ID
             var item = _uow.SecurityGroupRepository.GetById(securityGroupModel.GroupId);
             // Sets the update timestamp to current UTC time
@@ -141,6 +174,14 @@ namespace MEligibilityPlatform.Application.Services
             // Validates that all provided IDs exist
             foreach (var id in ids)
             {
+                var isSuperAdminGroup = await _uow.SecurityGroupRepository.Query()
+                    .AnyAsync(sg => sg.GroupId == id && sg.GroupName != null
+                                    && sg.GroupName == SuperAdminGroupName);
+                if (isSuperAdminGroup)
+                {
+                    throw new InvalidOperationException("Super Admin group cannot be deleted.");
+                }
+
                 // Checks if the security group exists in the database
                 var hasvalue = await _uow.SecurityGroupRepository.Query().AnyAsync(item => item.GroupId == id);
                 // Throws exception if any ID is not found

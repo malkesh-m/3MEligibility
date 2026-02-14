@@ -646,33 +646,50 @@ export class CardsComponent {
         .some((value: any) => value.toString().toLowerCase().includes(term));
     });
   }
+deleteCard(id: number, cardName: string) {
 
-  deleteCard(id: number,cardName:string) {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the card: "${cardName}"?`
-    );
-    if (confirmDelete) {
-      this.cardService.deleteCard(id).subscribe({
-        next: (response) => {
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
+  const dialogRef = this.dialog.open(DeleteDialogComponent, {
+    data: {
+      title: 'Confirm',
+      message: `Are you sure you want to delete the Eligibility Card: "${cardName}"?`
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (!result?.delete) return;
+
+    this.cardService.deleteCard(id).subscribe({
+      next: (response) => {
+
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+        if (response.isSuccess) {
           this.fetchCards();
           this.fetchRuleList();
           this.closeForm();
-  
-        },
-        error: (error) => {
-          this._snackBar.open(error, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
         }
-      })
-    }
-  }
-    
+
+      },
+      error: (error) => {
+        this._snackBar.open(
+          error?.error?.message || error.message || 'Something went wrong.',
+          'Okay',
+          {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          }
+        );
+      }
+    });
+
+  });
+}
   //parseExpressionToSequence(expression: string): { type: string; value: string }[] {
   //  const sequence: { type: string; value: string }[] = [];
   //  const tokens = expression.split(/\s+/); // Split expression into tokens
