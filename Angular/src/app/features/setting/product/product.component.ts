@@ -4,7 +4,9 @@ import { ProductListComponent } from './product-list/product-list.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
-
+import { Title } from '@angular/platform-browser';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 interface Product {
   productId: number;
   productName: string;
@@ -90,9 +92,19 @@ export class ProductComponent {
     'Details': 2
   };
 
-  constructor(private productService: ProductsService, private PermissionsService: PermissionsService, private cdr: ChangeDetectorRef, private authService: AuthService) { }
+  constructor(
+    private productService: ProductsService,
+    private PermissionsService: PermissionsService,
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private titleService: Title,
+    private location: Location,
+    private router: Router
+  ) { }
 
   ngOnInit() {
+    this.setActiveTabFromUrl();
+
     if (this.activeTab === 'Category') {
       this.fetchCategoriesList();
     } else if (this.activeTab === 'Info') {
@@ -100,6 +112,28 @@ export class ProductComponent {
     } else {
       this.fetchDetailsList();
     }
+    this.updateTitle();
+  }
+
+  setActiveTabFromUrl() {
+    const currentUrl = this.router.url;
+    const tab = this.tabsList.find(t => currentUrl.includes(t.route));
+    if (tab) {
+      this.activeTab = tab.name;
+    }
+  }
+
+  get activeTabTitle(): string {
+    switch (this.activeTab) {
+      case 'Category': return 'Products - Category';
+      case 'Info': return 'Products - Product';
+      case 'Details': return 'Products - Details';
+      default: return 'Products';
+    }
+  }
+
+  updateTitle() {
+    this.titleService.setTitle(this.activeTabTitle + ' - 3M Eligibility');
   }
 
   getAddPermission(): boolean {
@@ -148,6 +182,11 @@ export class ProductComponent {
 
   tabChanged(event: any) {
     this.activeTab = Object.keys(this.tabMapping).find(key => this.tabMapping[key] === event.index) || 'Category';
+    const tab = this.tabsList.find(t => t.name === this.activeTab);
+    if (tab) {
+      this.location.go(tab.route);
+    }
+    this.updateTitle();
     this.searchTerm = this.searchTerms[this.activeTab] || ''; // Load the stored search term
     if (this.activeTab === 'Category') {
       this.fetchCategoriesList();
@@ -166,6 +205,11 @@ export class ProductComponent {
 
   switchTab(tabName: string): void {
     this.activeTab = tabName;
+    const tab = this.tabsList.find(t => t.name === this.activeTab);
+    if (tab) {
+      this.location.go(tab.route);
+    }
+    this.updateTitle();
     this.searchTerm = this.searchTerms[this.activeTab] || ''; // Load the stored search term
     if (this.activeTab === 'Category') {
       this.fetchCategoriesList();
@@ -183,12 +227,12 @@ export class ProductComponent {
   }
 
   fetchCategoriesList(action?: string) {
-    this.isLoading=true;
+    this.isLoading = true;
     this.productService.getCategoriesList().subscribe({
       next: (response) => {
         this.categoriesList = response.data;
         this.applyFilter(action);
-            this.isLoading=false;
+        this.isLoading = false;
 
       },
       error: (error) => {
@@ -198,7 +242,7 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-      this.isLoading=false;
+        this.isLoading = false;
 
       }
     })
@@ -206,7 +250,7 @@ export class ProductComponent {
   }
 
   fetchInfoList(action?: string) {
-        this.isLoading=true;
+    this.isLoading = true;
     this.productService.getInfoList().subscribe({
       next: (response) => {
         this.infoList = response.data.map((product: Product) => {
@@ -217,7 +261,7 @@ export class ProductComponent {
           return product;
         });
         this.applyFilter(action);
-            this.isLoading=false;
+        this.isLoading = false;
 
       },
       error: (error) => {
@@ -227,7 +271,7 @@ export class ProductComponent {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-      this.isLoading=false;
+        this.isLoading = false;
       }
     })
   }

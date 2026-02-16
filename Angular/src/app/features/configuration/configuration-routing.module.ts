@@ -6,11 +6,13 @@ import { ProductCapComponent } from './product-cap/product-cap.component';
 import { ProductCapAmountComponent } from './product-cap-amount/product-cap-amount.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'exception', pathMatch: 'full' },
+  { path: '', redirectTo: 'exception', pathMatch: 'full', data: { title: 'Configuration' } },
   { path: '', component: ConfigurationComponent },
-  { path: 'exception', component: ExceptionConfigComponent },
-  { path: 'Product-Cap', component: ProductCapComponent },
-  { path: 'Product-Cap-Amount', component: ProductCapAmountComponent }
+  { path: 'exception', component: ExceptionConfigComponent, data: { title: 'Exception Configuration' } },
+  {
+    path: 'Product-Cap', component: ProductCapComponent, data: { title: 'Product Cap' }
+  },
+  { path: 'Product-Cap-Amount', component: ProductCapAmountComponent, data: { title: 'Product Cap Amount' } }
 ];
 
 

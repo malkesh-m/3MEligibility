@@ -6,10 +6,10 @@ import { MappingComponent } from './mapping/mapping.component';
 import { permissionGuard } from '../../core/guards/permission/permission.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'integration', pathMatch: 'full' },
+  { path: '', redirectTo: 'integration', pathMatch: 'full', data: { title: 'Connections' } },
   { path: '', component: ConnectionsComponent },
-  { path: 'integration', component: IntegrationComponent,canActivate: [permissionGuard], data: { requiredPermissionId: "Permissions.Integration.View"} },
-  { path: 'mapping', component: MappingComponent,canActivate: [permissionGuard], data: { requiredPermissionId: 6 } }
+  { path: 'integration', component: IntegrationComponent, canActivate: [permissionGuard], data: { requiredPermissionId: "Permissions.Integration.View", title: 'Integration' } },
+  { path: 'mapping', component: MappingComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 6, title: 'Mapping' } }
 ];
 
 

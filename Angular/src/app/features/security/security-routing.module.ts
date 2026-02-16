@@ -8,12 +8,12 @@ import { UserprofileComponent } from './userprofile/userprofile.component';
 import { permissionGuard } from '../../core/guards/permission/permission.guard';
 
 const routes: Routes = [
-  {path: '', redirectTo: 'user', pathMatch: 'full' },
+  { path: '', redirectTo: 'user', pathMatch: 'full', data: { title: 'Security' } },
   { path: '', component: SecurityComponent },
-  { path: 'user', component: UserComponent},
-  { path: 'group', component: GroupComponent},
-  { path: 'permission', component: PermissionComponent},
-  { path: 'userprofile', component: UserprofileComponent }
+  { path: 'user', component: UserComponent, data: { title: 'User Management' } },
+  { path: 'group', component: GroupComponent, data: { title: 'Groups' } },
+  { path: 'permission', component: PermissionComponent, data: { title: 'Permissions' } },
+  { path: 'userprofile', component: UserprofileComponent, data: { title: 'User Profile' } }
 ];
 
 @NgModule({

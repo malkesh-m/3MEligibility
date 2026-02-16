@@ -6,11 +6,13 @@ import { ForgetPasswordComponent } from './forget-password/forget-password.compo
 import { CallbackComponent } from './callback/callback.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full', data: { title: 'Login' } },
   { path: '', component: AuthComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'callback', component: CallbackComponent },  // OAuth callback route
-  { path: 'forgetPassword', component: ForgetPasswordComponent }
+  {
+    path: 'login', component: LoginComponent, data: { title: 'Login' }
+  },
+  { path: 'callback', component: CallbackComponent, data: { title: 'Callback' } },  // OAuth callback route
+  { path: 'forgetPassword', component: ForgetPasswordComponent, data: { title: 'Forget Password' } }
 ];
 
 @NgModule({

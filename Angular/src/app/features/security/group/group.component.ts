@@ -1,4 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { GroupService } from '../../../core/services/security/group.service';
 import { MatPaginator } from '@angular/material/paginator';
@@ -12,7 +15,7 @@ import { NgForm } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserprogileService } from '../../../core/services/security/userprofile.service';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
-import { Rank } from '../../../core/enum/rank.enum'; 
+import { Rank } from '../../../core/enum/rank.enum';
 export interface GroupRecord {
   groupId: number | null;
   groupName: string;
@@ -24,12 +27,12 @@ export interface AssignedUserRecord {
   id: number | null;
   groupId: number | null;
   userName: string;
-  loginId:number;
+  loginId: number;
   email: string;
-  entityName:string;
+  entityName: string;
 }
 
-export interface UserRecord{
+export interface UserRecord {
   id: number | null;
   firstName: string;
   lastName: string;
@@ -54,7 +57,7 @@ export interface requestBody {
   templateUrl: './group.component.html',
   styleUrl: './group.component.scss'
 })
-export class GroupComponent implements OnInit,AfterViewInit {
+export class GroupComponent implements OnInit, AfterViewInit {
   private readonly superAdminGroupName = 'Super Admin';
   private readonly adminGroupName = 'Admin';
   private readonly userGroupName = 'User';
@@ -68,7 +71,7 @@ export class GroupComponent implements OnInit,AfterViewInit {
   isEditMode = false;
   displayedColumns: string[] = ['groupName', 'groupDesc', 'actions'];
   assignedUserColumns: string[] = ['userName', 'email', 'mobileNo', 'actions'];
-Rank: any = Rank;
+  Rank: any = Rank;
   records: GroupRecord[] = [];
   userRecords: UserRecord[] = [];
   assignedUserData: AssignedUserRecord[] = [];
@@ -105,13 +108,38 @@ Rank: any = Rank;
     private PermissionsService: PermissionsService,
     private authService: AuthService,
     private userprofileService: UserprogileService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private titleService: Title,
+    private location: Location,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+      }
+    });
     this.fetchGroupList();
     this.fetchUsersList();
     this.loadCurrentUserGroups();
+    this.updateTitle();
+  }
+
+  get activeTabTitle(): string {
+    switch (this.activeTab) {
+      case 'group':
+        return 'Group - Groups';
+      case 'assignedUser':
+        return 'Group - Assigned User';
+      default:
+        return 'Group - Groups';
+    }
+  }
+
+  updateTitle() {
+    this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
   }
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
@@ -383,9 +411,9 @@ Rank: any = Rank;
       this.formData = {
         groupId: 0,
         groupName: '',
-        groupDesc:''
+        groupDesc: ''
       };
-    }else {
+    } else {
       this.UnassignedUser = true;
       this.isEditMode = false;
     }
@@ -444,7 +472,7 @@ Rank: any = Rank;
         return;
       }
 
-      if(this.selectedGroupName === null){
+      if (this.selectedGroupName === null) {
         this._snackBar.open('Please select Group', 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
@@ -479,7 +507,7 @@ Rank: any = Rank;
     this.filteredGroupNames = [];
   }
 
-  trackByUserId(index:number,group:any): number {
+  trackByUserId(index: number, group: any): number {
     return group.userId;
   }
 
@@ -512,7 +540,7 @@ Rank: any = Rank;
     this.filteredGroupNames = []; // Clear filtered list
     this.userRecords.forEach(user => user.selected = false); // Reset selected state
     this.isEditMode = false;
-    this.UnassignedUser=false;
+    this.UnassignedUser = false;
   }
 
   editRecord(record: GroupRecord) {
@@ -641,7 +669,7 @@ Rank: any = Rank;
             return;
           }
           console.log('Deleting assigned user record:', record);
-          this.groupService.deleteAssignedUser(record.id,record.groupId).subscribe({
+          this.groupService.deleteAssignedUser(record.id, record.groupId).subscribe({
             next: (deleteResponse) => {
               if (deleteResponse.isSuccess) {
                 this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
@@ -706,8 +734,8 @@ Rank: any = Rank;
     this.groupService.getAssignedUserbyId(parseInt(groupId)).subscribe({
       next: (response) => {
         this.assignedUserDataSource.data = response.data.map((item: any) => ({
-          id:item.userId,
-          groupId:item.groupId,
+          id: item.userId,
+          groupId: item.groupId,
           displayName: item.userName,
           loginId: item.loginId,
           email: item.email,
@@ -715,10 +743,10 @@ Rank: any = Rank;
           mobileNo: item.mobileNo
         }));
         this.assignedUserData = this.assignedUserDataSource.data;
-        if(this.assignedUserDataSource.data.length === 0){
+        if (this.assignedUserDataSource.data.length === 0) {
           this.recordMessage = "No User Assigned to this group";
         }
-     
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -806,16 +834,24 @@ Rank: any = Rank;
       this.assignedUserDataSource.filter = filterValue;
       this.assignedUserDataSource.paginator = this.paginator;
       this.assignedUserDataSource.sort = this.sort;
-    } 
+    }
   }
 
   switchTab(tab: string): void {
     this.activeTab = tab;
+    const urlTree = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge'
+    });
+    this.location.go(urlTree.toString());
+    this.updateTitle();
+
     if (tab === 'group') {
       this.fetchGroupList();
     }
     if (tab === 'assignedUser') {
-      if(this.selectedGroupName!){
+      if (this.selectedGroupName!) {
         this.fetchAssignedUserbyId(this.selectedGroupName!);
       }
     }

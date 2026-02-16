@@ -1,4 +1,7 @@
 import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { IntegrationService } from '../../../core/services/connections/integration.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,7 +14,7 @@ import { DeleteDialogComponent } from '../../../core/components/delete-dialog/de
 import { FactorsService } from '../../../core/services/setting/factors.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
-import { HttpClient, HttpHeaders }  from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UtilityService } from '../../../core/services/utility/utils';
 export interface NodeRecord {
@@ -35,11 +38,11 @@ export interface APIRecord {
   binaryXml: string,
   xmlfileName: string,
   header: string
-  requestParameters: string ,
+  requestParameters: string,
   requestBody: string,
   responseFormate: string,
   isActive: boolean | false;
-  executionOrder: number |null;
+  executionOrder: number | null;
 
 }
 export interface ApiParameterRecord {
@@ -111,6 +114,22 @@ export class IntegrationComponent implements OnInit {
   NodeAPIDetailsVisible = false;
   isEditMode = false;
   activeTab: string = 'nodes';
+
+  get activeTabTitle(): string {
+    switch (this.activeTab) {
+      case 'nodes': return 'Integration - Nodes';
+      case 'api': return 'Integration - API';
+      case 'addParameters': return 'Integration - API Parameters';
+      case 'mapApiParams': return 'Integration - Map API Parameters';
+      case 'testApi': return 'Integration - Test API';
+      default: return 'Integration';
+    }
+  }
+
+  updateTitle() {
+    this.titleService.setTitle(this.activeTabTitle + ' - 3M Eligibility');
+  }
+
   nodeformData: NodeRecord = {
     nodeId: 0,
     nodeName: '',
@@ -135,7 +154,7 @@ export class IntegrationComponent implements OnInit {
     requestBody: '',
     responseFormate: '',
     isActive: false,
-    executionOrder:null
+    executionOrder: null
   };
   nodeAPIDetailsformData: APIDetailsRecord = {
     apidetailsId: 0,
@@ -164,17 +183,17 @@ export class IntegrationComponent implements OnInit {
   apiDetailsrecords: APIDetailsRecord[] = [];
   apiDetailsDataSource = new MatTableDataSource<APIDetailsRecord>(this.apiDetailsrecords);
   displayedNodeColumns: string[] = ['select', 'code', 'nodeName', 'nodeDesc', 'Actions'];
-  displayedAPIColumns: string[] = ['select', 'nodeName', 'apiname', 'apidesc', 'httpMethodType', 'executionOrder','isActive', 'Actions'];
+  displayedAPIColumns: string[] = ['select', 'nodeName', 'apiname', 'apidesc', 'httpMethodType', 'executionOrder', 'isActive', 'Actions'];
   displayedAPIDetailColumns: string[] = ['select', 'API', 'Parameter', 'DataType', 'From API', 'Actions'];
   displayedAPIParamsColumns: string[] = ['select',
     'apiName',
     'parameterDirection',
     'parameterName',
     'parameterType',
-    
+
     'Actions'
   ];
-  displayedMappingColumns: string[] = [ 'apiParameterName', 'parameterName', 'actions'];
+  displayedMappingColumns: string[] = ['apiParameterName', 'parameterName', 'actions'];
   addParameterVisible = false;
 
   apiParameterMappingsDataSource!: MatTableDataSource<any>;
@@ -215,10 +234,10 @@ export class IntegrationComponent implements OnInit {
   isLoadingTestApi = false;
   showMappingSection = false;
   apiParameterMappings: any[] = [];
-isLoading: boolean = false;
-isDownloading: boolean = false;
-isUploading: boolean = false;
-message: string = "Loading data, please wait...";
+  isLoading: boolean = false;
+  isDownloading: boolean = false;
+  isUploading: boolean = false;
+  message: string = "Loading data, please wait...";
 
   loadApiParameterMappings() {
     this.isLoading = true;
@@ -227,9 +246,9 @@ message: string = "Loading data, please wait...";
         this.apiParameterMappings = res.data || res; // store all mappings
         if (this.selectedApi) {
           this.applyApiFilter(); // filter if an API is selected
-          
+
         }
-            this.isLoading = false;
+        this.isLoading = false;
 
       },
       error: (err) => {
@@ -238,65 +257,65 @@ message: string = "Loading data, please wait...";
       }
     });
   }
-deleteMapping(id: number): void {
+  deleteMapping(id: number): void {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: 'Are you sure you want to delete this mapping?'
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.integrationService.deleteMapping(id).subscribe({
-      next: (response: any) => {
-
-        // Remove from local array
-        this.apiParameterMappings =
-          this.apiParameterMappings.filter(m => m.id !== id);
-
-        this.apiParameterMappingsDataSource.data =
-          this.apiParameterMappings;
-
-        // Show confirmation
-        this._snackBar.open(
-          response?.message || 'Mapping deleted successfully',
-          'Okay',
-          {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          }
-        );
-
-        this.isEditMode = false;
-        this.selectedApi = null;
-
-        // Refresh API parameters & mappings
-        this.onApiChange();
-      },
-      error: (err) => {
-
-        console.error('Error deleting mapping:', err);
-
-        const message =
-          err?.error?.message ||
-          err?.message ||
-          'Failed to delete mapping.';
-
-        this._snackBar.open(message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm',
+        message: 'Are you sure you want to delete this mapping?'
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.integrationService.deleteMapping(id).subscribe({
+        next: (response: any) => {
+
+          // Remove from local array
+          this.apiParameterMappings =
+            this.apiParameterMappings.filter(m => m.id !== id);
+
+          this.apiParameterMappingsDataSource.data =
+            this.apiParameterMappings;
+
+          // Show confirmation
+          this._snackBar.open(
+            response?.message || 'Mapping deleted successfully',
+            'Okay',
+            {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            }
+          );
+
+          this.isEditMode = false;
+          this.selectedApi = null;
+
+          // Refresh API parameters & mappings
+          this.onApiChange();
+        },
+        error: (err) => {
+
+          console.error('Error deleting mapping:', err);
+
+          const message =
+            err?.error?.message ||
+            err?.message ||
+            'Failed to delete mapping.';
+
+          this._snackBar.open(message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+        }
+      });
+
+    });
+  }
 
   selectedMappingId: number | null = null;
 
@@ -307,7 +326,7 @@ deleteMapping(id: number): void {
     }
 
     const mapping = {
-      id: this.selectedMappingId??0, // important for update
+      id: this.selectedMappingId ?? 0, // important for update
       apiId: this.selectedApi, // include api id
       apiParameterId: this.selectedApiParameterId,
       parameterId: this.selectedInternalParameterId
@@ -335,7 +354,7 @@ deleteMapping(id: number): void {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           }),
-          this.resetMappingForm();
+            this.resetMappingForm();
           this.onApiChange();
         },
         error: (err) => alert('Error saving mapping: ' + err.message)
@@ -380,48 +399,48 @@ deleteMapping(id: number): void {
   apiParameterMap: { [key: number]: string } = {};
 
   onApiChange() {
-  if (!this.selectedApi) {
-    this.apiParameters = [];
-    this.apiParameterMappings = [];
-    return;
+    if (!this.selectedApi) {
+      this.apiParameters = [];
+      this.apiParameterMappings = [];
+      return;
+    }
+
+    // Load API parameters for the dropdown
+    this.integrationService.getAllApiParameters(this.selectedApi).subscribe({
+      next: (res) => {
+        this.apiParameters = res.data || res; // store parameters
+      },
+      error: (err) => {
+        console.error('Error loading API parameters:', err);
+      }
+    });
+
+    // Load API parameter mappings for this API
+    this.integrationService.getApiParamsByApiId(this.selectedApi).subscribe({
+      next: (res) => {
+        // Add apiId to each mapping so editMapping works correctly
+        this.apiParameterMappings = (res.data || res).map((row: ApiParameterRecord) => ({
+          ...row,
+          apiId: this.selectedApi
+        }));
+
+        this.apiParameterMappingsDataSource = new MatTableDataSource(this.apiParameterMappings);
+
+        setTimeout(() => {
+          this.apiParameterMappingsDataSource.paginator = this.paginator;
+          this.apiParameterMappingsDataSource.sort = this.sort;
+        });
+      },
+      error: (err) => {
+        console.error(err);
+        this._snackBar.open(err.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top', duration: 3000,
+        }); this.selectedRows.clear();
+
+      }
+    });
   }
-
-  // Load API parameters for the dropdown
-  this.integrationService.getAllApiParameters(this.selectedApi).subscribe({
-    next: (res) => {
-      this.apiParameters = res.data || res; // store parameters
-    },
-    error: (err) => {
-      console.error('Error loading API parameters:', err);
-    }
-  });
-
-  // Load API parameter mappings for this API
-  this.integrationService.getApiParamsByApiId(this.selectedApi).subscribe({
-    next: (res) => {
-      // Add apiId to each mapping so editMapping works correctly
-      this.apiParameterMappings = (res.data || res).map((row: ApiParameterRecord) => ({
-        ...row,
-        apiId: this.selectedApi
-      }));
-
-      this.apiParameterMappingsDataSource = new MatTableDataSource(this.apiParameterMappings);
-
-      setTimeout(() => {
-        this.apiParameterMappingsDataSource.paginator = this.paginator;
-        this.apiParameterMappingsDataSource.sort = this.sort;
-      });
-    },
-    error: (err) => {
-      console.error(err);
-      this._snackBar.open(err.message, 'Okay', {
-        horizontalPosition: 'right',
-        verticalPosition: 'top', duration: 3000,
-      }); this.selectedRows.clear();
-
-    }
-  });
-}
   sanitizeCode(event: any) {
     event.target.value = this.utilityService.sanitizeCode(event.target.value);
   }
@@ -441,7 +460,20 @@ deleteMapping(id: number): void {
     const param = this.apiParameters.find(p => p.apiParameterId === apiParameterId);
     return param ? param.parameterName : apiParameterId;
   }
-  constructor(private integrationService: IntegrationService, private fb: FormBuilder, private PermissionsService: PermissionsService, private parameterService: ParameterService, private dialog: MatDialog, private factorsService: FactorsService, private http: HttpClient, private utilityService: UtilityService) {
+  constructor(
+    private integrationService: IntegrationService,
+    private fb: FormBuilder,
+    private PermissionsService: PermissionsService,
+    private parameterService: ParameterService,
+    private dialog: MatDialog,
+    private factorsService: FactorsService,
+    private http: HttpClient,
+    private utilityService: UtilityService,
+    private titleService: Title,
+    private location: Location,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.nodeForm = this.fb.group({
       code: ['', [Validators.required]],
       description: [''],
@@ -464,7 +496,7 @@ deleteMapping(id: number): void {
       requestBody: [''],
       responseFormate: [''],
       isActive: [false],
-      executionOrder: [null, [Validators.required]],  
+      executionOrder: [null, [Validators.required]],
 
 
     });
@@ -624,8 +656,8 @@ deleteMapping(id: number): void {
       }
     });
   }
-  
- // Dynamic API request preparation
+
+  // Dynamic API request preparation
   prepareApiRequest(bodyData: any, queryParams: any, method: string, url: string) {
     let finalPayload = { ...bodyData };
     let finalQueryParams = { ...queryParams };
@@ -678,7 +710,7 @@ deleteMapping(id: number): void {
   getAddPermission(): boolean {
     return (this.activeTab === 'nodes' && this.hasPermission('Permissions.Node.Create')) ||
       (this.activeTab === 'api' && this.hasPermission('Permissions.NodeApi.Create')) ||
-      (this.activeTab === 'apiDetails' && this.hasPermission('Permissions.ApiDetails.Create'))||
+      (this.activeTab === 'apiDetails' && this.hasPermission('Permissions.ApiDetails.Create')) ||
       (this.activeTab === 'addParameters' && this.hasPermission('Permissions.ApiParameters.Create')) || (this.activeTab === 'mapApiParams' && this.hasPermission('Permissions.ApiParameterMaps.Create'));
   }
 
@@ -714,55 +746,55 @@ deleteMapping(id: number): void {
   //    this.apiParameterDataSource.data = [...this.apiParameterRecords];
   //  });
   //}
-onDeleteApiParameter(row: any): void {
+  onDeleteApiParameter(row: any): void {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete parameter: "${row.parameterName}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.integrationService.deleteApiParameter(row.apiParameterId).subscribe({
-      next: (res) => {
-
-        this._snackBar.open(res.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (res.isSuccess) {
-          this.loadApiParameters();   // refresh table
-          this.selectedRows.clear();
-        }
-
-      },
-      error: (err) => {
-
-        console.error('Error deleting API parameter:', err);
-
-        const message =
-          err?.error?.message ||
-          err?.message ||
-          'Failed to delete API parameter.';
-
-        this._snackBar.open(message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        this.selectedRows.clear();
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm',
+        message: `Are you sure you want to delete parameter: "${row.parameterName}"?`
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.integrationService.deleteApiParameter(row.apiParameterId).subscribe({
+        next: (res) => {
+
+          this._snackBar.open(res.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (res.isSuccess) {
+            this.loadApiParameters();   // refresh table
+            this.selectedRows.clear();
+          }
+
+        },
+        error: (err) => {
+
+          console.error('Error deleting API parameter:', err);
+
+          const message =
+            err?.error?.message ||
+            err?.message ||
+            'Failed to delete API parameter.';
+
+          this._snackBar.open(message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          this.selectedRows.clear();
+        }
+      });
+
+    });
+  }
   editApiParameter(row: ApiParameterRecord) {
     this.showApiParameterSection = true; // show the Add/Edit form
     this.isEditMode = true; // mark as edit
@@ -831,14 +863,16 @@ onDeleteApiParameter(row: any): void {
           } else {
             this._snackBar.open(res.message, 'Okay', {
               horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000 });
+              verticalPosition: 'top', duration: 3000
+            });
           }
         },
         error: (err) => {
           console.error(err);
           this._snackBar.open(err.message, 'Okay', {
             horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000 });
+            verticalPosition: 'top', duration: 3000
+          });
 
         }
       });
@@ -859,7 +893,7 @@ onDeleteApiParameter(row: any): void {
             this._snackBar.open('Parameter added successfully', 'Okay', { duration: 3000 });
             this.loadApiParameters();
             this.closeForm();
-// refresh table
+            // refresh table
             this.CancelAddParameter();
           } else {
             this._snackBar.open(res.message, 'Okay', { duration: 3000 });
@@ -870,7 +904,8 @@ onDeleteApiParameter(row: any): void {
           this._snackBar.open(err.message, 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
-          });        }
+          });
+        }
       });
     }
   }
@@ -884,7 +919,7 @@ onDeleteApiParameter(row: any): void {
   selectedApiParameter: string = "";
   originalApiParameterRecords: any[] = [];
   loadApiParameters() {
-        this.isLoading = true;
+    this.isLoading = true;
 
     this.integrationService.getApiParameters().subscribe({
       next: (response) => {
@@ -898,7 +933,7 @@ onDeleteApiParameter(row: any): void {
         this.apiParameterDataSource.data = this.apiParameterRecords;
         this.apiParameterDataSource.paginator = this.paginator;
         this.apiParameterDataSource.sort = this.sort;
-              this.isLoading = false;
+        this.isLoading = false;
 
       },
       error: (err) => {
@@ -919,6 +954,12 @@ onDeleteApiParameter(row: any): void {
     );
   }
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+      }
+    });
+
     this.fetchNodeList();
     this.fetchNodeAPIList();
     this.fetchAPIDetailsList();
@@ -926,7 +967,7 @@ onDeleteApiParameter(row: any): void {
     this.fetchParameterListOnProduct();
     this.loadApiList();
     this.loadApiParameters();
-
+    this.updateTitle();
   }
 
 
@@ -956,7 +997,7 @@ onDeleteApiParameter(row: any): void {
     }
   }
   fetchNodeList() {
-        this.isLoading = true;
+    this.isLoading = true;
 
     this.integrationService.getNodeList().subscribe({
       next: (response) => {
@@ -978,7 +1019,7 @@ onDeleteApiParameter(row: any): void {
           this.nodeDataSource.paginator = this.nodePaginator;
           this.nodeDataSource.sort = this.nodeSort;
         });
-      this.isLoading = false;
+        this.isLoading = false;
 
       },
       error: (error) => {
@@ -989,14 +1030,14 @@ onDeleteApiParameter(row: any): void {
           verticalPosition: 'top',
           duration: 3000,
         });
-      this.isLoading = false;
+        this.isLoading = false;
       },
     });
   }
 
   fetchNodeAPIList() {
-        this.isLoading = true;
-   this.integrationService.getNodeAPIList().subscribe({
+    this.isLoading = true;
+    this.integrationService.getNodeAPIList().subscribe({
       next: (response) => {
         this.nodeAPIDataSource.data = response.data.map((item: any) => {
           const matchedNode = this.noderecords.find(node => node.nodeId === item.nodeId);
@@ -1024,7 +1065,7 @@ onDeleteApiParameter(row: any): void {
           this.nodeAPIDataSource.paginator = this.apiPaginator;
           this.nodeAPIDataSource.sort = this.apiSort;
         });
-      this.isLoading = false;
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error fetching node API list:', error);
@@ -1034,7 +1075,7 @@ onDeleteApiParameter(row: any): void {
           verticalPosition: 'top',
           duration: 3000,
         });
-      this.isLoading = false;
+        this.isLoading = false;
       },
     });
   }
@@ -1218,7 +1259,7 @@ onDeleteApiParameter(row: any): void {
           binaryXml: this.nodeAPIformData.binaryXml,
           xmlfileName: this.nodeAPIformData.xmlfileName,
           header: this.nodeAPIForm.value.header,
-          requestBody: this.nodeAPIForm.value.requestBody??"",
+          requestBody: this.nodeAPIForm.value.requestBody ?? "",
           requestParameters: this.nodeAPIForm.value.requestParameters,
           responseFormate: this.nodeAPIForm.value.responseFormate,
           isActive: this.nodeAPIForm.get('isActive')?.value === true,
@@ -1254,10 +1295,10 @@ onDeleteApiParameter(row: any): void {
             xmlfileName: this.nodeAPIformData.xmlfileName,
             header: this.nodeAPIForm.value.header,
             isActive: this.nodeAPIForm.value.isActive,
-            requestBody: this.nodeAPIForm.value.requestBody??"",
+            requestBody: this.nodeAPIForm.value.requestBody ?? "",
             executionOrder: this.nodeAPIForm.value.executionOrder,
-            requestParameters: this.nodeAPIForm.value.requestParameters??"",
-            responseFormate: this.nodeAPIForm.value.responseFormate??"",
+            requestParameters: this.nodeAPIForm.value.requestParameters ?? "",
+            responseFormate: this.nodeAPIForm.value.responseFormate ?? "",
 
           };
 
@@ -1340,7 +1381,7 @@ onDeleteApiParameter(row: any): void {
     } else if (this.activeTab === 'api') {
       this.NodeAPIVisible = false;
       this.nodeAPIformData = {
-        apiid: 0, apiname: '', apidesc: '', nodeId: 0, httpMethodType: '', binaryXml: '', xmlfileName: '', header: '', requestBody: '', requestParameters: '', responseFormate: '', isActive: false, executionOrder:null
+        apiid: 0, apiname: '', apidesc: '', nodeId: 0, httpMethodType: '', binaryXml: '', xmlfileName: '', header: '', requestBody: '', requestParameters: '', responseFormate: '', isActive: false, executionOrder: null
       };
     } else if (this.activeTab === 'apiDetails') {
       this.NodeAPIDetailsVisible = false;
@@ -1348,7 +1389,7 @@ onDeleteApiParameter(row: any): void {
     }
     else if (this.activeTab === 'addParameters') {
       this.showApiParameterSection = false;
-    this. addParameterVisible = false;
+      this.addParameterVisible = false;
       this.loadApiParameters();
       // Reset API Parameter form
       this.apiParameterForm.reset({
@@ -1366,7 +1407,7 @@ onDeleteApiParameter(row: any): void {
     }
     else if (this.activeTab === 'mapApiParams') {
       // Hide mapping section
-      
+
       this.addParameterVisible = false;
 
       // Reset selected mapping
@@ -1377,7 +1418,7 @@ onDeleteApiParameter(row: any): void {
       this.isEditMode = false;
 
       // Optionally reset the data source
-    //  this.apiParameterMappingsDataSource = new MatTableDataSource([]);
+      //  this.apiParameterMappingsDataSource = new MatTableDataSource([]);
     }
   }
 
@@ -1388,11 +1429,11 @@ onDeleteApiParameter(row: any): void {
     const endIndex = startIndex + this.paginator.pageSize;
     if (this.activeTab === 'nodes') {
       return this.nodeDataSource.filteredData.slice(startIndex, endIndex);
-    } else if(this.activeTab === 'api') {
+    } else if (this.activeTab === 'api') {
       return this.nodeAPIDataSource.filteredData.slice(startIndex, endIndex);
     } else if (this.activeTab === 'addParameters') {
       return this.apiParameterDataSource.filteredData.slice(startIndex, endIndex);
-    } else{
+    } else {
       return this.apiDetailsDataSource.filteredData.slice(startIndex, endIndex);
     }
   }
@@ -1401,11 +1442,11 @@ onDeleteApiParameter(row: any): void {
     const currentPageData = this.getCurrentPageData();
     if (this.activeTab === 'nodes') {
       return currentPageData.every((row: any) => this.selectedRows.has(row.nodeId));
-    } else if(this.activeTab === 'api') {
+    } else if (this.activeTab === 'api') {
       return currentPageData.every((row: any) => this.selectedRows.has(row.apiid));
     } else if (this.activeTab === 'addParameters') {
       return currentPageData.every((row: any) => this.selectedRows.has(row.apiParameterId));
-    } else{
+    } else {
       return currentPageData.every((row: any) => this.selectedRows.has(row.apidetailsId));
     }
   }
@@ -1414,11 +1455,11 @@ onDeleteApiParameter(row: any): void {
     const currentPageData = this.getCurrentPageData();
     if (this.activeTab === 'nodes') {
       return currentPageData.some((row: any) => this.selectedRows.has(row.nodeId)) && !this.isAllPageSelected();
-    } else if(this.activeTab === 'api') {
+    } else if (this.activeTab === 'api') {
       return currentPageData.some((row: any) => this.selectedRows.has(row.apiid)) && !this.isAllPageSelected();
     } else if (this.activeTab === 'addParameters') {
       return currentPageData.some((row: any) => this.selectedRows.has(row.apiParameterId)) && !this.isAllPageSelected();
-    } else{
+    } else {
       return currentPageData.some((row: any) => this.selectedRows.has(row.apidetailsId)) && !this.isAllPageSelected();
     }
   }
@@ -1475,7 +1516,7 @@ onDeleteApiParameter(row: any): void {
         currentPageData.forEach((row: any) => this.selectedRows.delete(row.apiParameterId));
       }
     }
-     else {
+    else {
       if (event.checked) {
         currentPageData.forEach((row: any) => this.selectedRows.add(row.apidetailsId));
       } else {
@@ -1496,38 +1537,38 @@ onDeleteApiParameter(row: any): void {
     this.nodeAPIForm.patchValue({ apiName });
   }
 
-  onNodeSelect(data: any) : void {
+  onNodeSelect(data: any): void {
     const value = data.target.value;
     this.selectedNodeIds = value;
     const selectedNode = this.noderecords.find(node => node.nodeId == this.selectedNodeIds)
-    if(selectedNode && selectedNode.urlType == "API") {
+    if (selectedNode && selectedNode.urlType == "API") {
       this.isDropdown = false;
       this.nodeAPIformData.apiname = '';
       this.nodeAPIForm.controls['apiName'].setValidators([Validators.required]);
       this.nodeAPIForm.controls['apiid'].clearValidators();
     }
-    else if(selectedNode && selectedNode.urlType == "Soap") {
+    else if (selectedNode && selectedNode.urlType == "Soap") {
       this.fetchSoapAPIList(selectedNode!.nodeId);
       this.isDropdown = true;
       this.nodeAPIformData.apiname = null;
       this.nodeAPIForm.controls['apiName'].setValidators([Validators.required]);
       // this.nodeAPIForm.controls['apiid'].setValidators([Validators.required]);
       // this.nodeAPIForm.controls['apiName'].clearValidators();
-    }else{
+    } else {
       this.isDropdown = false;
     }
     this.nodeAPIForm.controls['apiName'].updateValueAndValidity();
     this.nodeAPIForm.controls['apiid'].updateValueAndValidity();
-    if(this.activeTab === 'api'){
-    // this.nodeAPIs = [{
-    //   apiId:12,
-    //   apiName: "abc"
-    // },
-    // {
-    //   apiId:13,
-    //   apiName: "xyz"
-    // }]
-  }
+    if (this.activeTab === 'api') {
+      // this.nodeAPIs = [{
+      //   apiId:12,
+      //   apiName: "abc"
+      // },
+      // {
+      //   apiId:13,
+      //   apiName: "xyz"
+      // }]
+    }
   }
 
   fetchSoapAPIList(nodeId: number | null): void {
@@ -1538,7 +1579,7 @@ onDeleteApiParameter(row: any): void {
           const matchingApi = this.nodeAPIformData.apiname = this.nodeAPIs.find(api => api.name === this.nodeAPIformData.apiname);
           if (matchingApi) {
             this.nodeAPIformData.apiname = matchingApi.name;
-          }else{
+          } else {
             this.nodeAPIformData.apiname = '';
           }
         }
@@ -1554,13 +1595,13 @@ onDeleteApiParameter(row: any): void {
     }
   }
 
-  openFileInput() : void {
+  openFileInput(): void {
     const fileInput: HTMLInputElement | null = document.querySelector('input[type="file"]');
     if (fileInput) {
       fileInput.click();
     }
-  } 
-  
+  }
+
   @HostListener('document:click', ['$event.target'!])
   onClickOutside(targetElement: HTMLElement) {
     const dropdown = document.querySelector('.dropdown-toggle');
@@ -1570,7 +1611,7 @@ onDeleteApiParameter(row: any): void {
       this.closeMenu();
     }
   }
-    
+
   toggleMenu() {
     this.menuVisible = !this.menuVisible;
   }
@@ -1635,19 +1676,19 @@ onDeleteApiParameter(row: any): void {
         isRequired: false,
         defaultValue: ''
       });
-    
-    
-    } else if (this.activeTab === 'mapApiParams') { 
+
+
+    } else if (this.activeTab === 'mapApiParams') {
       // Show mapping section
       this.showMappingSection = true;
-    this.isEditMode = false;
+      this.isEditMode = false;
 
-    // Reset mapping form or related state
-    this.selectedApiParameterId = null;
-    this.selectedInternalParameterId = null;
-    this.loadApiParameterMappings();
-  } 
-  
+      // Reset mapping form or related state
+      this.selectedApiParameterId = null;
+      this.selectedInternalParameterId = null;
+      this.loadApiParameterMappings();
+    }
+
     else {
 
       this.addParameterVisible = false;
@@ -1655,32 +1696,32 @@ onDeleteApiParameter(row: any): void {
 
     }
 
-  
-  } 
 
-  deleteMulSelectedRows(): void {
-    if (this.selectedRows.size === 0) {
-      alert('Please select at least one row to delete');
-      return;
-    }
-
-    const dialogRef = this.dialog.open(DeleteDialogComponent);
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.delete) {
-        if (this.activeTab === 'nodes') {
-          this.performMultipleDeleteNode();
-        } else if (this.activeTab === 'api') {
-          this.performMultipleDeleteAPI();
-        }
-        else if (this.activeTab === 'addParameters') {
-          this.performMultipleDeleteApiParam();
-        } else {
-          this.performMultipleDeleteAPIDetails();
-        }
-      }
-    });
   }
+
+  // deleteMulSelectedRows(): void {
+  //   if (this.selectedRows.size === 0) {
+  //     alert('Please select at least one row to delete');
+  //     return;
+  //   }
+
+  //   const dialogRef = this.dialog.open(DeleteDialogComponent);
+
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (result?.delete) {
+  //       if (this.activeTab === 'nodes') {
+  //         this.performMultipleDeleteNode();
+  //       } else if (this.activeTab === 'api') {
+  //         this.performMultipleDeleteAPI();
+  //       }
+  //       else if (this.activeTab === 'addParameters') {
+  //         this.performMultipleDeleteApiParam();
+  //       } else {
+  //         this.performMultipleDeleteAPIDetails();
+  //       }
+  //     }
+  //   });
+  // }
 
 
   performMultipleDeleteNode(): void {
@@ -1762,9 +1803,40 @@ onDeleteApiParameter(row: any): void {
       },
     });
   }
-
   showMappingForm: boolean = false;
   currentMappingId: number | null = null;
+  deleteMulSelectedRows() {
+    if (this.selectedRows.size === 0) {
+      this._snackBar.open('Please select at least one record to delete.', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete ${this.selectedRows.size} record(s)?`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.delete) {
+        // Determine which delete API to call based on active tab
+        if (this.activeTab === 'nodes') {
+          Array.from(this.selectedRows).forEach(id => {
+            this.integrationService.deleteNode(id).subscribe({
+              next: () => this.fetchNodeList(),
+              error: (err) => console.error(err)
+            });
+          });
+        } else if (this.activeTab === 'api') {
+          this.performMultipleDeleteAPI();
+        } else if (this.activeTab === 'apiDetails') {
+          this.performMultipleDeleteAPIDetails();
+        }
+        this.selectedRows.clear();
+      }
+    });
+  }
 
   switchTab(tab: string): void {
     // Reset all visibility flags
@@ -1782,6 +1854,14 @@ onDeleteApiParameter(row: any): void {
     this.selectedRows.clear();
     this.activeTab = tab;
 
+    const urlTree = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge'
+    });
+    this.location.go(urlTree.toString());
+    this.updateTitle();
+
     // Tab-specific logic
     if (this.activeTab === 'nodes') {
       this.fetchNodeList();
@@ -1794,7 +1874,7 @@ onDeleteApiParameter(row: any): void {
       this.showMappingForm = false;    // But hide the form initially
       this.loadApiParameterMappings();
       this.apiParameterForm.reset();
-      this.selectedApi=null;
+      this.selectedApi = null;
       this.resetMappingForm();
     } else if (tab === 'testApi') {
       this.testQuery = '';
@@ -1859,105 +1939,105 @@ onDeleteApiParameter(row: any): void {
     this.apidetailsForm.patchValue(this.nodeAPIDetailsformData);
   }
 
- deleteNode(record: NodeRecord): void {
+  deleteNode(record: NodeRecord): void {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete Node: "${record.nodeName}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.integrationService.deleteNode(Number(record.nodeId)).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.fetchNodeList();
-        }
-
-        this.closeForm();
-        this.selectedRows.clear();
-
-      },
-      error: (error) => {
-
-        const message =
-          error?.error?.message ||
-          error?.message ||
-          'Failed to delete node.';
-
-        this._snackBar.open(message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        this.selectedRows.clear();
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm',
+        message: `Are you sure you want to delete Node: "${record.nodeName}"?`
       }
     });
 
-  });
-}
-  
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.integrationService.deleteNode(Number(record.nodeId)).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.fetchNodeList();
+          }
+
+          this.closeForm();
+          this.selectedRows.clear();
+
+        },
+        error: (error) => {
+
+          const message =
+            error?.error?.message ||
+            error?.message ||
+            'Failed to delete node.';
+
+          this._snackBar.open(message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          this.selectedRows.clear();
+        }
+      });
+
+    });
+  }
+
   deleteNodeAPI(record: APIRecord): void {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete Node API: "${record.apiname}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.integrationService.deleteNodeAPI(Number(record.apiid)).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.fetchNodeAPIList();
-        }
-
-        this.closeForm();
-        this.selectedRows.clear();
-
-      },
-      error: (error) => {
-
-        const message =
-          error?.error?.message ||
-          error?.message ||
-          'Failed to delete Node API.';
-
-        this._snackBar.open(message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        this.selectedRows.clear();
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm',
+        message: `Are you sure you want to delete Node API: "${record.apiname}"?`
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.integrationService.deleteNodeAPI(Number(record.apiid)).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.fetchNodeAPIList();
+          }
+
+          this.closeForm();
+          this.selectedRows.clear();
+
+        },
+        error: (error) => {
+
+          const message =
+            error?.error?.message ||
+            error?.message ||
+            'Failed to delete Node API.';
+
+          this._snackBar.open(message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          this.selectedRows.clear();
+        }
+      });
+
+    });
+  }
   deleteNodeDetails(record: APIDetailsRecord) {
     if (confirm(`Are you sure you want to delete Node Api Details: "${record.callingParamName}"?`)) {
       this.integrationService.deleteNodeDetails(Number(record.apidetailsId)).subscribe({
@@ -1984,7 +2064,7 @@ onDeleteApiParameter(row: any): void {
       });
     }
   }
-  
+
   onFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
 

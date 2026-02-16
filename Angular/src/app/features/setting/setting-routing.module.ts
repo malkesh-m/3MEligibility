@@ -25,43 +25,43 @@ import { LogsComponent } from './Audit/logs/logs.component';
 import { ParameterBindingComponent } from './parameter-binding/parameter-binding.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full', data: { title: 'Dashboard' } },
   { path: '', component: SettingComponent },
-  { path: 'entity', component: EntityComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 9 } },
-  { path: 'factors', component: FactorsComponent/*, canActivate: [permissionGuard], data: { requiredPermissionId: 8 } */ },
-  { path: 'parameters', component: ParametersComponent /*, canActivate: [permissionGuard], data: { requiredPermissionId: 10 }*/ },
-  { path: 'lists', component: ListsComponent },
+  { path: 'entity', component: EntityComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 9, title: 'Entity' } },
+  { path: 'factors', component: FactorsComponent/*, canActivate: [permissionGuard], data: { requiredPermissionId: 8 } */, data: { title: 'Factors' } },
+  { path: 'parameters', component: ParametersComponent /*, canActivate: [permissionGuard], data: { requiredPermissionId: 10 }*/, data: { title: 'Parameters' } },
+  { path: 'lists', component: ListsComponent, data: { title: 'Managed Lists' } },
 
   {
-    path: 'products', component: ProductComponent,
+    path: 'products', component: ProductComponent, data: { title: 'Products' },
 
     children: [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
-      { path: 'list', component: ProductListComponent },
-      { path: 'info', component: ProductListComponent },
+      { path: 'list', component: ProductListComponent, data: { title: 'Products' } },
+      { path: 'info', component: ProductListComponent, data: { title: 'Product Info' } },
       { path: 'details', component: ProductListComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 51 } },
     ],
   },
-  { path: 'rules', component: RulesComponent },
-  { path: 'product-cards', component: ProductCardsComponent },
-  { path: 'cards', component: CardsComponent },
-  { path: 'parameter-binding', component: ParameterBindingComponent },
+  { path: 'rules', component: RulesComponent, data: { title: 'Rules' } },
+  { path: 'product-cards', component: ProductCardsComponent, data: { title: 'Product Cards' } },
+  { path: 'cards', component: CardsComponent, data: { title: 'Eligibility Cards' } },
+  { path: 'parameter-binding', component: ParameterBindingComponent, data: { title: 'Parameter Binding' } },
 
-  { path: 'checker', component: MakerCheckerComponent },
-  { path: 'history', component: MakerCheckerHistoryComponent },
-  { path: 'maker-checker-config', component: MakerCheckerConfigComponent },
-  { path: 'bulk-import', component: BulkImportComponent },
-  { path: 'exception', component: ExceptionManagementComponent },
+  { path: 'checker', component: MakerCheckerComponent, data: { title: 'Maker Checker' } },
+  { path: 'history', component: MakerCheckerHistoryComponent, data: { title: 'Maker Checker History' } },
+  { path: 'maker-checker-config', component: MakerCheckerConfigComponent, data: { title: 'Maker Checker Config' } },
+  { path: 'bulk-import', component: BulkImportComponent, data: { title: 'Bulk Import' } },
+  { path: 'exception', component: ExceptionManagementComponent, data: { title: 'Exception Management' } },
   { path: 'unauthorized', component: UnauthorizedComponent }, // Unauthorized Page Route
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'audit-log', component: AuditLogComponent },
-  { path: 'log', component: LogsComponent },
+  { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
+  { path: 'audit-log', component: AuditLogComponent, data: { title: 'Audit Log' } },
+  { path: 'log', component: LogsComponent, data: { title: 'Logs' } },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class SettingRoutingModule { }   
+export class SettingRoutingModule { }
 
 

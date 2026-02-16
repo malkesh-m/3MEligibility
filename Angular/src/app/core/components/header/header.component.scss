@@ -41,6 +41,13 @@ button mat-icon:last-child {
 }
 
 /* Toolbar Styles */
+.page-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: white;
+}
+
 .toolbar {
     display: flex;
     align-items: center;
@@ -55,7 +62,7 @@ button mat-icon:last-child {
 .search-bar {
     flex: 1;
     /* Pushes icons to the right */
-     margin-top: 20px;
+    margin-top: 20px;
 }
 
 .search-field {
@@ -162,30 +169,30 @@ button mat-icon:last-child {
     /* Optional */
     height: 40px;
     margin-top: 11px;
-  }
+}
 
-  .search-input {
+.search-input {
     border: none;
     outline: none;
     flex: 1;
     font-size: 1rem;
     padding: 5px 10px;
-  }
-  
-  .search-input::placeholder {
+}
+
+.search-input::placeholder {
     color: #aaa;
     /* Optional placeholder styling */
-  }
-  
-  .search-icon {
+}
+
+.search-icon {
     margin-left: 10px;
     display: flex;
     align-items: center;
     color: #666;
     /* Optional icon color */
-  }
-  
-  .search-container:focus-within {
+}
+
+.search-container:focus-within {
     border-color: #007bff;
     /* Highlight border on focus */
-  }
+}

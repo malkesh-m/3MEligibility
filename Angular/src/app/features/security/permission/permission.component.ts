@@ -1,4 +1,7 @@
 import { Component, inject, OnInit, ViewChild } from "@angular/core";
+import { Title } from "@angular/platform-browser";
+import { Location } from "@angular/common";
+import { ActivatedRoute, Router } from "@angular/router";
 import { PermissionService } from "../../../core/services/security/permission.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatTableDataSource } from "@angular/material/table";
@@ -8,16 +11,16 @@ import { MatPaginator } from "@angular/material/paginator";
 import { PermissionsService } from "../../../core/services/setting/permission.service";
 
 export interface GroupRecord {
-    groupId: number | null;
-    groupName: string;
-    groupDesc: string;
+  groupId: number | null;
+  groupName: string;
+  groupDesc: string;
 }
 
 export interface PermissionRecord {
-    permissionId: number;
-    groupId: number;
-    permissionAction: string;
-    selected: boolean;
+  permissionId: number;
+  groupId: number;
+  permissionAction: string;
+  selected: boolean;
 }
 @Component({
   selector: 'app-permission',
@@ -56,7 +59,14 @@ export class PermissionComponent implements OnInit {
   message: string = "Loading data, please wait...";
   isUploading: boolean = false;
   isDownloading: boolean = false;
-  constructor(private permissionService: PermissionService, private PermissionsService: PermissionsService) { }
+  constructor(
+    private permissionService: PermissionService,
+    private PermissionsService: PermissionsService,
+    private titleService: Title,
+    private location: Location,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
 
   private readonly moduleOrder: string[] = [
     'Dashboard',
@@ -71,8 +81,30 @@ export class PermissionComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+      }
+    });
+
     this.combinedColumns = ['select', ...this.displayedColumns];
     this.fetchGroupList();
+    this.updateTitle();
+  }
+
+  get activeTabTitle(): string {
+    switch (this.activeTab) {
+      case 'AssignedPermissions':
+        return 'Assigned Permissions';
+      case 'AvailablePermissions':
+        return 'Available Permissions';
+      default:
+        return 'Permissions';
+    }
+  }
+
+  updateTitle() {
+    this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
   }
 
   hasPermission(permissionId: string): boolean {
@@ -81,6 +113,14 @@ export class PermissionComponent implements OnInit {
 
   switchTab(tab: string): void {
     this.activeTab = tab;
+    const urlTree = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge'
+    });
+    this.location.go(urlTree.toString());
+    this.updateTitle();
+
     if (this.selectedGroupId !== null) {
       if (tab === 'AssignedPermissions') {
         this.getAssignedPermissionsByGroupId(this.selectedGroupId!);
@@ -180,139 +220,140 @@ export class PermissionComponent implements OnInit {
           verticalPosition: 'top', duration: 3000,
         });
       }
-    })};
+    })
+  };
 
-     
-    
 
-    getUnAssignedPermissionsByGroupId(groupId: number) {
-      this.isLoading = true;
-        this.permissionService.getUnAssignedPermissionsByGroupId(groupId).subscribe({
-            next: (response) => {
-                this.permissionUnassignedDataSource.data = response.data.map((item: any) => ({
-                    permissionId: item.permissionId,
-                    groupId: item.groupId,
-                    permissionAction: item.permissionAction
-                }))
-                .sort((a:any, b:any) => this.comparePermissions(a.permissionAction, b.permissionAction));
-                this.permissionUnassignedDataSource.paginator = this.paginator;
-                this.permissionUnassignedDataSource.sort = this.sort;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                this.permissionAssignedDataSource.data = [];
-                this.permissionUnassignedDataSource.data = [];
-                this._snackBar.open(error.message, 'Okay', {
-                    horizontalPosition: 'right',
-                    verticalPosition: 'top', duration: 3000,
-                });
-                this.isLoading = false;
-            },
+
+
+  getUnAssignedPermissionsByGroupId(groupId: number) {
+    this.isLoading = true;
+    this.permissionService.getUnAssignedPermissionsByGroupId(groupId).subscribe({
+      next: (response) => {
+        this.permissionUnassignedDataSource.data = response.data.map((item: any) => ({
+          permissionId: item.permissionId,
+          groupId: item.groupId,
+          permissionAction: item.permissionAction
+        }))
+          .sort((a: any, b: any) => this.comparePermissions(a.permissionAction, b.permissionAction));
+        this.permissionUnassignedDataSource.paginator = this.paginator;
+        this.permissionUnassignedDataSource.sort = this.sort;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.permissionAssignedDataSource.data = [];
+        this.permissionUnassignedDataSource.data = [];
+        this._snackBar.open(error.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top', duration: 3000,
         });
-    }
+        this.isLoading = false;
+      },
+    });
+  }
 
-    getAssignedPermissionsByGroupId(groupId: number) {
-      this.isLoading = true;
-        this.permissionService.getAssignedPermissionsByGroupId(groupId).subscribe({
-            next: (response) => {
-                this.permissionAssignedDataSource.data = response.data.map((item: any) => ({
-                    permissionId: item.permissionId,
-                    groupId: item.groupId,
-                    permissionAction: item.permissionAction
-                }))
-                .sort((a:any, b:any) => this.comparePermissions(a.permissionAction, b.permissionAction));
-                this.permissionAssignedDataSource.paginator = this.paginator;
-                this.permissionAssignedDataSource.sort = this.sort;
-                this.isLoading = false;
-            },
-            error: (error) => {
-                this.permissionAssignedDataSource.data = []; 
-                this.permissionUnassignedDataSource.data = [];
+  getAssignedPermissionsByGroupId(groupId: number) {
+    this.isLoading = true;
+    this.permissionService.getAssignedPermissionsByGroupId(groupId).subscribe({
+      next: (response) => {
+        this.permissionAssignedDataSource.data = response.data.map((item: any) => ({
+          permissionId: item.permissionId,
+          groupId: item.groupId,
+          permissionAction: item.permissionAction
+        }))
+          .sort((a: any, b: any) => this.comparePermissions(a.permissionAction, b.permissionAction));
+        this.permissionAssignedDataSource.paginator = this.paginator;
+        this.permissionAssignedDataSource.sort = this.sort;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.permissionAssignedDataSource.data = [];
+        this.permissionUnassignedDataSource.data = [];
 
-                this._snackBar.open(error.message, 'Okay', {
-                    horizontalPosition: 'right',
-                    verticalPosition: 'top', duration: 3000,
-                });
-                this.isLoading = false;
-            },
+        this._snackBar.open(error.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top', duration: 3000,
         });
-    }
+        this.isLoading = false;
+      },
+    });
+  }
 
-    onCheckboxChange(entity: PermissionRecord): void {
-        if (entity.selected) {
-            this.selectedPermissionIds.push(entity.permissionId);
-        } else {
-            this.selectedPermissionIds = this.selectedPermissionIds.filter(id => id !== entity.permissionId);
-        }
+  onCheckboxChange(entity: PermissionRecord): void {
+    if (entity.selected) {
+      this.selectedPermissionIds.push(entity.permissionId);
+    } else {
+      this.selectedPermissionIds = this.selectedPermissionIds.filter(id => id !== entity.permissionId);
     }
+  }
 
   applyFilter(event: Event) {
-        const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-        if (this.activeTab === 'AvailablePermissions') {
-            this.permissionUnassignedDataSource.filter = filterValue;
-            this.permissionUnassignedDataSource.paginator = this.paginator;
-            this.permissionUnassignedDataSource.sort = this.sort;
-        }
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    if (this.activeTab === 'AvailablePermissions') {
+      this.permissionUnassignedDataSource.filter = filterValue;
+      this.permissionUnassignedDataSource.paginator = this.paginator;
+      this.permissionUnassignedDataSource.sort = this.sort;
     }
+  }
 
-    formatPermissionAction(action: string): string {
-        if (!action) {
-            return '';
-        }
-        const withoutPrefix = action.replace(/^Permissions\./i, '');
-        const parts = withoutPrefix.split('.');
-        const resource = parts.shift() ?? withoutPrefix;
-        const resourceLabel = this.normalizeModuleName(resource);
-        if (parts.length === 0) {
-            return resourceLabel;
-        }
-        const actionLabel = parts.map(p => this.toTitleWords(p)).join(' ');
-        return `${resourceLabel}: ${actionLabel}`;
+  formatPermissionAction(action: string): string {
+    if (!action) {
+      return '';
     }
+    const withoutPrefix = action.replace(/^Permissions\./i, '');
+    const parts = withoutPrefix.split('.');
+    const resource = parts.shift() ?? withoutPrefix;
+    const resourceLabel = this.normalizeModuleName(resource);
+    if (parts.length === 0) {
+      return resourceLabel;
+    }
+    const actionLabel = parts.map(p => this.toTitleWords(p)).join(' ');
+    return `${resourceLabel}: ${actionLabel}`;
+  }
 
-    private toTitleWords(value: string): string {
-        return value
-            .replace(/([a-z])([A-Z])/g, '$1 $2')
-            .replace(/_/g, ' ')
-            .trim();
-    }
+  private toTitleWords(value: string): string {
+    return value
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/_/g, ' ')
+      .trim();
+  }
 
-    private normalizeModuleName(value: string): string {
-        const name = this.toTitleWords(value);
-        if (name.toLowerCase() === 'dashboard') return 'Dashboard';
-        if (name.toLowerCase() === 'maker checker') return 'Maker Checker';
-        if (name.toLowerCase() === 'bulk import') return 'Bulk Import';
-        if (name.toLowerCase() === 'product cap amount') return 'Product Cap Amount';
-        if (name.toLowerCase() === 'product cap') return 'Product Cap';
-        if (name.toLowerCase() === 'api parameter maps') return 'API Parameter Maps';
-        if (name.toLowerCase() === 'api parameters') return 'API Parameters';
-        if (name.toLowerCase() === 'api details') return 'API Details';
-        if (name.toLowerCase() === 'pcard') return 'P Card';
-        return name;
-    }
+  private normalizeModuleName(value: string): string {
+    const name = this.toTitleWords(value);
+    if (name.toLowerCase() === 'dashboard') return 'Dashboard';
+    if (name.toLowerCase() === 'maker checker') return 'Maker Checker';
+    if (name.toLowerCase() === 'bulk import') return 'Bulk Import';
+    if (name.toLowerCase() === 'product cap amount') return 'Product Cap Amount';
+    if (name.toLowerCase() === 'product cap') return 'Product Cap';
+    if (name.toLowerCase() === 'api parameter maps') return 'API Parameter Maps';
+    if (name.toLowerCase() === 'api parameters') return 'API Parameters';
+    if (name.toLowerCase() === 'api details') return 'API Details';
+    if (name.toLowerCase() === 'pcard') return 'P Card';
+    return name;
+  }
 
-    private comparePermissions(a: string, b: string): number {
-        const aMeta = this.permissionSortMeta(a);
-        const bMeta = this.permissionSortMeta(b);
-        if (aMeta.isAccess !== bMeta.isAccess) {
-            return aMeta.isAccess ? -1 : 1;
-        }
-        if (aMeta.moduleIndex !== bMeta.moduleIndex) {
-            return aMeta.moduleIndex - bMeta.moduleIndex;
-        }
-        return aMeta.label.localeCompare(bMeta.label);
+  private comparePermissions(a: string, b: string): number {
+    const aMeta = this.permissionSortMeta(a);
+    const bMeta = this.permissionSortMeta(b);
+    if (aMeta.isAccess !== bMeta.isAccess) {
+      return aMeta.isAccess ? -1 : 1;
     }
+    if (aMeta.moduleIndex !== bMeta.moduleIndex) {
+      return aMeta.moduleIndex - bMeta.moduleIndex;
+    }
+    return aMeta.label.localeCompare(bMeta.label);
+  }
 
-    private permissionSortMeta(action: string): { isAccess: boolean; moduleIndex: number; label: string } {
-        const withoutPrefix = (action || '').replace(/^Permissions\./i, '');
-        const parts = withoutPrefix.split('.');
-        const resource = parts.shift() ?? withoutPrefix;
-        const actionLabel = parts.join(' ');
-        const isAccess = actionLabel.toLowerCase() === 'access';
-        const moduleName = this.normalizeModuleName(resource);
-        const moduleIndex = Math.max(0, this.moduleOrder.indexOf(moduleName));
-        const label = this.formatPermissionAction(action);
-        return { isAccess, moduleIndex, label };
-    }
+  private permissionSortMeta(action: string): { isAccess: boolean; moduleIndex: number; label: string } {
+    const withoutPrefix = (action || '').replace(/^Permissions\./i, '');
+    const parts = withoutPrefix.split('.');
+    const resource = parts.shift() ?? withoutPrefix;
+    const actionLabel = parts.join(' ');
+    const isAccess = actionLabel.toLowerCase() === 'access';
+    const moduleName = this.normalizeModuleName(resource);
+    const moduleIndex = Math.max(0, this.moduleOrder.indexOf(moduleName));
+    const label = this.formatPermissionAction(action);
+    return { isAccess, moduleIndex, label };
+  }
 
 }

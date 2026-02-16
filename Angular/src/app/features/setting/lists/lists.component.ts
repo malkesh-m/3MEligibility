@@ -1,4 +1,7 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
@@ -20,13 +23,13 @@ import { PermissionsService } from '../../../core/services/setting/permission.se
   templateUrl: './lists.component.html',
   styleUrl: './lists.component.scss'
 })
-export class ListsComponent {
+export class ListsComponent implements OnInit {
   private _snackBar = inject(MatSnackBar);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   parameters: any[] = [];
-  displayedColumns: string[] = ['select', 'listName','createdBy','updatedBy', 'actions'];
-  listItemdisplayedColumns: string[] = ['select','code', 'listName', 'itemName','createdBy','updatedBy', 'actions'];
+  displayedColumns: string[] = ['select', 'listName', 'createdBy', 'updatedBy', 'actions'];
+  listItemdisplayedColumns: string[] = ['select', 'code', 'listName', 'itemName', 'createdBy', 'updatedBy', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
   listItemDataSource = new MatTableDataSource<any>([]);
   searchTerm: string = '';
@@ -47,7 +50,7 @@ export class ListsComponent {
     itemName: '',
     listId: null,
     itemId: 0,
-    code:''
+    code: ''
   };
   selectedRows: Set<number> = new Set();
   entities: any[] = [];
@@ -62,7 +65,7 @@ export class ListsComponent {
   isUploading: boolean = false;
   message: string = "Loading data, please wait...";
   loggedInUser: any = null;
-  createdBy:string='';
+  createdBy: string = '';
 
   constructor(
     private snackBar: MatSnackBar,
@@ -71,12 +74,37 @@ export class ListsComponent {
     private dialog: MatDialog,
     private utilityService: UtilityService,
     private authService: AuthService,
-    private PermissionsService:PermissionsService
+    private PermissionsService: PermissionsService,
+    private titleService: Title,
+    private location: Location,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+      }
+    });
     // this.fetchEntities();
     this.fetchLists();
+    this.updateTitle();
+  }
+
+  get activeTabTitle(): string {
+    switch (this.activeTab) {
+      case 'lists':
+        return 'List - Managed List';
+      case 'listItems':
+        return 'List - List Items';
+      default:
+        return 'List - Managed List';
+    }
+  }
+
+  updateTitle() {
+    this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
   }
 
   getAddPermission(): boolean {
@@ -143,6 +171,15 @@ export class ListsComponent {
 
   switchTab(tab: string): void {
     this.activeTab = tab;
+
+    const urlTree = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge'
+    });
+    this.location.go(urlTree.toString());
+    this.updateTitle();
+
     if (tab === 'lists') {
       this.fetchLists();
     } else if (tab === 'listItems') {
@@ -170,7 +207,7 @@ export class ListsComponent {
     this.isLoading = true;
     this.listsService.fetchListItems().subscribe({
       next: (response) => {
-   
+
 
         // Sorting the response data based on lastModifiedDateTime in descending order
         const sortedData = response.data.sort((a: any, b: any) =>
@@ -181,14 +218,14 @@ export class ListsComponent {
         }));
         this.listItemDataSource.paginator = this.paginator;
         this.listItemDataSource.sort = this.sort;
-            this.isLoading = false;
+        this.isLoading = false;
       },
       error: (error) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-            this.isLoading = false;
+        this.isLoading = false;
         console.error('Error fetching list items:', error);
       },
     });
@@ -207,21 +244,21 @@ export class ListsComponent {
   }
 
   fetchLists(): void {
-        this.isLoading = true;
+    this.isLoading = true;
     this.listsService.fetchAllLists().subscribe({
       next: (response) => {
-    
+
         this.dataSource.data = this.listItems = response.data;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
-            this.isLoading = false;
+        this.isLoading = false;
       },
       error: (error) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-            this.isLoading = false;
+        this.isLoading = false;
         console.error('Error fetching lists:', error);
       },
     });
@@ -315,12 +352,13 @@ export class ListsComponent {
             this._snackBar.open(error.message, 'Okay', {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
-            });          }
+            });
+          }
         });
       } else {
         // this.formData.createdBy = this.loggedInUser.user.userName;
         // this.formData.updatedBy = this.loggedInUser.user.userName;
-     
+
 
         this.listsService.addLists(this.formData).subscribe({
           next: (response) => {
@@ -334,9 +372,9 @@ export class ListsComponent {
           error: (error) => {
             console.error('Error updating parameter:', error),
               this._snackBar.open(error.message, 'Okay', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
+                horizontalPosition: 'right',
+                verticalPosition: 'top', duration: 3000
+              });
           }
         });
       }
@@ -359,7 +397,8 @@ export class ListsComponent {
             this._snackBar.open(error.message, 'Okay', {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
-            });          }
+            });
+          }
         });
       } else {
         // this.listItemFormData.createdBy = this.loggedInUser.user.userName;
@@ -395,72 +434,74 @@ export class ListsComponent {
 
     if (this.activeTab === 'lists') {
 
-  var matdialogRef = this.dialog.open(DeleteDialogComponent, {
+      var matdialogRef = this.dialog.open(DeleteDialogComponent, {
         data: {
           title: 'Confirm',
           message: `Are you sure you want to delete the list: "${list.listName}"?`
         }
       });
-      
+
       matdialogRef.afterClosed().subscribe(result => {
         if (result?.delete) {
           this.listsService.deleteParameter(list.listId).subscribe({
             next: (response) => {
               // Remove the list locally after successful API call
               this.dataSource.data = this.dataSource.data.filter(
-              (item) => item.listId !== list.listId
-            );
-            this._snackBar.open(response.message, 'Close', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-            this.selectedRows.clear();
+                (item) => item.listId !== list.listId
+              );
+              this._snackBar.open(response.message, 'Close', {
+                horizontalPosition: 'right',
+                verticalPosition: 'top', duration: 3000
+              });
+              this.selectedRows.clear();
 
-          },
-          error: (error) => {
-            this._snackBar.open(error.message, 'Close', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-            console.error('Error deleting list:', error);
-            this.selectedRows.clear();
+            },
+            error: (error) => {
+              this._snackBar.open(error.message, 'Close', {
+                horizontalPosition: 'right',
+                verticalPosition: 'top', duration: 3000
+              });
+              console.error('Error deleting list:', error);
+              this.selectedRows.clear();
 
-          },
-        });
-      }
-    });}
-  
-      
+            },
+          });
+        }
+      });
+    }
+
+
     if (this.activeTab == 'listItems') {
-    var matdialogRef = this.dialog.open(DeleteDialogComponent, {
+      var matdialogRef = this.dialog.open(DeleteDialogComponent, {
         data: {
           title: 'Confirm',
           message: `Are you sure you want to delete the list item: "${list.listName}"?`
         }
       });
- matdialogRef.afterClosed().subscribe(result => {
+      matdialogRef.afterClosed().subscribe(result => {
         if (result?.delete) {
-        this.listsService.deleteListItem(list.itemId).subscribe({
-          next: (response) => {
-            this.listItemDataSource.data = this.listItemDataSource.data.filter(
-              (item) => item.itemId !== list.itemId
-            );
-            this._snackBar.open(response.message, 'Close', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-          },
-          error: (error) => {
-            this._snackBar.open('Failed to delete the list. Please try again.', 'Close', {
-              horizontalPosition: 'right',
-              verticalPosition: 'top', duration: 3000
-            });
-            console.error('Error deleting list:', error);
-          },
-        });
-      }});
+          this.listsService.deleteListItem(list.itemId).subscribe({
+            next: (response) => {
+              this.listItemDataSource.data = this.listItemDataSource.data.filter(
+                (item) => item.itemId !== list.itemId
+              );
+              this._snackBar.open(response.message, 'Close', {
+                horizontalPosition: 'right',
+                verticalPosition: 'top', duration: 3000
+              });
+            },
+            error: (error) => {
+              this._snackBar.open('Failed to delete the list. Please try again.', 'Close', {
+                horizontalPosition: 'right',
+                verticalPosition: 'top', duration: 3000
+              });
+              console.error('Error deleting list:', error);
+            },
+          });
+        }
+      });
     }
-    
+
 
   }
 
@@ -684,7 +725,7 @@ export class ListsComponent {
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
     if (this.activeTab === 'lists') {
-      this.listsService.importList(selectedFile,this.createdBy).subscribe({
+      this.listsService.importList(selectedFile, this.createdBy).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchLists();
@@ -702,7 +743,7 @@ export class ListsComponent {
         },
       });
     } else {
-      this.listsService.importListItem(selectedFile,this.createdBy).subscribe({
+      this.listsService.importListItem(selectedFile, this.createdBy).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchListItems();
@@ -781,7 +822,7 @@ export class ListsComponent {
   //     });
   //   }
   // }
-  
+
   ExportLists() {
     if (this.activeTab === 'lists') {
       // If nothing is selected, export all rows
