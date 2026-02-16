@@ -1,6 +1,6 @@
 <div class="row mb-4">
   <div class="col">
-    <h5 class="">Audit Log</h5>
+    <h5 class="">{{ 'Audit Log' | translate }}</h5>
   </div>
 </div>
 
@@ -90,7 +90,7 @@
                  showFirstLastButtons>
   </mat-paginator>
 </div>
-<p *ngIf="dataSource.data.length === 0 && LoadAudit===false">No Audit Log history records found.</p>
+<p *ngIf="dataSource.data.length === 0 && LoadAudit===false">{{ 'No Audit Log history records found.' | translate }}</p>
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
 
 

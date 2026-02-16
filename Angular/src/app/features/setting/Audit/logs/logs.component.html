@@ -1,6 +1,6 @@
 <div class="row mb-4">
   <div class="col">
-    <h5 class="">Log</h5>
+    <h5 class="">{{ 'Log' | translate }}</h5>
   </div>
 </div>
 
@@ -87,6 +87,6 @@
                  (page)="onPageChange($event)">
   </mat-paginator>
 </div>
-<p *ngIf="dataSource.data.length === 0 && LoadAudit===false">No  Log  records found.</p>
+<p *ngIf="dataSource.data.length === 0 && LoadAudit===false">{{ 'No Log records found.' | translate }}</p>
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
 

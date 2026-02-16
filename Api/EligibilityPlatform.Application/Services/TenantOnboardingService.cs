@@ -230,14 +230,8 @@ namespace MEligibilityPlatform.Application.Services
                 // Check if any core onboarding structure already exists
                 var isAlreadyOnboarded =
                     await _uow.SecurityGroupRepository.Query()
-                        .AnyAsync(x => x.TenantId == tenantId)
-                    ||
-                    await _uow.UserGroupRepository.Query()
-                        .AnyAsync(x => x.TenantId == tenantId)
-                    ||
-                    await _uow.GroupPermissionRepository.Query()
                         .AnyAsync(x => x.TenantId == tenantId);
-
+             
                 if (isAlreadyOnboarded)
                 {
                     validation.IsEligible = false;

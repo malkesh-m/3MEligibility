@@ -64,7 +64,8 @@ namespace MEligibilityPlatform.Domain.Models
 
         public bool IsActive { get; set; }
 
-        public string PhotoURL { get; set; } = string.Empty;
+        public string PhotoFilePath { get; set; } = string.Empty;
+        public string PhotoFileName { get; set; } = string.Empty;
 
         public string MobileNo { get; set; } = string.Empty;
 
@@ -76,7 +77,7 @@ namespace MEligibilityPlatform.Domain.Models
 
         public int LanguageId { get; set; }
 
-        public int TimeZoneId { get; set; }
+        public string? TimeZone { get; set; }
 
         public int GenderId { get; set; }
 

@@ -197,10 +197,11 @@ namespace MEligibilityPlatform.Controllers
 
         [HttpGet("avg-processing-time")]
         public async Task<IActionResult> GetAvgProcessingTime()
-            /// <summary>
-            /// Calls the service to retrieve the average processing time across all entities and returns the result.
-            /// </summary>
-            => Ok(await _dashboardService.GetAverageProcessingTimeAsync());
+        {
+            var tenantId = User.GetTenantId();
+
+            return  Ok(await _dashboardService.GetAverageProcessingTimeAsync(tenantId));
+        }
 
         [Authorize(Policy = Permissions.Dashboard.View)]
 

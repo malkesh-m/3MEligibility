@@ -67,7 +67,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// Gets the average processing time across all evaluations.
         /// </summary>
         /// <returns>The average processing time in the appropriate unit.</returns>
-        Task<double> GetAverageProcessingTimeAsync();
+        Task<double> GetAverageProcessingTimeAsync(int tenantId);
 
         /// <summary>
         /// Gets the top failure reason for a specific entity.

@@ -138,7 +138,7 @@ namespace MEligibilityPlatform.Application.Services
             var version = _configuration["MIdentityAPI:Version"] ?? "1";
 
             var client = _httpClientFactory.CreateClient("MIdentityAPI");
-            var response = await client.GetAsync($"api/v{version}/Users/GetAllByTenantId/s/{userId}");
+            var response = await client.GetAsync($"api/v{version}/Users/{userId}");
             // Executes the query and returns the results as a list.
             response.EnsureSuccessStatusCode();
 

@@ -246,7 +246,6 @@
   "Amount Type": "Amount Type",
   "is required": "is required",
   "Percentage Value": "Percentage Value",
-
   "Start Date": "Start Date",
   "End Date": "End Date",
   "Scope": "Scope",
@@ -271,6 +270,21 @@
   "Mandatory": "Mandatory",
   "Stream": "Stream",
   "Exception Rule": "Exception Rule",
-  "Product Cap": "Product Cap"
+  "Product Cap": "Product Cap",
+  "Address is required": "Address is required",
+  "City is required": "City is required",
+  "Code is required": "Code is required",
+  "Country is required": "Country is required",
+  "Dashboard": "Dashboard",
+  "Entity Name is required": "Entity Name is required",
+  "Google Location": "Google Location",
+  "Select Value1": "Select Value 1",
+  "description": "description",
+  "Logs": "Logs",
+  "Audit Log": "Audit Log",
+  "Log": "Log",
+  "Maximum Percentage Per Product": "Maximum Percentage Per Product",
+  "Maximum Amount Per Product": "Maximum Amount Per Product",
+  "No Log records found.": "No Log records found.",
+  "No Audit Log history records found.": "No Audit Log history records found."
 }
-

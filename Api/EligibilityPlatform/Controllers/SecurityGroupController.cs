@@ -213,12 +213,12 @@ namespace MEligibilityPlatform.Controllers
             }
 
             // Additional check for user group assignments
-            var userGroupAssigned = await _userGroupService.GetByUserGroupsId(id);
-            if (userGroupAssigned)
-            {
-                // Returns error response if users are assigned to the group
-                return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are users assigned to it." });
-            }
+            //var userGroupAssigned = await _userGroupService.GetByUserGroupsId(id);
+            //if (userGroupAssigned)
+            //{
+            //    // Returns error response if users are assigned to the group
+            //    return Ok(new ResponseModel { IsSuccess = false, Message = "The group cannot be deleted because there are users assigned to it." });
+            //}
 
             // Deletes the security group by its ID
             try

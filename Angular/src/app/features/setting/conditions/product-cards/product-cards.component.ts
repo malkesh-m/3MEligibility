@@ -313,7 +313,7 @@ export class ProductCardsComponent implements OnInit {
       }
       this.updateExpression();
     } else if (event.action === 'delete') {
-      this.deleteProductCard(event.data.eproductCardId, event.data["Stream Card Name"]);
+      this.deleteProductCard(event.data.eproductCardId, event.data["Product Card Name"]);
     }
     else if (event.action === 'validate') {
 
