@@ -1,4 +1,5 @@
-﻿using MEligibilityPlatform.Application.Constants;
+﻿using System.Net.Http.Headers;
+using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +16,10 @@ namespace MEligibilityPlatform.Controllers
     /// <param name="productService">The product service.</param>
     [Route("api/product")]
     [ApiController]
-    public class ProductController(IProductService productService) : ControllerBase
+    public class ProductController(IProductService productService,IDriveService driveService) : ControllerBase
     {
         private readonly IProductService _productService = productService;
-
+        private readonly IDriveService _driveService = driveService;
         /// <summary>
         /// Retrieves all product records for the current entity.
         /// </summary>
@@ -145,8 +146,13 @@ namespace MEligibilityPlatform.Controllers
                 return BadRequest(ModelState);
             }
 
+            var token = Request.Headers.Authorization.ToString();
+
+            //var token = AuthenticationHeaderValue
+            //    .Parse(authHeader)
+            //    .Parameter;
             // Adds the new product record
-            await _productService.Add(product);
+            await _productService.Add(product, token??"");
             // Returns success response for created operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
@@ -173,9 +179,10 @@ namespace MEligibilityPlatform.Controllers
                 // Returns bad request if model validation fails
                 return BadRequest(ModelState);
             }
+            var token = Request.Headers.Authorization.ToString();
 
             // Updates the existing product record
-            await _productService.Update(product);
+            await _productService.Update(product,token);
             // Returns success response for updated operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
@@ -191,8 +198,32 @@ namespace MEligibilityPlatform.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            var token = Request.Headers.Authorization.ToString();
             // Deletes a product record by ID for the current entity
-            await _productService.Delete(User.GetTenantId(), id);
+            await _productService.Delete(User.GetTenantId(), id, token);
+            // Returns success response for deleted operation
+            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
+        }
+
+        /// <summary>
+        /// Deletes multiple product records by their unique identifiers for the current entity.
+        /// </summary>
+        /// <param name="ids">The list of unique identifiers of the product records to delete.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Policy = Permissions.Product.Delete)]
+        [HttpDelete("multipleDelete")]
+        public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
+        {
+            var token = Request.Headers.Authorization.ToString();
+            // Validates that IDs are provided
+            if (ids == null || ids.Count == 0)
+            {
+                // Returns bad request if no IDs are provided
+                return BadRequest(new ResponseModel { IsSuccess = false, Message = "No IDs provided." });
+            }
+
+            // Deletes multiple product records for the current entity
+            await _productService.RemoveMultiple(User.GetTenantId(), ids, token);
             // Returns success response for deleted operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
@@ -246,30 +277,6 @@ namespace MEligibilityPlatform.Controllers
         }
 
         /// <summary>
-        /// Deletes multiple product records by their unique identifiers for the current entity.
-        /// </summary>
-        /// <param name="ids">The list of unique identifiers of the product records to delete.</param>
-        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        /// 
-        [Authorize(Policy = Permissions.Product.Delete)]
-
-        [HttpDelete("multipledelete")]
-        public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
-        {
-            // Validates that IDs are provided
-            if (ids == null || ids.Count == 0)
-            {
-                // Returns bad request if no IDs are provided
-                return BadRequest(new ResponseModel { IsSuccess = false, Message = "No IDs provided." });
-            }
-
-            // Deletes multiple product records for the current entity
-            await _productService.RemoveMultiple(User.GetTenantId(), ids);
-            // Returns success response for deleted operation
-            return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
-        }
-
-        /// <summary>
         /// Downloads the product import template for the current entity.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing the template file.</returns>
@@ -318,6 +325,66 @@ namespace MEligibilityPlatform.Controllers
             
             // Returns the image file
             return PhysicalFile(filePath, contentType);
+        }
+
+        [Authorize]
+        [HttpGet("drive-image/{fileId}")]
+        public async Task<IActionResult> GetDriveImage(int fileId)
+        {
+            var token = Request.Headers.Authorization.ToString();
+
+            try
+            {
+                // result.Bytes will be used to stream the file if found.
+                var (Bytes, ContentType) = await _productService.DownloadImageAsync(fileId, token);
+                if (Bytes == null || Bytes.Length == 0)
+                {
+                    return NotFound(new ResponseModel { IsSuccess = false, Message = "Image not found in drive." });
+                }
+
+                return File(Bytes, ContentType); 
+            }
+            catch (Exception ex)
+            {
+                // Returning full exception message to help the user identify if MDrive is rejecting the token or URL
+                return BadRequest(new ResponseModel { 
+                    IsSuccess = false, 
+                    Message = $"Error fetching image from drive: {ex.Message}" 
+                });
+            }
+        }
+        [Authorize]
+        [HttpPost("upload-drive-image")]
+        public async Task<IActionResult> UploadDriveImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest(new ResponseModel { IsSuccess = false, Message = "No file uploaded." });
+
+            var token = Request.Headers.Authorization.ToString();
+            try
+            {
+                var response = await _driveService.UploadAsync(file, token);
+                return Ok(new ResponseModel { IsSuccess = true, Data = response.Data, Message = GlobalcConstants.Created });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel { IsSuccess = false, Message = $"Upload failed: {ex.Message}" });
+            }
+        }
+        [Authorize]
+        [HttpDelete("drive-image/{fileId}")]
+        public async Task<IActionResult> DeleteDriveImage(int fileId)
+        {
+            var token = Request.Headers.Authorization.ToString();
+            try
+            {
+                 await _driveService.DeleteAsync(fileId, token);
+                return Ok(new ResponseModel { IsSuccess = true, Message = "Image deleted from drive." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseModel { IsSuccess = false, Message = $"Delete failed: {ex.Message}" });
+            }
         }
     }
 }

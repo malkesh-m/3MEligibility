@@ -34,8 +34,12 @@ mat-icon {
   color: #1CAEC8 !important;
   vertical-align: middle;
   font-size: 20px;
-  cursor: pointer;
+  /* cursor: pointer; Removed to prevent all icons from being clickable */
   transition: transform 0.2s ease-in-out;
+}
+
+.clickable-icon {
+  cursor: pointer;
 
   &:hover {
     transform: scale(1.2);
@@ -94,7 +98,7 @@ select.form-control {
   padding: 4px;
 }
 
-.mat-mdc-raised-button  {
+.mat-mdc-raised-button {
   height: 32px !important;
   box-shadow: none !important;
 }
@@ -121,30 +125,39 @@ select.form-control {
   /* your hover styles here */
   background-color: #dcdcdc !important;
   color: black !important;
-  border: 1px solid lightgrey !important;;
-  padding: 4px !important;;
+  border: 1px solid lightgrey !important;
+  ;
+  padding: 4px !important;
+  ;
   //cursor: pointer;
 }
 
 .addBtn {
   vertical-align: baseline;
-  border-radius: 15px  !important;;
+  border-radius: 15px !important;
+  ;
   background-color: #1CAEC8 !important;
   color: white !important;
   box-shadow: none;
-  min-width: 90px !important;;
-  border: 1px solid lightgrey !important;;
-  padding: 4px !important;;
+  min-width: 90px !important;
+  ;
+  border: 1px solid lightgrey !important;
+  ;
+  padding: 4px !important;
+  ;
 }
 
 .addBtn:hover {
   vertical-align: baseline;
-  border-radius: 15px !important;;
+  border-radius: 15px !important;
+  ;
   background-color: #158BA0 !important;
   color: white !important;
   box-shadow: none;
-  border: 1px solid lightgrey !important;;
-  padding: 4px !important;;
+  border: 1px solid lightgrey !important;
+  ;
+  padding: 4px !important;
+  ;
 }
 
 .confirmBtn {
@@ -160,23 +173,30 @@ select.form-control {
 
 button .btn {
   vertical-align: baseline;
-  border-radius: 15px !important;;
+  border-radius: 15px !important;
+  ;
   background-color: #1CAEC8 !important;
   color: white !important;
   box-shadow: none;
-  min-width: 90px !important;;
-  border: 1px solid lightgrey !important;;
-  padding: 4px !important;;
+  min-width: 90px !important;
+  ;
+  border: 1px solid lightgrey !important;
+  ;
+  padding: 4px !important;
+  ;
 }
 
 .btn button:hover {
   vertical-align: baseline;
-  border-radius: 15px !important;;
+  border-radius: 15px !important;
+  ;
   background-color: #158BA0 !important;
   color: white !important;
   box-shadow: none;
-  border: 1px solid lightgrey !important;;
-  padding: 4px !important;;
+  border: 1px solid lightgrey !important;
+  ;
+  padding: 4px !important;
+  ;
 }
 
 button:disabled {
@@ -240,11 +260,12 @@ button:disabled {
 ::ng-deep .mat-tab-header {
   display: none !important;
 }
+
 /* Roboto Normal */
 @font-face {
   font-family: 'Roboto';
   src: url('/assets/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 100 900; 
+  font-weight: 100 900;
   font-style: normal;
 }
 
@@ -254,4 +275,19 @@ button:disabled {
   src: url('/assets/fonts/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype');
   font-weight: 100 900;
   font-style: italic;
+}
+
+/* Global cursor pointer rules */
+button:not([disabled]),
+a[href],
+input[type="checkbox"],
+input[type="radio"],
+select,
+[role="button"]:not([disabled]),
+.mat-mdc-select-trigger,
+.mat-mdc-option,
+.mat-mdc-checkbox-layout,
+.mat-mdc-radio-button .mat-radio-label-content,
+.nav-link {
+  cursor: pointer !important;
 }

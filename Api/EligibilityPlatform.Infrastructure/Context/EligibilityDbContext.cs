@@ -909,7 +909,7 @@ public partial class EligibilityDbContext : DbContext
             entity.Property(e => e.Description).HasColumnType("nvarchar(50)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.MaxEligibleAmount).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.MimeType).HasMaxLength(20);
+            //entity.Property(e => e.MimeType).HasMaxLength(20);
             entity.Property(e => e.Narrative).HasColumnType("longtext");
             entity.Property(e => e.ProductName)
                 .HasMaxLength(50)

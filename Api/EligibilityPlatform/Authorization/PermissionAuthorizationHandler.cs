@@ -14,6 +14,8 @@ namespace MEligibilityPlatform.Authorization
             AuthorizationHandlerContext context,
             PermissionRequirement requirement)
         {
+            if (context.User.Identity?.IsAuthenticated != true)
+                return; 
             var userIdClaim = context.User.GetUserId(); ;
             var tenantId = context.User.GetTenantId();
             var permissions = await _userService.GetUserPermissionsAsync(userIdClaim,tenantId);

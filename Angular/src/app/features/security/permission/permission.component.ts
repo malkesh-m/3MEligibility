@@ -106,7 +106,10 @@ export class PermissionComponent implements OnInit {
   updateTitle() {
     this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
   }
-
+isSuperAdminSelected(): boolean {
+  const group = this.records.find(g => g.groupId == this.selectedGroupId);
+  return group?.groupName?.toLowerCase() === 'super admin';
+}
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
   }
@@ -161,29 +164,45 @@ export class PermissionComponent implements OnInit {
     this.selectedPermissionIds = Array.from(selectedOptions).map((option) => +option.value);
   }
 
-  deletePermission() {
-    this.requestBody.groupId = this.selectedGroupId!;
-    this.requestBody.permissionIds = this.selectedPermissionIds;
-    this.permissionService.deletePermission(this.requestBody).subscribe({
-      next: (response) => {
-        if (response.isSuccess) {
-          this.selectedPermissionIds = []
-          //this.getUnAssignedPermissionsByGroupId(this.requestBody.groupId);
-          this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
-          this._snackBar.open("Permission removed successfully.", 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000,
-          });
-        } else {
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000,
-          });
-        }
-      },
-      error: (error) => console.error('Error adding group:', error),
-    });
+deletePermission() {
+
+  if (this.isSuperAdminSelected()) {
+    this._snackBar.open(
+      "You cannot remove permissions from Super Admin group.",
+      'Okay',
+      {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000,
+      }
+    );
+    return;
   }
+
+  this.requestBody.groupId = this.selectedGroupId!;
+  this.requestBody.permissionIds = this.selectedPermissionIds;
+
+  this.permissionService.deletePermission(this.requestBody).subscribe({
+    next: (response) => {
+      if (response.isSuccess) {
+        this.selectedPermissionIds = [];
+        this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
+
+        this._snackBar.open("Permission removed successfully.", 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      } else {
+        this._snackBar.open(response.message, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      }
+    }
+  });
+}
 
   addPermission() {
     this.requestBody.groupId = this.selectedGroupId!;

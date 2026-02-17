@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnDestroy, Output, SimpleChanges, ViewChild, HostListener } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
@@ -19,7 +20,7 @@ import { ExceptionManagementService } from '../../../../core/services/setting/ex
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent {
+export class ProductListComponent implements OnDestroy {
   @ViewChild('tableChild') tableChild!: TableComponent;
   @Input() columnsDisplayAry: any = [];
   @Input() headerDisplayAry: any = [];
@@ -51,7 +52,11 @@ export class ProductListComponent {
   selectedImageFile: File | null = null;
   uploadProgress: number = 0;
   isDragging: boolean = false;
-  isUploading: boolean = false;  // Separate flag for upload loading
+  isUploading: boolean = false;
+  isImageUploading: boolean = false; // For pre-uploading a new file
+  isImageFetching: boolean = false;  // For downloading an existing image from server
+  preUploadedImageId: number | null = null; // Track image for session cleanup
+  private uploadSub: Subscription | null = null; // Track active upload for cancellation
   imageRemoved: boolean = false;
   loggedInUser: any = null;
   isExceptionRule: boolean = false;
@@ -90,6 +95,24 @@ export class ProductListComponent {
     private entityService: EntityService,
     private utilityService: UtilityService
   ) { }
+
+  /*
+   * LIFECYCLE HOOK: ngOnDestroy
+   * Automatically cleans up any "pre-uploaded" image if the user leaves this screen 
+   * without clicking Save. Also revokes the object URL to prevent memory leaks.
+   */
+  ngOnDestroy() {
+    this.cleanupSessionImage();
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+    }
+  }
+
+  @HostListener('window:beforeunload')
+  onBeforeUnload() {
+    // BROWSER CLOSE: Attempt to cleanup on browser close
+    this.cleanupSessionImage();
+  }
 
   ngOnInit() {
     if (this.currentTab == 'Info') {
@@ -141,7 +164,6 @@ export class ProductListComponent {
       return;
     }
 
-    // Validate file size (5MB max)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       this._snackBar.open('File size should not exceed 5MB.', 'Okay', {
@@ -152,27 +174,103 @@ export class ProductListComponent {
       return;
     }
 
-    // Store the file for upload
+    // CLEANUP: If we already pre-uploaded an image in this session but are replacing it
+    this.cleanupSessionImage();
+
+    // Store the file locally for preview
     this.selectedImageFile = file;
     this.imageRemoved = false;
 
-    // Create preview using object URL (much faster than base64)
+    // Create preview using object URL
     if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
-      URL.revokeObjectURL(this.imagePreview);  // Clean up old object URL
+      URL.revokeObjectURL(this.imagePreview);
     }
     this.imagePreview = URL.createObjectURL(file);
-  }
-removeImage() {
-  if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
-    URL.revokeObjectURL(this.imagePreview);
+
+    // FAST PRE-UPLOAD: Upload immediately for speed
+    this.isImageUploading = true;
+    this.uploadSub = this.productService.uploadDriveImage(file).subscribe({
+      next: (res) => {
+        this.isImageUploading = true; // Still "uploading" to the user until confirmed as "Ready"
+        setTimeout(() => {
+          this.isImageUploading = false;
+          this.uploadSub = null;
+        }, 500); // Visual stability
+
+        if (res.isSuccess && res.data) {
+          this.preUploadedImageId = res.data.id;
+          // Patch metadata so form is ready for atomic save later
+          this.formData.patchValue({
+            productImageId: res.data.id,
+            productImagePath: res.data.path
+          });
+          this._snackBar.open('Image uploaded successfully', 'Dismiss', { duration: 2000 });
+        }
+      },
+      error: (err) => {
+        this.isImageUploading = false;
+        this.uploadSub = null;
+        console.error('Pre-upload failed:', err);
+        this._snackBar.open('Upload failed. We will try again during product save.', 'Okay', { duration: 4000 });
+      }
+    });
   }
 
-  this.selectedImageFile = null;
-  this.imagePreview = '';
-  this.uploadProgress = 0;
+  private cleanupSessionImage() {
+    // ABORT: Stop active upload if any
+    if (this.uploadSub) {
+      console.log("Aborting active upload subscription...");
+      this.uploadSub.unsubscribe();
+      this.uploadSub = null;
+      this.isImageUploading = false;
+    }
 
-  this.imageRemoved = this.isEditing && !!this.editingItem?.ProductImagePath;
-}
+    if (this.preUploadedImageId) {
+      console.log(`Cleaning up orphaned session image: ID=${this.preUploadedImageId}`);
+      this.productService.deleteDriveImage(this.preUploadedImageId).subscribe({
+        next: () => {
+          console.log("Orphaned session image deleted successfully.");
+          this.preUploadedImageId = null;
+        },
+        error: (err) => console.warn("Failed to cleanup orphaned session image:", err)
+      });
+    }
+  }
+  private objectUrl: string = '';
+
+  loadImage(imageId: number) {
+    console.log(`Attempting to load image via External Drive API: ID=${imageId}`);
+    this.isImageFetching = true; // Show refined loader
+    this.productService.getProductImage(imageId).subscribe({
+      next: (blob) => {
+        this.isImageFetching = false;
+        console.log("Image blob fetched successfully from drive.");
+        if (this.objectUrl) URL.revokeObjectURL(this.objectUrl);
+        this.objectUrl = URL.createObjectURL(blob);
+        this.imagePreview = this.objectUrl;
+      },
+      error: (err) => {
+        this.isImageFetching = false;
+        console.error("Failed to fetch image from drive:", err);
+        this.imagePreview = '';
+      }
+    });
+  }
+
+  removeImage() {
+    // CLEANUP: If we had a pre-uploaded image for this session, delete it from storage
+    this.cleanupSessionImage();
+
+    if (this.imagePreview && this.imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(this.imagePreview);
+    }
+
+    this.selectedImageFile = null;
+    this.imagePreview = '';
+    this.uploadProgress = 0;
+
+    this.imageRemoved = this.isEditing && !!this.editingItem?.ProductImagePath;
+  }
   sanitizeCode(event: any) {
     event.target.value = this.utilityService.sanitizeCode(event.target.value);
   }
@@ -191,17 +289,14 @@ removeImage() {
     });
   }
   fetchProductList() {
-    this.isLoading=true;
+    this.isLoading = true;
     this.productService.getInfoListName().subscribe({
       next: (response) => {
         this.ProductListDetails = response.data;
-        console.log(response.data)
-        console.log("response.datafetchProductList")
-    this.isLoading=false;
-
+        this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error fetching entities list:', err);
+        console.error('Error fetching info list name:', err);
       }
     });
   }
@@ -239,27 +334,33 @@ removeImage() {
       } else if (this.currentTab === 'Info') {
         this.updatedIndexId = event.data.ProductId;
         const hasException = !!event.data.ExceptionId;
+        console.log("Edit Action Data: ", event.data);
 
-        // Get image URL if productImagePath exists
-        if (event.data.ProductImagePath) {
-          const tenantId = event.data.EntityId || 0;
-          this.imagePreview = this.productService.getImageUrl(tenantId, event.data.ProductImagePath);
+        // Strictly load image via External Drive API (ProductImageId)
+        if (event.data.ProductImageId != null && event.data.ProductImageId !== 0) {
+          console.log("Loading image via ProductImageId (External Drive): ", event.data.ProductImageId);
+          this.loadImage(event.data.ProductImageId);
         } else {
+          console.warn("ProductImageId missing - cannot load image from external drive.");
           this.imagePreview = '';
         }
 
+        this.isEditing = true;
+        this.isInsertNewRecord = false;
+        this.isLoading = false;
+        this.currentTab = 'Info';
+
         this.formData.patchValue({
-          code: event.data.Code,
-          productName: event.data["Product Name"],
-          productCategory: event.data.Category,
-          narrative: event.data.Narrative,
-          description: event.data.Description,
-          entityId: event.data.EntityId || "",
+          code: event.data.Code || '',
+          productName: event.data['Product Name'] || '',
+          productCategory: event.data.Category || '',
+          narrative: event.data.Narrative || '',
+          description: event.data.Description || '',
+          entityId: event.data.EntityId || '',
+          exceptionId: event.data.ExceptionId || '',
           isExceptionRule: hasException,
-          exceptionId: hasException ? event.data.ExceptionId : null,
-          maxEligibleAmount: event.data['Stream Cap'] ?? ''
+          maxEligibleAmount: event.data['Stream Cap'] || ''
         });
-        this.imageRemoved = false;
 
         if (hasException) {
           this.formData.get('exceptionId')?.enable();
@@ -304,97 +405,6 @@ removeImage() {
     if (changes['listAry'] && this.listAry?.length > 0) {
       this.updateRows();
     }
-    this.cdrf.detectChanges();
-  } s() {
-    if (this.currentTab === 'Category') {
-      this.deleteKeyForMultiple = 'CategoryId';
-      this.formData = this.fb.group({
-        categoryName: ['', Validators.required],
-        catDescription: [''],
-        entityId: ['']
-      });
-    } else if (this.currentTab === 'Info') {
-      this.deleteKeyForMultiple = 'ProductId';
-      if (!this.formData) {
-        this.formData = this.fb.group({
-          code: ['', Validators.required],
-          productName: ['', Validators.required],
-          productCategory: ['', Validators.required],
-          productImage: [''],
-          narrative: [''],
-          description: ['', [Validators.maxLength(50)]],
-          entityId: [''],
-          mimeType: [''],
-          exceptionId: new FormControl({ value: '', disabled: true }),
-          isExceptionRule: [false],
-          maxEligibleAmount: ['', [Validators.required, Validators.pattern('^[0-9]+$')]]
-        });
-      }
-    } else {
-      this.deleteKeyForMultiple = 'ProductId';
-      this.formData = this.fb.group({
-        product: [null, Validators.required],
-        parameter: [null, Validators.required],
-        parameterValue: [null],
-        displayOrder: ['', [Validators.required]],
-        isrequired: [null, Validators.required],
-        entityId: ['']
-      });
-    }
-
-    if (this.listAry?.length > 0) {
-      if (this.currentTab === 'Category') {
-        this.rows = this.listAry.map((res: any) => ({
-          "Name": res.categoryName,
-          "Description": res.catDescription,
-          "CategoryId": res.categoryId,
-          "entityId": res.entityId,
-          "Created By": res.createdBy,
-          "Created Date": res.createdByDateTime,
-          "Updated By": res.updatedBy,
-          "Updated Date": res.updatedByDateTime
-        }));
-      } else if (this.currentTab === 'Info') {
-        this.isDataReady = false;
-        this.rows = this.listAry.map((res: any) => ({
-          "Stream Name": res.productName,
-          "Code": res.code,
-          "Category": res.categoryId,
-          "Category Name": res.categoryName,
-          "ProductImage": res.productImage,
-          "Narrative": res.narrative,
-          "Description": res.description,
-          "ProductId": res.productId,
-          "ProductImagePath": res.productImagePath,  // Added for image loading on edit
-          "EntityId": res.entityId || res.tenantId,
-          "MimeType": res.mimeType,
-          "Created By": res.createdBy,
-          "Created Date": res.createdByDateTime,
-          "Updated By": res.updatedBy,
-          "Updated Date": res.updatedByDateTime,
-          "ExceptionId": res?.exceptionId,
-          "Stream Cap": res.maxEligibleAmount,
-        }));
-        this.isDataReady = true;
-      } else {
-        this.rows = this.listAry.map((res: any) => ({
-          "Product": res.productName,
-          "ProductId": res.productId,
-          "ParameterId": res.parameterId,
-          "Parameter": res.parameterName,
-          "Parameter value": res.paramValue,
-          "Display order": res.displayOrder,
-          "IsRequired": res.isRequired,
-          "EntityId": res.entityId,
-          "Created By": res.createdBy,
-          "Created Date": res.createdByDateTime,
-          "Updated By": res.updatedBy,
-          "Updated Date": res.updatedByDateTime
-        }));
-      }
-    }
-
-    this.cdrf.detectChanges();
   }
 
   loadTabData(searchTerm: string, action?: string) {
@@ -472,46 +482,46 @@ removeImage() {
 
   deleteCategoryWithId(id: number, categoryName: string) {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the category: "${categoryName}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.productService.deleteCategoryWithId(id).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.updateTableRows.emit({ event: 'CategoryList', action: 'delete' });
-        }
-
-      },
-      error: (error) => {
-        this._snackBar.open(
-          error?.error?.message || error.message || 'Something went wrong.',
-          'Okay',
-          {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          }
-        );
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm',
+        message: `Are you sure you want to delete the category: "${categoryName}"?`
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.productService.deleteCategoryWithId(id).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.updateTableRows.emit({ event: 'CategoryList', action: 'delete' });
+          }
+
+        },
+        error: (error) => {
+          this._snackBar.open(
+            error?.error?.message || error.message || 'Something went wrong.',
+            'Okay',
+            {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            }
+          );
+        }
+      });
+
+    });
+  }
   deleteCategoryWithMultiple(payload: any) {
     if (this.tableChild.selectedRows.size === 0) {
       alert('Please select at least one row to delete');
@@ -544,34 +554,42 @@ removeImage() {
   }
 
 
-async onSubmit() {
-  if (this.formData.invalid) return;
+  async onSubmit() {
+    if (this.formData.invalid) return;
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  // Append form fields
-  formData.append('Code', this.formData.value.code || '');
-  formData.append('ProductName', this.formData.value.productName || '');
-  formData.append('CategoryId', this.formData.value.productCategory || '');
-  formData.append('Narrative', this.formData.value.narrative || '');
-  formData.append('Description', this.formData.value.description || '');
-  formData.append('EntityId', this.formData.value.entityId || '');
-  formData.append('MaxEligibleAmount', this.formData.value.maxEligibleAmount || '');
+    // Append form fields
+    formData.append('Code', this.formData.value.code || '');
+    formData.append('ProductName', this.formData.value.productName || '');
+    formData.append('CategoryId', this.formData.value.productCategory || '');
+    formData.append('Narrative', this.formData.value.narrative || '');
+    formData.append('Description', this.formData.value.description || '');
+    formData.append('EntityId', this.formData.value.entityId || '');
+    formData.append('MaxEligibleAmount', this.formData.value.maxEligibleAmount || '');
 
-  // Append new image if selected
-  if (this.selectedImageFile) {
-    formData.append('ProductImageFile', this.selectedImageFile, this.selectedImageFile.name);
+    // Append new image only if it hasn't been pre-uploaded (optimization)
+    if (this.selectedImageFile && !this.formData.value.productImageId) {
+      formData.append('ProductImageFile', this.selectedImageFile, this.selectedImageFile.name);
+    }
+
+    formData.append('RemoveOldImage', this.imageRemoved ? 'true' : 'false');
+
+    // Use pre-uploaded metadata if available (the "Fast & Safe" pattern)
+    if (this.formData.value.productImageId) {
+      formData.append('ProductImageId', this.formData.value.productImageId.toString());
+    }
+    if (this.formData.value.productImagePath) {
+      formData.append('ProductImagePath', this.formData.value.productImagePath);
+    }
+
+    if (this.isInsertNewRecord) {
+      this.addInfoDetails(formData);
+    } else {
+      formData.append('ProductId', this.updatedIndexId.toString());
+      this.updateInfoDetails(formData);
+    }
   }
-
-  formData.append('RemoveOldImage', this.imageRemoved ? 'true' : 'false');
-
-  if (this.isInsertNewRecord) {
-    this.addInfoDetails(formData);
-  } else {
-    formData.append('ProductId', this.updatedIndexId.toString());
-    this.updateInfoDetails(formData);
-  }
-}
 
 
 
@@ -583,6 +601,7 @@ async onSubmit() {
       next: (response) => {
 
         if (response.isSuccess) {
+          this.preUploadedImageId = null; // SUCCESS: Do NOT delete this image during cleanup
           this.isLoading = false;
           this.uploadProgress = 100;
           this.cancelEvent();
@@ -616,6 +635,7 @@ async onSubmit() {
       next: (response) => {
 
         if (response.isSuccess) {
+          this.preUploadedImageId = null; // SUCCESS: Do NOT delete this image during cleanup
           this.isLoading = false;
           this.uploadProgress = 100;
           this.cancelEvent();
@@ -641,45 +661,45 @@ async onSubmit() {
     });
   }
 
-deleteInfoWithId(id: number, productName: string) {
+  deleteInfoWithId(id: number, productName: string) {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the product: "${productName}"?`
-    }
-  });
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: 'Confirm',
+        message: `Are you sure you want to delete the product: "${productName}"?`
+      }
+    });
 
-  dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(result => {
 
-    if (!result?.delete) return;
+      if (!result?.delete) return;
 
-    this.productService.deleteCategoryInfoWithId(id).subscribe({
-      next: (response) => {
-        if (response.isSuccess) {
-          this._snackBar.open(response.message, 'Okay', {
+      this.productService.deleteCategoryInfoWithId(id).subscribe({
+        next: (response) => {
+          if (response.isSuccess) {
+            this._snackBar.open(response.message, 'Okay', {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            });
+
+            this.updateTableRows.emit({ event: 'InfoList', action: 'delete' });
+          }
+        },
+
+        error: (error) => {
+          console.error('Error deleting product info:', error);
+
+          this._snackBar.open(error.message || 'Something went wrong', 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
           });
-
-          this.updateTableRows.emit({ event: 'InfoList', action: 'delete' });
         }
-      },
+      });
 
-      error: (error) => {
-        console.log("error ", error);
-
-        this._snackBar.open(error.message || 'Something went wrong', 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-      }
     });
-
-  });
-}
+  }
   deleteMultipleInfoItem(payload: any) {
     if (this.tableChild.selectedRows.size === 0) {
       alert('Please select at least one row to delete');
@@ -711,38 +731,36 @@ deleteInfoWithId(id: number, productName: string) {
     });
   }
 
- 
 
-  addProductDetails(payload: any) {
-    payload.createdBy = this.loggedInUser.user.userName;
-    payload.updatedBy = this.loggedInUser.user.userName;
-    this.isLoading = true;
 
-    this.productService.addProductDetails(payload).subscribe({
-      next: (response) => {
+addProductDetails(payload: any) {
+  payload.createdBy = this.loggedInUser.user.userName;
+  payload.updatedBy = this.loggedInUser.user.userName;
+  this.isLoading = true;
 
-        if (response.isSuccess) {
-          this.isLoading = false;
-          this.cancelEvent();
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-          this.updateTableRows.emit({ event: 'DetailList', action: '' })
-          this.formVisible = false;
-
-        }
-      },
-      error: (error) => {
+  this.productService.addProductDetails(payload).subscribe({
+    next: (response) => {
+      if (response.isSuccess) {
         this.isLoading = false;
-
-        this._snackBar.open(error, 'Okay', {
+        this.cancelEvent();
+        this._snackBar.open(response.message, 'Okay', {
           horizontalPosition: 'right',
-          verticalPosition: 'top', duration: 3000
+          verticalPosition: 'top',
+          duration: 3000
         });
+        this.updateTableRows.emit({ event: 'DetailList', action: '' });
       }
-    })
-  }
+    },
+    error: (error: any) => {
+      this.isLoading = false;
+      this._snackBar.open(error, 'Okay', {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
+    }
+  });
+}
 
   updateProductDetails(payload: any) {
     payload.updatedBy = this.loggedInUser.user.userName;
@@ -873,6 +891,9 @@ deleteInfoWithId(id: number, productName: string) {
     })
   }
   cancelEvent(): void {
+    // CLEANUP: Delete any orphaned image that was pre-uploaded but not saved
+    this.cleanupSessionImage();
+
     if (this.isEditing) {
       this.formData.patchValue(this.formBackup);
       this.formVisible = false;
@@ -911,9 +932,6 @@ deleteInfoWithId(id: number, productName: string) {
         productIds.push(record.productId);
         parameterIds.push(record.parameterId);
       });
-      console.log("this.rows = ", this.rows);
-      console.log("productIds = ", productIds);
-      console.log("parameterIds = ", parameterIds);
       this.deleteMultipleDetails({ productIds, parameterIds });
     }
   }
@@ -958,7 +976,8 @@ deleteInfoWithId(id: number, productName: string) {
         "Narrative": res.narrative,
         "Description": res.description,
         "ProductId": res.productId,
-        "EntityId": res.entityId,
+        "TenantId": res.tenantId,
+        "EntityId": res.entityId || res.tenantId,  // EntityId fallback to tenantId
         "MimeType": res.mimeType,
         "Created By": res.createdBy,
         "Created Date": res.createdByDateTime,
@@ -966,6 +985,7 @@ deleteInfoWithId(id: number, productName: string) {
         "Updated Date": res.updatedByDateTime,
         "ExceptionId": res?.exceptionId,
         "Stream Cap": res.maxEligibleAmount,
+        "ProductImageId": res.productImageId,
       }));
       this.isDataReady = true;
     } else {
@@ -1004,7 +1024,9 @@ deleteInfoWithId(id: number, productName: string) {
         entityId: [''],
         exceptionId: new FormControl({ value: '', disabled: true }),
         isExceptionRule: [false],
-        maxEligibleAmount: ['']
+        maxEligibleAmount: [''],
+        productImageId: [null],    // Metadata storage
+        productImagePath: ['']     // Metadata storage
       });
     } else {
       this.deleteKeyForMultiple = 'ProductId';

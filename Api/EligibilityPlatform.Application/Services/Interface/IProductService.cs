@@ -36,30 +36,32 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="model">The <see cref="ProductAddUpdateModel"/> containing the product details to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Add(ProductAddUpdateModel model);
+        Task Add(ProductAddUpdateModel model,string token);
 
         /// <summary>
         /// Updates an existing product record.
         /// </summary>
         /// <param name="model">The <see cref="ProductAddUpdateModel"/> containing the updated product details.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Update(ProductAddUpdateModel model);
+        Task Update(ProductAddUpdateModel model,string token);
 
         /// <summary>
         /// Deletes a product record by its identifier within a specific entity.
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <param name="id">The unique identifier of the product record to delete.</param>
+        /// <param name="token">The authorization token.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Delete(int tenantId, int id);
+        Task Delete(int tenantId, int id, string token);
 
         /// <summary>
         /// Removes multiple product records within a specific entity in a single operation.
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <param name="ids">A list of unique identifiers of the product records to remove.</param>
+        /// <param name="token">The authorization token.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task RemoveMultiple(int tenantId, List<int> ids);
+        Task RemoveMultiple(int tenantId, List<int> ids, string token);
 
         /// <summary>
         /// Imports entities from a stream for the specified entity.
@@ -113,5 +115,13 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="relativePath">The relative path to the image.</param>
         /// <returns>The full file path.</returns>
         string GetImagePath(string relativePath);
+
+        /// <summary>
+        /// Downloads an image from the external drive by its identifier.
+        /// </summary>
+        /// <param name="fileId">The unique identifier of the file in MDrive.</param>
+        /// <param name="token">The authorization token.</param>
+        /// <returns>A task that represents the asynchronous operation, containing the file content and its content type.</returns>
+        Task<(byte[] Bytes, string ContentType)> DownloadImageAsync(int fileId, string token);
     }
 }

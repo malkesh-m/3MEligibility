@@ -6,20 +6,28 @@
   padding: 20px;
   background: #f5f5f5;
 }
+
 .action-cell {
   text-align: center !important;
   padding-right: 20px;
 }
+
 .wide-tile {
-  grid-column: span 2; /* makes it span 2 columns */
+  grid-column: span 2;
+  /* makes it span 2 columns */
 }
-.clickable-icon {
+
+.search-filter-bar select,
+.search-filter-bar input[type="date"] {
   cursor: pointer;
 }
+
 .small-text .tile-count {
-  font-size: 20px; /* smaller font size */
+  font-size: 20px;
+  /* smaller font size */
   line-height: 14px;
-  word-break: break-word; /* wrap long text */
+  word-break: break-word;
+  /* wrap long text */
 }
 
 .tile {

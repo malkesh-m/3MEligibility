@@ -14,23 +14,31 @@
                     {{ param.groupName }}
                 </option>
             </select>
+         <div *ngIf="isSuperAdminSelected()" 
+                    class="text-danger mt-1 ms-3"
+                    style="font-size: 15px; line-height: 1.2;">
+                Super Admin permissions cannot be removed. </div>
         </div>
+        
 
         <div class="col-4" *ngIf="activeTab === 'AvailablePermissions'">
             <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
                 (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
         </div>
         <div class="col-auto" *ngIf="activeTab === 'AssignedPermissions'">
-            <button appUseractivity="User Click on Remove Permission button"
+            <button appUseractivity="User Click on Remove Permission button"  [disabled]="isSuperAdminSelected()"
+
               [componentName]="'PermissionComponent'"
               [actionType]="'ButtonClick'" class="cancelBtn btn-outline-secondary" style="min-width: 125px !important;" (click)="deletePermission()">
                 {{ 'Remove Permission' | translate }}
             </button>
+          
         </div>
+        
         <div class="col-auto" *ngIf="activeTab === 'AvailablePermissions'">
             <button appUseractivity="User Click on Add Permission button"
               [componentName]="'PermissionComponent'"
-              [actionType]="'ButtonClick'" class="btn btn-outline-secondary" (click)="addPermission()">
+              [actionType]="'ButtonClick'" class="addBtn btn-outline-secondary" (click)="addPermission()">
                 {{ 'Add Permission' | translate }}
             </button>
         </div>

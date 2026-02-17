@@ -18,7 +18,7 @@ public partial class Product : ITenantEntity
 
     public string? Description { get; set; }
 
-    public string? MimeType { get; set; }
+    //public string? MimeType { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
 
@@ -33,7 +33,7 @@ public partial class Product : ITenantEntity
     public decimal MaxEligibleAmount { get; set; }
 
     public virtual Category? Category { get; set; }
-
+    public int? ProductImageId { get; set; }
     //public virtual Entity? Entity { get; set; }
 
     public virtual ICollection<ExceptionProduct> ExceptionProducts { get; set; } = [];

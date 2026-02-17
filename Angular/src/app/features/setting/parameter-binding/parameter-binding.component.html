@@ -63,10 +63,10 @@
             </th>
             <td class="cellStyling column-actions" mat-cell *matCellDef="let element">
                 <div class="action-buttons">
-                    <button class="btn btn-primary btn-sm " *ngIf="isModified(element)" (click)="saveParameter(element)">
+                    <button class="addBtn btn-primary btn-sm " *ngIf="isModified(element)" (click)="saveParameter(element)">
                         {{ 'Save' | translate }}
                     </button>
-                    <button class="btn btn-secondary btn-sm" *ngIf="isModified(element)" (click)="cancelChanges(element)">
+                    <button class="cancelBtn btn-secondary btn-sm" *ngIf="isModified(element)" (click)="cancelChanges(element)">
                         {{ 'Cancel' | translate }}
                     </button>
                 </div>

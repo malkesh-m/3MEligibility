@@ -162,7 +162,7 @@
                                         <path
                                             d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
                                     </svg>
-                                    <span class="upload-text-compact">Click to add image</span>
+                                    <span class="upload-text-compact">Click to upload image</span>
                                     <span class="upload-hint-compact">JPG, PNG (Max 5MB)</span>
                                 </div>
                                 <div *ngIf="imagePreview" class="image-preview-compact">
@@ -175,9 +175,12 @@
                                                 d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
                                         </svg></button>
                                 </div>
-                                <div *ngIf="isUploading" class="upload-loading-compact">
-                                    <div class="spinner-compact"></div><span class="loading-text-compact">{{
-                                        uploadProgress }}%</span>
+                                <!-- Industry Standard Loader (Fast & Safe) -->
+                                <div *ngIf="isImageUploading || isImageFetching" class="upload-loading-compact">
+                                    <div class="upload-spinner-compact"></div>
+                                    <span class="upload-loading-text-compact">
+                                        {{ isImageUploading ? 'Uploading...' : 'Loading image...' }}
+                                    </span>
                                 </div>
                             </div>
                             <small class="text-muted" *ngIf="selectedImageFile">{{ selectedImageFile.name }} ({{
@@ -323,10 +326,10 @@
     <div>
         <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple"
             [displayedColumns]="columnsDisplayAry" [header]="headerDisplayAry" [rows]="rows"
-            (actionEvent)="tableRowAction($event)" [editPermissionId]="editPermissionId" [deletePermissionId]="deletePermissionId">
+            (actionEvent)="tableRowAction($event)" [editPermissionId]="editPermissionId"
+            [deletePermissionId]="deletePermissionId">
         </app-table>
 
 
     </div>
 </div>
-

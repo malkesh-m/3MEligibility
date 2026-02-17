@@ -19,6 +19,9 @@ interface Product {
   narrative: string;
   mimeType: string;
   maxEligibleAmount: number;
+  productImageId: number;
+  productImagePath: string;
+  tenantId: number;
 }
 
 interface Category {
@@ -261,6 +264,7 @@ export class ProductComponent {
           return product;
         });
         this.applyFilter(action);
+
         this.isLoading = false;
 
       },

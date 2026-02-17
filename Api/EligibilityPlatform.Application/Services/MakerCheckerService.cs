@@ -1063,35 +1063,35 @@ namespace MEligibilityPlatform.Application.Services
                     // Process operations for the Product entity
                     case nameof(Product):
                         // Process Add operation for Product
-                        if (model.ActionName == "Add")
-                        {
-                            // Deserialize the JSON data containing new Product values
-                            var newValue = JsonConvert.DeserializeObject<ProductAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Set the entity ID for the new Product record
-                            newValue.TenantId = tenantId;
-                            // Call the service to add the new Product to the database
-                            await _productService.Add(newValue);
-                        }
+                        //if (model.ActionName == "Add")
+                        //{
+                        //    // Deserialize the JSON data containing new Product values
+                        //    var newValue = JsonConvert.DeserializeObject<ProductAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
+                        //    // Set the entity ID for the new Product record
+                        //    newValue.TenantId = tenantId;
+                        //    // Call the service to add the new Product to the database
+                        //    await _productService.Add(newValue);
+                        //}
                         // Process Update operation for Product
-                        else if (model.ActionName == "Update")
-                        {
-                            // Deserialize the JSON data containing updated Product values
-                            var newValue = JsonConvert.DeserializeObject<ProductAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Set the entity ID for the Product update
-                            newValue.TenantId = tenantId;
-                            // Call the service to update the existing Product in the database
-                            await _productService.Update(newValue);
-                        }
+                        // if (model.ActionName == "Update")
+                        //{
+                        //    // Deserialize the JSON data containing updated Product values
+                        //    var newValue = JsonConvert.DeserializeObject<ProductAddUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
+                        //    // Set the entity ID for the Product update
+                        //    newValue.TenantId = tenantId;
+                        //    // Call the service to update the existing Product in the database
+                        //    await _productService.Update(newValue);
+                        //}
                         // Process Delete operation for Product
-                        else if (model.ActionName == "Delete")
-                        {
-                            // Deserialize the JSON data containing the Product to be deleted
-                            var newValue = JsonConvert.DeserializeObject<ProductModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Extract the Product ID from the deserialized object
-                            var dtId = newValue.ProductId;
-                            // Call the service to delete the Product from the database
-                            await _productService.Delete(tenantId, dtId);
-                        }
+                        // if (model.ActionName == "Delete")
+                        //{
+                        //    // Deserialize the JSON data containing the Product to be deleted
+                        //    var newValue = JsonConvert.DeserializeObject<ProductModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
+                        //    // Extract the Product ID from the deserialized object
+                        //    var dtId = newValue.ProductId;
+                        //    // Call the service to delete the Product from the database
+                        //    await _productService.Delete(tenantId, dtId);
+                        //}
                         // Exit the Product case
                         break;
 

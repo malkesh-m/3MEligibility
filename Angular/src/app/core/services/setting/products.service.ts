@@ -55,10 +55,23 @@ export class ProductsService {
       catchError(this.handleError)
     );
   }
-
+  getProductImage(imageId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/product/drive-image/${imageId}`,
+      { responseType: 'blob', headers: this.getHeaders() }
+    );
+  }
+  uploadDriveImage(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.apiUrl}/product/upload-drive-image`, formData, { headers: this.getHeaders() });
+  }
+  deleteDriveImage(fileId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/product/drive-image/${fileId}`, { headers: this.getHeaders() });
+  }
   DownloadCategoryTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/category/Download-Template', { responseType: 'blob', headers: this.getHeaders()  }).pipe(
+      .get(this.apiUrl + '/category/Download-Template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
         catchError(this.handleError)
       );
   }
@@ -93,7 +106,7 @@ export class ProductsService {
     if (!filename) return '';
     const parts = filename.replace(/\\/g, '/').split('/');
     const file = parts[parts.length - 1];
-    return `${this.imageBaseUrl}/${filename}`;
+    return `${this.apiUrl}/product/image/${tenantId}/${file}`;
   }
 
   deleteCategoryInfoWithId(id: number) {

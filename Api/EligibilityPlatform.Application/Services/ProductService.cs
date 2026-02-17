@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Formats.Asn1;
 using System.Globalization;
 using MapsterMapper;
@@ -26,7 +26,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
     /// <param name="categoryService">The category service instance.</param>
-    public class ProductService(IUnitOfWork uow, IMapper mapper, ICategoryService categoryService, IWebHostEnvironment webHostEnvironment) : IProductService
+    public class ProductService(IUnitOfWork uow, IMapper mapper, ICategoryService categoryService, IWebHostEnvironment webHostEnvironment, IDriveService driveService) : IProductService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -47,13 +47,13 @@ namespace MEligibilityPlatform.Application.Services
         /// The web host environment for accessing wwwroot path.
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
-
+        private readonly IDriveService _driveService = driveService;
         /// <summary>
         /// Adds a new product to the database.
         /// </summary>
         /// <param name="model">The ProductAddUpdateModel containing the data to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Add(ProductAddUpdateModel model)
+        public async Task Add(ProductAddUpdateModel model,string token)
         {
             // Checks if a product with the same code already exists for the entity.
             var results = _uow.ProductRepository.Query()
@@ -73,13 +73,17 @@ namespace MEligibilityPlatform.Application.Services
                 throw new InvalidOperationException("Stream Name is already exits");
             }
 
-            // Handle file upload if provided
-            if (model.ProductImageFile != null)
+            // Handle file upload only if it hasn't been pre-uploaded (optimization)
+            if (model.ProductImageFile != null && model.ProductImageId == null)
             {
-                model.ProductImagePath = await FileUploadHelper.SaveFileAsync(
-                    model.ProductImageFile, 
-                    model.TenantId, 
-                    _webHostEnvironment.WebRootPath);
+                var uploadResult = await _driveService
+                    .UploadAsync(model.ProductImageFile, token);
+
+                if (!uploadResult.Succeeded || uploadResult.Data == null)
+                    throw new Exception("Image upload failed");
+
+                model.ProductImageId = uploadResult.Data.Id;   
+                model.ProductImagePath = uploadResult.Data.Path; 
             }
 
             // Maps the model to a Product entity.
@@ -99,21 +103,19 @@ namespace MEligibilityPlatform.Application.Services
             await _uow.CompleteAsync();
         }
 
-        /// <summary>
-        /// Deletes a product by its entity ID and product ID.
-        /// </summary>
         /// <param name="tenantId">The entity ID.</param>
         /// <param name="id">The product ID to delete.</param>
+        /// <param name="token">The authorization token.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Delete(int tenantId, int id)
+        public async Task Delete(int tenantId, int id, string token)
         {
             // Retrieves the product entity by ID and entity ID.
             var Item = _uow.ProductRepository.Query().First(f => f.ProductId == id && f.TenantId == tenantId);
 
-            // Delete associated image file if it exists
-            if (!string.IsNullOrWhiteSpace(Item.ProductImagePath))
+            // Delete associated image from MDrive if it exists
+            if (Item.ProductImageId.HasValue)
             {
-                FileUploadHelper.DeleteFile(Item.ProductImagePath, _webHostEnvironment.WebRootPath);
+                await _driveService.DeleteAsync(Item.ProductImageId.Value, token);
             }
 
             // Removes the product entity from the repository.
@@ -146,7 +148,9 @@ namespace MEligibilityPlatform.Application.Services
                     Narrative = s.Narrative,
                     ProductId = s.ProductId,
                     ProductImagePath = s.ProductImagePath,
+                    ProductImageId = s.ProductImageId,
                     ProductName = s.ProductName,
+
                     UpdatedBy = s.UpdatedBy,
                     UpdatedByDateTime = s.UpdatedByDateTime,
                     MaxEligibleAmount = (int?)s.MaxEligibleAmount
@@ -225,10 +229,12 @@ namespace MEligibilityPlatform.Application.Services
         public ProductListModel GetById(int tenantId, int id)
         {
             // Retrieves products filtered by entity ID and product ID.
-            var products = _uow.ProductRepository.Query().Where(w => w.ProductId == id && w.TenantId == tenantId).ToList();
+            var product = _uow.ProductRepository.Query()
+                .Where(w => w.ProductId == id && w.TenantId == tenantId)
+                .FirstOrDefault()?? throw new Exception("Product not found");
 
             // Maps the product entity to a list model and returns.
-            return _mapper.Map<ProductListModel>(products);
+            return _mapper.Map<ProductListModel>(product);
         }
 
         /// <summary>
@@ -236,75 +242,69 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="model">The ProductAddUpdateModel containing updated data.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Update(ProductAddUpdateModel model)
+        public async Task Update(ProductAddUpdateModel model, string token)
         {
-            // Checks if another product with the same code already exists for the entity.
-            var results = _uow.ProductRepository.Query()
-           .Any(f => f.TenantId == model.TenantId && f.Code == model.Code && model.ProductId != f.ProductId);
+            var codeExists = _uow.ProductRepository.Query()
+                .Any(f => f.TenantId == model.TenantId && f.Code == model.Code
+                      && f.ProductId != model.ProductId);
+            if (codeExists)
+                throw new InvalidOperationException("Code already exists");
 
-            // Throws an exception if the code already exists.
-            if (results)
-            {
-                throw new InvalidOperationException("Code is already exits");
-            }
-            var productName = _uow.ProductRepository.Query()
-           .Any(f => f.TenantId == model.TenantId && f.ProductName == model.ProductName && f.ProductId != model.ProductId);
+            var nameExists = _uow.ProductRepository.Query()
+                .Any(f => f.TenantId == model.TenantId && f.ProductName == model.ProductName
+                      && f.ProductId != model.ProductId);
+            if (nameExists)
+                throw new InvalidOperationException("Product Name already exists");
 
-            // Throws an exception if the code already exists.
-            if (productName)
-            {
-                throw new InvalidOperationException("Stream Name is already exits");
-            }
-            // Sets CategoryId to null if it's 0, otherwise uses the provided value.
             model.CategoryId = model.CategoryId == 0 ? (int?)null : model.CategoryId;
 
-            // Retrieves the existing product entity by ID and entity ID.
-            var products = _uow.ProductRepository.Query().FirstOrDefault(w => w.ProductId == model.ProductId && w.TenantId == model.TenantId) ?? throw new InvalidOperationException("Product Does Not Exist");
-            var createdBy = products.CreatedBy;
-            var oldImagePath = products.ProductImagePath;
+            var existingProduct = _uow.ProductRepository.Query()
+                .FirstOrDefault(w => w.ProductId == model.ProductId && w.TenantId == model.TenantId)
+                ?? throw new InvalidOperationException("Product does not exist");
 
-            // Handle file upload/removal from wwwroot
-            if (model.ProductImageFile != null)
+            // Handle file upload only if it hasn't been pre-uploaded (optimization)
+            if (model.ProductImageFile != null && model.ProductImageId == null)
             {
-                // Delete old file if it exists
-                if (!string.IsNullOrWhiteSpace(oldImagePath))
-                {
-                    FileUploadHelper.DeleteFile(oldImagePath, _webHostEnvironment.WebRootPath);
-                }
+                var uploadResult = await _driveService.UploadAsync(model.ProductImageFile, token);
 
-                // Save new file
-                model.ProductImagePath = await FileUploadHelper.SaveFileAsync(
-                    model.ProductImageFile,
-                    model.TenantId,
-                    _webHostEnvironment.WebRootPath);
+                if (!uploadResult.Succeeded || uploadResult.Data == null)
+                    throw new InvalidOperationException("Image upload failed");
+
+                // Delete old only after new upload succeeds
+                if (existingProduct.ProductImageId.HasValue)
+                    await _driveService.DeleteAsync(existingProduct.ProductImageId.Value, token);
+
+                model.ProductImageId = uploadResult.Data.Id;
+                model.ProductImagePath = uploadResult.Data.Path;
             }
             else if (model.RemoveOldImage)
             {
-                if (!string.IsNullOrWhiteSpace(oldImagePath))
-                {
-                    FileUploadHelper.DeleteFile(oldImagePath, _webHostEnvironment.WebRootPath);
-                }
+                if (existingProduct.ProductImageId.HasValue)
+                    await _driveService.DeleteAsync(existingProduct.ProductImageId.Value, token);
 
+                model.ProductImageId = null;
                 model.ProductImagePath = null;
             }
             else
             {
-                // Preserve existing image path if no new file is uploaded
-                model.ProductImagePath = oldImagePath;
+                // Only use existing image info if the model doesn't already have one (pre-upload support)
+                if (model.ProductImageId == null || model.ProductImageId == 0)
+                {
+                    model.ProductImageId = existingProduct.ProductImageId;
+                    model.ProductImagePath = existingProduct.ProductImagePath;
+                }
             }
 
-            // Maps the updated model to the existing entity.
-            var productEntities = _mapper.Map<ProductAddUpdateModel, Product>(model, products);
-            products.CreatedBy = createdBy;
+            var createdBy = existingProduct.CreatedBy;
+            var createdByDateTime = existingProduct.CreatedByDateTime;
 
-            // Sets the updated by user and timestamp.
-            productEntities.UpdatedBy = model.UpdatedBy ?? "";
-            productEntities.UpdatedByDateTime = DateTime.UtcNow;
+            _mapper.Map(model, existingProduct);
 
-            // Updates the product entity in the repository.
-            _uow.ProductRepository.Update(productEntities);
+            existingProduct.CreatedBy = createdBy;
+            existingProduct.CreatedByDateTime = createdByDateTime;
+            existingProduct.UpdatedByDateTime = DateTime.UtcNow;
 
-            // Commits the changes to the database.
+            _uow.ProductRepository.Update(existingProduct);
             await _uow.CompleteAsync();
         }
 
@@ -313,8 +313,9 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The entity ID.</param>
         /// <param name="ids">A list of product IDs to remove.</param>
+        /// <param name="token">The authorization token.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task RemoveMultiple(int tenantId, List<int> ids)
+        public async Task RemoveMultiple(int tenantId, List<int> ids, string token)
         {
             // Iterates through each product ID to remove.
             foreach (var id in ids)
@@ -325,10 +326,10 @@ namespace MEligibilityPlatform.Application.Services
                 // Removes the product entity if it exists.
                 if (products != null)
                 {
-                    // Delete associated image file if it exists
-                    if (!string.IsNullOrWhiteSpace(products.ProductImagePath))
+                    // Delete associated image from MDrive if it exists
+                    if (products.ProductImageId.HasValue)
                     {
-                        FileUploadHelper.DeleteFile(products.ProductImagePath, _webHostEnvironment.WebRootPath);
+                        await _driveService.DeleteAsync(products.ProductImageId.Value, token);
                     }
 
                     _uow.ProductRepository.Remove(products);
@@ -906,6 +907,11 @@ namespace MEligibilityPlatform.Application.Services
         public string GetImagePath(string relativePath)
         {
             return FileUploadHelper.GetFullPath(relativePath, _webHostEnvironment.WebRootPath);
+        }
+
+        public async Task<(byte[] Bytes, string ContentType)> DownloadImageAsync(int fileId, string token)
+        {
+            return await _driveService.DownloadAsync(fileId, token);
         }
     }
 }

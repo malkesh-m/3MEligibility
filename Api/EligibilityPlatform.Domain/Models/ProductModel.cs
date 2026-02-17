@@ -42,6 +42,7 @@ namespace MEligibilityPlatform.Domain.Models
 
         [Range(0, double.MaxValue, ErrorMessage = "MaxEligibleAmount must be non-negative.")]
         public decimal? MaxEligibleAmount { get; set; }
+        public int? ProductImageId { get; set; }
     }
     public class ProductListModel : ProductModel
     {

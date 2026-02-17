@@ -126,7 +126,7 @@
 
       <!-- Created By Column -->
       <ng-container matColumnDef="createdBy">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Created By' | translate }}
           <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
             matTooltip="Show/Hide Created Date">
             {{ displayedColumns.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
@@ -138,7 +138,7 @@
       </ng-container>
 
       <!-- Created Date Column (Initially Hidden) -->
-      <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate">
+      <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate" mat-sort-header>
         <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
           {{ 'Created Date' | translate }}
         </th>
@@ -148,7 +148,7 @@
       </ng-container>
 
       <!-- Updated By Column -->
-      <ng-container matColumnDef="updatedBy">
+      <ng-container matColumnDef="updatedBy" mat-sort-header>
         <th class="cellStyling" mat-header-cell *matHeaderCellDef>
           {{ 'Updated By' | translate }}
           <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
@@ -162,7 +162,7 @@
       </ng-container>
 
       <!-- Updated Date Column (Initially Hidden) -->
-      <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
+      <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate" mat-sort-header>
         <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
           {{ 'Updated Date' | translate }}
         </th>

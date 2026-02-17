@@ -156,6 +156,7 @@ builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler
 builder.Services.AddScoped<ITenantOnboardingService, TenantOnboardingService>();
 
 //builder.Services.AddScoped<IDynamicApiService, DynamicApiService>();
+builder.Services.AddScoped<IDriveService, DriveService>();
 
 // Also register other repositories if needed
 builder.Services.AddScoped<INodeModelRepository, NodeRepository>();
@@ -207,6 +208,16 @@ builder.Services.AddHttpClient("MIdentityAPI", (sp, client) =>
 
     if (string.IsNullOrEmpty(baseUrl))
         throw new InvalidOperationException("MIdentityAPI BaseURL is not configured.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
+builder.Services.AddHttpClient("MDrive", (sp, client) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = config["MDrive:BaseURL"];
+
+    if (string.IsNullOrEmpty(baseUrl))
+        throw new InvalidOperationException("MDrive BaseURL is not configured.");
 
     client.BaseAddress = new Uri(baseUrl);
 });
