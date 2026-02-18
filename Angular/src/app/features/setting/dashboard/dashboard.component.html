@@ -1,18 +1,18 @@
 <div class="mb-3">
   <div>
-    <p class="moduleLabel mb-2">Evaluation Summary & KPIs</p>
+    <p class="moduleLabel mb-2">{{'Evaluation Summary & KPIs' | translate}}</p>
   </div>
 
   <!-- Key Metrics Display -->
   <div class="tiles-container">
     <div class="tile" *ngFor="let item of dashboardTiles" [ngClass]="item.class">
       <div class="tile-header">
-        <span>{{ item.name }}</span>
+        <span>{{ item.name | translate }}</span>
         <mat-icon>{{ item.icon }}</mat-icon>
       </div>
       <div class="tile-count">{{ item.count }}</div>
       <div class="tile-footer" *ngIf="item.footer">
-        <span>{{ item.footer }}</span>
+        <span>{{ item.footer | translate }}</span>
       </div>
     </div>
   </div>
@@ -24,7 +24,7 @@
       <!-- Pass/Fail Trends Over Time -->
       <div class="chart-container">
         <div class="chart-header">
-          <h4>Pass/Fail Trends Over Time</h4>
+          <h4>{{'Pass/Fail Trends Over Time' | translate}}</h4>
           <select class="clickable-icon" [(ngModel)]="selectedYear" (change)="updateCharts()">
             <option *ngFor="let yr of years" [value]="yr">{{ yr }}</option>
           </select>
@@ -35,7 +35,7 @@
       <!-- Failure Reasons Breakdown -->
       <div class="chart-container">
         <div class="chart-header">
-          <h4>Failure Reasons Breakdown</h4>
+          <h4>{{'Failure Reasons Breakdown' | translate}}</h4>
         </div>
         <canvas id="failureReasonsChart"></canvas>
       </div>
@@ -43,7 +43,7 @@
       <!-- Evaluations by Customer Segment -->
       <div class="chart-container">
         <div class="chart-header">
-          <h4>Evaluations by Customer Segment</h4>
+          <h4>{{'Evaluations by Customer Segment' | translate}}</h4>
         </div>
         <canvas id="customerSegmentChart"></canvas>
       </div>
@@ -51,7 +51,7 @@
       <!-- Processing Time Distribution -->
       <div class="chart-container">
         <div class="chart-header">
-          <h4>Processing Time Distribution</h4>
+          <h4>{{'Processing Time Distribution' | translate}}</h4>
         </div>
         <canvas id="processingTimeChart"></canvas>
       </div>
@@ -59,7 +59,7 @@
       <!-- Risk Score Distribution -->
       <div class="chart-container">
         <div class="chart-header">
-          <h4>Risk Score Distribution</h4>
+          <h4>{{'Risk Score Distribution' | translate}}</h4>
         </div>
         <canvas id="riskScoreChart"></canvas>
       </div>
@@ -70,25 +70,25 @@
   <!-- Evaluation History Section -->
   <div class="evaluation-history-container">
     <div class="chart-header">
-      <h4>Detailed Evaluation History</h4>
+      <h4>{{'Detailed Evaluation History' | translate}}</h4>
     </div>
 
     <!-- Filters -->
     <div class="search-filter-bar">
 
-      <input type="text" placeholder="Search National ID"
-             [(ngModel)]="filter.searchText" (ngModelChange)="applyFilters()">
+      <input type="text" [placeholder]="'Search National ID' | translate" [(ngModel)]="filter.searchText"
+        (ngModelChange)="applyFilters()">
 
       <select [(ngModel)]="filter.decision" (change)="applyFilters()">
-        <option value="">All Decisions</option>
-        <option>Approved</option>
-        <option>Rejected</option>
+        <option value="">{{'All Decisions' | translate}}</option>
+        <option value="Approved">{{'Approved' | translate}}</option>
+        <option value="Rejected">{{'Rejected' | translate}}</option>
       </select>
 
-      <label>From Date</label>
+      <label>{{'From Date' | translate}}</label>
       <input type="date" [(ngModel)]="filter.fromDate" (change)="applyFilters()">
 
-      <label>To Date</label>
+      <label>{{'To Date' | translate}}</label>
       <input type="date" [(ngModel)]="filter.toDate" (change)="applyFilters()">
 
     </div>
@@ -97,11 +97,11 @@
     <table class="evaluation-table">
       <thead>
         <tr>
-          <th>National ID</th>
-          <th>Loan No</th>
-          <th>Evaluation Time</th>
-          <th>Outcome</th>
-          <th>Details</th>
+          <th>{{'National ID' | translate}}</th>
+          <th>{{'Loan No' | translate}}</th>
+          <th>{{'Evaluation Time' | translate}}</th>
+          <th>{{'Outcome' | translate}}</th>
+          <th>{{'Details' | translate}}</th>
         </tr>
       </thead>
 
@@ -113,9 +113,8 @@
           <td>{{ row.outcome }}</td>
 
           <td class="action-cell">
-            <mat-icon class="clickable-icon" color="primary"
-                      (click)="openApiDetails(row.evaluationHistoryId)"
-                      matTooltip="View Details">
+            <mat-icon class="clickable-icon" color="primary" (click)="openApiDetails(row.evaluationHistoryId)"
+              matTooltip="{{'View Details' | translate}}">
               visibility
             </mat-icon>
           </td>
@@ -123,11 +122,8 @@
       </tbody>
     </table>
 
-    <mat-paginator [length]="totalRecords"
-                   [pageSize]="pageSize"
-                   showFirstLastButtons
-                   [pageSizeOptions]="[10, 25, 50, 100]"
-                   (page)="onPageChange($event)">
+    <mat-paginator [length]="totalRecords" [pageSize]="pageSize" showFirstLastButtons
+      [pageSizeOptions]="[10, 25, 50, 100]" (page)="onPageChange($event)">
     </mat-paginator>
   </div>
 

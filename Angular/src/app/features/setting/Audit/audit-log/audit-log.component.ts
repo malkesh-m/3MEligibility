@@ -7,12 +7,13 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MakerCheckerService } from '../../../../core/services/setting/makerchecker.service';
 import { PermissionsService } from '../../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 import { MakerCheckerDetailsDialogComponent } from '../../maker-checker/maker-checker-details-dialog/maker-checker-details-dialog.component';
 
 @Component({
   selector: 'app-audit-log',
   standalone: false,
-  
+
   templateUrl: './audit-log.component.html',
   styleUrl: './audit-log.component.scss'
 })
@@ -28,14 +29,14 @@ export class AuditLogComponent {
   //rowcount !: number;
   //pageindex: number = 0;
   //pagesize: number = 10;
-  totalCount = 0;  
-  pageSize = 10;   
-  pageIndex = 0;   
+  totalCount = 0;
+  pageSize = 10;
+  pageIndex = 0;
   LoadAudit = false;
   isLoading: boolean = false;
   isUploading: boolean = false
   isDownloading: boolean = false
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
 
   parseJson(jsonString: string): any {
     try {
@@ -49,11 +50,12 @@ export class AuditLogComponent {
   constructor(
     private dialog: MatDialog,
     private auditservice: AuditService,
+    private translate: TranslateService
   ) { }
   ngOnInit() {
     this.getAuditLog();
   }
-  displayedColumns: string[] = ['recordId', 'actionName', 'actionDate', 'tableName',  'ipAddress','userName', 'updatedByDateTime','Actions'];
+  displayedColumns: string[] = ['recordId', 'actionName', 'actionDate', 'tableName', 'ipAddress', 'userName', 'updatedByDateTime', 'Actions'];
   openDetailsDialog(row: any): void {
     const dialogRef = this.dialog.open(MakerCheckerDetailsDialogComponent, {
       width: '80vw',
@@ -61,11 +63,11 @@ export class AuditLogComponent {
       data: {
         ...row,
         isMakerChecker: false
-}
+      }
     });
     dialogRef.afterClosed().subscribe(result => {
 
-    //  this.getAuditLog();
+      //  this.getAuditLog();
     });
   }
   //ngAfterViewInit() {
@@ -77,7 +79,7 @@ export class AuditLogComponent {
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.getAuditLog(); 
+    this.getAuditLog();
   }
   ngAfterViewInit() {
     if (this.paginator) {
@@ -90,7 +92,7 @@ export class AuditLogComponent {
 
     this.auditservice.getAuditLog(this.pageIndex, this.pageSize).subscribe({
       next: (response) => {
-        console.log(response.data );
+        console.log(response.data);
         if (response.isSuccess && response.data) {
           this.auditLogList = response.data.data;
           this.dataSource.data = response.data.data;

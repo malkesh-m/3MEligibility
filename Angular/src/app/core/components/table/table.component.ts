@@ -38,7 +38,7 @@ export class TableComponent {
 
   constructor(
     private dialog: MatDialog,
-    private PermissionsService:PermissionsService
+    private PermissionsService: PermissionsService
   ) { }
 
   ngAfterViewInit() {
@@ -65,11 +65,11 @@ export class TableComponent {
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
   }
-  
+
   get finalColumns(): string[] {
     return ['Select', ...this.displayedColumns, 'Actions'];
   }
-  
+
   toggleColumn(column: string) {
     const index = this.displayedColumns.indexOf(column);
 
@@ -91,19 +91,23 @@ export class TableComponent {
     this.displayedColumns = [...this.displayedColumns]; // Ensure reactivity
   }
 
-  ngOnChanges(changes: SimpleChanges) {    
+  ngOnChanges(changes: SimpleChanges) {
     this.dataSource.paginator = this.paginator;
     this.dataSource.data = this.rows;
     this.dataSource.sort = this.sort;
     this.selectedRows.clear(); // Deselect all rows on the current page
     this.selectedRowsItem.clear();
+    if (changes['header'] && this.header?.length) {
+      this.headers = this.header;
+      this.displayedColumns = [...this.headers];
+    }
   }
 
   applyFilter(filter: string) {
     this.dataSource.filter = filter;
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
-  
+
     }
   }
 
@@ -116,12 +120,12 @@ export class TableComponent {
   //     this.selectedRowsItem.add(rowItem[this.checkedSelectedId])
   //   }
   // }
-  
+
 
   toggleSelection(rowIndex: number, rowItem: any) {
     const productId = Number(rowItem.ProductId);  // Ensure it's a number
     const parameterId = Number(rowItem.ParameterId);  // Ensure it's a number
-    const existingRecordIndex = this.productparamSelectedItem.findIndex(item => 
+    const existingRecordIndex = this.productparamSelectedItem.findIndex(item =>
       item.productId === productId && item.parameterId === parameterId
     );
     if (this.selectedRows.has(rowIndex)) {
@@ -133,14 +137,14 @@ export class TableComponent {
     } else {
       this.selectedRows.add(rowIndex);
       this.selectedRowsItem.add(rowItem[this.checkedSelectedId])
-      this.productparamSelectedItem.push({productId,parameterId});
+      this.productparamSelectedItem.push({ productId, parameterId });
     }
   }
 
   toggleSelectAll(event: MatCheckboxChange) {
     const checked = event.checked;
     this.updatePaginatedRows(); // Make sure paginated rows are updated
-  
+
     if (checked) {
       this.selectedRows.clear(); // Clear any previous selections
       this.selectedRowsItem.clear();
@@ -154,7 +158,7 @@ export class TableComponent {
     }
   }
 
-  
+
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
@@ -163,14 +167,14 @@ export class TableComponent {
 
   deleterow(row: any): void {
     const rowIndex = this.rows.indexOf(row); // Get index before deletion
-  
+
     // Remove the row from the table
     this.rows = this.rows.filter(r => r !== row);
-  
+
     // Remove the row from selection
     this.selectedRows.delete(rowIndex);
     this.selectedRowsItem.delete(row[this.checkedSelectedId]);
-  
+
     // Adjust selectedRows indices to match the new row order
     const updatedSelectedRows = new Set<number>();
     this.selectedRows.forEach(selectedIndex => {
@@ -180,19 +184,19 @@ export class TableComponent {
         updatedSelectedRows.add(selectedIndex); // Keep unaffected selections
       }
     });
-  
+
     this.selectedRows = updatedSelectedRows; // Apply updated selection
-  
+
     // Emit delete action
     this.actionEvent.emit({ action: 'delete', data: row });
-  
+
     // Ensure selection state is updated
     this.updatePaginatedRows();
     this.selectedRows.clear();
     this.selectedRowsItem.clear();
   }
-  
-  
+
+
 
   updatePaginatedRows() {
     const startIndex = this.currentPage * this.pageSize;

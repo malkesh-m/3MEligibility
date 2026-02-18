@@ -8,7 +8,7 @@
   <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
 
     <ng-container matColumnDef="id">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef>  Id </th>
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Id' | translate }} </th>
       <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.id }} </td>
     </ng-container>
     <ng-container matColumnDef="message">
@@ -45,7 +45,8 @@
       <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.timeStamp |date:'M/d/yy, h:mm a'}} </td>
     </ng-container>
     <ng-container matColumnDef="exception">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Exception Message' | translate}} </th>
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Exception Message' | translate}}
+      </th>
       <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.exception }} </td>
     </ng-container>
     <!--<ng-container matColumnDef="properties">
@@ -75,18 +76,11 @@
 
   </table>
   <div *ngIf="LoadAudit" class="loading-container">
-    <p>Loading data, please wait...</p>
+    <p>{{ 'Loading data, please wait...' | translate }}</p>
   </div>
-  <mat-paginator #paginator
-                 class="paginator"
-                 [length]="totalCount"
-                 [pageSize]="pageSize"
-                 [pageIndex]="pageIndex"
-                 [pageSizeOptions]="[10, 25, 50]"
-                 showFirstLastButtons
-                 (page)="onPageChange($event)">
+  <mat-paginator #paginator class="paginator" [length]="totalCount" [pageSize]="pageSize" [pageIndex]="pageIndex"
+    [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons (page)="onPageChange($event)">
   </mat-paginator>
 </div>
 <p *ngIf="dataSource.data.length === 0 && LoadAudit===false">{{ 'No Log records found.' | translate }}</p>
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
-

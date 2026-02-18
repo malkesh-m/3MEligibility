@@ -9,6 +9,7 @@ import { MatCheckboxChange } from "@angular/material/checkbox";
 import { MatSort } from "@angular/material/sort";
 import { MatPaginator } from "@angular/material/paginator";
 import { PermissionsService } from "../../../core/services/setting/permission.service";
+import { TranslateService } from "@ngx-translate/core";
 
 export interface GroupRecord {
   groupId: number | null;
@@ -56,7 +57,7 @@ export class PermissionComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   isLoading: boolean = false;
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
   isUploading: boolean = false;
   isDownloading: boolean = false;
   constructor(
@@ -65,7 +66,8 @@ export class PermissionComponent implements OnInit {
     private titleService: Title,
     private location: Location,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService
   ) { }
 
   private readonly moduleOrder: string[] = [
@@ -95,21 +97,21 @@ export class PermissionComponent implements OnInit {
   get activeTabTitle(): string {
     switch (this.activeTab) {
       case 'AssignedPermissions':
-        return 'Assigned Permissions';
+        return this.translate.instant('Assigned Permissions');
       case 'AvailablePermissions':
-        return 'Available Permissions';
+        return this.translate.instant('Available Permissions');
       default:
-        return 'Permissions';
+        return this.translate.instant('Permissions');
     }
   }
 
   updateTitle() {
     this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
   }
-isSuperAdminSelected(): boolean {
-  const group = this.records.find(g => g.groupId == this.selectedGroupId);
-  return group?.groupName?.toLowerCase() === 'super admin';
-}
+  isSuperAdminSelected(): boolean {
+    const group = this.records.find(g => g.groupId == this.selectedGroupId);
+    return group?.groupName?.toLowerCase() === 'super admin';
+  }
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
   }
@@ -145,7 +147,7 @@ isSuperAdminSelected(): boolean {
         this.isLoading = false;
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -164,51 +166,51 @@ isSuperAdminSelected(): boolean {
     this.selectedPermissionIds = Array.from(selectedOptions).map((option) => +option.value);
   }
 
-deletePermission() {
+  deletePermission() {
 
-  if (this.isSuperAdminSelected()) {
-    this._snackBar.open(
-      "You cannot remove permissions from Super Admin group.",
-      'Okay',
-      {
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        duration: 3000,
-      }
-    );
-    return;
-  }
-
-  this.requestBody.groupId = this.selectedGroupId!;
-  this.requestBody.permissionIds = this.selectedPermissionIds;
-
-  this.permissionService.deletePermission(this.requestBody).subscribe({
-    next: (response) => {
-      if (response.isSuccess) {
-        this.selectedPermissionIds = [];
-        this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
-
-        this._snackBar.open("Permission removed successfully.", 'Okay', {
+    if (this.isSuperAdminSelected()) {
+      this._snackBar.open(
+        this.translate.instant("You cannot remove permissions from Super Admin group."),
+        this.translate.instant('Okay'),
+        {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000,
-        });
-      } else {
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
-      }
+        }
+      );
+      return;
     }
-  });
-}
+
+    this.requestBody.groupId = this.selectedGroupId!;
+    this.requestBody.permissionIds = this.selectedPermissionIds;
+
+    this.permissionService.deletePermission(this.requestBody).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.selectedPermissionIds = [];
+          this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
+
+          this._snackBar.open(this.translate.instant("Permission removed successfully."), this.translate.instant('Okay'), {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+        } else {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+        }
+      }
+    });
+  }
 
   addPermission() {
     this.requestBody.groupId = this.selectedGroupId!;
     this.requestBody.permissionIds = this.selectedPermissionIds;
     if (!this.requestBody.permissionIds || this.requestBody.permissionIds.length === 0) {
-      this._snackBar.open("Please select at least one permission.", 'Okay', {
+      this._snackBar.open(this.translate.instant("Please select at least one permission."), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000,
@@ -221,12 +223,12 @@ deletePermission() {
           this.selectedPermissionIds = [];
           this.getUnAssignedPermissionsByGroupId(this.requestBody.groupId);
           this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
-          this._snackBar.open("Permission added successfully.", 'Okay', {
+          this._snackBar.open(this.translate.instant("Permission added successfully."), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
         } else {
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
@@ -234,7 +236,7 @@ deletePermission() {
       },
       error: (error) => {
         console.error('Error adding assigned user:', error)
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -262,7 +264,7 @@ deletePermission() {
       error: (error) => {
         this.permissionAssignedDataSource.data = [];
         this.permissionUnassignedDataSource.data = [];
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -289,7 +291,7 @@ deletePermission() {
         this.permissionAssignedDataSource.data = [];
         this.permissionUnassignedDataSource.data = [];
 
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });

@@ -4,6 +4,7 @@ import { ProductListComponent } from './product-list/product-list.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 import { Title } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -86,7 +87,7 @@ export class ProductComponent {
   isDownloading: boolean = false;
   isLoading: boolean = false; // Show loader on page load
   isUploading: boolean = false;
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
   loggedInUser: any = null;
   createdBy: string = '';
   tabMapping: { [key: string]: number } = {
@@ -102,7 +103,8 @@ export class ProductComponent {
     private authService: AuthService,
     private titleService: Title,
     private location: Location,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -128,10 +130,10 @@ export class ProductComponent {
 
   get activeTabTitle(): string {
     switch (this.activeTab) {
-      case 'Category': return 'Products - Category';
-      case 'Info': return 'Products - Product';
-      case 'Details': return 'Products - Details';
-      default: return 'Products';
+      case 'Category': return this.translate.instant('Products - Category');
+      case 'Info': return this.translate.instant('Products - Product');
+      case 'Details': return this.translate.instant('Products - Details');
+      default: return this.translate.instant('Products');
     }
   }
 
@@ -241,7 +243,7 @@ export class ProductComponent {
       error: (error) => {
         this.categoriesList = [];
         this.applyFilter(action);
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -271,7 +273,7 @@ export class ProductComponent {
       error: (error) => {
         this.infoList = [];
         this.applyFilter(action);
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -289,7 +291,7 @@ export class ProductComponent {
       error: (error) => {
         this.detailsList = [];
         this.applyFilter(action);
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -404,7 +406,7 @@ export class ProductComponent {
         a.download = 'Category-Template.xlsx'; // Filename for the download
         a.click();
         window.URL.revokeObjectURL(url);
-        this._snackBar.open('Category Template Download Successfully.', 'Okay', {
+        this._snackBar.open(this.translate.instant('Category Template Download Successfully.'), this.translate.instant('Okay'), {
           duration: 3000,
           horizontalPosition: 'right',
           verticalPosition: 'top'
@@ -423,7 +425,7 @@ export class ProductComponent {
         a.download = 'Info-Template.xlsx'; // Filename for the download
         a.click();
         window.URL.revokeObjectURL(url);
-        this._snackBar.open('Info Template Download Successfully.', 'Okay', {
+        this._snackBar.open(this.translate.instant('Info Template Download Successfully.'), this.translate.instant('Okay'), {
           duration: 2000,
           horizontalPosition: 'right',
           verticalPosition: 'top'
@@ -442,7 +444,7 @@ export class ProductComponent {
         a.download = 'Details-Template.xlsx'; // Filename for the download
         a.click();
         window.URL.revokeObjectURL(url);
-        this._snackBar.open('Details Template Download Successfully.', 'Okay', {
+        this._snackBar.open(this.translate.instant('Details Template Download Successfully.'), this.translate.instant('Okay'), {
           duration: 3000,
           horizontalPosition: 'right',
           verticalPosition: 'top'
@@ -456,7 +458,7 @@ export class ProductComponent {
     if (this.selectedFile) {
       this.importProduct(this.selectedFile);
     } else {
-      this._snackBar.open('Please select a file first.', 'Okay', {
+      this._snackBar.open(this.translate.instant('Please select a file first.'), this.translate.instant('Okay'), {
         duration: 2000,
         horizontalPosition: 'right',
         verticalPosition: 'top'
@@ -476,14 +478,14 @@ export class ProductComponent {
         next: (response) => {
           this.isUploading = false;
           this.fetchCategoriesList();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         },
         error: (error) => {
           this.isUploading = false;
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -495,14 +497,14 @@ export class ProductComponent {
         next: (response) => {
           this.isUploading = false;
           this.fetchInfoList();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         },
         error: (error) => {
           this.isUploading = false;
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -514,14 +516,14 @@ export class ProductComponent {
         next: (response) => {
           this.isUploading = false;
           this.fetchDetailsList();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         },
         error: (error) => {
           this.isUploading = false;
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });

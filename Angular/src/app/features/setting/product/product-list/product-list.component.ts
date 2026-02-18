@@ -44,7 +44,7 @@ export class ProductListComponent implements OnDestroy {
   updatedIndexId: number = 0;
   deleteKeyForMultiple: string = '';
   isInsertNewRecord: boolean = false;
-  requiredAry = [{ 'label': 'Yes', value: true }, { 'label': 'No', value: false }]
+  requiredAry = [{ 'label': this.translate.instant('Yes'), value: true }, { 'label': this.translate.instant('No'), value: false }]
   private _snackBar = inject(MatSnackBar);
   selectedRows: Set<number> = new Set();
   entitiesList: { entityId: number; entityName: string }[] = [];
@@ -156,7 +156,7 @@ export class ProductListComponent implements OnDestroy {
     // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      this._snackBar.open('Please select a valid image file (JPG, PNG, GIF, BMP, WEBP)', 'Okay', {
+      this._snackBar.open(this.translate.instant('Please select a valid image file (JPG, PNG, GIF, BMP, WEBP)'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -166,7 +166,7 @@ export class ProductListComponent implements OnDestroy {
 
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      this._snackBar.open('File size should not exceed 5MB.', 'Okay', {
+      this._snackBar.open(this.translate.instant('File size should not exceed 5MB.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -204,14 +204,14 @@ export class ProductListComponent implements OnDestroy {
             productImageId: res.data.id,
             productImagePath: res.data.path
           });
-          this._snackBar.open('Image uploaded successfully', 'Dismiss', { duration: 2000 });
+          this._snackBar.open(this.translate.instant('Image uploaded successfully'), this.translate.instant('Dismiss'), { duration: 2000 });
         }
       },
       error: (err) => {
         this.isImageUploading = false;
         this.uploadSub = null;
         console.error('Pre-upload failed:', err);
-        this._snackBar.open('Upload failed. We will try again during product save.', 'Okay', { duration: 4000 });
+        this._snackBar.open(this.translate.instant('Upload failed. We will try again during product save.'), this.translate.instant('Okay'), { duration: 4000 });
       }
     });
   }
@@ -432,7 +432,7 @@ export class ProductListComponent implements OnDestroy {
 
         if (response.isSuccess) {
           this.isLoading = false;
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -443,7 +443,7 @@ export class ProductListComponent implements OnDestroy {
       error: (error) => {
         this.isLoading = false;
 
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -461,7 +461,7 @@ export class ProductListComponent implements OnDestroy {
         if (response.isSuccess) {
           this.isLoading = false;
           this.cancelEvent();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -472,7 +472,7 @@ export class ProductListComponent implements OnDestroy {
       error: (error) => {
         this.isLoading = false;
 
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -484,8 +484,8 @@ export class ProductListComponent implements OnDestroy {
 
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
-        title: 'Confirm',
-        message: `Are you sure you want to delete the category: "${categoryName}"?`
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the category: "{{categoryName}}"?', { categoryName })
       }
     });
 
@@ -496,7 +496,7 @@ export class ProductListComponent implements OnDestroy {
       this.productService.deleteCategoryWithId(id).subscribe({
         next: (response) => {
 
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
@@ -509,8 +509,8 @@ export class ProductListComponent implements OnDestroy {
         },
         error: (error) => {
           this._snackBar.open(
-            error?.error?.message || error.message || 'Something went wrong.',
-            'Okay',
+            this.translate.instant(error?.error?.message || error.message || 'Something went wrong.'),
+            this.translate.instant('Okay'),
             {
               horizontalPosition: 'right',
               verticalPosition: 'top',
@@ -524,18 +524,23 @@ export class ProductListComponent implements OnDestroy {
   }
   deleteCategoryWithMultiple(payload: any) {
     if (this.tableChild.selectedRows.size === 0) {
-      alert('Please select at least one row to delete');
+      alert(this.translate.instant('Please select at least one row to delete'));
       return;
     }
 
-    const dialogRef = this.dialog.open(DeleteDialogComponent);
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the records? This action cannot be undone.')
+      }
+    });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.delete) {
         this.productService.deleteMultipleCategories(payload).subscribe({
           next: (response: any) => {
             if (response.isSuccess) {
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -543,7 +548,7 @@ export class ProductListComponent implements OnDestroy {
             }
           },
           error: (error) => {
-            this._snackBar.open(error.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
@@ -605,7 +610,7 @@ export class ProductListComponent implements OnDestroy {
           this.isLoading = false;
           this.uploadProgress = 100;
           this.cancelEvent();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
@@ -618,7 +623,7 @@ export class ProductListComponent implements OnDestroy {
         this.isLoading = false;
 
         this.uploadProgress = 0;
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000
@@ -639,7 +644,7 @@ export class ProductListComponent implements OnDestroy {
           this.isLoading = false;
           this.uploadProgress = 100;
           this.cancelEvent();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
@@ -652,7 +657,7 @@ export class ProductListComponent implements OnDestroy {
         this.isLoading = false;
 
         this.uploadProgress = 0;
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000
@@ -665,8 +670,8 @@ export class ProductListComponent implements OnDestroy {
 
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
-        title: 'Confirm',
-        message: `Are you sure you want to delete the product: "${productName}"?`
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the product: "{{productName}}"?', { productName })
       }
     });
 
@@ -677,7 +682,7 @@ export class ProductListComponent implements OnDestroy {
       this.productService.deleteCategoryInfoWithId(id).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top',
               duration: 3000
@@ -690,7 +695,7 @@ export class ProductListComponent implements OnDestroy {
         error: (error) => {
           console.error('Error deleting product info:', error);
 
-          this._snackBar.open(error.message || 'Something went wrong', 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message || 'Something went wrong'), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
@@ -702,18 +707,23 @@ export class ProductListComponent implements OnDestroy {
   }
   deleteMultipleInfoItem(payload: any) {
     if (this.tableChild.selectedRows.size === 0) {
-      alert('Please select at least one row to delete');
+      alert(this.translate.instant('Please select at least one row to delete'));
       return;
     }
 
-    const dialogRef = this.dialog.open(DeleteDialogComponent);
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the records? This action cannot be undone.')
+      }
+    });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.delete) {
         this.productService.deleteMultipleInfoItems(payload).subscribe({
           next: (response: any) => {
             if (response.isSuccess) {
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -721,46 +731,46 @@ export class ProductListComponent implements OnDestroy {
             }
           },
           error: (error) => {
-            this._snackBar.open(error.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           }
-        })
+        });
       }
     });
   }
 
 
 
-addProductDetails(payload: any) {
-  payload.createdBy = this.loggedInUser.user.userName;
-  payload.updatedBy = this.loggedInUser.user.userName;
-  this.isLoading = true;
+  addProductDetails(payload: any) {
+    payload.createdBy = this.loggedInUser.user.userName;
+    payload.updatedBy = this.loggedInUser.user.userName;
+    this.isLoading = true;
 
-  this.productService.addProductDetails(payload).subscribe({
-    next: (response) => {
-      if (response.isSuccess) {
+    this.productService.addProductDetails(payload).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.isLoading = false;
+          this.cancelEvent();
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+          this.updateTableRows.emit({ event: 'DetailList', action: '' });
+        }
+      },
+      error: (error: any) => {
         this.isLoading = false;
-        this.cancelEvent();
-        this._snackBar.open(response.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000
         });
-        this.updateTableRows.emit({ event: 'DetailList', action: '' });
       }
-    },
-    error: (error: any) => {
-      this.isLoading = false;
-      this._snackBar.open(error, 'Okay', {
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        duration: 3000
-      });
-    }
-  });
-}
+    });
+  }
 
   updateProductDetails(payload: any) {
     payload.updatedBy = this.loggedInUser.user.userName;
@@ -772,7 +782,7 @@ addProductDetails(payload: any) {
         if (response.isSuccess) {
           this.isLoading = false;
           this.cancelEvent();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -783,7 +793,7 @@ addProductDetails(payload: any) {
       error: (error) => {
         this.isLoading = false;
 
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -792,34 +802,42 @@ addProductDetails(payload: any) {
   }
 
   deleteProductDetailWithId(productId: number, paramId: number, product: string) {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the product: "${product}"?`
-    );
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the product: "{{product}}"?', { product })
+      }
+    });
 
-    if (confirmDelete) {
-      this.productService.deleteProductDetailWithId(productId, paramId).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.delete) {
+        this.productService.deleteProductDetailWithId(productId, paramId).subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
+                horizontalPosition: 'right',
+                verticalPosition: 'top', duration: 3000
+              });
+              this.updateTableRows.emit({ event: 'DetailList', action: 'delete' })
+            }
+          },
+          error: (error) => {
+            this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
-            this.updateTableRows.emit({ event: 'DetailList', action: 'delete' })
           }
-        },
-        error: (error) => {
-          this._snackBar.open(error, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top', duration: 3000
-          });
-        }
-      })
-    }
+        })
+      }
+    });
   }
 
   deleteMultipleDetails(payload: any) {
-    if (this.tableChild.selectedRows.size === 0) {
-      alert('Please select at least one row to delete');
+    if (this.tableChild?.selectedRows.size === 0) {
+      this._snackBar.open(this.translate.instant('Please select at least one row to delete'), this.translate.instant('Okay'), {
+        horizontalPosition: 'right',
+        verticalPosition: 'top', duration: 3000
+      });
       return;
     }
 
@@ -832,7 +850,7 @@ addProductDetails(payload: any) {
             if (response.isSuccess) {
               this.updateTableRows.emit({ event: 'DetailList', action: 'delete' })
             }
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
@@ -1106,7 +1124,7 @@ addProductDetails(payload: any) {
           window.URL.revokeObjectURL(url);
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -1128,7 +1146,7 @@ addProductDetails(payload: any) {
           window.URL.revokeObjectURL(url);
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -1150,7 +1168,7 @@ addProductDetails(payload: any) {
           window.URL.revokeObjectURL(url);
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });

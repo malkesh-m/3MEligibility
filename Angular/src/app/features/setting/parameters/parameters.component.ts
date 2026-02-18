@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { ComputedValueModel, ComputedValuesDialogComponent } from './computed-values-dialog/computed-values-dialog.component';
+import { TranslateService } from '@ngx-translate/core';
 type TabKeys = 'product' | 'customer';
 
 export interface Parameter {
@@ -102,7 +103,7 @@ export class ParametersComponent {
   showMaxLengthWarning = false;
   computedValuesData: ComputedValueModel[] | null | undefined;
 
-  constructor(private parameterService: ParameterService, private entityService: EntityService, private PermissionsService: PermissionsService, private dialog: MatDialog, private utilityService: UtilityService, private fb: FormBuilder, private authService: AuthService) {
+  constructor(private parameterService: ParameterService, private entityService: EntityService, private PermissionsService: PermissionsService, private dialog: MatDialog, private utilityService: UtilityService, private fb: FormBuilder, private authService: AuthService, private translate: TranslateService) {
     this.expressionForm = this.fb.group({
       parameterName: ['', Validators.required],
       dataTypeId: ['', Validators.required],
@@ -112,7 +113,7 @@ export class ParametersComponent {
       isMandatory: [''],
       computedValues: this.fb.array([]),
       rejectionReason: ['', Validators.required],
-      rejectionReasonCode:['', Validators.required]
+      rejectionReasonCode: ['', Validators.required]
     });
 
   }
@@ -193,11 +194,11 @@ export class ParametersComponent {
 
       },
       error: (error) => {
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-             this.isLoading = false;
+        this.isLoading = false;
       },
     });
   }
@@ -221,7 +222,7 @@ export class ParametersComponent {
         this.conditions = response;
       },
       error: (error) => {
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -239,7 +240,7 @@ export class ParametersComponent {
         this.dataTypes = data;
       },
       error: (error) => {
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -325,7 +326,7 @@ export class ParametersComponent {
     //   this.loggedInUser = user;
     // });
     if (this.expressionForm.invalid) {
-      this._snackBar.open('Please fill out all required fields!', 'Close', { duration: 2000 });
+      this._snackBar.open(this.translate.instant('Please fill out all required fields!'), this.translate.instant('Close'), { duration: 2000 });
       this.expressionForm.markAllAsTouched();
       return;
     }
@@ -362,7 +363,7 @@ export class ParametersComponent {
       // payload.updatedBy = this.loggedInUser.user.userName;
       this.parameterService.updateParameter(payload).subscribe({
         next: (response) => {
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -372,12 +373,12 @@ export class ParametersComponent {
         error: (error) => {
           console.log(error);
           const msg = error?.error?.message || 'Access denied';
-          this._snackBar.open(msg, 'Okay', {
+          this._snackBar.open(this.translate.instant(msg), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
           });
-         
+
         }
       });
     } else {
@@ -386,7 +387,7 @@ export class ParametersComponent {
       // payload.updatedBy = this.loggedInUser.user.userName;
       this.parameterService.addParameter(payload).subscribe({
         next: (response) => {
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -395,7 +396,7 @@ export class ParametersComponent {
         },
         error: (error) =>
 
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'center',
             verticalPosition: 'top', duration: 3000,
 
@@ -437,64 +438,64 @@ export class ParametersComponent {
   }
 
   deleteParameter(parameter: Parameter): void {
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the parameter: "${parameter.parameterName}"?`
-    }
-  });
-  
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.parameterService.deleteParameter(parameter.parameterId).subscribe({
-      next: (response) => {
-
-        if (response.isSuccess) {
-
-          this.parameters = this.parameters.filter(
-            param => param.parameterId !== parameter.parameterId
-          );
-
-          this.dataSource.data = this.parameters.filter(
-            param => param.identifier === (this.activeTab === 'customer' ? 1 : 2)
-          );
-
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          });
-
-          this.fetchAllParameters();
-          this.closeForm();
-
-        } else {
-
-          this._snackBar.open(response.message, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          });
-
-        }
-      },
-
-      error: (error) => {
-        console.log(error);
-
-        const msg = error.error?.message || error.message || 'Something went wrong.';
-
-        this._snackBar.open(msg, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the parameter: "{{parameterName}}"?', { parameterName: parameter.parameterName })
       }
     });
-  });
-}
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.parameterService.deleteParameter(parameter.parameterId).subscribe({
+        next: (response) => {
+
+          if (response.isSuccess) {
+
+            this.parameters = this.parameters.filter(
+              param => param.parameterId !== parameter.parameterId
+            );
+
+            this.dataSource.data = this.parameters.filter(
+              param => param.identifier === (this.activeTab === 'customer' ? 1 : 2)
+            );
+
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            });
+
+            this.fetchAllParameters();
+            this.closeForm();
+
+          } else {
+
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            });
+
+          }
+        },
+
+        error: (error) => {
+          console.log(error);
+
+          const msg = error.error?.message || error.message || 'Something went wrong.';
+
+          this._snackBar.open(this.translate.instant(msg), this.translate.instant('Okay'), {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+        }
+      });
+    });
+  }
 
   toggleMenu(): void {
     this.menuVisible = !this.menuVisible;
@@ -537,7 +538,11 @@ export class ParametersComponent {
   deleteSelectedParameters(): void {
     this.menuVisible = false;
     if (this.selectedRows.size === 0) {
-      alert('Please select at least one row to delete');
+      this._snackBar.open(this.translate.instant('Please select at least one row to delete'), this.translate.instant('Okay'), {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
       return;
     }
     const dialogRef = this.dialog.open(DeleteDialogComponent);
@@ -556,7 +561,7 @@ export class ParametersComponent {
                 (param) =>
                   param.identifier === (this.activeTab === 'customer' ? 1 : 2)
               );
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -564,13 +569,13 @@ export class ParametersComponent {
 
             }
             else {
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
             }
           },
-          error: (err) => this._snackBar.open(err.message, 'Okay', {
+          error: (err) => this._snackBar.open(this.translate.instant(err.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           })
@@ -732,7 +737,7 @@ export class ParametersComponent {
         window.URL.revokeObjectURL(url);
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -760,7 +765,7 @@ export class ParametersComponent {
       a.download = excelName; // Filename for the download
       a.click();
       window.URL.revokeObjectURL(url);
-      this._snackBar.open('Parameter Template Download Successfully.', 'Okay', {
+      this._snackBar.open(this.translate.instant('Parameter Template Download Successfully.'), 'Okay', {
         duration: 2000,
         horizontalPosition: 'right',
         verticalPosition: 'top'
@@ -773,7 +778,7 @@ export class ParametersComponent {
     if (this.selectedFile) {
       this.importParameter(this.selectedFile);
     } else {
-      this._snackBar.open('Please select a file first.', 'Okay', {
+      this._snackBar.open(this.translate.instant('Please select a file first.'), this.translate.instant('Okay'), {
         duration: 2000,
         horizontalPosition: 'right',
         verticalPosition: 'top'
@@ -803,14 +808,14 @@ export class ParametersComponent {
         setTimeout(() => {
           this.switchTab(this.activeTab);
         }, 800);
-        this._snackBar.open(response.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
       },
       error: (error) => {
         this.isUploading = false;
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });

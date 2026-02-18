@@ -3,11 +3,12 @@ import { LogService } from '../../../../core/services/setting/log.service';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-logs',
   standalone: false,
-  
+
   templateUrl: './logs.component.html',
   styleUrl: './logs.component.scss'
 })
@@ -24,9 +25,9 @@ export class LogsComponent {
   isLoading: boolean = false;
   isUploading: boolean = false;
   isDownloading: boolean = false
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
 
-  constructor(private logService:LogService) {
+  constructor(private logService: LogService, private translate: TranslateService) {
 
   }
   ngAfterViewInit() {
@@ -48,8 +49,8 @@ export class LogsComponent {
     this.logService.getLog(this.pageIndex, this.pageSize).subscribe({
       next: (response) => {
         if (response.isSuccess) {
-    
-          this.LogList = response.data.data; 
+
+          this.LogList = response.data.data;
           this.totalCount = response.data.totalCount;
           this.dataSource.data = this.LogList;
           if (this.paginator) {

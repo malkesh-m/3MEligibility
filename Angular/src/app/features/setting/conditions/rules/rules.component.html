@@ -282,7 +282,7 @@
       <button appUseractivity="User Click on Add New Version button"
               [componentName]="'RulesComponent'"
               [actionType]="'ButtonClick'" mat-raised-button color="primary" (click)="addNewVersion(group)" matTooltip="Add New Version" *ngIf="hasPermission('Permissions.Rule.Create')">
-        <mat-icon>add</mat-icon> Add New Version
+        <mat-icon>add</mat-icon> {{'Add New Version' |translate}}
       </button>
 
     </div>

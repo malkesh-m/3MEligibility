@@ -3,11 +3,12 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserprogileService } from '../../../core/services/security/userprofile.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface personalDetailRecord {
   entityName: string | null,
   statusName: string,
-  groups:[],
+  groups: [],
   userId: number | null,
   userName: string,
   loginId: string,
@@ -39,15 +40,15 @@ export class UserprofileComponent {
   changeEmailformVisible = false;
   cngPassFormVisible = false;
   personalFormVisible = true;
-  personalText: string = 'You can view and update some of your information with<br>fileds colored blue';
-  changeEmailText: string = 'You can update your current email by write a new one<br>below and click update changes';
-  changePasswordText: string = 'You can update your current password by enter your current<br>one then your new one below and click update changes';
+  personalText: string = this.translate.instant('You can view and update some of your information with<br>fileds colored blue');
+  changeEmailText: string = this.translate.instant('You can update your current email by write a new one<br>below and click update changes');
+  changePasswordText: string = this.translate.instant('You can update your current password by enter your current<br>one then your new one below and click update changes');
   loggedInUser: any = null;
   personalformData: personalDetailRecord = {
     entityName: null,
     statusName: '',
     userId: 0,
-    groups:[],
+    groups: [],
     userName: '',
     loginId: '',
     userPassword: '',
@@ -77,8 +78,8 @@ export class UserprofileComponent {
       groupDesc: null
     }
   ];
-  
-  constructor(private authService: AuthService, private userprofileService: UserprogileService,private PermissionsService:PermissionsService) { }
+
+  constructor(private authService: AuthService, private userprofileService: UserprogileService, private PermissionsService: PermissionsService, private translate: TranslateService) { }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
@@ -132,12 +133,12 @@ export class UserprofileComponent {
       this.userprofileService.updateUsers(this.personalformData).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
@@ -152,12 +153,12 @@ export class UserprofileComponent {
       this.userprofileService.changePassword(this.changePassformData).subscribe({
         next: (response2) => {
           if (response2.isSuccess) {
-            this._snackBar.open(response2.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response2.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           } else {
-            this._snackBar.open(response2.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response2.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });

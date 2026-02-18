@@ -2,8 +2,9 @@
     <!-- Search and Actions -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="me-auto">
-            <p class="moduleLabel">{{ activeTab === 'personalDetails' ? 'Personal Details' : activeTab === 'changeEmail'
-                ? 'Change Email' : 'Change Password' }}
+            <p class="moduleLabel">{{ (activeTab === 'personalDetails' ? 'Personal Details' : activeTab ===
+                'changeEmail'
+                ? 'Change Email' : 'Change Password') | translate }}
             </p>
             <span style="color: #6b6b6b; font-size: 0.8rem;"
                 [innerHTML]="activeTab === 'personalDetails' ? personalText : activeTab === 'changeEmail' ? changeEmailText : changePasswordText">
@@ -11,9 +12,9 @@
 
         </div>
         <div class="d-flex align-items-center position-relative">
-            <button appUseractivity="User Click on Update Changes button"
-              [componentName]="'UserProfileComponent'"
-              [actionType]="'ButtonClick'" class="btn btn-outline-secondary" (click)="updateUser()" *ngIf="hasPermission('138')">
+            <button appUseractivity="User Click on Update Changes button" [componentName]="'UserProfileComponent'"
+                [actionType]="'ButtonClick'" class="btn btn-outline-secondary" (click)="updateUser()"
+                *ngIf="hasPermission('138')">
                 {{ 'Update Changes' | translate }}
             </button>
         </div>
@@ -42,28 +43,29 @@
             <div class="row">
                 <div class="col form-group">
                     <label>{{ 'LoginId' | translate }}</label>
-                    <input type="text" disabled class="form-control" [(ngModel)]="personalformData.loginId" name="loginId"
-                        required />
+                    <input type="text" disabled class="form-control" [(ngModel)]="personalformData.loginId"
+                        name="loginId" required />
                 </div>
                 <div class="col">
                     <label>{{ 'Phone Number' | translate }}</label>
-                    <input type="text" class="form-control" [(ngModel)]="personalformData.phone" name="phone" required />
+                    <input type="text" class="form-control" [(ngModel)]="personalformData.phone" name="phone"
+                        required />
                 </div>
                 <div class="col">
                     <label>{{ 'Entity' | translate }}</label>
-                    <input type="text" disabled class="form-control" [(ngModel)]="personalformData.entityName" name="entityName"
-                        required />
+                    <input type="text" disabled class="form-control" [(ngModel)]="personalformData.entityName"
+                        name="entityName" required />
                 </div>
             </div>
             <br>
             <div class="row">
                 <label>{{ 'Group' | translate }}</label>
                 <div *ngFor="let group of groupsRecord" class="col-2">
-                  <input type="text" [value]="group.groupName" disabled class="form-control" />
+                    <input type="text" [value]="group.groupName | translate" disabled class="form-control" />
                 </div>
-              </div>
-              
-              
+            </div>
+
+
         </form>
     </div>
 
@@ -72,7 +74,8 @@
             <div class="row">
                 <div class="col-6 form-group">
                     <label>{{ 'Your Email' | translate }}</label>
-                    <input type="text" disabled class="form-control" [(ngModel)]="personalformData.email" name="email" required />
+                    <input type="text" disabled class="form-control" [(ngModel)]="personalformData.email" name="email"
+                        required />
                 </div>
             </div>
         </form>
@@ -83,13 +86,16 @@
             <div class="row">
                 <div class="col-6 form-group">
                     <label>{{ 'Your Current Password' | translate }}</label>
-                    <input type="password" class="form-control" [(ngModel)]="changePassformData.currentPassword" name="userPassword" required />
+                    <input type="password" class="form-control" [(ngModel)]="changePassformData.currentPassword"
+                        name="userPassword" required />
 
                     <label>{{ 'New Password' | translate }}</label>
-                    <input type="password" class="form-control" [(ngModel)]="changePassformData.newPassword" name="newPassword" required />
+                    <input type="password" class="form-control" [(ngModel)]="changePassformData.newPassword"
+                        name="newPassword" required />
 
                     <label>{{ 'Re-enter New Password' | translate }}</label>
-                    <input type="password" class="form-control" [(ngModel)]="changePassformData.confirmNewPassword" name="confirmNewPassword" required />
+                    <input type="password" class="form-control" [(ngModel)]="changePassformData.confirmNewPassword"
+                        name="confirmNewPassword" required />
                 </div>
             </div>
         </form>

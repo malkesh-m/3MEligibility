@@ -1,89 +1,86 @@
 <div class="mb-3">
-    <div>
-      <p class="moduleLabel mb-2">{{ 'Task History' | translate }}</p>
-    </div>
+  <div>
+    <p class="moduleLabel mb-2">{{ 'Task History' | translate }}</p>
   </div>
-  
-  <div #historyTable class="mat-elevation-z8">
-    <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
+</div>
 
-      <ng-container matColumnDef="tableName">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Object Name' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.tableName }} </td>
-      </ng-container>
-      <ng-container matColumnDef="recordId">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Record Id' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.recordId }} </td>
-      </ng-container>
-      <ng-container matColumnDef="actionName">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Action' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.actionName }} </td>
-      </ng-container>
+<div #historyTable class="mat-elevation-z8">
+  <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
 
-      <ng-container matColumnDef="makerName">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Maker' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.makerName }} </td>
-      </ng-container>
+    <ng-container matColumnDef="tableName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Object Name' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.tableName }} </td>
+    </ng-container>
+    <ng-container matColumnDef="recordId">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Record Id' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.recordId }} </td>
+    </ng-container>
+    <ng-container matColumnDef="actionName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Action' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.actionName }} </td>
+    </ng-container>
 
-      <ng-container matColumnDef="makerDate">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Maker Date' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.makerDate | date: 'short' }} </td>
-      </ng-container>
+    <ng-container matColumnDef="makerName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Maker' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.makerName }} </td>
+    </ng-container>
 
-      <ng-container matColumnDef="checkerName">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Checker' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.checkerName }} </td>
-      </ng-container>
+    <ng-container matColumnDef="makerDate">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Maker Date' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.makerDate | date: 'short' }} </td>
+    </ng-container>
 
-      <ng-container matColumnDef="checkerDate">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Checker Date' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.checkerDate | date: 'short' }} </td>
-      </ng-container>
+    <ng-container matColumnDef="checkerName">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Checker' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.checkerName }} </td>
+    </ng-container>
 
-      <ng-container matColumnDef="status">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Status' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row">
-          <button mat-button [color]="row.status === 2 ? 'primary' : 'warn'" class="status-button">
-            {{row.statusName}}
-          </button>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="comment">
-        <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Comments' | translate}} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row">
+    <ng-container matColumnDef="checkerDate">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Checker Date' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.checkerDate | date: 'short' }} </td>
+    </ng-container>
 
-          {{row.comment}}
+    <ng-container matColumnDef="status">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Status' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
+        <button mat-button [color]="row.status === 2 ? 'primary' : 'warn'" class="status-button">
+          {{ row.statusName | translate }}
+        </button>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="comment">
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Comments' | translate}} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
 
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-        <td class="cellStyling" mat-cell *matCellDef="let row">
+        {{row.comment}}
 
-          <!-- View Icon -->
-          <mat-icon appUseractivity="User Click on View Details  button"
-                    [componentName]="'MakerCheckerComponent'"
-                    [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
-                    (click)="openDetailsDialog(row)"
-                    matTooltip="{{ 'View Details' | translate }}"
-                 >
-            visibility
-          </mat-icon>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td class="cellStyling" mat-cell *matCellDef="let row">
 
-       
+        <!-- View Icon -->
+        <mat-icon appUseractivity="User Click on View Details  button" [componentName]="'MakerCheckerComponent'"
+          [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
+          (click)="openDetailsDialog(row)" matTooltip="{{ 'View Details' | translate }}">
+          visibility
+        </mat-icon>
 
-        </td>
-      </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
 
-    </table>
-  
-    <mat-paginator #paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons>
-    </mat-paginator>
-  </div>
-  
-  <p *ngIf="dataSource.data.length === 0">No Maker-Checker history records found.</p>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
+
+  </table>
+
+  <mat-paginator #paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons>
+  </mat-paginator>
+</div>
+
+<p *ngIf="dataSource.data.length === 0">{{'No Maker-Checker history records found.' | translate}}</p>
 
 <app-spinner [isLoading]="isLoading" [message]="message"></app-spinner>

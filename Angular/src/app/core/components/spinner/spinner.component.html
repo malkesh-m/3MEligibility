@@ -2,6 +2,6 @@
 <div *ngIf="isLoading || isDownloading || isUploading" class="overlay" [class.local]="isLocal">
     <div class="loader-content">
         <mat-spinner diameter="50"></mat-spinner>
-        <p>{{ message }}</p>
+        <p>{{ message |translate }}</p>
     </div>
 </div>

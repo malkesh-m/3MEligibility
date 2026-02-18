@@ -95,13 +95,13 @@
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'" class="clickable-icon" color="primary"
                         (click)="editRecord(list)"
-                        [matTooltip]="list.groupName === 'Super Admin' ? 'Super Admin group cannot be edited' : ('Edit' | translate)"
+                        [matTooltip]="list.groupName === 'Super Admin' ? ('You cannot edit Super Admin group' | translate) : ('Edit' | translate)"
                         *ngIf="hasPermission('Permissions.Group.Edit') && list.groupName !== 'Super Admin'">edit</mat-icon>
                     <mat-icon appUseractivity="User Click on Delete button"
               [componentName]="'GroupComponent'"
               [actionType]="'ButtonClick'" class="clickable-icon" color="warn"
                         (click)="deleteRecord(list)"
-                        [matTooltip]="list.groupName === 'Super Admin' ? 'You cannot delete Super Admin group' : ('Delete' | translate)"
+                        [matTooltip]="list.groupName === 'Super Admin' ? ('You cannot delete Super Admin group' | translate) : ('Delete' | translate)"
                         *ngIf="hasPermission('Permissions.Group.Delete') && list.groupName !== 'Super Admin'">delete</mat-icon>
                 </td>
             </ng-container>

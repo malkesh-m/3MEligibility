@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserprogileService } from '../../../core/services/security/userprofile.service';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
 import { Rank } from '../../../core/enum/rank.enum';
+import { TranslateService } from '@ngx-translate/core';
 export interface GroupRecord {
   groupId: number | null;
   groupName: string;
@@ -112,7 +113,8 @@ export class GroupComponent implements OnInit, AfterViewInit {
     private titleService: Title,
     private location: Location,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService
   ) { }
 
   ngOnInit(): void {
@@ -267,7 +269,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         form.controls[controlName].markAsTouched();
       });
 
-      this._snackBar.open('Please fill in the required fields.', 'Close', {
+      this._snackBar.open(this.translate.instant('Please fill in the required fields.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -282,7 +284,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
           next: (response) => {
             this.fetchGroupList();
             this.closeForm();
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top',
               duration: 3000
@@ -297,7 +299,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
               this.fetchGroupList();
               this.closeForm();
             }
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top',
               duration: 3000
@@ -312,7 +314,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
     if (this.activeTab === 'assignedUser') {
 
       if (!this.selectedGroupName) {
-        this._snackBar.open('Please select Group', 'Okay', {
+        this._snackBar.open(this.translate.instant('Please select Group'), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000
@@ -323,7 +325,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
       const selectedUsers = this.filteredGroupNames.filter(u => u.selected);
 
       if (selectedUsers.length === 0) {
-        this._snackBar.open('Please select at least one user.', 'Okay', {
+        this._snackBar.open(this.translate.instant('Please select at least one user.'), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000
@@ -352,8 +354,8 @@ export class GroupComponent implements OnInit, AfterViewInit {
           'selected group';
 
         this._snackBar.open(
-          `User already present in group: ${groupName}`,
-          'Okay',
+          this.translate.instant('User already present in group: {{groupName}}', { groupName }),
+          this.translate.instant('Okay'),
           { horizontalPosition: 'right', verticalPosition: 'top', duration: 4000 }
         );
       }
@@ -371,7 +373,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
         this.groupService.addUsers(payload).subscribe({
           next: (response) => {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top',
               duration: 3000
@@ -427,12 +429,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
             if (response.isSuccess) {
               this.fetchGroupList();
               this.closeForm();
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000,
               });
             } else {
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000,
               });
@@ -446,12 +448,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
             if (response.isSuccess) {
               this.fetchGroupList();
               this.closeForm();
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000,
               });
             } else {
-              this._snackBar.open(response.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000,
               });
@@ -465,7 +467,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         item.id === this.requestBody.id && item.groupId === parseInt(this.requestBody.groupId!)
       );
       if (isUserAssigned) {
-        this._snackBar.open('User is already assigned to this group.', 'Okay', {
+        this._snackBar.open(this.translate.instant('User is already assigned to this group.'), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -473,7 +475,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
       }
 
       if (this.selectedGroupName === null) {
-        this._snackBar.open('Please select Group', 'Okay', {
+        this._snackBar.open(this.translate.instant('Please select Group'), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -489,13 +491,13 @@ export class GroupComponent implements OnInit, AfterViewInit {
             this.searchGroup = '';
             this.filteredGroupNames = []; // Clear filtered list
             this.userRecords.forEach(user => user.selected = false); // Reset selected state
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
             //this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
@@ -545,7 +547,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   editRecord(record: GroupRecord) {
     if (!this.hasPermission('Permissions.Group.Edit')) {
-      this._snackBar.open('You do not have permission to edit groups.', 'Okay', {
+      this._snackBar.open(this.translate.instant('You do not have permission to edit groups.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -553,7 +555,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
       return;
     }
     if (this.isSuperAdminGroup(record.groupName)) {
-      this._snackBar.open('You can not edit this group.', 'Okay', {
+      this._snackBar.open(this.translate.instant('You can not edit this group.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -567,7 +569,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   deleteRecord(record: GroupRecord) {
     if (!this.hasPermission('Permissions.Group.Delete')) {
-      this._snackBar.open('You do not have permission to delete groups.', 'Okay', {
+      this._snackBar.open(this.translate.instant('You do not have permission to delete groups.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -575,7 +577,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
       return;
     }
     if (this.isSuperAdminGroup(record.groupName)) {
-      this._snackBar.open('You cannot delete Super Admin group.', 'Okay', {
+      this._snackBar.open(this.translate.instant('You cannot delete Super Admin group.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -584,10 +586,10 @@ export class GroupComponent implements OnInit, AfterViewInit {
     }
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
-        title: 'Confirm',
-        message: `Are you sure you want to delete Group: "${record.groupName}"?`,
-        confirmText: 'Confirm',
-        cancelText: 'Cancel'
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete Group: "{{groupName}}"?', { groupName: record.groupName }),
+        confirmText: this.translate.instant('Confirm'),
+        cancelText: this.translate.instant('Cancel')
       }
     });
     dialogRef.afterClosed().subscribe(result => {
@@ -600,14 +602,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
             console.log(`Group with ID ${record.groupId} deleted successfully.`);
             this.fetchGroupList();
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
@@ -626,7 +628,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   deleteAssignedUserRecord(record: AssignedUserRecord) {
     if (!this.canManageSelectedGroup()) {
-      this._snackBar.open('You can not delete users from this group.', 'Okay', {
+      this._snackBar.open(this.translate.instant('You can not delete users from this group.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -636,7 +638,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
     const selectedGroupId = Number(this.selectedGroupName);
     const selectedGroup = this.records.find(g => g.groupId === selectedGroupId);
     if (selectedGroup && this.isSuperAdminGroup(selectedGroup.groupName) && this.assignedUserDataSource.data.length <= 1) {
-      this._snackBar.open('You cannot delete the last Super Admin user.', 'Okay', {
+      this._snackBar.open(this.translate.instant('You cannot delete the last Super Admin user.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -658,10 +660,10 @@ export class GroupComponent implements OnInit, AfterViewInit {
         }
         const dialogRef = this.dialog.open(DeleteDialogComponent, {
           data: {
-            title: 'Confirm',
-            message: warningMessage,
-            confirmText: 'Confirm',
-            cancelText: 'Cancel'
+            title: this.translate.instant('Confirm'),
+            message: this.translate.instant(warningMessage),
+            confirmText: this.translate.instant('Confirm'),
+            cancelText: this.translate.instant('Cancel')
           }
         });
         dialogRef.afterClosed().subscribe(result => {
@@ -674,14 +676,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
               if (deleteResponse.isSuccess) {
                 this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
               } else {
-                this._snackBar.open(deleteResponse.message, 'Okay', {
+                this._snackBar.open(this.translate.instant(deleteResponse.message), this.translate.instant('Okay'), {
                   horizontalPosition: 'right',
                   verticalPosition: 'top', duration: 3000,
                 });
               }
             },
             error: (error) => {
-              this._snackBar.open(error.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000,
               });
@@ -690,7 +692,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         });
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -719,14 +721,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   getAssignedUserDeleteTooltip(): string {
     if (!this.selectedGroupName) {
-      return 'Delete';
+      return this.translate.instant('Delete');
     }
     const selectedGroupId = Number(this.selectedGroupName);
     const selectedGroup = this.records.find(g => g.groupId === selectedGroupId);
     if (selectedGroup && this.isSuperAdminGroup(selectedGroup.groupName) && this.assignedUserDataSource.data.length <= 1) {
-      return 'You cannot delete the last Super Admin user';
+      return this.translate.instant('You cannot delete the last Super Admin user');
     }
-    return 'Delete';
+    return this.translate.instant('Delete');
   }
 
   fetchAssignedUserbyId(groupId: string) {
@@ -750,7 +752,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -788,7 +790,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -816,7 +818,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         this.userRecords = response.data;
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });

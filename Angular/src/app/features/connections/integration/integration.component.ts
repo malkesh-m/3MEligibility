@@ -1,4 +1,5 @@
 import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Title } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -117,12 +118,12 @@ export class IntegrationComponent implements OnInit {
 
   get activeTabTitle(): string {
     switch (this.activeTab) {
-      case 'nodes': return 'Integration - Nodes';
-      case 'api': return 'Integration - API';
-      case 'addParameters': return 'Integration - API Parameters';
-      case 'mapApiParams': return 'Integration - Map API Parameters';
-      case 'testApi': return 'Integration - Test API';
-      default: return 'Integration';
+      case 'nodes': return this.translate.instant('Integration - Nodes');
+      case 'api': return this.translate.instant('Integration - API');
+      case 'addParameters': return this.translate.instant('Integration - API Parameters');
+      case 'mapApiParams': return this.translate.instant('Integration - Map API Parameters');
+      case 'testApi': return this.translate.instant('Integration - Test API');
+      default: return this.translate.instant('Integration');
     }
   }
 
@@ -237,7 +238,7 @@ export class IntegrationComponent implements OnInit {
   isLoading: boolean = false;
   isDownloading: boolean = false;
   isUploading: boolean = false;
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
 
   loadApiParameterMappings() {
     this.isLoading = true;
@@ -261,8 +262,8 @@ export class IntegrationComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
-        title: 'Confirm',
-        message: 'Are you sure you want to delete this mapping?'
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete this mapping?')
       }
     });
 
@@ -321,7 +322,7 @@ export class IntegrationComponent implements OnInit {
 
   saveMapping() {
     if (!this.selectedApiParameterId || !this.selectedInternalParameterId) {
-      alert('Please select both API and internal parameter');
+      alert(this.translate.instant('Please select both API and internal parameter'));
       return;
     }
 
@@ -343,7 +344,7 @@ export class IntegrationComponent implements OnInit {
             this.resetMappingForm();
           this.onApiChange(); // reload table
         },
-        error: (err) => alert('Error updating mapping: ' + err.message)
+        error: (err) => alert(this.translate.instant('Error updating mapping:') + ' ' + err.message)
       });
     } else {
       // 🔹 ADD new mapping
@@ -357,7 +358,7 @@ export class IntegrationComponent implements OnInit {
             this.resetMappingForm();
           this.onApiChange();
         },
-        error: (err) => alert('Error saving mapping: ' + err.message)
+        error: (err) => alert(this.translate.instant('Error saving mapping:') + ' ' + err.message)
       });
     }
   }
@@ -472,7 +473,8 @@ export class IntegrationComponent implements OnInit {
     private titleService: Title,
     private location: Location,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService
   ) {
     this.nodeForm = this.fb.group({
       code: ['', [Validators.required]],
@@ -610,7 +612,7 @@ export class IntegrationComponent implements OnInit {
   }
   testApi() {
     if (!this.selectedApi) {
-      alert('Please select an API first.');
+      alert(this.translate.instant('Please select an API first.'));
       return;
     }
 
@@ -624,7 +626,7 @@ export class IntegrationComponent implements OnInit {
       if (this.testQuery) queryParams = JSON.parse(this.testQuery);
       if (this.testInput) bodyData = JSON.parse(this.testInput);
     } catch (e) {
-      alert('Invalid JSON format in input.');
+      alert(this.translate.instant('Invalid JSON format in input.'));
       this.isLoadingTestApi = false;
       return;
     }
@@ -751,7 +753,7 @@ export class IntegrationComponent implements OnInit {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
         title: 'Confirm',
-        message: `Are you sure you want to delete parameter: "${row.parameterName}"?`
+        message: this.translate.instant('Are you sure you want to delete parameter?', { param: row.parameterName })
       }
     });
 
@@ -818,7 +820,7 @@ export class IntegrationComponent implements OnInit {
       this.apiParameterForm.patchValue({ apiId: this.selectedApi.apiid });
     }
     if (this.apiParameterForm.invalid) {
-      this._snackBar.open('Please fill all required fields', 'Okay', {
+      this._snackBar.open(this.translate.instant('Please fill all required fields'), 'Okay', {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000,
@@ -856,7 +858,7 @@ export class IntegrationComponent implements OnInit {
             this.apiParameterDataSource.data = [...this.apiParameterRecords];
             this.closeForm();
 
-            this._snackBar.open('Parameter updated successfully', 'Okay', { duration: 3000 });
+            this._snackBar.open(this.translate.instant('Parameter updated successfully'), 'Okay', { duration: 3000 });
             this.CancelAddParameter();
             this.loadApiParameters();  // refresh table
             this.closeForm();
@@ -890,7 +892,7 @@ export class IntegrationComponent implements OnInit {
             });
             this.apiParameterDataSource.data = [...this.apiParameterRecords];
 
-            this._snackBar.open('Parameter added successfully', 'Okay', { duration: 3000 });
+            this._snackBar.open(this.translate.instant('Parameter added successfully'), 'Okay', { duration: 3000 });
             this.loadApiParameters();
             this.closeForm();
             // refresh table
@@ -1807,14 +1809,14 @@ export class IntegrationComponent implements OnInit {
   currentMappingId: number | null = null;
   deleteMulSelectedRows() {
     if (this.selectedRows.size === 0) {
-      this._snackBar.open('Please select at least one record to delete.', 'Close', { duration: 3000 });
+      this._snackBar.open(this.translate.instant('Please select at least one record to delete.'), 'Close', { duration: 3000 });
       return;
     }
 
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
         title: 'Confirm Deletion',
-        message: `Are you sure you want to delete ${this.selectedRows.size} record(s)?`
+        message: this.translate.instant('Are you sure you want to delete {{count}} record(s)?', { count: this.selectedRows.size })
       }
     });
 
@@ -1944,7 +1946,7 @@ export class IntegrationComponent implements OnInit {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
         title: 'Confirm',
-        message: `Are you sure you want to delete Node: "${record.nodeName}"?`
+        message: this.translate.instant('Are you sure you want to delete Node: {{name}}?', { name: record.nodeName })
       }
     });
 
@@ -1974,7 +1976,7 @@ export class IntegrationComponent implements OnInit {
           const message =
             error?.error?.message ||
             error?.message ||
-            'Failed to delete node.';
+            this.translate.instant('Failed to delete node.');
 
           this._snackBar.open(message, 'Okay', {
             horizontalPosition: 'right',
@@ -1994,7 +1996,7 @@ export class IntegrationComponent implements OnInit {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
         title: 'Confirm',
-        message: `Are you sure you want to delete Node API: "${record.apiname}"?`
+        message: this.translate.instant('Are you sure you want to delete Node API: {{name}}?', { name: record.apiname })
       }
     });
 
@@ -2024,7 +2026,7 @@ export class IntegrationComponent implements OnInit {
           const message =
             error?.error?.message ||
             error?.message ||
-            'Failed to delete Node API.';
+            this.translate.instant('Failed to delete Node API.');
 
           this._snackBar.open(message, 'Okay', {
             horizontalPosition: 'right',
@@ -2039,7 +2041,7 @@ export class IntegrationComponent implements OnInit {
     });
   }
   deleteNodeDetails(record: APIDetailsRecord) {
-    if (confirm(`Are you sure you want to delete Node Api Details: "${record.callingParamName}"?`)) {
+    if (confirm(this.translate.instant('Are you sure you want to delete Node Api Details: {{name}}?', { name: record.callingParamName }))) {
       this.integrationService.deleteNodeDetails(Number(record.apidetailsId)).subscribe({
         next: (response) => {
           if (response.isSuccess) {

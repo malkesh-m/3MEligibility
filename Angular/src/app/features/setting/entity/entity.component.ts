@@ -11,6 +11,7 @@ import { NgForm } from '@angular/forms';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
 
 export interface EntityRecord {
@@ -26,7 +27,7 @@ export interface EntityRecord {
   parentEnitityId: number | null;
   createdBy: string;
   updatedBy: string;
-//  BaseCurrencyId: number | null;
+  //  BaseCurrencyId: number | null;
 }
 
 export interface Country {
@@ -84,7 +85,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
     parentEnitityId: null,
     createdBy: '',
     updatedBy: '',
-  //  BaseCurrencyId: null
+    //  BaseCurrencyId: null
   };
   //Currencies: Currency[] = [];
   searchTerm: string = '';
@@ -99,7 +100,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
   isDownloading: boolean = false;
   isLoading: boolean = false; // Show loader on page load
   isUploading: boolean = false;
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
   loggedInUser: any = null;
   createdBy: string = '';
   showMaxLengthWarning: boolean = false;
@@ -112,7 +113,8 @@ export class EntityComponent implements OnInit, AfterViewInit {
     private utilityService: UtilityService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private PermissionsService: PermissionsService
+    private PermissionsService: PermissionsService,
+    private translate: TranslateService
   ) { }
 
   async ngOnInit() {
@@ -215,8 +217,8 @@ export class EntityComponent implements OnInit, AfterViewInit {
           new Date(b.lastModifiedDateTime).getTime() - new Date(a.lastModifiedDateTime).getTime()
         );
         this.dataSource.data = sortedData.map((item: any) => ({
-          countryName: this.countries.find(c => c.id === item.countryId)?.name || 'Unknown',
-          cityName: this.cities.find(c => c.id === item.cityId)?.name || 'Unknown',
+          countryName: this.countries.find(c => c.id === item.countryId)?.name || this.translate.instant('Unknown'),
+          cityName: this.cities.find(c => c.id === item.cityId)?.name || this.translate.instant('Unknown'),
           entityId: item.entityId,
           entityName: item.entityName,
           code: item.code,
@@ -242,7 +244,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
         }));
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           duration: 2000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
@@ -375,7 +377,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
         form.controls[controlName].markAsTouched();
       });
 
-      this._snackBar.open('Please fill in the required fields.', 'Close', {
+      this._snackBar.open(this.translate.instant('Please fill in the required fields.'), this.translate.instant('Close'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 5000, // Auto-close after 5 seconds
@@ -398,24 +400,21 @@ export class EntityComponent implements OnInit, AfterViewInit {
             console.log('Entity updated successfully:', response.message);
             this.fetchEntitiesList(); // Refresh the table
             this.closeForm(); // Close the form
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               duration: 2000,
-              horizontalPosition: 'center',
               verticalPosition: 'top',
             });
           } else {
             console.error('Error updating entity:', response.message);
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               duration: 2000,
-              horizontalPosition: 'center',
               verticalPosition: 'top',
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             duration: 2000,
-            horizontalPosition: 'center',
             verticalPosition: 'top',
           });
         },
@@ -430,25 +429,22 @@ export class EntityComponent implements OnInit, AfterViewInit {
             console.log('Entity added successfully:', response.message);
             this.fetchEntitiesList(); // Refresh the table after adding
             this.closeForm(); // Close the form
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               duration: 2000,
-              horizontalPosition: 'center',
               verticalPosition: 'top',
             });
           } else {
             console.error('Error adding entity:', response.message);
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               duration: 2000,
-              horizontalPosition: 'center',
               verticalPosition: 'top',
             });
           }
         },
         error: (error) => {
-          const message = error?.message === 'undefined' ? 'Something went wrong' : error?.message;
-          this._snackBar.open(message, 'Okay', {
+          const message = error?.message === 'undefined' ? this.translate.instant('Something went wrong') : this.translate.instant(error?.message);
+          this._snackBar.open(message, this.translate.instant('Okay'), {
             duration: 2000,
-            horizontalPosition: 'center',
             verticalPosition: 'top',
           });
         },
@@ -512,8 +508,8 @@ export class EntityComponent implements OnInit, AfterViewInit {
 
     if (isParentOfAny) {
       this._snackBar.open(
-        `You cannot delete "${record.entityName}" because it has child entities.`,
-        'Okay',
+        this.translate.instant('You cannot delete "{{entity}}" because it has child entities.', { entity: record.entityName }),
+        this.translate.instant('Okay'),
         {
           duration: 3000,
           horizontalPosition: 'right',
@@ -522,46 +518,60 @@ export class EntityComponent implements OnInit, AfterViewInit {
       );
       return;
     }
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the entity: "${record.entityName}"?`
-    );
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the entity: "{{entity}}"?', { entity: record.entityName })
+      }
+    });
 
-    if (confirmDelete) {
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.delete) {
 
-      // Call the delete API
-      this.entityService.deleteEntityWithId(Number(record.entityId)).subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            console.log(`Entity with ID ${record.entityId} deleted successfully.`);
-            this.fetchEntitiesList(); // Refresh the table after deletion
-            this.closeForm();
-            this._snackBar.open(response.message, 'Okay', {
+        // Call the delete API
+        this.entityService.deleteEntityWithId(Number(record.entityId)).subscribe({
+          next: (response) => {
+            if (response.isSuccess) {
+              console.log(`Entity with ID ${record.entityId} deleted successfully.`);
+              this.fetchEntitiesList(); // Refresh the table after deletion
+              this.closeForm();
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
+                duration: 2000,
+                horizontalPosition: 'right',
+                verticalPosition: 'top',
+              });
+            }
+
+          },
+          error: (error) => {
+            this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
               duration: 2000,
               horizontalPosition: 'right',
               verticalPosition: 'top',
             });
           }
-
-        },
-        error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
-            duration: 2000,
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-          });
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   // Delete Selected/all Rows from the grid
   deleteMulSelectedRows() {
     if (this.selectedRows.size === 0) {
-      alert('Please select at least one row to delete');
+      this._snackBar.open(this.translate.instant('Please select at least one row to delete'), this.translate.instant('Okay'), {
+        duration: 2000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
       return;
     }
 
-    const dialogRef = this.dialog.open(DeleteDialogComponent);
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the selected records?')
+      }
+    });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.delete) {
@@ -572,14 +582,14 @@ export class EntityComponent implements OnInit, AfterViewInit {
             console.log('Entities deleted successfully:', response.message);
             this.selectedRows.clear(); // Clear selected rows
             this.fetchEntitiesList(); // Refresh table data
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               duration: 2000,
               horizontalPosition: 'right',
               verticalPosition: 'top',
             });
           },
           error: (error) => {
-            this._snackBar.open(error.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
               duration: 2000,
               horizontalPosition: 'right',
               verticalPosition: 'top',
@@ -607,7 +617,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
   //closes the form when save/cancel button is clicked
   closeForm() {
     this.formVisible = false;
-    this.formData = { code: '', entityName: '', entityAddress: '', countryId: null, cityId: null, isparent: false, selected: false, entitylocation: '', parentEnitityId: 0, createdBy: '', updatedBy: ''};
+    this.formData = { code: '', entityName: '', entityAddress: '', countryId: null, cityId: null, isparent: false, selected: false, entitylocation: '', parentEnitityId: 0, createdBy: '', updatedBy: '' };
     this.isEditMode = false;
   }
 
@@ -680,14 +690,14 @@ export class EntityComponent implements OnInit, AfterViewInit {
         anchor.click();
         document.body.removeChild(anchor);
         window.URL.revokeObjectURL(url);
-        this._snackBar.open('Export Entities Successfully.', 'Okay', {
+        this._snackBar.open(this.translate.instant('Export Entities Successfully.'), this.translate.instant('Okay'), {
           duration: 2000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
         });
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           duration: 2000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
@@ -702,7 +712,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
   downloadTemplate() {
     if (!this.isDownloading) {
       this.isDownloading = true;
-      this.message = "Please wait, template is downloading...";
+      this.message = this.translate.instant("Please wait, template is downloading...");
       this.entityService.downloadTemplate().subscribe({
         next: (response) => {
           this.isDownloading = false;
@@ -715,7 +725,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
           a.download = 'Entities-Template.xlsx'; // Filename for the download
           a.click();
           window.URL.revokeObjectURL(url);
-          this._snackBar.open('Entities Template Download Successfully.', 'Okay', {
+          this._snackBar.open(this.translate.instant('Entities Template Download Successfully.'), this.translate.instant('Okay'), {
             duration: 2000,
             horizontalPosition: 'right',
             verticalPosition: 'top',
@@ -723,7 +733,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
         },
         error: (error: any) => {
           this.isDownloading = false
-          this._snackBar.open('Failed to Download Template', 'Okay', {
+          this._snackBar.open(this.translate.instant('Failed to Download Template'), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
@@ -741,7 +751,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
     if (this.selectedFile) {
       this.importEntities(this.selectedFile);
     } else {
-      this._snackBar.open('Please select a file first.', 'Okay', {
+      this._snackBar.open(this.translate.instant('Please select a file first.'), this.translate.instant('Okay'), {
         duration: 2000,
         horizontalPosition: 'right',
         verticalPosition: 'top',
@@ -759,20 +769,20 @@ export class EntityComponent implements OnInit, AfterViewInit {
     });
     this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
-    this.message = "Uploading file, please wait...";
+    this.message = this.translate.instant("Uploading file, please wait...");
     this.entityService.importEntities(selectedFile, this.createdBy).subscribe({
       next: (response) => {
         this.isUploading = false;
         this.fetchEntitiesList();
         this.refreshTable();
-        this._snackBar.open(response.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
         });
       },
       error: (error) => {
         this.isUploading = false;
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           duration: 2000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
@@ -791,7 +801,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
 
     if (isChild && selectedEntityId && selectedEntityId == selectedParentId) {
 
-      this._snackBar.open("An entity cannot be its own parent.", "Okay", {
+      this._snackBar.open(this.translate.instant("An entity cannot be its own parent."), this.translate.instant("Okay"), {
         duration: 3000,
         horizontalPosition: "right",
         verticalPosition: "top",

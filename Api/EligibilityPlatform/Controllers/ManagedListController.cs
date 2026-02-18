@@ -52,7 +52,7 @@ namespace MEligibilityPlatform.Controllers
             if (result != null)
             {
                 // Returns success response with the retrieved data
-                return Ok(new ResponseModel { IsSuccess = false, Data = result, Message = GlobalcConstants.Success });
+                return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
             }
             else
             {

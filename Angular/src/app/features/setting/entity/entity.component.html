@@ -13,30 +13,25 @@
 
     <!-- Actions Buttons -->
     <div class="d-flex align-items-center ms-3">
-      <button appUseractivity="User Click on Add button"
-              [componentName]="'EntityComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" *ngIf="hasPermission('15')">
+      <button appUseractivity="User Click on Add button" [componentName]="'EntityComponent'"
+        [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()" *ngIf="hasPermission('15')">
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
-      <button appUseractivity="User Click on Download Template button"
-              [componentName]="'EntityComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('11')">
+      <button appUseractivity="User Click on Download Template button" [componentName]="'EntityComponent'"
+        [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="hasPermission('11')">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
-      <button appUseractivity="User Click on Import button"
-              [componentName]="'EntityComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission('11')">
+      <button appUseractivity="User Click on Import button" [componentName]="'EntityComponent'"
+        [actionType]="'ButtonClick'" class="btn me-2" (click)="fileInput.click()" *ngIf="hasPermission('11')">
         <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
       </button>
-      <input  type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
-      <button appUseractivity="User Click on Export button"
-              [componentName]="'EntityComponent'"
-              [actionType]="'ButtonClick'" class="btn" (click)="exportEntities()" *ngIf="hasPermission('12')">
+      <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+      <button appUseractivity="User Click on Export button" [componentName]="'EntityComponent'"
+        [actionType]="'ButtonClick'" class="btn" (click)="exportEntities()" *ngIf="hasPermission('12')">
         <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
       </button>
-      <button appUseractivity="User Click on Delete Multiple button"
-              [componentName]="'EntityComponent'"
-              [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="btn" *ngIf="hasPermission('13')">
+      <button appUseractivity="User Click on Delete Multiple button" [componentName]="'EntityComponent'"
+        [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="btn" *ngIf="hasPermission('13')">
         <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
       </button>
     </div>
@@ -103,7 +98,7 @@
         <label class="inputLabel">{{ 'Address' | translate }} <span class="text-danger">*</span></label>
         <input required type="text" class="form-control" [(ngModel)]="formData.entityAddress" name="entityAddress"
           #entityAddress="ngModel" maxlength="250" />
-        <div *ngIf="entityAddress.invalid && entityAddress.touched" class="text-danger" >
+        <div *ngIf="entityAddress.invalid && entityAddress.touched" class="text-danger">
           {{ 'Address' | translate }}{{ ' is required' | translate }}
         </div>
       </div>
@@ -121,16 +116,13 @@
         </div>
       </div>-->
 
-    <div class="col-3 d-flex align-items-center px-2 pt-4">
-      <label class="inputLabel form-check-label me-2">
-        {{ 'Is Child' | translate }}
-      </label>
-      <input type="checkbox"
-             class="form-check-input"
-             [(ngModel)]="formData.isparent"
-             name="isparent"
-             (change)="handleIsParentIdChange()" />
-    </div>
+      <div class="col-3 d-flex align-items-center px-2 pt-4">
+        <label class="inputLabel form-check-label me-2">
+          {{ 'Is Child' | translate }}
+        </label>
+        <input type="checkbox" class="form-check-input" [(ngModel)]="formData.isparent" name="isparent"
+          (change)="handleIsParentIdChange()" />
+      </div>
       <div class="col-3">
         <label class="inputLabel">{{ 'Parent Entity' | translate }}</label>
         <select class="form-control" name="parentEnitityId" [(ngModel)]="formData.parentEnitityId"
@@ -151,15 +143,14 @@
     </div>
 
     <div class="d-flex justify-content-end mt-3">
-      <button  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
-              [componentName]="'EntityComponent'"
-              [actionType]="'FormSubmit'" (click)="validateParentSelection()" type="submit" class="addBtn btn-primary me-2"
+      <button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+        [componentName]="'EntityComponent'" [actionType]="'FormSubmit'" (click)="validateParentSelection()"
+        type="submit" class="addBtn btn-primary me-2"
         [disabled]="form.invalid || (formData.isparent && !formData.parentEnitityId)||showMaxLengthWarning||showMaxLengthEntityCode">
         {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
       </button>
-      <button appUseractivity="User Click on Cancel button"
-              [componentName]="'EntityComponent'"
-              [actionType]="'ButtonClick'" type="button" class="btn-secondary cancelBtn" (click)="closeForm()">
+      <button appUseractivity="User Click on Cancel button" [componentName]="'EntityComponent'"
+        [actionType]="'ButtonClick'" type="button" class="btn-secondary cancelBtn" (click)="closeForm()">
         {{ 'Cancel' | translate }}
       </button>
     </div>
@@ -223,7 +214,7 @@
     <ng-container matColumnDef="createdBy">
       <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
         <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
-          matTooltip="Show/Hide Created Date">
+          matTooltip="{{ 'Show/Hide Created Date' | translate }}">
           {{ displayedColumns.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
         </mat-icon>
       </th>
@@ -247,7 +238,7 @@
       <th class="cellStyling" mat-header-cell *matHeaderCellDef>
         {{ 'Updated By' | translate }}
         <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
-          matTooltip="Show/Hide Updated Date">
+          matTooltip="{{ 'Show/Hide Updated Date' | translate }}">
           {{ displayedColumns.includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
         </mat-icon>
       </th>

@@ -14,7 +14,9 @@ import { MatSort } from '@angular/material/sort';
 import { UserService } from '../../../core/services/security/user.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
@@ -30,7 +32,7 @@ export interface UserRecord {
   phone: string;
   userPicture?: string;
   userProfileFile?: string;
-  entityId: null|number;
+  entityId: null | number;
   entitylocation?: string;
   selected: boolean;
   statusName: any;
@@ -86,9 +88,9 @@ export class UserComponent implements OnInit {
     entityName: '',
     statusId: 1
   };
-    toastr: any;
+  toastr: any;
 
-  constructor(private userService: UserService,private PermissionsService:PermissionsService,private entityService:EntityService) { }
+  constructor(private userService: UserService, private PermissionsService: PermissionsService, private entityService: EntityService, private translate: TranslateService, private dialog: MatDialog) { }
 
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
@@ -109,20 +111,20 @@ export class UserComponent implements OnInit {
     this.userService.reActivateUser(model).subscribe({
       next: (res) => {
         if (res.isSuccess) {
-          this._snackBar.open(res.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(res.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
           this.fetchUsersList(); // refresh table
         } else {
-          this._snackBar.open(res.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(res.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         }
       },
       error: (res) => {
-        this._snackBar.open(res.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(res.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -192,16 +194,16 @@ export class UserComponent implements OnInit {
 
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-      
+
         console.error('Error fetching users:', error);
       },
     });
   }
-   EntityList: any[] = [];
+  EntityList: any[] = [];
   fetchEntityList() {
     this.entityService.getEntitiesList().subscribe({
       next: (response) => {
@@ -271,7 +273,7 @@ export class UserComponent implements OnInit {
         userPassword: this.formData.userPassword,
         email: this.formData.email,
         phone: this.formData.phone ?? "",
-        statusId: this.formData.statusId??2,
+        statusId: this.formData.statusId ?? 2,
         entityId: this.formData.entityId,
       };
       console.log(requestBody)
@@ -280,21 +282,21 @@ export class UserComponent implements OnInit {
       this.userService.updateUserDetails(requestBody).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
             this.fetchUsersList(); // Refresh the table
             this.closeForm(); // Close the form
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -319,21 +321,21 @@ export class UserComponent implements OnInit {
       this.userService.addUsers(requestBody).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
             this.fetchUsersList(); // Refresh the table after adding
             this.closeForm(); // Close the form
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -393,30 +395,44 @@ export class UserComponent implements OnInit {
 
   DeActiveUser() {
     if (this.selectedRows.size === 0) {
-      alert('No records selected for DeActivateUser.');
+      this._snackBar.open(this.translate.instant('No records selected for DeActivateUser.'), this.translate.instant('Okay'), {
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        duration: 3000
+      });
       return;
     }
 
-    if (confirm(`Are you sure you want to DeActivate User ${this.selectedRows.size} records?`)) {
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to DeActivate User {{count}} records?', { count: this.selectedRows.size }),
+        confirmText: this.translate.instant('Confirm'),
+        cancelText: this.translate.instant('Cancel')
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result?.delete) return;
       const userIdsToDelete = Array.from(this.selectedRows);
 
       this.userService.deActiveMultipleUsers(userIdsToDelete).subscribe({
         next: (response) => {
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
           this.selectedRows.clear(); // Clear selected rows
-          this.fetchUsersList()
+          this.fetchUsersList();
         },
         error: (error) => {
-          this._snackBar.open(error, 'Okay', {
+          this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         }
       });
-    }
+    });
   }
   getCheckboxStatus(): boolean {
     return this.formData?.statusId === 1;
@@ -430,33 +446,43 @@ export class UserComponent implements OnInit {
   }
 
   deleteRecord(record: UserRecord) {
-    if (confirm(`Are you sure you want to delete User: "${record.userName}"?`)) {
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete User: "{{userName}}"?', { userName: record.userName }),
+        confirmText: this.translate.instant('Confirm'),
+        cancelText: this.translate.instant('Cancel')
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result?.delete) return;
       // Call the delete API
       this.userService.deleteUserWithId(Number(record.userId)).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
-          this.  closeForm() 
+            this.closeForm();
 
             this.fetchUsersList(); // Refresh the table after deletion
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error, 'Okay', {
+          this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         }
       });
-    }
+    });
   }
 }
 

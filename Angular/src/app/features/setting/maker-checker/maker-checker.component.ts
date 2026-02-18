@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, effect, inject, OnInit, Signal, ViewChild } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 //import { Observable } from 'rxjs';
 import { MakerChecker, MakerCheckerService } from '../../../core/services/setting/makerchecker.service';
@@ -25,11 +26,11 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['makerCheckerId', 'tableName', 'actionName', 'status', 'actions'];
   dataSource = new MatTableDataSource<MakerChecker>([]); // Initialize empty data source
   isLoading: boolean = false;
-  message: string = "Loading data, please wait..."
+  message: string = this.translate.instant("Loading data, please wait...")
   isUploading: boolean = false;
   isDownloading: boolean = false;
 
-  constructor(private dialog: MatDialog, private Makerservice: MakerCheckerService, private PermissionsService: PermissionsService) {
+  constructor(private dialog: MatDialog, private Makerservice: MakerCheckerService, private PermissionsService: PermissionsService, private translate: TranslateService) {
   }
 
   hasPermission(permissionId: string): boolean {
@@ -107,9 +108,9 @@ export class MakerCheckerComponent implements OnInit, AfterViewInit {
         ...row,
         isMakerChecker: true,
         fromhistory: false
-        
+
       }
-    
+
     });
     dialogRef.afterClosed().subscribe(result => {
       //if (result?.action) {

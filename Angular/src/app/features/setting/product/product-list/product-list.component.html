@@ -14,7 +14,7 @@
                                 (input)="sanitizeCode($event)" maxlength="50" />
                             <div *ngIf="formData.get('categoryName')?.invalid && formData.get('categoryName')?.touched"
                                 class="text-danger">
-                                {{ 'Category' | translate }}{{ ' is required' | translate }}
+                                {{ 'Category is required' | translate }}
                             </div>
                         </div>
                         <div class="col">
@@ -67,7 +67,7 @@
                                 (input)="sanitizeCode($event)" maxlength="10" />
                             <div *ngIf="formData.get('code')?.invalid && formData.get('code')?.touched"
                                 class="text-danger">
-                                {{ 'Code' | translate }}{{ ' is required' | translate }}
+                                {{ 'Code is required' | translate }}
                             </div>
                         </div>
                         <div class="col">
@@ -77,10 +77,10 @@
                                 formControlName="productName" (input)="sanitizeCode($event)" maxlength="50" />
                             <div *ngIf="formData.get('productName')?.invalid && formData.get('productName')?.touched"
                                 class="text-danger">
-                                {{ 'Product Name' | translate }}{{ ' is required' | translate }}
+                                {{ 'Product Name is required' | translate }}
                             </div>
                             <div class="text-danger" *ngIf="formData.get('productName')?.value?.length === 50">
-                                Product Name must be less than 50 characters
+                                {{ 'Product Name must be less than 50 characters' | translate }}
                             </div>
                         </div>
 
@@ -107,7 +107,7 @@
                             </select>
                             <div *ngIf="formData.get('productCategory')?.invalid && formData.get('productCategory')?.touched"
                                 class="text-danger">
-                                {{ 'Product Category' | translate }}{{ ' is required' | translate }}
+                                {{ 'Product Category is required' | translate }}
                             </div>
                         </div>
                         <!--<div class="col">
@@ -148,7 +148,7 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="inputLabel">Product Image</label>
+                            <label class="inputLabel">{{ 'Product Image' | translate }}</label>
                             <div class="upload-zone-compact" [class.dragging]="isDragging" (click)="fileInput.click()"
                                 (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
                                 (drop)="onDrop($event)">
@@ -162,8 +162,8 @@
                                         <path
                                             d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
                                     </svg>
-                                    <span class="upload-text-compact">Click to upload image</span>
-                                    <span class="upload-hint-compact">JPG, PNG (Max 5MB)</span>
+                                    <span class="upload-text-compact">{{ 'Click to upload image' | translate }}</span>
+                                    <span class="upload-hint-compact">{{ 'JPG, PNG (Max 5MB)' | translate }}</span>
                                 </div>
                                 <div *ngIf="imagePreview" class="image-preview-compact">
                                     <img [src]="imagePreview" alt="Product Image" class="preview-img-compact" />
@@ -179,7 +179,8 @@
                                 <div *ngIf="isImageUploading || isImageFetching" class="upload-loading-compact">
                                     <div class="upload-spinner-compact"></div>
                                     <span class="upload-loading-text-compact">
-                                        {{ isImageUploading ? 'Uploading...' : 'Loading image...' }}
+                                        {{ isImageUploading ? ('Uploading...' | translate) : ('Loading image...' |
+                                        translate) }}
                                     </span>
                                 </div>
                             </div>
@@ -189,9 +190,9 @@
                         <div class="col-md-6">
                             <label class="inputLabel">{{ 'Description' | translate }}</label>
                             <input type="text" class="form-control" formControlName="description" maxlength="50"
-                                placeholder="Enter Description" />
+                                placeholder="{{ 'Enter Description' | translate }}" />
                             <div class="text-danger" *ngIf="formData.get('description')?.value?.length === 50">
-                                Description must be less than 50 characters</div>
+                                {{ 'Description must be less than 50 characters' | translate }}</div>
                         </div>
                     </div>
                     <div class="row">
@@ -234,7 +235,7 @@
                             </select>
                             <div *ngIf="formData.get('product')?.invalid && formData.get('product')?.touched"
                                 class="text-danger">
-                                {{ 'Category' | translate }}{{ ' is required' | translate }}
+                                {{ 'Category is required' | translate }}
                             </div>
                         </div>
                         <!--<div class="col">
@@ -262,7 +263,7 @@
                             </select>
                             <div *ngIf="formData.get('parameter')?.invalid && formData.get('parameter')?.touched"
                                 class="text-danger">
-                                {{ 'Parameter' | translate }}{{ ' is required' | translate }}
+                                {{ 'Parameter is required' | translate }}
                             </div>
                         </div>
                         <div class="col">
@@ -275,7 +276,7 @@
                             </select>
                             <div *ngIf="formData.get('parameterValue')?.invalid && formData.get('parameterValue')?.touched"
                                 class="text-danger">
-                                {{ 'Value' | translate }}{{ ' is required' | translate }}
+                                {{ 'Value is required' | translate }}
                             </div>
                         </div>
 
@@ -288,7 +289,7 @@
                                 formControlName="displayOrder" />
                             <div *ngIf="formData.get('displayOrder')?.invalid && formData.get('displayOrder')?.touched"
                                 class="text-danger">
-                                {{ 'Display Order' | translate }}{{ ' is required' | translate }}
+                                {{ 'Display Order is required' | translate }}
                             </div>
                         </div>
                         <div class="col">
@@ -302,7 +303,7 @@
                             </select>
                             <div *ngIf="formData.get('isrequired')?.invalid && formData.get('isrequired')?.touched"
                                 class="text-danger">
-                                {{ 'Category' | translate }}{{ ' is required' | translate }}
+                                {{ 'Category is required' | translate }}
                             </div>
                         </div>
 

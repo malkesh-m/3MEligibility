@@ -23,7 +23,7 @@
   </ng-container> -->
     <!-- ID Column (Make sure this comes first) -->
     <ng-container matColumnDef="makerCheckerId">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> ID </th>
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'ID' | translate}}</th>
       <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.makerCheckerId }} </td>
     </ng-container>
 
@@ -43,7 +43,7 @@
       <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Status' | translate}} </th>
       <td class="cellStyling" mat-cell *matCellDef="let row">
         <button mat-button [color]="'default'" class="status-button">
-          {{row.statusName}}
+          {{ row.statusName | translate }}
 
         </button>
       </td>
@@ -55,41 +55,31 @@
       <td class="cellStyling" mat-cell *matCellDef="let row">
 
         <!-- View Icon -->
-        <mat-icon  appUseractivity="User Click on View Details  button"
-              [componentName]="'MakerCheckerComponent'"
-              [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
-
-                  (click)="openDetailsDialog(row)"
-                  matTooltip="{{ 'View Details' | translate }}"
-                  *ngIf="hasPermission('Permissions.MakerChecker.View')">
+        <mat-icon appUseractivity="User Click on View Details  button" [componentName]="'MakerCheckerComponent'"
+          [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
+          (click)="openDetailsDialog(row)" matTooltip="{{ 'View Details' | translate }}"
+          *ngIf="hasPermission('Permissions.MakerChecker.View')">
           visibility
         </mat-icon>
 
         <!-- Approve Icon -->
-        <mat-icon appUseractivity="User Click on Approve  button"
-              [componentName]="'MakerCheckerComponent'"
-              [actionType]="'ButtonClick'"  class="clickable-icon" color="primary"  style="margin-right: 8px"
-
-                  (click)="updateStatus(row.makerCheckerId, 'Approved', '')"
-                  matTooltip="{{ 'Approve' | translate }}"
-                  *ngIf="hasPermission('Permissions.MakerChecker.Edit')">
+        <mat-icon appUseractivity="User Click on Approve  button" [componentName]="'MakerCheckerComponent'"
+          [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
+          (click)="updateStatus(row.makerCheckerId, 'Approved', '')" matTooltip="{{ 'Approve' | translate }}"
+          *ngIf="hasPermission('Permissions.MakerChecker.Edit')">
           check_circle
         </mat-icon>
-        <mat-icon appUseractivity="User Click on Reject  button"
-              [componentName]="'MakerCheckerComponent'"
-              [actionType]="'ButtonClick'"  class="clickable-icon"  style="margin-right: 8px"
-
-                  color="warn"
-                  matTooltip="{{ 'Reject' | translate }}"
-                  (click)="updateStatus(row.makerCheckerId, 'Declined', '')"
-                  *ngIf="hasPermission('Permissions.MakerChecker.Edit')">
+        <mat-icon appUseractivity="User Click on Reject  button" [componentName]="'MakerCheckerComponent'"
+          [actionType]="'ButtonClick'" class="clickable-icon" style="margin-right: 8px" color="warn"
+          matTooltip="{{ 'Reject' | translate }}" (click)="updateStatus(row.makerCheckerId, 'Declined', '')"
+          *ngIf="hasPermission('Permissions.MakerChecker.Edit')">
           cancel
         </mat-icon>
 
       </td>
     </ng-container>
 
-    
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
 
@@ -100,5 +90,5 @@
   </mat-paginator>
 </div>
 
-<p *ngIf="dataSource.data.length === 0">No Maker-Checker records found.</p>
+<p *ngIf="dataSource.data.length === 0">{{'No Maker-Checker records found.' | translate}}</p>
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

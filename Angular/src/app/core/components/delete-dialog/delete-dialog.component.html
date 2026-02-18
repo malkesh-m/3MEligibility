@@ -14,10 +14,13 @@
     <h2>{{ data?.title || ('Delete records' | translate) }}</h2>
   </div>
   <div class="popup-content">
-    <p>{{ data?.message || ('Are you sure you want to delete the records? This action cannot be undone.' | translate) }}</p>
+    <p>{{ data?.message || ('Are you sure you want to delete the records? This action cannot be undone.' | translate) }}
+    </p>
   </div>
   <div class="popup-actions">
-    <button mat-raised-button mat-dialog-close class="cancel-btn">{{ data?.cancelText || 'Cancel' }}</button>
-    <button class="delete-btn" mat-raised-button color="warn" [mat-dialog-close]="{ delete: true }">{{ data?.confirmText || 'Confirm' }}</button>
+    <button mat-raised-button mat-dialog-close class="cancel-btn">{{ data?.cancelText || ('Cancel' | translate)
+      }}</button>
+    <button class="delete-btn" mat-raised-button color="warn" [mat-dialog-close]="{ delete: true }">{{ data?.confirmText
+      || ('Confirm' | translate) }}</button>
   </div>
 </div>

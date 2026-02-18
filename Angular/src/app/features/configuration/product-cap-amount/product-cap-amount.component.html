@@ -61,11 +61,11 @@
 
       <!-- Product Cap -->
       <div class="col-md-4">
-        <label class="inputLabel">Age Criteria<span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Age Criteria' | translate }}<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="age" />
         <div class="text-danger"
              *ngIf="ProductCapForm.get('age')?.touched && ProductCapForm.get('age')?.hasError('required')">
-          Age is required.
+          {{ 'Age is required.' | translate }}
         </div>
      
       </div>
@@ -76,25 +76,25 @@
   </div>-->
 
       <div class="col-md-4">
-        <label class="inputLabel">Salary Criteria<span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Salary Criteria' | translate }}<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="salary" />
         <div class="text-danger"
              *ngIf="ProductCapForm.get('salary')?.touched && ProductCapForm.get('salary')?.hasError('required')">
-          Salary is required.
+          {{ 'Salary is required.' | translate }}
         </div>
       
       </div>
       <div class="col-md-4">
-        <label class="inputLabel">Amount<span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Amount' | translate }}<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="amount" />
         <div class="text-danger"
              *ngIf="ProductCapForm.get('amount')?.touched && ProductCapForm.get('amount')?.hasError('required')">
-          Amount is required.
+          {{ 'Amount is required.' | translate }}
         </div>
         <div class="text-danger"
              *ngIf="ProductCapForm.get('amount')?.hasError('pattern') &&
         ProductCapForm.get('amount')?.value">
-         Amount must be a number.
+         {{ 'Amount must be a number.' | translate }}
         </div>
 
       </div>
@@ -109,11 +109,11 @@
       <button class="addBtn btn-primary me-2"  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
               [componentName]="'ProductCapAmountComponent'"
               [actionType]="'FormSubmit'" type="submit" [disabled]="ProductCapForm.invalid">
-        {{ isEditMode ? 'Update' : 'Add' }}
+        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
       </button>
       <button class="btn-secondary cancelBtn"appUseractivity="User Click on cancel button"
               [componentName]="'ProductCapAmountComponent'"
-              [actionType]="'ButtonClick'" type="button" (click)="resetForm()"> Cancel</button>
+              [actionType]="'ButtonClick'" type="button" (click)="resetForm()"> {{ 'Cancel' | translate }}</button>
     </div>
   </form>
 </div>
@@ -123,7 +123,7 @@
     <button mat-raised-button color="primary"appUseractivity="User Click on Add Product Cap Amount button"
               [componentName]="'ProductCapAmountComponent'"
               [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Product Cap Amount" *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
-      <mat-icon>add</mat-icon> Add New
+      <mat-icon>add</mat-icon> {{ 'Add New' | translate }}
     </button>
   </div>
   <div #entityTable class="table-wrapper">
@@ -137,7 +137,7 @@
     <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.id }}</td>
   </ng-container>-->
       <ng-container matColumnDef="productName">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Product Name</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Product Name' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productName }}</td>
       </ng-container>
 
@@ -147,25 +147,25 @@
       </ng-container>-->
 
       <ng-container matColumnDef="maxCapPerStream">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Max Cap Per Product</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Max Cap Per Product' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.maxCapPerStream }}</td>
       </ng-container>
 
       <ng-container matColumnDef="age">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Age Criteria</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Age Criteria' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.age }}</td>
       </ng-container>
 
       <ng-container matColumnDef="salary">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Salary Criteria</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Salary Criteria' | translate }}
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.salary }}</td>
       </ng-container>
       <ng-container matColumnDef="amount">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Amount</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Amount' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.amount }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Actions</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">
           <button mat-icon-button color="primary" (click)="editProductCapAmount(element)" matTooltip="Edit" *ngIf="hasPermission('Permissions.ProductCapAmount.Edit')">
             <mat-icon>edit</mat-icon>
@@ -182,7 +182,7 @@
   </div>
   <!-- Message when no data -->
   <div *ngIf="selectedProductData.length === 0" class="text-center text-muted mt-3">
-    <p>No Product Cap Amount available for the selected Product.</p>
+    <p>{{ 'No Product Cap Amount available for the selected Product.' | translate }}</p>
   </div>
 </div>
 <app-spinner [isLoading]="isLoading" [message]="message"></app-spinner>

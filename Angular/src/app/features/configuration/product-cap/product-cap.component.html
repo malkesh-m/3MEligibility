@@ -35,12 +35,12 @@
 
       <!-- Minimum Score -->
       <div class="col-md-4">
-        <label class="inputLabel">Minimum Score <span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Minimum Score' | translate }} <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="minimumScore" step="1" pattern="[0-9]*"
           (input)="validateMinMax()" />
         <div class="text-danger"
           *ngIf="ProductCapForm.get('minimumScore')?.touched && ProductCapForm.get('minimumScore')?.hasError('required')">
-          Minimum Score is required.
+          {{ 'Minimum Score is required.' | translate }}
         </div>
         <!-- <div class="text-danger" *ngIf="ProductCapForm.get('minimumScore')?.hasError('pattern')">
           Only whole numbers are allowed.
@@ -49,35 +49,35 @@
 
       <!-- Maximum Score -->
       <div class="col-md-4">
-        <label class="inputLabel">Maximum Score <span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Maximum Score' | translate }} <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="maximumScore" step="1" pattern="[0-9]*"
           (input)="validateMinMax()" />
         <div class="text-danger"
           *ngIf="ProductCapForm.get('maximumScore')?.touched && ProductCapForm.get('maximumScore')?.hasError('required')">
-          Maximum Score is required.
+          {{ 'Maximum Score is required.' | translate }}
         </div>
         <div class="text-danger" *ngIf="ProductCapForm.errors?.['maxLessThanMin'] &&
             (ProductCapForm.get('maximumScore')?.touched || ProductCapForm.get('maximumScore')?.dirty)">
-          Maximum Score must be greater than or equal to Minimum Score.
+          {{ 'Maximum Score must be greater than or equal to Minimum Score.' | translate }}
         </div>
       </div>
 
       <!-- Product Cap -->
       <div class="col-md-4">
-        <label class="inputLabel">Product Cap (%) <span class="text-danger">*</span></label>
+        <label class="inputLabel">{{ 'Product Cap(%)' | translate }} <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="productCapPercentage" />
         <div class="text-danger"
           *ngIf="ProductCapForm.get('productCapPercentage')?.touched && ProductCapForm.get('productCapPercentage')?.hasError('required')">
-          Product Cap is required.
+          {{ 'Product Cap is required.' | translate }}
         </div>
         <div class="text-danger" *ngIf="ProductCapForm.get('productCapPercentage')?.hasError('pattern')">
-          Only numbers with up to 2 decimal places are allowed.
+          {{ 'Only numbers with up to 2 decimal places are allowed.' | translate }}
         </div>
       </div>
 
       <!-- Custom validation message in one line -->
       <div class="col-12 text-danger mt-2" *ngIf="showMinMaxError">
-        Minimum Score must be less than or equal to Maximum Score.
+        {{ 'Minimum Score must be less than or equal to Maximum Score.' | translate }}
       </div>
 
       <input type="hidden" formControlName="productName" />
@@ -94,11 +94,11 @@
               [actionType]="'FormSubmit'"
               type="submit"
               [disabled]="ProductCapForm.invalid">
-        {{ isEditMode ? 'Update' : 'Add' }}
+        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
       </button>
       <button appUseractivity="User Click on cancel button"
               [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'"class="btn-secondary cancelBtn" type="button" (click)="resetForm()">Cancel</button>
+              [actionType]="'ButtonClick'"class="btn-secondary cancelBtn" type="button" (click)="resetForm()">{{ 'Cancel' | translate }}</button>
     </div>
   </form>
 </div>
@@ -112,7 +112,7 @@
     <button mat-raised-button color="primary" appUseractivity="User Click on Add Product Cap Score button"
               [componentName]="'ProductCapComponent'"
               [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Score" *ngIf="hasPermission('Permissions.ProductCap.Create')">
-      <mat-icon>add</mat-icon> Add New
+      <mat-icon>add</mat-icon> {{ 'Add New' | translate }}
     </button >
   </div>
   <div #entityTable class="table-wrapper">
@@ -122,32 +122,32 @@
 
       <!-- Optional ID column -->
       <ng-container hidden matColumnDef="id">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Id</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Id' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.id }}</td>
       </ng-container>
 
       <ng-container matColumnDef="ProductName">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Product Name</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Product Name' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="ProductCap">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Product Cap(%)</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Product Cap(%)' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productCapPercentage }}</td>
       </ng-container>
 
       <ng-container matColumnDef="MinimumScore">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Minimum Score</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Minimum Score' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.minimumScore }}</td>
       </ng-container>
 
       <ng-container matColumnDef="MaximumScore">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Maximum Score</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Maximum Score' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.maximumScore }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Actions</th>
+        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
         <td class="cellStyling" mat-cell *matCellDef="let element">
           <button mat-icon-button color="primary" appUseractivity="User Click on edit Stream Cap Score button"
               [componentName]="'ProductCapComponent'"
@@ -168,7 +168,7 @@
   </div>
   <!-- Message when no data -->
   <div *ngIf="selectedProductData.length === 0" class="text-center text-muted mt-3">
-    <p>No Stream Cap Score available for the selected Stream.</p>
+    <p>{{ 'No Stream Cap Score available for the selected Stream.' | translate }}</p>
   </div>
 </div>
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

@@ -1,4 +1,5 @@
-import { Component, HostListener, inject, ViewChild } from '@angular/core';
+import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MappingService } from '../../../core/services/connections/mapping.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -88,13 +89,13 @@ export class MappingComponent {
     mappingTree: '',
     mapping: ''
   };
-  constructor(private fb: FormBuilder, private mappingService: MappingService,private PermissionsService:PermissionsService, private integrationService: IntegrationService) {
+  constructor(private fb: FormBuilder, private mappingService: MappingService, private PermissionsService: PermissionsService, private integrationService: IntegrationService, private translate: TranslateService) {
     this.mappingForm = this.fb.group({
       nodeId: [null, [Validators.required]],
       apiid: [null, [Validators.required]],
       parameterId: [{ value: null }, [Validators.required]],
       mapFunctionId: [{ value: null }, [Validators.required]],
-    
+
     });
   }
 
@@ -164,19 +165,19 @@ export class MappingComponent {
             this.activeTab = 'mapping';
             this.closeForm();
             this.selectedRow = null;
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error, 'Okay', {
+          this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
@@ -201,19 +202,19 @@ export class MappingComponent {
             this.activeTab = 'mapping';
             this.closeForm();
             this.selectedRow = null;
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error, 'Okay', {
+          this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
@@ -272,7 +273,7 @@ export class MappingComponent {
       mapTree.isChecked = false;
       return mapTree;
     });
-    this.mappingFormData = { nodeId: null, apiid: null, parameterId: null, mapFunctionId: null};
+    this.mappingFormData = { nodeId: null, apiid: null, parameterId: null, mapFunctionId: null };
     this.selectedRow = null;
     this.isDisabled = true;
   }
@@ -294,7 +295,7 @@ export class MappingComponent {
 
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -308,7 +309,7 @@ export class MappingComponent {
         this.webServicesRecords = response.data;
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -324,7 +325,7 @@ export class MappingComponent {
         this.mapApiAndParameters();
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -339,7 +340,7 @@ export class MappingComponent {
         this.mapApiAndParameters();
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -350,7 +351,7 @@ export class MappingComponent {
   async fetchMappingList() {
     this.mappingService.getMappingTreeList().subscribe({
       next: (response) => {
-        console.log('response.data--->',response.data);
+        console.log('response.data--->', response.data);
         this.mappingDatasource.data = response.data.map((item: any) => {
           return {
             apiid: item.apiid,
@@ -368,7 +369,7 @@ export class MappingComponent {
         this.mapApiAndParameters();
       },
       error: (error) => {
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -412,24 +413,24 @@ export class MappingComponent {
   }
 
   deleteMappingrecord(record: any) {
-    if (confirm(`Are you sure you want to delete Map?`)) {
+    if (confirm(this.translate.instant('Are you sure you want to delete Map?'))) {
       this.mappingService.deleteMap({ apiId: record.apiid, nodeId: record.nodeId, parameterId: record.parameterId }).subscribe({
         next: (response) => {
           if (response.isSuccess) {
             this.fetchMappingList()
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
           } else {
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
           }
         },
         error: (error) => {
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
           });
@@ -440,7 +441,7 @@ export class MappingComponent {
 
   switchTab(tab: string) {
     this.activeTab = tab;
-    if(this.activeTab == "mappingTree") {
+    if (this.activeTab == "mappingTree") {
       this.formVisible = true;
     }
     else {

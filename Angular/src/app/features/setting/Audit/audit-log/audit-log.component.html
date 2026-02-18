@@ -8,7 +8,7 @@
   <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
 
     <ng-container matColumnDef="recordId">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> Record Id </th>
+      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Record Id' | translate}} </th>
       <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.recordId }} </td>
     </ng-container>
     <ng-container matColumnDef="actionDate">

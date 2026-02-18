@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MakerCheckerService } from '../../../../core/services/setting/makerchecker.service';
 import { PermissionsService } from '../../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-maker-checker-details-dialog',
@@ -22,7 +23,8 @@ export class MakerCheckerDetailsDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private snackBar: MatSnackBar,
     private makerCheckerService: MakerCheckerService,
-    private PermissionsService: PermissionsService
+    private PermissionsService: PermissionsService,
+    private translate: TranslateService
   ) {
     // Handle both MakerChecker & Audit log formats
     const oldValue = data.oldValueJson || data.oldValue;
@@ -46,7 +48,7 @@ export class MakerCheckerDetailsDialogComponent {
 
   formatValue(value: any): string {
     if (value === null || value === undefined) return '';
-    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (typeof value === 'boolean') return value ? this.translate.instant('Yes') : this.translate.instant('No');
     if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/)) {
       const date = new Date(value);
       return date.toLocaleString('en-IN', {
@@ -139,7 +141,7 @@ export class MakerCheckerDetailsDialogComponent {
           });
         },
         error: (error) => {
-          this.snackBar.open(error?.error?.errors?.Comment?.[0] || 'Something went wrong', 'Close', {
+          this.snackBar.open(this.translate.instant(error?.error?.errors?.Comment?.[0] || 'Something went wrong'), this.translate.instant('Close'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000,

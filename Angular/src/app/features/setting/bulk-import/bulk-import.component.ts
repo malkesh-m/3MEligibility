@@ -6,6 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-bulk-import',
@@ -36,17 +37,22 @@ export class BulkImportComponent {
   uploadedFileName: string | null = null;
   documents = [];
   isDownloading: boolean = false;
-  dataSource =  new MatTableDataSource<any>([]);
+  dataSource = new MatTableDataSource<any>([]);
   pageSize: number = 5;
   isLoading: boolean = true; // Show loader on page load
   isUploading: boolean = false;
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
   loggedInUser: any = null;
-  createdBy:string='';
-  
-  constructor(private bulkImportService: BulkImportService,private authService: AuthService,private PermissionsService:PermissionsService){}
+  createdBy: string = '';
+
+  constructor(
+    private bulkImportService: BulkImportService,
+    private authService: AuthService,
+    private PermissionsService: PermissionsService,
+    private translate: TranslateService
+  ) { }
   ngOnInit() {
-   this.fetchBulkImportHistory();
+    this.fetchBulkImportHistory();
   }
 
   hasPermission(permissionId: string): boolean {
@@ -60,28 +66,28 @@ export class BulkImportComponent {
 
   fetchBulkImportHistory() {
     this.isLoading = true;
-    this.message = "Loading data, please wait...";
+    this.message = this.translate.instant("Loading data, please wait...");
     this.bulkImportService.fetchBulkImportHistory().subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         this.isLoading = false;
         this.dataSource.data = res.data;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         // Set default sort
-      this.dataSource.sortingDataAccessor = (item, property) => {
-        switch (property) {
-          case 'importTime': return new Date(item.importTime).getTime();
-          default: return item[property];
-        }
-      };
+        this.dataSource.sortingDataAccessor = (item, property) => {
+          switch (property) {
+            case 'importTime': return new Date(item.importTime).getTime();
+            default: return item[property];
+          }
+        };
 
-      this.sort.active = 'importTime'; // Set default sorting column
-      this.sort.direction = 'desc'; // Default sort direction
-      this.dataSource.sort = this.sort;
+        this.sort.active = 'importTime'; // Set default sorting column
+        this.sort.direction = 'desc'; // Default sort direction
+        this.dataSource.sort = this.sort;
       },
-      error: (error:any) => {
+      error: (error: any) => {
         this.isLoading = false;
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 4000,
@@ -89,11 +95,11 @@ export class BulkImportComponent {
       },
     });
   }
-  
+
   downloadTemplate() {
     if (!this.isDownloading) {
       this.isDownloading = true;
-      this.message = "Please wait, template is downloading...";
+      this.message = this.translate.instant("Please wait, template is downloading...");
       this.bulkImportService.downloadTemplate(this.selectedList).subscribe({
         next: (response) => {
           this.isDownloading = false;
@@ -106,7 +112,7 @@ export class BulkImportComponent {
           a.download = 'Bulk-Import-Template.xlsm'; // Filename for the download
           a.click();
           window.URL.revokeObjectURL(url);
-          this._snackBar.open('Bulk Import Template Download Successfully.', 'Okay', {
+          this._snackBar.open(this.translate.instant('Bulk Import Template Download Successfully.'), this.translate.instant('Okay'), {
             duration: 4000,
             horizontalPosition: 'right',
             verticalPosition: 'top',
@@ -114,8 +120,7 @@ export class BulkImportComponent {
         },
         error: (error: any) => {
           this.isDownloading = false
-          this._snackBar.open('Failed to Download Template', 'Okay', {
-
+          this._snackBar.open(this.translate.instant('Failed to Download Template'), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
@@ -126,12 +131,12 @@ export class BulkImportComponent {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
-  
+
     if (this.selectedFile) {
       const fileExtension = this.selectedFile.name.split('.').pop()?.toLowerCase();
-      
+
       if (fileExtension !== 'xlsx' && fileExtension !== 'xlsm') {
-        this._snackBar.open('File format not allowed.', 'Okay', {
+        this._snackBar.open(this.translate.instant('File format not allowed.'), this.translate.instant('Okay'), {
           duration: 4000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
@@ -139,11 +144,11 @@ export class BulkImportComponent {
         this.selectedFile = null;
         return;
       }
-  
+
       this.uploadedFileName = this.selectedFile.name;
       this.BulkImport(this.selectedFile);
     } else {
-      this._snackBar.open('Please select a file first.', 'Okay', {
+      this._snackBar.open(this.translate.instant('Please select a file first.'), this.translate.instant('Okay'), {
         duration: 4000,
         horizontalPosition: 'right',
         verticalPosition: 'top',
@@ -157,11 +162,11 @@ export class BulkImportComponent {
     });
     this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
-    this.message = "Uploading file, please wait...";
-    this.bulkImportService.bulkImport(selectedFile,this.createdBy).subscribe({
+    this.message = this.translate.instant("Uploading file, please wait...");
+    this.bulkImportService.bulkImport(selectedFile, this.createdBy).subscribe({
       next: (response) => {
         this.isUploading = false;
-        this._snackBar.open(response.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 4000,
@@ -170,7 +175,7 @@ export class BulkImportComponent {
       },
       error: (error) => {
         this.isUploading = false;
-        this._snackBar.open(error.message, 'Okay', {
+        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 4000,
@@ -182,29 +187,29 @@ export class BulkImportComponent {
   downloadFile(doc: any) {
     this.isDownloading = true;
     this.bulkImportService.downloadFile(doc.id).subscribe({
-        next: (response: Blob) => {
-          this.isDownloading = false;
-          const url = window.URL.createObjectURL(response);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `${doc.name}`; // Dynamic filename based on document name
-          a.click();
-          window.URL.revokeObjectURL(url);
-          this._snackBar.open('File downloaded successfully.', 'Okay', {
-            duration: 4000,
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-          });
-        },
-        error: (error: any) => {
-          this.isDownloading = false;
-          this._snackBar.open('Failed to download file.', 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 4000,
-          });
-        },
-      });
+      next: (response: Blob) => {
+        this.isDownloading = false;
+        const url = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${doc.name}`; // Dynamic filename based on document name
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this._snackBar.open(this.translate.instant('File downloaded successfully.'), this.translate.instant('Okay'), {
+          duration: 4000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+      },
+      error: (error: any) => {
+        this.isDownloading = false;
+        this._snackBar.open(this.translate.instant('Failed to download file.'), this.translate.instant('Okay'), {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 4000,
+        });
+      },
+    });
   }
 }
 

@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="me-auto">
-        <h4 class="mb-0">{{ activeTab === 'AssignedPermissions' ? ('Assigned Permissions' | translate) : ('Available Permissions' | translate) }}</h4>
+        <h4 class="mb-0">{{ activeTabTitle | translate }}</h4>
     </div>
 </div>
 
@@ -14,31 +14,29 @@
                     {{ param.groupName }}
                 </option>
             </select>
-         <div *ngIf="isSuperAdminSelected()" 
-                    class="text-danger mt-1 ms-3"
-                    style="font-size: 15px; line-height: 1.2;">
-                Super Admin permissions cannot be removed. </div>
+            <div *ngIf="isSuperAdminSelected()" class="text-danger mt-1 ms-3"
+                style="font-size: 15px; line-height: 1.2;">
+                {{ 'Super Admin permissions cannot be removed.' | translate }}</div>
         </div>
-        
+
 
         <div class="col-4" *ngIf="activeTab === 'AvailablePermissions'">
             <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
                 (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
         </div>
         <div class="col-auto" *ngIf="activeTab === 'AssignedPermissions'">
-            <button appUseractivity="User Click on Remove Permission button"  [disabled]="isSuperAdminSelected()"
-
-              [componentName]="'PermissionComponent'"
-              [actionType]="'ButtonClick'" class="cancelBtn btn-outline-secondary" style="min-width: 125px !important;" (click)="deletePermission()">
+            <button appUseractivity="User Click on Remove Permission button" [disabled]="isSuperAdminSelected()"
+                [componentName]="'PermissionComponent'" [actionType]="'ButtonClick'"
+                class="cancelBtn btn-outline-secondary" style="min-width: 125px !important;"
+                (click)="deletePermission()">
                 {{ 'Remove Permission' | translate }}
             </button>
-          
+
         </div>
-        
+
         <div class="col-auto" *ngIf="activeTab === 'AvailablePermissions'">
-            <button appUseractivity="User Click on Add Permission button"
-              [componentName]="'PermissionComponent'"
-              [actionType]="'ButtonClick'" class="addBtn btn-outline-secondary" (click)="addPermission()">
+            <button appUseractivity="User Click on Add Permission button" [componentName]="'PermissionComponent'"
+                [actionType]="'ButtonClick'" class="addBtn btn-outline-secondary" (click)="addPermission()">
                 {{ 'Add Permission' | translate }}
             </button>
         </div>
@@ -47,12 +45,14 @@
 
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'AssignedPermissions'" (click)="switchTab('AssignedPermissions')">
+        <a class="nav-link" [class.active]="activeTab === 'AssignedPermissions'"
+            (click)="switchTab('AssignedPermissions')">
             {{ 'Assigned Permissions' | translate }}
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'AvailablePermissions'" (click)="switchTab('AvailablePermissions')">
+        <a class="nav-link" [class.active]="activeTab === 'AvailablePermissions'"
+            (click)="switchTab('AvailablePermissions')">
             {{ 'Available Permissions' | translate }}
         </a>
     </li>
@@ -63,7 +63,8 @@
     <div *ngIf="permissionAssignedDataSource.data.length === 0" class="text-center text-muted">
         {{ 'No items to show...' | translate }}
     </div>
-    <table mat-table [dataSource]="permissionAssignedDataSource" matSort *ngIf="permissionAssignedDataSource.data.length > 0">
+    <table mat-table [dataSource]="permissionAssignedDataSource" matSort
+        *ngIf="permissionAssignedDataSource.data.length > 0">
         <ng-container matColumnDef="select">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef>
                 <!-- Optional header for checkbox -->
@@ -75,7 +76,8 @@
         </ng-container>
         <ng-container matColumnDef="permissionAction">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ formatPermissionAction(entity.permissionAction) }} </td>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{
+                formatPermissionAction(entity.permissionAction) }} </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="combinedColumns" class="tableHeader"></tr>
@@ -103,7 +105,8 @@
 
         <ng-container matColumnDef="permissionAction">
             <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ formatPermissionAction(entity.permissionAction) }} </td>
+            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{
+                formatPermissionAction(entity.permissionAction) }} </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="combinedColumns" class="tableHeader"></tr>
         <tr mat-row *matRowDef="let row; columns: combinedColumns;" class="select-row"></tr>
@@ -111,5 +114,3 @@
     <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
-
-

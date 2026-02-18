@@ -15,6 +15,7 @@ import { UtilityService } from '../../../core/services/utility/utils';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { MatSort } from '@angular/material/sort';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-lists',
@@ -25,8 +26,10 @@ import { PermissionsService } from '../../../core/services/setting/permission.se
 })
 export class ListsComponent implements OnInit {
   private _snackBar = inject(MatSnackBar);
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('listsPaginator') listsPaginator!: MatPaginator;
+  @ViewChild('listItemsPaginator') listItemsPaginator!: MatPaginator;
+  @ViewChild('listsSort') listsSort!: MatSort;
+  @ViewChild('listItemsSort') listItemsSort!: MatSort;
   parameters: any[] = [];
   displayedColumns: string[] = ['select', 'listName', 'createdBy', 'updatedBy', 'actions'];
   listItemdisplayedColumns: string[] = ['select', 'code', 'listName', 'itemName', 'createdBy', 'updatedBy', 'actions'];
@@ -57,13 +60,13 @@ export class ListsComponent implements OnInit {
   listItems: any[] = [];
   searchTerms: { [key: string]: string } = {
     lists: '',
-    listItems: ''
+    listitems: ''
   };
   selectedFile: File | null = null;
   isDownloading: boolean = false;
   isLoading: boolean = false; // Show loader on page load
   isUploading: boolean = false;
-  message: string = "Loading data, please wait...";
+  message: string = this.translate.instant("Loading data, please wait...");
   loggedInUser: any = null;
   createdBy: string = '';
 
@@ -78,28 +81,35 @@ export class ListsComponent implements OnInit {
     private titleService: Title,
     private location: Location,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService
   ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['tab']) {
-        this.activeTab = params['tab'];
+        this.activeTab = params['tab']?.toLowerCase();
       }
     });
     // this.fetchEntities();
-    this.fetchLists();
     this.updateTitle();
+
+    if (this.activeTab === 'listitems') {
+      this.fetchListItems();
+      this.fetchLists(); // Still fetch lists to populate dropdowns
+    } else {
+      this.fetchLists();
+    }
   }
 
   get activeTabTitle(): string {
-    switch (this.activeTab) {
+    switch (this.activeTab?.toLowerCase()) {
       case 'lists':
-        return 'List - Managed List';
-      case 'listItems':
-        return 'List - List Items';
+        return this.translate.instant('List - Managed List');
+      case 'listitems':
+        return this.translate.instant('List - List Items');
       default:
-        return 'List - Managed List';
+        return this.translate.instant('List - Managed List');
     }
   }
 
@@ -108,23 +118,23 @@ export class ListsComponent implements OnInit {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Create')) ||
-      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Create'));
+    return (this.activeTab?.toLowerCase() === 'lists' && this.hasPermission('Permissions.ManagedList.Create')) ||
+      (this.activeTab?.toLowerCase() === 'listitems' && this.hasPermission('Permissions.ListItem.Create'));
   }
 
   getDeletePermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Delete')) ||
-      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Delete'));
+    return (this.activeTab?.toLowerCase() === 'lists' && this.hasPermission('Permissions.ManagedList.Delete')) ||
+      (this.activeTab?.toLowerCase() === 'listitems' && this.hasPermission('Permissions.ListItem.Delete'));
   }
 
   getImportPermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Import')) ||
-      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Import'));
+    return (this.activeTab?.toLowerCase() === 'lists' && this.hasPermission('Permissions.ManagedList.Import')) ||
+      (this.activeTab?.toLowerCase() === 'listitems' && this.hasPermission('Permissions.ListItem.Import'));
   }
 
   getExportPermission(): boolean {
-    return (this.activeTab === 'lists' && this.hasPermission('Permissions.ManagedList.Export')) ||
-      (this.activeTab === 'listItems' && this.hasPermission('Permissions.ListItem.Export'));
+    return (this.activeTab?.toLowerCase() === 'lists' && this.hasPermission('Permissions.ManagedList.Export')) ||
+      (this.activeTab?.toLowerCase() === 'listitems' && this.hasPermission('Permissions.ListItem.Export'));
   }
 
   hasPermission(permissionId: string): boolean {
@@ -170,7 +180,7 @@ export class ListsComponent implements OnInit {
   }
 
   switchTab(tab: string): void {
-    this.activeTab = tab;
+    this.activeTab = tab?.toLowerCase();
 
     const urlTree = this.router.createUrlTree([], {
       relativeTo: this.route,
@@ -180,9 +190,9 @@ export class ListsComponent implements OnInit {
     this.location.go(urlTree.toString());
     this.updateTitle();
 
-    if (tab === 'lists') {
+    if (tab?.toLowerCase() === 'lists') {
       this.fetchLists();
-    } else if (tab === 'listItems') {
+    } else if (tab?.toLowerCase() === 'listitems') {
       this.fetchListItems();
     }
     this.searchTerm = this.searchTerms[this.activeTab] || '';
@@ -194,7 +204,7 @@ export class ListsComponent implements OnInit {
         this.entities = response.data; // Store entities for real-time lookup
       },
       error: (error) => {
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -216,12 +226,12 @@ export class ListsComponent implements OnInit {
         this.listItemDataSource.data = sortedData.map((item: any) => ({
           ...item,
         }));
-        this.listItemDataSource.paginator = this.paginator;
-        this.listItemDataSource.sort = this.sort;
+        this.listItemDataSource.paginator = this.listItemsPaginator;
+        this.listItemDataSource.sort = this.listItemsSort;
         this.isLoading = false;
       },
       error: (error) => {
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -233,14 +243,14 @@ export class ListsComponent implements OnInit {
 
   getEntityName(entityId: number, list: any): string {
     const entity = this.entities.find((e) => e.entityId === entityId);
-    list.entityName = entity ? entity.entityName : 'Unknown';
-    return entity ? entity.entityName : 'Unknown'; // Return the corresponding entityName or 'Unknown'
+    list.entityName = entity ? entity.entityName : this.translate.instant('Unknown');
+    return entity ? entity.entityName : this.translate.instant('Unknown'); // Return the corresponding entityName or 'Unknown'
   }
 
   getListName(listId: number, list: any) {
     const listName = this.listItems.find((list => list.listId === listId))
-    list.listName = listName ? listName.listName : 'Unknown';
-    return listName ? listName.listName : 'Unknown';
+    list.listName = listName ? listName.listName : this.translate.instant('Unknown');
+    return listName ? listName.listName : this.translate.instant('Unknown');
   }
 
   fetchLists(): void {
@@ -249,12 +259,12 @@ export class ListsComponent implements OnInit {
       next: (response) => {
 
         this.dataSource.data = this.listItems = response.data;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.listsPaginator;
+        this.dataSource.sort = this.listsSort;
         this.isLoading = false;
       },
       error: (error) => {
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar.open(this.translate.instant(error), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
@@ -266,9 +276,9 @@ export class ListsComponent implements OnInit {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement)?.value?.trim()?.toLowerCase();
-    if (this.activeTab === 'lists') {
+    if (this.activeTab?.toLowerCase() === 'lists') {
       this.dataSource.filter = filterValue;
-    } else if (this.activeTab === 'listItems') {
+    } else if (this.activeTab?.toLowerCase() === 'listitems') {
       this.listItemDataSource.filter = filterValue;
     }
   }
@@ -282,7 +292,7 @@ export class ListsComponent implements OnInit {
   }
 
   addList(): void {
-    if (this.activeTab == 'lists') {
+    if (this.activeTab?.toLowerCase() == 'lists') {
       this.formVisible = true;
       this.isEditMode = false;
       this.formData = {
@@ -290,7 +300,7 @@ export class ListsComponent implements OnInit {
         entityId: null,
       };
     }
-    if (this.activeTab == 'listItems') {
+    if (this.activeTab?.toLowerCase() == 'listitems') {
       this.listItemFormVisible = true;
       this.listItemisEditMode = false;
       this.listItemFormData = {
@@ -302,12 +312,12 @@ export class ListsComponent implements OnInit {
   }
 
   editList(list: any): void {
-    if (this.activeTab == 'lists') {
+    if (this.activeTab?.toLowerCase() == 'lists') {
       this.formVisible = true;
       this.isEditMode = true;
       this.formData = { ...list };
     }
-    if (this.activeTab == 'listItems') {
+    if (this.activeTab?.toLowerCase() == 'listitems') {
       this.listItemFormVisible = true;
       this.listItemisEditMode = true;
       this.listItemFormData = { ...list };
@@ -325,7 +335,7 @@ export class ListsComponent implements OnInit {
         form.controls[controlName].markAsTouched();
       });
 
-      this._snackBar.open('Please fill in the required fields.', 'Close', {
+      this._snackBar.open(this.translate.instant('Please fill in the required fields.'), this.translate.instant('Close'), {
         horizontalPosition: 'right',
         verticalPosition: 'top', duration: 3000
         //duration: 5000, // Auto-close after 5 seconds
@@ -334,7 +344,7 @@ export class ListsComponent implements OnInit {
       return; // Prevent form submission
     }
 
-    if (this.activeTab === 'lists') {
+    if (this.activeTab?.toLowerCase() === 'lists') {
       if (this.isEditMode) {
         // this.formData.createdBy = this.formData.createdBy;
         // this.formData.updatedBy = this.loggedInUser.user.userName;
@@ -342,14 +352,14 @@ export class ListsComponent implements OnInit {
           next: (response) => {
             this.formVisible = false;
             this.fetchLists();
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           },
           error: (error) => {
             console.error('Error updating parameter:', error)
-            this._snackBar.open(error.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
@@ -364,14 +374,14 @@ export class ListsComponent implements OnInit {
           next: (response) => {
             this.formVisible = false;
             this.fetchLists();
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           },
           error: (error) => {
             console.error('Error updating parameter:', error),
-              this._snackBar.open(error.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -379,7 +389,7 @@ export class ListsComponent implements OnInit {
         });
       }
 
-    } else if (this.activeTab === 'listItems') {
+    } else if (this.activeTab?.toLowerCase() === 'listitems') {
       if (this.listItemisEditMode) {
         // this.listItemFormData.createdBy = this.listItemFormData.createdBy;
         // this.listItemFormData.updatedBy = this.loggedInUser.user.userName;
@@ -387,14 +397,14 @@ export class ListsComponent implements OnInit {
           next: (response) => {
             this.listItemFormVisible = false;
             this.fetchListItems();
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           },
           error: (error) => {
             console.error('Error updating parameter:', error)
-            this._snackBar.open(error.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
@@ -408,14 +418,14 @@ export class ListsComponent implements OnInit {
           next: (response) => {
             this.listItemFormVisible = false;
             this.fetchListItems();
-            this._snackBar.open(response.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
           },
           error: (error) => {
             console.error('Error updating parameter:', error)
-            this._snackBar.open(error.message, 'Okay', {
+            this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
@@ -432,12 +442,12 @@ export class ListsComponent implements OnInit {
     //     `Are you sure you want to delete the list: "${list.listName}"?`
     //   );
 
-    if (this.activeTab === 'lists') {
+    if (this.activeTab?.toLowerCase() === 'lists') {
 
       var matdialogRef = this.dialog.open(DeleteDialogComponent, {
         data: {
-          title: 'Confirm',
-          message: `Are you sure you want to delete the list: "${list.listName}"?`
+          title: this.translate.instant('Confirm'),
+          message: this.translate.instant('Are you sure you want to delete the list: "{{list}}"?', { list: list.listName })
         }
       });
 
@@ -449,7 +459,7 @@ export class ListsComponent implements OnInit {
               this.dataSource.data = this.dataSource.data.filter(
                 (item) => item.listId !== list.listId
               );
-              this._snackBar.open(response.message, 'Close', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Close'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -457,7 +467,7 @@ export class ListsComponent implements OnInit {
 
             },
             error: (error) => {
-              this._snackBar.open(error.message, 'Close', {
+              this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Close'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -471,11 +481,11 @@ export class ListsComponent implements OnInit {
     }
 
 
-    if (this.activeTab == 'listItems') {
+    if (this.activeTab?.toLowerCase() == 'listitems') {
       var matdialogRef = this.dialog.open(DeleteDialogComponent, {
         data: {
-          title: 'Confirm',
-          message: `Are you sure you want to delete the list item: "${list.listName}"?`
+          title: this.translate.instant('Confirm'),
+          message: this.translate.instant('Are you sure you want to delete the list item: "{{list}}"?', { list: list.listName })
         }
       });
       matdialogRef.afterClosed().subscribe(result => {
@@ -485,13 +495,13 @@ export class ListsComponent implements OnInit {
               this.listItemDataSource.data = this.listItemDataSource.data.filter(
                 (item) => item.itemId !== list.itemId
               );
-              this._snackBar.open(response.message, 'Close', {
+              this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Close'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
             },
             error: (error) => {
-              this._snackBar.open('Failed to delete the list. Please try again.', 'Close', {
+              this._snackBar.open(this.translate.instant('Failed to delete the list. Please try again.'), this.translate.instant('Close'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -507,12 +517,20 @@ export class ListsComponent implements OnInit {
 
   deleteSelectedLists() {
     if (this.selectedRows.size === 0) {
-      alert('Please select at least one row to delete');
+      this._snackBar.open(this.translate.instant('Please select at least one row to delete'), this.translate.instant('Close'), {
+        horizontalPosition: 'right',
+        verticalPosition: 'top', duration: 3000
+      });
       return;
     }
 
-    if (this.activeTab == 'lists') {
-      const dialogRef = this.dialog.open(DeleteDialogComponent);
+    if (this.activeTab?.toLowerCase() == 'lists') {
+      const dialogRef = this.dialog.open(DeleteDialogComponent, {
+        data: {
+          title: this.translate.instant('Confirm'),
+          message: this.translate.instant('Are you sure you want to delete the selected records?')
+        }
+      });
 
       dialogRef.afterClosed().subscribe(result => {
         if (result?.delete) {
@@ -523,13 +541,13 @@ export class ListsComponent implements OnInit {
               if (response.isSuccess) {
                 this.fetchLists();
                 this.selectedRows.clear();
-                this._snackBar.open(response.message, 'Okay', {
+                this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                   horizontalPosition: 'right',
                   verticalPosition: 'top', duration: 3000
                 });
               }
               else {
-                this._snackBar.open(response.message, 'Okay', {
+                this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                   horizontalPosition: 'right',
                   verticalPosition: 'top', duration: 3000
                 });
@@ -537,7 +555,7 @@ export class ListsComponent implements OnInit {
             },
             error: (err) => {
               console.error('Error deleting parameters:', err)
-              this._snackBar.open(err.message, 'Okay', {
+              this._snackBar.open(this.translate.instant(err.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
                 verticalPosition: 'top', duration: 3000
               });
@@ -546,7 +564,12 @@ export class ListsComponent implements OnInit {
         }
       });
     } else {
-      const dialogRef = this.dialog.open(DeleteDialogComponent);
+      const dialogRef = this.dialog.open(DeleteDialogComponent, {
+        data: {
+          title: this.translate.instant('Confirm'),
+          message: this.translate.instant('Are you sure you want to delete the selected records?')
+        }
+      });
 
       dialogRef.afterClosed().subscribe(result => {
         if (result?.delete) {
@@ -556,13 +579,13 @@ export class ListsComponent implements OnInit {
               if (response.isSuccess) {
                 this.selectedRows.clear();
                 this.fetchListItems();
-                this._snackBar.open(response.message, 'Okay', {
+                this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                   horizontalPosition: 'right',
                   verticalPosition: 'top', duration: 3000
                 });
               }
               else {
-                this._snackBar.open(response.message, 'Okay', {
+                this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                   horizontalPosition: 'right',
                   verticalPosition: 'top', duration: 3000
                 });
@@ -589,48 +612,60 @@ export class ListsComponent implements OnInit {
   }
 
   closeForm(): void {
-    if (this.activeTab == 'lists') {
+    if (this.activeTab?.toLowerCase() == 'lists') {
       this.formVisible = false;
     }
-    if (this.activeTab == 'listItems') {
+    if (this.activeTab?.toLowerCase() == 'listitems') {
       this.listItemFormVisible = false;
     }
   }
 
   getCurrentPageData(): any[] {
-    if (!this.paginator) return []; // Return empty array if paginator is undefined
-    const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
-    const endIndex = startIndex + this.paginator.pageSize;
-    if (this.activeTab === 'lists') {
+    if (this.activeTab?.toLowerCase() === 'lists') {
+      if (!this.listsPaginator) return [];
+      const startIndex = this.listsPaginator.pageIndex * this.listsPaginator.pageSize;
+      const endIndex = startIndex + this.listsPaginator.pageSize;
       return this.dataSource.filteredData.slice(startIndex, endIndex);
     } else {
+      if (!this.listItemsPaginator) return [];
+      const startIndex = this.listItemsPaginator.pageIndex * this.listItemsPaginator.pageSize;
+      const endIndex = startIndex + this.listItemsPaginator.pageSize;
       return this.listItemDataSource.filteredData.slice(startIndex, endIndex);
     }
   }
 
+  isAllSelected(): boolean {
+    if (this.activeTab?.toLowerCase() === 'lists') {
+      const data = this.dataSource.data;
+      return data.length > 0 && data.every(row => this.selectedRows.has(row.listId));
+    } else {
+      const data = this.listItemDataSource.data;
+      return data.length > 0 && data.every(row => this.selectedRows.has(row.itemId));
+    }
+  }
+
   isAllPageSelected(): boolean {
-    if (this.activeTab === 'lists') {
-      const currentPageData = this.getCurrentPageData();
+    const currentPageData = this.getCurrentPageData();
+    if (currentPageData.length === 0) return false;
+    if (this.activeTab?.toLowerCase() === 'lists') {
       return currentPageData.every((row: any) => this.selectedRows.has(row.listId));
     } else {
-      const currentPageData = this.getCurrentPageData();
       return currentPageData.every((row: any) => this.selectedRows.has(row.itemId));
     }
   }
 
   isSomePageSelected(): boolean {
-    if (this.activeTab === 'lists') {
-      const currentPageData = this.getCurrentPageData();
-      return currentPageData.some((row: any) => this.selectedRows.has(row.listId)) && !this.isAllPageSelected();
-    } else {
-      const currentPageData = this.getCurrentPageData();
-      return currentPageData.some((row: any) => this.selectedRows.has(row.itemId)) && !this.isAllPageSelected();
-    }
+    const currentPageData = this.getCurrentPageData();
+    if (currentPageData.length === 0) return false;
+    const numSelected = this.activeTab?.toLowerCase() === 'lists'
+      ? currentPageData.filter((row: any) => this.selectedRows.has(row.listId)).length
+      : currentPageData.filter((row: any) => this.selectedRows.has(row.itemId)).length;
+    return numSelected > 0 && numSelected < currentPageData.length;
   }
 
   toggleSelectAll(event: MatCheckboxChange) {
     const currentPageData = this.getCurrentPageData(); // Paginated rows
-    if (this.activeTab === 'lists') {
+    if (this.activeTab?.toLowerCase() === 'lists') {
       if (event.checked) {
         currentPageData.forEach((row: any) => this.selectedRows.add(row.listId));
       } else {
@@ -646,7 +681,7 @@ export class ListsComponent implements OnInit {
   }
 
   toggleSelection(event: MatCheckboxChange, ids: number) {
-    if (this.activeTab === 'lists') {
+    if (this.activeTab?.toLowerCase() === 'lists') {
       if (event.checked) {
         this.selectedRows.add(ids);
       } else {
@@ -664,8 +699,8 @@ export class ListsComponent implements OnInit {
 
   downloadTemplate() {
     this.isDownloading = true;
-    this.message = "Please wait, template is downloading...";
-    if (this.activeTab === 'lists') {
+    this.message = this.translate.instant("Please wait, template is downloading...");
+    if (this.activeTab?.toLowerCase() === 'lists') {
       this.listsService.downloadListTemplate().subscribe((response) => {
         this.isDownloading = false;
         const blob = new Blob([response], {
@@ -677,7 +712,7 @@ export class ListsComponent implements OnInit {
         a.download = 'Lists-Template.xlsx'; // Filename for the download
         a.click();
         window.URL.revokeObjectURL(url);
-        this._snackBar.open('Lists Template Download Successfully.', 'Okay', {
+        this._snackBar.open(this.translate.instant('Lists Template Download Successfully.'), this.translate.instant('Okay'), {
           duration: 2000,
           horizontalPosition: 'right',
           verticalPosition: 'top'
@@ -695,7 +730,7 @@ export class ListsComponent implements OnInit {
         a.download = 'ListItem-Template.xlsx'; // Filename for the download
         a.click();
         window.URL.revokeObjectURL(url);
-        this._snackBar.open('ListItem Template Download Successfully.', 'Okay', {
+        this._snackBar.open(this.translate.instant('ListItem Template Download Successfully.'), this.translate.instant('Okay'), {
           duration: 2000,
           horizontalPosition: 'right',
           verticalPosition: 'top'
@@ -709,7 +744,7 @@ export class ListsComponent implements OnInit {
     if (this.selectedFile) {
       this.importList(this.selectedFile);
     } else {
-      this._snackBar.open('Please select a file first.', 'Okay', {
+      this._snackBar.open(this.translate.instant('Please select a file first.'), this.translate.instant('Okay'), {
         duration: 2000,
         horizontalPosition: 'right',
         verticalPosition: 'top'
@@ -723,20 +758,20 @@ export class ListsComponent implements OnInit {
     });
     this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
-    this.message = "Uploading file, please wait...";
-    if (this.activeTab === 'lists') {
+    this.message = this.translate.instant("Uploading file, please wait...");
+    if (this.activeTab?.toLowerCase() === 'lists') {
       this.listsService.importList(selectedFile, this.createdBy).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchLists();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         },
         error: (error) => {
           this.isUploading = false;
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -747,14 +782,14 @@ export class ListsComponent implements OnInit {
         next: (response) => {
           this.isUploading = false;
           this.fetchListItems();
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
         },
         error: (error) => {
           this.isUploading = false;
-          this._snackBar.open(error.message, 'Okay', {
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000
           });
@@ -824,7 +859,7 @@ export class ListsComponent implements OnInit {
   // }
 
   ExportLists() {
-    if (this.activeTab === 'lists') {
+    if (this.activeTab?.toLowerCase() === 'lists') {
       // If nothing is selected, export all rows
       const listsIdsToExport = this.selectedRows.size > 0
         ? Array.from(this.selectedRows)
