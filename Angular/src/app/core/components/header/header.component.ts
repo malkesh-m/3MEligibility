@@ -3,6 +3,8 @@ import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { OidcAuthService } from '../../services/auth/oidc-auth.service';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-header',
@@ -13,12 +15,32 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class HeaderComponent {
   currentLanguage: string;
+  userImageUrl: SafeUrl | null = null;
   @Output() menuToggle = new EventEmitter<void>();
 
   constructor(private router: Router, private authService: AuthService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private oidcAuthService: OidcAuthService,
+    private sanitizer: DomSanitizer
   ) {
     this.currentLanguage = this.translate.currentLang || 'en';
+  }
+
+  ngOnInit(): void {
+    this.loadUserImage();
+  }
+
+  loadUserImage() {
+    const profile = this.oidcAuthService.getUserProfile();
+    if (profile && profile.user_photo_id) {
+      this.authService.getUserImage(profile.user_photo_id).subscribe({
+        next: (blob) => {
+          const objectURL = URL.createObjectURL(blob);
+          this.userImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+        },
+        error: (err) => console.error('Failed to load user image', err)
+      });
+    }
   }
 
   toggleSidebar() {

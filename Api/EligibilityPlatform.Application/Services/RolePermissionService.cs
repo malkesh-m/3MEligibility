@@ -151,11 +151,11 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>
         /// A list of <see cref="AssignedPermissionModel"/> representing assigned permissions.
         /// </returns>
-        public async Task<IList<AssignedPermissionModel>> GetAssignedPermissions(int roleId)
+        public async Task<IList<AssignedPermissionModel>> GetAssignedPermissions(int roleId,int tenantId)
         {
             return await _uow.RolePermissionRepository.Query()
                 .Include(i => i.Permission)
-                .Where(w => w.RoleId == roleId)
+                .Where(w => w.RoleId == roleId &&w.TenantId==tenantId)
                 .Select(s => new AssignedPermissionModel
                 {
                     RoleId = s.RoleId,
@@ -172,10 +172,10 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>
         /// A list of <see cref="AssignedPermissionModel"/> representing unassigned permissions.
         /// </returns>
-        public async Task<IList<AssignedPermissionModel>> GetUnAssignedPermissions(int roleId)
+        public async Task<IList<AssignedPermissionModel>> GetUnAssignedPermissions(int roleId,int tenantId)
         {
             var assignedPermissionIds = _uow.RolePermissionRepository.Query()
-                .Where(w => w.RoleId == roleId)
+                .Where(w => w.RoleId == roleId &&w.TenantId==tenantId)
                 .Select(s => s.PermissionId);
 
             return await _uow.PermissionRepository.Query()
@@ -220,7 +220,7 @@ namespace MEligibilityPlatform.Application.Services
         private async Task EnsureCanEditRolePermissions(int roleId, int tenantId)
         {
             var targetRoleName = await _uow.SecurityRoleRepository.Query()
-                .Where(sg => sg.RoleId == roleId && (sg.TenantId == tenantId || sg.TenantId == 0))
+                .Where(sg => sg.RoleId == roleId && sg.TenantId == tenantId )
                 .Select(sg => sg.RoleName ?? "")
                 .FirstOrDefaultAsync();
 

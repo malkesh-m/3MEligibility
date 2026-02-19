@@ -40,14 +40,14 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="roleId">The unique identifier of the security role.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of <see cref="AssignedPermissionModel"/> objects representing unassigned permissions.</returns>
-        Task<IList<AssignedPermissionModel>> GetUnAssignedPermissions(int roleId);
+        Task<IList<AssignedPermissionModel>> GetUnAssignedPermissions(int roleId,int tenantId);
 
         /// <summary>
         /// Retrieves all assigned permissions for a specific security role.
         /// </summary>
         /// <param name="roleId">The unique identifier of the security role.</param>
         /// <returns>A task that represents the asynchronous operation, containing a list of <see cref="AssignedPermissionModel"/> objects representing assigned permissions.</returns>
-        Task<IList<AssignedPermissionModel>> GetAssignedPermissions(int roleId);
+        Task<IList<AssignedPermissionModel>> GetAssignedPermissions(int roleId,int tenantId);
 
         /// <summary>
         /// Removes all permission assignments for a specific security role.

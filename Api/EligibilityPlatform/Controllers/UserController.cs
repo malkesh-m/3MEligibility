@@ -21,14 +21,9 @@ namespace MEligibilityPlatform.Controllers
     /// <param name="configuration">The configuration instance.</param>
     [Route("api/user")]
     [ApiController]
-    public class UserController(IUserService userService, IConfiguration configuration) : ControllerBase
+    public class UserController(IUserService userService) : ControllerBase
     {
         private readonly IUserService _userService = userService;
-        private readonly IConfiguration _configuration = configuration;
-        private readonly string _key = configuration["Jwt:Key"]!;
-        private readonly string _issuer = configuration["Jwt:Issuer"]!;
-        private readonly string _audience = configuration["Jwt:Audience"]!;
-        private readonly double _expiryDuration = Convert.ToDouble(configuration["Jwt:ExpiresInMinutes"]);
 
         /// <summary>
         /// Retrieves all users for the current entity.

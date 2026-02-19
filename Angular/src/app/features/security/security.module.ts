@@ -16,7 +16,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { QuillModule } from 'ngx-quill';
@@ -26,7 +26,7 @@ import { UserprofileComponent } from './userprofile/userprofile.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedModule } from '../../shared/shared.module';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [UserComponent, SecurityComponent, RoleComponent, PermissionComponent, UserprofileComponent],
@@ -48,10 +48,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatSelectModule,
     MatDialogModule,
     MatButtonModule,
-    QuillModule.forRoot(),
+    QuillModule,
     TranslateModule,
     SharedModule,
-    MatProgressSpinner,
+    MatProgressSpinnerModule,
     CoreModule
   ],
 })

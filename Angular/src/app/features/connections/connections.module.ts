@@ -50,7 +50,7 @@ import { CoreModule } from '../../core/core.module';
     MatSelectModule,
     MatDialogModule,
     MatButtonModule,
-    QuillModule.forRoot(),
+    QuillModule,
     TranslateModule,
     SharedModule,
     MatSlideToggleModule,

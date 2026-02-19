@@ -133,7 +133,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<ProductListModel> GetAll(int tenantId)
         {
             // Retrieves products filtered by entity ID and includes category information.
-            var products = _uow.ProductRepository.Query().Include(i => i.Category)
+            var products = _uow.ProductRepository.Query().AsNoTracking()
                 .Where(f => f.TenantId == tenantId)
                 .Select(s => new ProductListModel
                 {
@@ -168,7 +168,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<ProductIdAndNameModel> GetProductIAndName(int tenantId)
         {
             // Retrieves product IDs and names filtered by entity ID.
-            var products = _uow.ProductRepository.Query()
+            var products = _uow.ProductRepository.Query().AsNoTracking()
                 .Where(w => w.TenantId == tenantId)
                 .Select(s => new ProductIdAndNameModel
                 {
@@ -244,25 +244,23 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Update(ProductAddUpdateModel model, string token)
         {
-            var codeExists = _uow.ProductRepository.Query()
-                .Any(f => f.TenantId == model.TenantId && f.Code == model.Code
-                      && f.ProductId != model.ProductId);
-            if (codeExists)
-                throw new InvalidOperationException("Code already exists");
+            var existingProduct = _uow.ProductRepository.Query()
+             .FirstOrDefault(w => w.ProductId == model.ProductId && w.TenantId == model.TenantId)
+             ?? throw new InvalidOperationException("Product does not exist");
 
-            var nameExists = _uow.ProductRepository.Query()
-                .Any(f => f.TenantId == model.TenantId && f.ProductName == model.ProductName
-                      && f.ProductId != model.ProductId);
-            if (nameExists)
+            var duplicate = _uow.ProductRepository.Query()
+              .Where(f => f.TenantId == model.TenantId && f.ProductId != model.ProductId)
+              .Select(f => new { f.Code, f.ProductName })
+              .FirstOrDefault(f => f.Code == model.Code || f.ProductName == model.ProductName);
+
+            if (duplicate?.Code == model.Code)
+                throw new InvalidOperationException("Code already exists");
+            if (duplicate?.ProductName == model.ProductName)
                 throw new InvalidOperationException("Product Name already exists");
 
             model.CategoryId = model.CategoryId == 0 ? (int?)null : model.CategoryId;
 
-            var existingProduct = _uow.ProductRepository.Query()
-                .FirstOrDefault(w => w.ProductId == model.ProductId && w.TenantId == model.TenantId)
-                ?? throw new InvalidOperationException("Product does not exist");
-
-            // Handle file upload only if it hasn't been pre-uploaded (optimization)
+      // Handle file upload only if it hasn't been pre-uploaded (optimization)
             if (model.ProductImageFile != null && model.ProductImageId == null)
             {
                 var uploadResult = await _driveService.UploadAsync(model.ProductImageFile, token);

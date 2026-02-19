@@ -116,11 +116,18 @@ export class AuthService {
       })
     );
   }
-loadUserPermissions() {
-  return this.http.get<any>(`${this.apiUrl}/user/me`).pipe(
-    tap(res => this.PermissionsService.setPermissions(res.permissions || []))
-  );
-}
+  loadUserPermissions() {
+    return this.http.get<any>(`${this.apiUrl}/user/me`).pipe(
+      tap(res => this.PermissionsService.setPermissions(res.permissions || []))
+    );
+  }
+
+  getUserImage(imageId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/product/drive-image/${imageId}`,
+      { responseType: 'blob', headers: this.getHeaders() }
+    );
+  }
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');

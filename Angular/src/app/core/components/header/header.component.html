@@ -40,8 +40,9 @@
             <span class="user-name">Mohammed Ahmed</span>
         </div>
     </div> -->
-    <button mat-mini-fab [matMenuTriggerFor]="menu" style="margin-right: 30px;">
-        <mat-icon matTooltip="{{ 'Profile' | translate }}">person</mat-icon>
+    <button mat-mini-fab [matMenuTriggerFor]="menu" style="margin-right: 30px;" class="profile-btn">
+        <img *ngIf="userImageUrl" [src]="userImageUrl" alt="Profile" class="profile-image">
+        <mat-icon *ngIf="!userImageUrl" matTooltip="{{ 'Profile' | translate }}">person</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
         <button mat-menu-item routerLink="security/userprofile"><mat-icon>person</mat-icon> {{ 'My Profile' | translate

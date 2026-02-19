@@ -156,7 +156,7 @@ namespace MEligibilityPlatform.Controllers
                 return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to view this role's permissions." });
             }
             // Retrieves assigned permissions by role ID
-            var result = await _rolePermissionService.GetAssignedPermissions(roleId);
+            var result = await _rolePermissionService.GetAssignedPermissions(roleId,tenantId);
             // Checks if any assigned permissions were found
             if (result.Any())
             {
@@ -189,7 +189,7 @@ namespace MEligibilityPlatform.Controllers
                 return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to view this role's permissions." });
             }
             // Retrieves unassigned permissions by role ID
-            var result = await _rolePermissionService.GetUnAssignedPermissions(roleId);
+            var result = await _rolePermissionService.GetUnAssignedPermissions(roleId,tenantId);
             // Checks if any unassigned permissions were found
             if (result.Any())
             {

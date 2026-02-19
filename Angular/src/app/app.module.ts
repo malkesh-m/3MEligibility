@@ -2,11 +2,11 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA, APP_INITIALIZER } from '@angular/core
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import {  HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { QuillModule } from 'ngx-quill';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { LocationStrategy } from '@angular/common';
@@ -54,6 +54,7 @@ export function initializeOidc(
         deps: [HttpClient, LocationStrategy]
       }
     }),
+    QuillModule.forRoot(),
   ],
   providers: [
     {
@@ -69,10 +70,10 @@ export function initializeOidc(
     {
       provide: APP_INITIALIZER,
       useFactory: initializeOidc,
-      deps: [OidcAuthService,AuthService],
+      deps: [OidcAuthService, AuthService],
       multi: true
     },
-    provideAnimationsAsync()
+
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

@@ -57,12 +57,12 @@ namespace MEligibilityPlatform.Controllers
             if (result != null)
             {
                 // Returns success response with the user role data
-                return Ok(new ResponseModel { IsSuccess = false, Data = result, Message = GlobalcConstants.Success });
+                return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
             }
             else
             {
                 // Returns not found response when user role doesn't exist
-                return NotFound(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.NotFound });
+                return NotFound(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NotFound });
             }
         }
 
@@ -89,24 +89,19 @@ namespace MEligibilityPlatform.Controllers
                 // Returns bad request if model validation fails
                 return BadRequest(ModelState);
             }
-            var targetRoleName = await _userRoleService.GetRoleNameById(userRoleModel.RoleId, userRoleModel.TenantId);
-            if (string.IsNullOrWhiteSpace(targetRoleName))
-            {
-                return Ok(new ResponseModel { IsSuccess = false, Message = "Role not found." });
-            }
+            var (IsValid, ErrorMessage) = await _userRoleService.EnsureCanManageUserRole(
+                        userRoleModel.RoleId,
+                        userRoleModel.TenantId,
+                        currentUserId,
+                        "assign users to");
 
-            var currentUserRoles = await _userRoleService.GetRoleNamesForUser(currentUserId, userRoleModel.TenantId);
-            var currentRank = _userRoleService.GetHighestRank(currentUserRoles);
-            var targetRank = _userRoleService.GetRank(targetRoleName);
-
-            if (targetRank == Rank.SuperAdmin && currentRank != Rank.SuperAdmin)
+            if (!IsValid)
             {
-                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Super Admin can assign users to the Super Admin role." });
-            }
-
-            if (targetRank == Rank.Admin && currentRank != Rank.SuperAdmin)
-            {
-                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Super Admin and Admin can assign users to the Admin role." });
+                return Ok(new ResponseModel
+                {
+                    IsSuccess = false,
+                    Message = ErrorMessage??""
+                });
             }
             // Adds the new user role
             var message = await _userRoleService.Add(userRoleModel);
@@ -147,38 +142,19 @@ namespace MEligibilityPlatform.Controllers
             var tenantId = User.GetTenantId();
             var currentUserId = User.GetUserId();
 
-            var targetRoleName = await _userRoleService.GetRoleNameById(roleId, tenantId);
-            if (string.IsNullOrWhiteSpace(targetRoleName))
-            {
-                return Ok(new ResponseModel { IsSuccess = false, Message = "Role not found." });
-            }
+            var (IsValid, ErrorMessage) = await _userRoleService.EnsureCanManageUserRole(
+                        roleId,
+                        tenantId,
+                        currentUserId,
+                        "remove users from");
 
-            var currentUserRoles = await _userRoleService.GetRoleNamesForUser(currentUserId, tenantId);
-            var currentRank =_userRoleService.GetHighestRank(currentUserRoles);
-            var targetRank = _userRoleService.GetRank(targetRoleName);
-
-            if (targetRank == 0)
+            if (!IsValid)
             {
-                return Ok(new ResponseModel { IsSuccess = false, Message = "Invalid target role." });
-            }
-
-            if (targetRank == Rank.SuperAdmin && currentRank != Rank.SuperAdmin)
-            {
-                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Super Admin can remove users from the Super Admin role." });
-            }
-
-            if (targetRank == Rank.SuperAdmin)
-            {
-                var superAdminCount = await _userRoleService.GetUserCountByRoleId(roleId, tenantId);
-                if (superAdminCount <= 1)
+                return Ok(new ResponseModel
                 {
-                    return Ok(new ResponseModel { IsSuccess = false, Message = "You cannot remove the last Super Admin user." });
-                }
-            }
-
-            if (targetRank == Rank.Admin && currentRank < Rank.Admin)
-            {
-                return Ok(new ResponseModel { IsSuccess = false, Message = "Only Admin or Super Admin can remove users from the Admin role." });
+                    IsSuccess = false,
+                    Message = ErrorMessage??""
+                });
             }
 
             // Deletes the user role relationship by user ID and role ID

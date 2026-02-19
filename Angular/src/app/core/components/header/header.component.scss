@@ -192,7 +192,18 @@ button mat-icon:last-child {
     /* Optional icon color */
 }
 
-.search-container:focus-within {
-    border-color: #007bff;
-    /* Highlight border on focus */
+/* Highlight border on focus */
+
+/* Profile Image inside Mini Fab */
+.profile-btn {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
 }

@@ -39,11 +39,6 @@ namespace MEligibilityPlatform.Domain.Models
         public int TenantId { get; set; }
 
         /// <summary>
-        /// The created admin user ID.
-        /// </summary>
-        public int UserId { get; set; }
-
-        /// <summary>
         /// List of errors encountered during onboarding.
         /// </summary>
         public List<string> Errors { get; set; } = [];

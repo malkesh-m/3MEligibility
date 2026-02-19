@@ -93,6 +93,8 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task<string?> GetRoleNameById(int roleId, int tenantId);
         Rank GetRank(string roleName);
         Rank GetHighestRank(IEnumerable<string> roleNames);
+        Task<(bool IsValid, string? ErrorMessage)> EnsureCanManageUserRole(int roleId, int tenantId, int currentUserId, string action);
+
 
     }
 }

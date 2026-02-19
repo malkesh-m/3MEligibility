@@ -19,7 +19,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteDialogComponent } from '../../core/components/delete-dialog/delete-dialog.component';
 import { ParametersComponent } from './parameters/parameters.component';
 import { MatTableModule } from '@angular/material/table';
@@ -106,7 +106,7 @@ import { ParameterBindingComponent } from './parameter-binding/parameter-binding
     MatSelectModule,
     MatDialogModule,
     MatButtonModule,
-    QuillModule.forRoot(),
+    QuillModule,
     TranslateModule, MatSlideToggleModule,
     MatProgressSpinnerModule,
     SharedModule

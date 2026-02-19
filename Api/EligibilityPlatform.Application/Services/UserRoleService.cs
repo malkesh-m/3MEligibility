@@ -129,7 +129,7 @@ namespace MEligibilityPlatform.Application.Services
                               on ur.RoleId equals sr.RoleId
                           where ur.UserId == userId && sr.TenantId == tenantId
                           select sr.RoleName ?? "")
-                .Distinct()
+                .Distinct().AsNoTracking()
                 .ToListAsync();
         }
 
@@ -195,6 +195,35 @@ namespace MEligibilityPlatform.Application.Services
                 }
             }
             return highest;
+        }
+        public async Task<(bool IsValid, string? ErrorMessage)> EnsureCanManageUserRole(int roleId, int tenantId, int currentUserId, string action)
+        {
+            var targetRoleName = await GetRoleNameById(roleId, tenantId);
+            if (string.IsNullOrWhiteSpace(targetRoleName))
+                return (false, "Role not found.");
+
+            var currentUserRoles = await GetRoleNamesForUser(currentUserId, tenantId);
+
+            var currentRank = GetHighestRank(currentUserRoles);
+            var targetRank = GetRank(targetRoleName);
+
+            if (targetRank == 0)
+                return (false, "Invalid target role.");
+
+            if (targetRank == Rank.SuperAdmin && currentRank != Rank.SuperAdmin)
+                return (false, $"Only Super Admin can {action} the Super Admin role.");
+
+            if (action == "remove users from" && targetRank == Rank.SuperAdmin)
+            {
+                var count = await GetUserCountByRoleId(roleId, tenantId);
+                if (count <= 1)
+                    return (false, "You cannot remove the last Super Admin user.");
+            }
+
+            if (targetRank == Rank.Admin && currentRank < Rank.Admin)
+                return (false, $"Only Admin or Super Admin can {action} the Admin role.");
+
+            return (true, null);
         }
 
         /// <summary>
