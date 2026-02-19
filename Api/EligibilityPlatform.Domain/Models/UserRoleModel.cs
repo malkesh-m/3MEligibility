@@ -3,30 +3,30 @@ using System.Text.Json.Serialization;
 
 namespace MEligibilityPlatform.Domain.Models
 {
-    public class UserGroupModel
+    public class UserRoleModel
     {
         [Required(ErrorMessage = "User ID is required.")]
         [Range(1, int.MaxValue, ErrorMessage = "User ID must be a positive integer.")]
         public int UserId { get; set; }
 
-        [Required(ErrorMessage = "Group ID is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Group ID must be a positive integer.")]
-        public int GroupId { get; set; }
+        [Required(ErrorMessage = "Role ID is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Role ID must be a positive integer.")]
+        public int RoleId { get; set; }
         public DateTime UpdatedByDateTime { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime CreatedByDateTime { get; set; }
         public string? UpdatedBy { get; set; }
     }
 
-    public class UserGroupCreateUpdateModel
+    public class UserRoleCreateUpdateModel
     {
         [Required(ErrorMessage = "User ID is required.")]
         [Range(1, int.MaxValue, ErrorMessage = "User ID must be a positive integer.")]
         public int UserId { get; set; }
 
-        [Required(ErrorMessage = "Group ID is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Group ID must be a positive integer.")]
-        public int GroupId { get; set; }
+        [Required(ErrorMessage = "Role ID is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Role ID must be a positive integer.")]
+        public int RoleId { get; set; }
         [JsonIgnore]
         public int TenantId { get; set; }
         [JsonIgnore]
@@ -45,7 +45,7 @@ namespace MEligibilityPlatform.Domain.Models
     public class AssignedAndUnAssignedPermissionModel
     {
         public int PermissionId { get; set; }
-        public int GroupId { get; set; }
+        public int RoleId { get; set; }
         public required string PermissionAction { get; set; }
         public bool IsAssigned { get; set; }
     }
@@ -53,7 +53,7 @@ namespace MEligibilityPlatform.Domain.Models
     public class AssignedPermissionModel
     {
         public int PermissionId { get; set; }
-        public int GroupId { get; set; }
+        public int RoleId { get; set; }
         public required string PermissionAction { get; set; }
         public DateTime UpdatedByDateTime { get; set; }
     }
@@ -61,8 +61,7 @@ namespace MEligibilityPlatform.Domain.Models
     public class UnAssignedPermissionModel
     {
         public int PermissionId { get; set; }
-        public int GroupId { get; set; }
+        public int RoleId { get; set; }
         public required string PermissionAction { get; set; }
     }
 }
-

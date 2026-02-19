@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 export interface personalDetailRecord {
   entityName: string | null,
   statusName: string,
-  groups: [],
+  roles: [],
   userId: number | null,
   userName: string,
   loginId: string,
@@ -48,7 +48,7 @@ export class UserprofileComponent {
     entityName: null,
     statusName: '',
     userId: 0,
-    groups: [],
+    roles: [],
     userName: '',
     loginId: '',
     userPassword: '',
@@ -65,17 +65,17 @@ export class UserprofileComponent {
     newPassword: '',
     confirmNewPassword: ''
   };
-  groupId: number = 0;
-  groupsRecord = [
+  roleId: number = 0;
+  rolesRecord = [
     {
-      groupId: 4,
-      groupName: "Super Admin",
-      groupDesc: null
+      roleId: 4,
+      roleName: "Super Admin",
+      roleDesc: null
     },
     {
-      groupId: 5,
-      groupName: "Admin",
-      groupDesc: null
+      roleId: 5,
+      roleName: "Admin",
+      roleDesc: null
     }
   ];
 
@@ -90,7 +90,7 @@ export class UserprofileComponent {
         this.personalformData = ({
           entityName: response.data.entityName,
           statusName: response.data.statusName,
-          groups: response.data.groups,
+          roles: response.data.roles,
           userId: response.data.userId,
           userName: response.data.userName,
           loginId: response.data.loginId,
@@ -102,7 +102,7 @@ export class UserprofileComponent {
           userProfileFile: response.data.userProfileFile,
           statusId: response.data.statusId
         });
-        this.groupsRecord = this.personalformData.groups;
+        this.rolesRecord = this.personalformData.roles;
       },
       error: (error) => {
         console.error('Error fetching users:', error);

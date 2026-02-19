@@ -3,11 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace MEligibilityPlatform.Domain.Models
 {
-    public class GroupPermissionModel
+    public class RolePermissionModel
     {
-        [Required(ErrorMessage = "Group ID is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Group ID must be a positive integer.")]
-        public int GroupId { get; set; }
+        [Required(ErrorMessage = "Role ID is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Role ID must be a positive integer.")]
+        public int RoleId { get; set; }
 
         [Required(ErrorMessage = "At least one Permission ID is required.")]
         [MinLength(1, ErrorMessage = "PermissionIds list must contain at least one item.")]
@@ -20,4 +20,3 @@ namespace MEligibilityPlatform.Domain.Models
         public string? UpdatedBy { get; set; }
     }
 }
-

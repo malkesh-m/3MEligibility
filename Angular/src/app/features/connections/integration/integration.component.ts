@@ -752,7 +752,7 @@ export class IntegrationComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
-        title: 'Confirm',
+        title: this.translate.instant('Confirm'),
         message: this.translate.instant('Are you sure you want to delete parameter?', { param: row.parameterName })
       }
     });
@@ -1945,7 +1945,7 @@ export class IntegrationComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
-        title: 'Confirm',
+        title: this.translate.instant('Confirm'),
         message: this.translate.instant('Are you sure you want to delete Node: {{name}}?', { name: record.nodeName })
       }
     });
@@ -1995,7 +1995,7 @@ export class IntegrationComponent implements OnInit {
 
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
-        title: 'Confirm',
+        title: this.translate.instant('Confirm'),
         message: this.translate.instant('Are you sure you want to delete Node API: {{name}}?', { name: record.apiname })
       }
     });

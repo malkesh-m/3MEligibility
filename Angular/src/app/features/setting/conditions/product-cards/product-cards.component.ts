@@ -13,6 +13,7 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ValidationDialogService } from '../../../../core/services/setting/validation-dialog.service';
 import { ParameterService } from '../../../../core/services/setting/parameter.service';
 import { PermissionsService } from '../../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-product-cards',
@@ -23,8 +24,8 @@ import { PermissionsService } from '../../../../core/services/setting/permission
 export class ProductCardsComponent implements OnInit {
   @ViewChild('tableChild') tableChild!: TableComponent;
   eProductCardsListAry: any = [];
-  productCardsColumnsAry = ['Select', 'Product Card Name', 'Description', 'Exp shown', 'Product','Created By', 'Updated By', 'Actions'];
-  cardsHeaderAry = ['Product Card Name', 'Description', 'Exp shown', 'Product','Created By', 'Updated By'];
+  productCardsColumnsAry = ['Select', 'Product Card Name', 'Description', 'Exp shown', 'Product', 'Created By', 'Updated By', 'Actions'];
+  cardsHeaderAry = ['Product Card Name', 'Description', 'Exp shown', 'Product', 'Created By', 'Updated By'];
   deleteKeyForMultiple: string = 'eproductCardId';
   formVisible: boolean = false;
   isInsertNewRecord: boolean = false;
@@ -53,7 +54,7 @@ export class ProductCardsComponent implements OnInit {
   isCardsDisabled: boolean = false;
   filteredProductCardsList: any = []
   selectedFile: File | null = null;
-  selectedCard: { name: string; expshown: string; ruleExpshown:string }[] = [];
+  selectedCard: { name: string; expshown: string; ruleExpshown: string }[] = [];
   selectedCardName: string = '';
   combinevalue: string = '';
   sequenceExp: { type: string; value: any }[] = [];
@@ -64,7 +65,7 @@ export class ProductCardsComponent implements OnInit {
   isUploading: boolean = false;
   message: string = "Loading data, please wait...";
   loggedInUser: any = null;
-  createdBy:string = '';
+  createdBy: string = '';
   loading: boolean = false;
   constructor(
     private fb: FormBuilder,
@@ -77,7 +78,8 @@ export class ProductCardsComponent implements OnInit {
     private validationDialogService: ValidationDialogService,
     private dialog: MatDialog,
     private authService: AuthService,
-    private PermissionsService:PermissionsService
+    private PermissionsService: PermissionsService,
+    private translate: TranslateService
   ) {
     this.expressionForm = this.fb.group({
       ProductCardName: ['', [Validators.required]],
@@ -85,7 +87,7 @@ export class ProductCardsComponent implements OnInit {
       //MaximumAmount: ['',[Validators.required]],
       Expshown: ['', [Validators.required]],
       Product: ['', [Validators.required]],
-      entityId:['']
+      entityId: ['']
     });
   }
 
@@ -191,26 +193,26 @@ export class ProductCardsComponent implements OnInit {
     let expressionWithPIDs = expression;
 
     this.ruleService.getRulesList().subscribe({
-        next: (response) => {
-            const rules = response.data;
+      next: (response) => {
+        const rules = response.data;
 
         console.log(rules)
-  
 
-            rules.forEach((rule: any) => {
-                expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), rule.expShown);
-                expressionWithPIDs = expressionWithPIDs.replaceAll(String(rule.eruleId), rule.expression);
-            });
 
-            return { expressionWithPIDs, expressionWithPNames };
-        },
-        error: (error) => {
-            this._snackBar.open(error, 'Okay', {
-                horizontalPosition: 'right',
-                verticalPosition: 'top',
-                duration: 3000
-            });
-        }
+        rules.forEach((rule: any) => {
+          expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), rule.expShown);
+          expressionWithPIDs = expressionWithPIDs.replaceAll(String(rule.eruleId), rule.expression);
+        });
+
+        return { expressionWithPIDs, expressionWithPNames };
+      },
+      error: (error) => {
+        this._snackBar.open(error, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
     });
 
     return { expressionWithPIDs, expressionWithPNames };
@@ -246,8 +248,8 @@ export class ProductCardsComponent implements OnInit {
         if (selectedCardsObject) {
           let logicalOperator = this.sequence.length > 1 ? this.sequence[this.sequence.length - 2].value : '';
           const expressionParts = this.extractRuleNamesNew(selectedCardsObject.expshown);
-  
-          if(expressionParts){
+
+          if (expressionParts) {
             expressionParts.forEach((part: string, index: number) => {
               const selectedRuleObject = this.rules
                 .filter(rule => rule.eruleName === part)
@@ -269,14 +271,14 @@ export class ProductCardsComponent implements OnInit {
               }
             });
           }
-          
-  
+
+
           const exists = this.selectedCard.find(rule => rule.name === this.selectedCardName);
           if (!exists) {
             selectedCardsObject.ruleExpshown = ruleExpshownArray.join(" ");
             this.selectedCard.push(selectedCardsObject);
           }
-  
+
           equivalentExpression = ruleExpshownArray.join(" ");
           if (this.combinevalue) {
             this.combinevalue += ` ${logicalOperator} { ${equivalentExpression} }`;
@@ -467,7 +469,7 @@ export class ProductCardsComponent implements OnInit {
         pcardId: this.isInsertNewRecord ? 0 : this.updatedIndexId,
         pcardName: this.expressionForm.value.ProductCardName,
         pcardDesc: this.expressionForm.value.Description,
-        amount : this.expressionForm.value.MaximumAmount,
+        amount: this.expressionForm.value.MaximumAmount,
         expression: expressionExp,
         entityId: null,
         productId: +this.expressionForm.get('Product')?.value || 0,
@@ -687,21 +689,21 @@ export class ProductCardsComponent implements OnInit {
       this.sequence.pop();
       this.updateExpression();
       if (removedItem.type === 'cards') {
-          this.selectedCard = this.selectedCard.filter(rule => rule.name !== removedItem.value);
-          let newEquivalentExpression = "";
-          this.selectedCard.forEach((card, index) => {
-            const ruleExpshownArray = this.extractRuleNames(card.expshown)
-              .map(part => part === 'And' || part === 'Or' ? part : this.rules.find(rule => rule.eruleName === part)?.expShown || part);
+        this.selectedCard = this.selectedCard.filter(rule => rule.name !== removedItem.value);
+        let newEquivalentExpression = "";
+        this.selectedCard.forEach((card, index) => {
+          const ruleExpshownArray = this.extractRuleNames(card.expshown)
+            .map(part => part === 'And' || part === 'Or' ? part : this.rules.find(rule => rule.eruleName === part)?.expShown || part);
 
-            if (index > 0) {
-              newEquivalentExpression += ` And { ${ruleExpshownArray.join(' ')} }`;
-            } else {
-              newEquivalentExpression = `{ ${ruleExpshownArray.join(' ')} }`;
-            }
-          });
+          if (index > 0) {
+            newEquivalentExpression += ` And { ${ruleExpshownArray.join(' ')} }`;
+          } else {
+            newEquivalentExpression = `{ ${ruleExpshownArray.join(' ')} }`;
+          }
+        });
 
-          // Update combinevalue
-          this.combinevalue = newEquivalentExpression.trim();
+        // Update combinevalue
+        this.combinevalue = newEquivalentExpression.trim();
       }
 
 
@@ -741,11 +743,11 @@ export class ProductCardsComponent implements OnInit {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
-        if (response.isSuccess) { 
-        this.fetchAllProductCards();
-        this.toggleFormVisibility();
-        this.formVisible = false;
-      }
+        if (response.isSuccess) {
+          this.fetchAllProductCards();
+          this.toggleFormVisibility();
+          this.formVisible = false;
+        }
       },
       error: (error) => {
         this._snackBar.open(error, 'Okay', {
@@ -757,7 +759,7 @@ export class ProductCardsComponent implements OnInit {
   }
 
   updateProductCard(payload: any) {
-   
+
     // payload.updatedBy = this.loggedInUser.user.userName;
     this.productsCardService.updateProductCard(payload).subscribe({
       next: (response) => {
@@ -779,49 +781,49 @@ export class ProductCardsComponent implements OnInit {
     })
   }
 
- deleteProductCard(productCardId: number, productCard: string) {
+  deleteProductCard(productCardId: number, productCard: string) {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the Product Card: "${productCard}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.productsCardService.deleteProductCard(productCardId).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.formVisible = false;
-          this.fetchAllProductCards();
-        }
-
-      },
-      error: (error) => {
-        this._snackBar.open(
-          error?.error?.message || error.message || 'Something went wrong.',
-          'Okay',
-          {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          }
-        );
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the Product Card: "{{name}}"?', { name: productCard })
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.productsCardService.deleteProductCard(productCardId).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.formVisible = false;
+            this.fetchAllProductCards();
+          }
+
+        },
+        error: (error) => {
+          this._snackBar.open(
+            error?.error?.message || error.message || 'Something went wrong.',
+            'Okay',
+            {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            }
+          );
+        }
+      });
+
+    });
+  }
 
   deleteCheckedMultipleCards() {
     let listOfSelectedIds = new Set(this.tableChild.selectedRowsItem)
@@ -906,7 +908,7 @@ export class ProductCardsComponent implements OnInit {
 
   downloadTemplate() {
     this.isDownloading = true;
-      this.message = "Please wait, template is downloading...";
+    this.message = "Please wait, template is downloading...";
     this.productsCardService.downloadTemplate().subscribe((response) => {
       this.isDownloading = false;
       const blob = new Blob([response], {
@@ -940,9 +942,9 @@ export class ProductCardsComponent implements OnInit {
   }
 
   importPCard(selectedFile: File) {
-  //   this.authService.currentUser$.subscribe((user) => {
-  //     this.loggedInUser = user;
-  // });
+    //   this.authService.currentUser$.subscribe((user) => {
+    //     this.loggedInUser = user;
+    // });
     // this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
@@ -969,7 +971,7 @@ export class ProductCardsComponent implements OnInit {
   }
 
   openValidatorDialog(expshown: any) {
-    
+
     this.sequenceExp = this.sequence.map(item => {
       if (item.type === "cards") {
         let matchedParam = this.cards.find(p => p.name === item.value);
@@ -989,7 +991,7 @@ export class ProductCardsComponent implements OnInit {
         });
       });
     };
-  
+
     const getRulesList = () => {
       return new Promise((resolve, reject) => {
         this.ruleService.getRulesList().subscribe({
@@ -998,24 +1000,24 @@ export class ProductCardsComponent implements OnInit {
         });
       });
     };
-  
+
     const getParameters = () => {
       return new Promise((resolve, reject) => {
         this.parameterService.getParameters().subscribe({
           next: (response) => resolve(response.data),
           error: (error) => reject(error)
-   });
+        });
       });
     };
-  
+
     const processValidation = async () => {
       try {
         const eCards: any = await getCardsList();
         const rules: any = await getRulesList();
         const parameters: any = await getParameters();
-  
+
         let selectedPCardExpression = expressionExp;
-  
+
         eCards.forEach((eCard: any) => {
           let eCardExpressionWithPNames = eCard.expression;
           rules.forEach((rule: any) => {
@@ -1023,30 +1025,30 @@ export class ProductCardsComponent implements OnInit {
               const ruleWithoutParentheses = rule.expShown.replace(/^\(|\)$/g, '');
               eCardExpressionWithPNames = eCardExpressionWithPNames.replaceAll(String(rule.eruleId), ruleWithoutParentheses);
             }
-});
+          });
 
           selectedPCardExpression = selectedPCardExpression.replaceAll(eCard.ecardId, eCardExpressionWithPNames);
         });
-  
+
         this.validationDialogService.openValidationDialog({
-          actionType:'form',
+          actionType: 'form',
           expshown: selectedPCardExpression,
           expression: expressionExp,
           parameters: parameters,
           validationType: 'PCard',
           valideeId: 0
         });
-  
+
       } catch (error: any) {
-          this._snackBar.open(error, 'Okay', {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          });
-        }
-      };
-  
-        processValidation();
+        this._snackBar.open(error, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
+    };
+
+    processValidation();
   }
 
 }

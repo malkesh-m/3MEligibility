@@ -59,9 +59,9 @@
             </div>
             <br>
             <div class="row">
-                <label>{{ 'Group' | translate }}</label>
-                <div *ngFor="let group of groupsRecord" class="col-2">
-                    <input type="text" [value]="group.groupName | translate" disabled class="form-control" />
+                <label>{{ 'Role' | translate }}</label>
+                <div *ngFor="let role of rolesRecord" class="col-2">
+                    <input type="text" [value]="role.roleName | translate" disabled class="form-control" />
                 </div>
             </div>
 

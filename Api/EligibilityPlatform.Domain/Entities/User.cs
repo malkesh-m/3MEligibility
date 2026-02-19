@@ -5,7 +5,6 @@ namespace MEligibilityPlatform.Domain.Entities;
 
 public partial class User : ITenantEntity
 {
-    [Key]
     public int UserId { get; set; }
 
     public string UserName { get; set; } = string.Empty;
@@ -37,12 +36,14 @@ public partial class User : ITenantEntity
 
     public virtual UserStatus? Status { get; set; }
 
-    //public virtual ICollection<UserGroup> UserGroups { get; set; } = [];
+    //public virtual ICollection<UserRole> UserRoles { get; set; } = [];
 
-    public virtual ICollection<SecurityGroup> Groups { get; set; } = [];
+    public virtual ICollection<SecurityRole> Roles { get; set; } = [];
+
+    public virtual ICollection<UserRole> UserRoles { get; set; } = [];
 
     [NotMapped]
-    public virtual SecurityGroup? SecurityGroup { get; set; }
+    public virtual SecurityRole? SecurityRole { get; set; }
 
    
 }

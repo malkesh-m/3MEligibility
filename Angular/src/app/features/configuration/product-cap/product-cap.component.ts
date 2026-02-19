@@ -8,6 +8,7 @@ import { DeleteDialogComponent } from '../../../core/components/delete-dialog/de
 // import { MatTableDataSource } from '@angular/material/table';
 // import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-product-cap',
@@ -34,7 +35,7 @@ export class ProductCapComponent implements OnInit {
   isDownloading: boolean = false;
   constructor(private fb: FormBuilder,
     private productservice: ProductsService,
-    private productcapservice: ProductCapService,private PermissionsService: PermissionsService,private dialog: MatDialog) { }
+    private productcapservice: ProductCapService, private PermissionsService: PermissionsService, private dialog: MatDialog, private translate: TranslateService) { }
   isSubmitted = false;
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
@@ -93,7 +94,7 @@ export class ProductCapComponent implements OnInit {
 
         } else {
           this.selectedProductData = [];
-       }
+        }
       },
       error: (error) => {
         this._snackBar.open(error.message, 'Okay', {
@@ -151,7 +152,7 @@ export class ProductCapComponent implements OnInit {
   }
 
   onSubmit() {
-    this.isSubmitted = true; 
+    this.isSubmitted = true;
     const min = +this.ProductCapForm.get('minimumScore')?.value;
     const max = +this.ProductCapForm.get('maximumScore')?.value;
 
@@ -182,12 +183,12 @@ export class ProductCapComponent implements OnInit {
             this.ProductCapForm.patchValue({
               productID: selectedProductId
             })
-         }
+          }
           this._snackBar.open(Response.message, 'Close', {
             duration: 3000,
             horizontalPosition: 'right',
             verticalPosition: 'top',
-});
+          });
 
         },
         error: (error) => {
@@ -216,8 +217,9 @@ export class ProductCapComponent implements OnInit {
           this._snackBar.open(Response.message, 'Close', {
             duration: 3000,
             horizontalPosition: 'right',
-            verticalPosition: 'top',          });
-         },
+            verticalPosition: 'top',
+          });
+        },
         error: (error) => {
           this._snackBar.open(error.message, 'Okay', {
             horizontalPosition: 'right',
@@ -237,56 +239,56 @@ export class ProductCapComponent implements OnInit {
     this.isEditMode = true;
     this.ProductCapForm.patchValue(item);
   }
-deleteProductCap(element: any): void {
+  deleteProductCap(element: any): void {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the Product Cap for "${element.productName}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe((result: { delete: any; }) => {
-
-    if (!result?.delete) return;
-
-    this.productcapservice.deleteProductCap(element.id).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          const selectedProductId = this.ProductCapForm.get('productID')?.value;
-
-          if (selectedProductId) {
-            this.onProductSelected(selectedProductId);
-          }
-        }
-
-      },
-      error: (error) => {
-
-        const message =
-          error?.error?.message ||
-          error?.message ||
-          'Something went wrong.';
-
-        this._snackBar.open(message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        console.error('Delete Product Cap Error:', error);
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the Product Cap for "{{name}}"?', { name: element.productName })
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe((result: { delete: any; }) => {
+
+      if (!result?.delete) return;
+
+      this.productcapservice.deleteProductCap(element.id).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            const selectedProductId = this.ProductCapForm.get('productID')?.value;
+
+            if (selectedProductId) {
+              this.onProductSelected(selectedProductId);
+            }
+          }
+
+        },
+        error: (error) => {
+
+          const message =
+            error?.error?.message ||
+            error?.message ||
+            'Something went wrong.';
+
+          this._snackBar.open(message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          console.error('Delete Product Cap Error:', error);
+        }
+      });
+
+    });
+  }
 
   resetForm() {
     this.isEditMode = false;

@@ -1,10 +1,12 @@
-﻿namespace MEligibilityPlatform.Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
-public partial class UserGroup : ITenantEntity
+namespace MEligibilityPlatform.Domain.Entities;
+
+public partial class UserRole : ITenantEntity
 {
     public int UserId { get; set; }
 
-    public int GroupId { get; set; }
+    public int RoleId { get; set; }
 
     public int TenantId { get; set; }
 
@@ -16,7 +18,7 @@ public partial class UserGroup : ITenantEntity
 
     public string? UpdatedBy { get; set; }
 
-    public virtual SecurityGroup Group { get; set; } = null!;
+    public virtual SecurityRole Role { get; set; } = null!;
 
     //public virtual User User { get; set; } = null!;
 }

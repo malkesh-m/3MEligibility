@@ -55,13 +55,13 @@ namespace MEligibilityPlatform
             TypeAdapterConfig<Permission, PermissionModel>.NewConfig().TwoWays();
             TypeAdapterConfig<Permission, PermissionCreateUpdateModel>.NewConfig().TwoWays();
 
-            TypeAdapterConfig<SecurityGroup, SecurityGroupModel>.NewConfig().TwoWays();
-            TypeAdapterConfig<SecurityGroup, SecurityGroupUpdateModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<SecurityRole, SecurityRoleModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<SecurityRole, SecurityRoleUpdateModel>.NewConfig().TwoWays();
 
-            TypeAdapterConfig<UserGroup, UserGroupModel>.NewConfig().TwoWays();
-            TypeAdapterConfig<UserGroup, UserGroupCreateUpdateModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<UserRole, UserRoleModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<UserRole, UserRoleCreateUpdateModel>.NewConfig().TwoWays();
 
-            TypeAdapterConfig<GroupPermission, GroupPermissionModel>.NewConfig().TwoWays();
+            TypeAdapterConfig<RolePermission, RolePermissionModel>.NewConfig().TwoWays();
             TypeAdapterConfig<Screen, ScreenModel>.NewConfig().TwoWays();
 
       

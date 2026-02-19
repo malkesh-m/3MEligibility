@@ -6,6 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-product-cap-amount',
@@ -18,13 +19,13 @@ export class ProductCapAmountComponent {
   ProductCapForm !: FormGroup;
   isEditMode: boolean = false;
   productsList: any[] = [];
-  displayedColumns: string[] = ['productName', 'age', 'salary', 'amount','actions'];
+  displayedColumns: string[] = ['productName', 'age', 'salary', 'amount', 'actions'];
   selectedProductData: any[] = [];
   private _snackBar = inject(MatSnackBar);
   formvisible: boolean = false;
   isLoading: boolean = false;
   message: string = "Loading data, please wait...";
-  constructor(private fb: FormBuilder, private productservice:ProductsService,private productAmountService:ProductCapAmountService,private PermissionsService: PermissionsService,private dialog: MatDialog) { }
+  constructor(private fb: FormBuilder, private productservice: ProductsService, private productAmountService: ProductCapAmountService, private PermissionsService: PermissionsService, private dialog: MatDialog, private translate: TranslateService) { }
   ngOnInit(): void {
     this.ProductCapForm = this.fb.group({
       id: [],
@@ -42,7 +43,7 @@ export class ProductCapAmountComponent {
       this.onProductSelected(+productId);
     });
   }
-    hasPermission(permissionId: string): boolean {
+  hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
   }
   onSubmit() {
@@ -134,7 +135,7 @@ export class ProductCapAmountComponent {
       next: (response) => {
         if (response.isSuccess) {
           this.productsList = response.data;
-         this.isLoading = false;
+          this.isLoading = false;
         }
       }, error: (error) => {
         this._snackBar.open(error.message, 'Close', {
@@ -198,63 +199,63 @@ export class ProductCapAmountComponent {
     this.isEditMode = true;
     this.ProductCapForm.patchValue(item);
   }
- deleteProductCapAmount(element: any): void {
+  deleteProductCapAmount(element: any): void {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the Product Cap Amount for "${element.productName}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.productAmountService.deleteProductCap(element.id).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-
-          const selectedProductId =
-            this.ProductCapForm.get('productId')?.value;
-
-          if (selectedProductId) {
-            this.onProductSelected(selectedProductId);
-          }
-
-          this.formvisible = false;
-        }
-
-      },
-      error: (error) => {
-
-        const message =
-          error?.error?.message ||
-          error?.message ||
-          'Something went wrong.';
-
-        this._snackBar.open(message, 'Close', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top'
-        });
-
-        console.error('Delete Product Cap Amount Error:', error);
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the Product Cap Amount for "{{name}}"?', { name: element.productName })
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.productAmountService.deleteProductCap(element.id).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+
+            const selectedProductId =
+              this.ProductCapForm.get('productId')?.value;
+
+            if (selectedProductId) {
+              this.onProductSelected(selectedProductId);
+            }
+
+            this.formvisible = false;
+          }
+
+        },
+        error: (error) => {
+
+          const message =
+            error?.error?.message ||
+            error?.message ||
+            'Something went wrong.';
+
+          this._snackBar.open(message, 'Close', {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top'
+          });
+
+          console.error('Delete Product Cap Amount Error:', error);
+        }
+      });
+
+    });
+  }
   resetForm() {
     //this.ProductCapForm.reset();
-    this.formvisible=false
+    this.formvisible = false
   }
   addProductCap() {
     this.isEditMode = false;

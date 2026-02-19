@@ -16,5 +16,5 @@ public partial class Permission
 
     public string? UpdatedBy { get; set; }
 
-    public virtual ICollection<GroupPermission> GroupPermissions { get; set; } = [];
+    public virtual ICollection<RolePermission> RolePermissions { get; set; } = [];
 }

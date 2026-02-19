@@ -37,5 +37,6 @@ export class HeaderComponent {
   changeLanguage(lang: string) {
     this.translate.use(lang);
     this.currentLanguage = lang;
+    localStorage.setItem('appLanguage', lang);
   }
 }

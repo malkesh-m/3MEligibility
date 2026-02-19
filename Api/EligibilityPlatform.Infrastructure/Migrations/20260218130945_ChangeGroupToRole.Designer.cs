@@ -4,6 +4,7 @@ using MEligibilityPlatform.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MEligibilityPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(EligibilityDbContext))]
-    partial class EligibilityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260218130945_ChangeGroupToRole")]
+    partial class ChangeGroupToRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2497,21 +2500,6 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                     b.ToTable("PCardDetails", (string)null);
                 });
 
-            modelBuilder.Entity("SecurityRoleUser", b =>
-                {
-                    b.Property<int>("RolesRoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsersUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RolesRoleId", "UsersUserId");
-
-                    b.HasIndex("UsersUserId");
-
-                    b.ToTable("SecurityRoleUser");
-                });
-
             modelBuilder.Entity("EcardDetail", b =>
                 {
                     b.HasOne("MEligibilityPlatform.Domain.Entities.Ecard", null)
@@ -2997,13 +2985,15 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__UserRole__Role__40058253");
 
-                    b.HasOne("MEligibilityPlatform.Domain.Entities.User", null)
+                    b.HasOne("MEligibilityPlatform.Domain.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK__UserRole__UserI__40F9A68C");
 
                     b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PcardDetail", b =>
@@ -3019,21 +3009,6 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
                         .HasForeignKey("PcardId")
                         .IsRequired()
                         .HasConstraintName("FK__PCardDeta__PCard__3864608B");
-                });
-
-            modelBuilder.Entity("SecurityRoleUser", b =>
-                {
-                    b.HasOne("MEligibilityPlatform.Domain.Entities.SecurityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RolesRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MEligibilityPlatform.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("MEligibilityPlatform.Domain.Entities.ApiParameter", b =>

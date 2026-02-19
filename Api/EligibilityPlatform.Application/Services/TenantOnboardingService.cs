@@ -61,27 +61,27 @@ namespace MEligibilityPlatform.Application.Services
                 var now = DateTime.UtcNow;
 
 
-                var groups = new List<SecurityGroup>
+                var roles = new List<SecurityRole>
                      {
                         new() {
-                            GroupName = "Super Admin",
-                            GroupDesc = "Administrator group with full access",
+                            RoleName = "Super Admin",
+                            RoleDesc = "Administrator role with full access",
                             TenantId = request.TenantId,
                             CreatedBy = "System",
                             CreatedByDateTime = now,
                             UpdatedByDateTime = now
                         },
                         new() {
-                            GroupName = "Admin",
-                            GroupDesc = "Standard administrator group",
+                            RoleName = "Admin",
+                            RoleDesc = "Standard administrator role",
                             TenantId = request.TenantId,
                             CreatedBy = "System",
                             CreatedByDateTime = now,
                             UpdatedByDateTime = now
                         },
                         new() {
-                            GroupName = "User",
-                            GroupDesc = "Standard user group",
+                            RoleName = "User",
+                            RoleDesc = "Standard user role",
                             TenantId = request.TenantId,
                             CreatedBy = "System",
                             CreatedByDateTime = now,
@@ -89,16 +89,16 @@ namespace MEligibilityPlatform.Application.Services
                         }
                     };
 
-                _uow.SecurityGroupRepository.AddRange(groups);
+                _uow.SecurityRoleRepository.AddRange(roles);
                 await _uow.CompleteAsync();
 
-                var adminGroup = groups.First(g => g.GroupName!.Equals("Super Admin",StringComparison.OrdinalIgnoreCase));
+                var adminRole = roles.First(g => g.RoleName!.Equals("Super Admin",StringComparison.OrdinalIgnoreCase));
 
 
-                var userGroup = new UserGroup
+                var userRole = new UserRole
                 {
                     UserId = request.AdminUserId,
-                    GroupId = adminGroup.GroupId,
+                    RoleId = adminRole.RoleId,
                     TenantId = request.TenantId,
                     CreatedBy = "System",
                     CreatedByDateTime = now,
@@ -106,20 +106,20 @@ namespace MEligibilityPlatform.Application.Services
                     UpdatedByDateTime = now
                 };
 
-                _uow.UserGroupRepository.Add(userGroup);
+                _uow.UserRoleRepository.Add(userRole);
 
 
-                var roles = await _uow.PermissionRepository.Query().ToListAsync();
+                var permissions = await _uow.PermissionRepository.Query().ToListAsync();
 
-                var groupRoles = roles.Select(role => new GroupPermission
+                var rolePermissions = permissions.Select(p => new RolePermission
                 {
-                    PermissionId = role.PermissionId,
-                    GroupId = adminGroup.GroupId,
+                    PermissionId = p.PermissionId,
+                    RoleId = adminRole.RoleId,
                     TenantId = request.TenantId,
                     UpdatedByDateTime = now
                 }).ToList();
 
-                _uow.GroupPermissionRepository.AddRange(groupRoles);
+                _uow.RolePermissionRepository.AddRange(rolePermissions);
 
 
                 var dataTypes = await _uow.DataTypeRepository.Query().ToListAsync();
@@ -229,7 +229,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 // Check if any core onboarding structure already exists
                 var isAlreadyOnboarded =
-                    await _uow.SecurityGroupRepository.Query()
+                    await _uow.SecurityRoleRepository.Query()
                         .AnyAsync(x => x.TenantId == tenantId);
              
                 if (isAlreadyOnboarded)
@@ -257,10 +257,10 @@ namespace MEligibilityPlatform.Application.Services
         {
             try
             {
-                // Check if at least one security group exists
-                var hasGroups = await _uow.SecurityGroupRepository.Query()
+                // Check if at least one security role exists
+                var hasRoles = await _uow.SecurityRoleRepository.Query()
                     .AnyAsync(sg => sg.TenantId == tenantId);
-                if (!hasGroups) return false;
+                if (!hasRoles) return false;
 
                 //// Check if at least one user exists
                 //var hasUsers = await _uow.UserRepository.Query()

@@ -154,28 +154,28 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="userId">The user ID.</param>
         /// <param name="tenantId">The tenant ID to filter groups.</param>
         /// <returns>A list of GroupModel representing the user's groups within the tenant.</returns>
-        private async Task<List<GroupModel>> GetUserGroupsAsync(int userId, int tenantId)
+        private async Task<List<RoleModel>> GetUserRolesAsync(int userId, int tenantId)
         {
             try
             {
-                // Join UserGroup with SecurityGroup to filter by TenantId
-                // UserGroup doesn't have TenantId, but SecurityGroup does
-                var groups = await (from ug in _uow.UserGroupRepository.Query()
-                                   join sg in _uow.SecurityGroupRepository.Query()
-                                   on ug.GroupId equals sg.GroupId
-                                   where ug.UserId == userId && sg.TenantId == tenantId
-                                   select new GroupModel
+                // Join UserRole with SecurityRole to filter by TenantId
+                // UserRole doesn't have TenantId, but SecurityRole does
+                var roles = await (from ur in _uow.UserRoleRepository.Query()
+                                   join sr in _uow.SecurityRoleRepository.Query()
+                                   on ur.RoleId equals sr.RoleId
+                                   where ur.UserId == userId && sr.TenantId == tenantId
+                                   select new RoleModel
                                    {
-                                       GroupId = sg.GroupId,
-                                       GroupName = sg.GroupName ?? ""
+                                       RoleId = sr.RoleId,
+                                       RoleName = sr.RoleName ?? ""
                                    }).ToListAsync();
 
-                return groups ?? [];
+                return roles ?? [];
             }
             catch (Exception ex)
             {
                 // Log error and return empty list to prevent crashes
-                Console.WriteLine($"Error getting groups for user {userId} in tenant {tenantId}: {ex.Message}");
+                Console.WriteLine($"Error getting roles for user {userId} in tenant {tenantId}: {ex.Message}");
                 return  [];
             }
         }
@@ -800,42 +800,42 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="groupIds">The list of group models.</param>
         /// <returns>A task representing the asynchronous operation, with a list of PermissionModel.</returns>
-        public async Task<List<PermissionModel>> GetRolesByGroupIds(List<GroupModel> groupIds)
+        public async Task<List<PermissionModel>> GetRolesByRoleIds(List<RoleModel> roleIds)
         {
             // Creates a HashSet to store unique role IDs.
-            var roleIds = new HashSet<int>();
+            var permissionIds = new HashSet<int>();
 
-            // Fetch role IDs sequentially to avoid DbContext concurrency issue
-            // Iterates through each group model.
-            foreach (var groupId in groupIds)
+            // Fetch permission IDs sequentially to avoid DbContext concurrency issue
+            // Iterates through each role model.
+            foreach (var roleId in roleIds)
             {
-                // Gets the role IDs associated with the current group.
-                var rolesForGroup = await _uow.GroupPermissionRepository.GetGroupPermissions(groupId.GroupId);
-                // Iterates through each role ID for the group.
-                foreach (var roleId in rolesForGroup)
+                // Gets the permission IDs associated with the current role.
+                var permissionsForRole = await _uow.RolePermissionRepository.GetRolePermissions(roleId.RoleId);
+                // Iterates through each permission ID for the role.
+                foreach (var permissionId in permissionsForRole)
                 {
-                    // Adds the role ID to the HashSet (ensures uniqueness).
-                    roleIds.Add(roleId); // Ensures uniqueness
+                    // Adds the permission ID to the HashSet (ensures uniqueness).
+                    permissionIds.Add(permissionId); // Ensures uniqueness
                 }
             }
 
-            // Ensure roleIds is not empty before querying roles
-            // Checks if any role IDs were found.
-            if (roleIds.Count == 0)
+            // Ensure permissionIds is not empty before querying roles
+            // Checks if any permission IDs were found.
+            if (permissionIds.Count == 0)
                 // Returns an empty list if no roles.
                 return [];
 
-            // Fetch roles after roleIds list is fully populated
-            // Queries the Permission repository for the collected role IDs.
+            // Fetch roles after permissionIds list is fully populated
+            // Queries the Permission repository for the collected permission IDs.
             var roles = await _uow.PermissionRepository.Query()
                 // Filters for roles in the collected ID set.
-                .Where(role => roleIds.Contains(role.PermissionId))
+                .Where(permission => permissionIds.Contains(permission.PermissionId))
                 // Projects the result into PermissionModel objects.
                 .Select(rp => new PermissionModel
                 {
-                    // Maps role ID.
+                    // Maps permission ID.
                     PermissionId = rp.PermissionId,
-                    // Maps role action.
+                    // Maps permission action.
                     PermissionAction = rp.PermissionAction
                 })
                 .ToListAsync();
@@ -849,25 +849,25 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="groupId">The group ID.</param>
         /// <returns>A task representing the asynchronous operation, with a list of PermissionModel.</returns>
-        public async Task<List<PermissionModel>> GetRolesByGroupId(int groupId)
+        public async Task<List<PermissionModel>> GetPermissionsByRoleId(int roleId)
         {
-            // Gets the role IDs associated with the specified group.
-            var roleIds = await _uow.GroupPermissionRepository.GetGroupPermissions(groupId);
-            // Queries the Permission repository for those role IDs.
-            var roles = await _uow.PermissionRepository.Query()
-                .Where(role => roleIds.Contains(role.PermissionId))
+            // Gets the permission IDs associated with the specified role.
+            var permissionIds = await _uow.RolePermissionRepository.GetRolePermissions(roleId);
+            // Queries the Permission repository for those permission IDs.
+            var permissions = await _uow.PermissionRepository.Query()
+                .Where(permission => permissionIds.Contains(permission.PermissionId))
                 // Projects into PermissionModel.
                 .Select(rp => new PermissionModel
                 {
-                    // Maps role ID.
+                    // Maps permission ID.
                     PermissionId = rp.PermissionId,
-                    // Maps role action.
+                    // Maps permission action.
                     PermissionAction = rp.PermissionAction
                 })
                 .ToListAsync();
 
-            // Returns the list of roles.
-            return roles;
+            // Returns the list of permissions.
+            return permissions;
         }
         public async Task<List<string>> GetUserPermissionsAsync(int userId,int tenantId)
         {
@@ -877,15 +877,15 @@ namespace MEligibilityPlatform.Application.Services
                 return permissions;
 
             permissions = await (
-                      from ug in _uow.UserGroupRepository.Query()
-                      join gr in _uow.GroupPermissionRepository.Query()
-                          on new { ug.GroupId, ug.TenantId } equals new { gr.GroupId, gr.TenantId }
-                      join r in _uow.PermissionRepository.Query().AsNoTracking()
-                          on gr.PermissionId equals r.PermissionId
-                      where ug.UserId == userId
-                            && ug.TenantId == tenantId
-                            && r.PermissionAction != null
-                         select r.PermissionAction ).Distinct().ToListAsync();
+                      from ur in _uow.UserRoleRepository.Query()
+                      join rp in _uow.RolePermissionRepository.Query()
+                          on new { ur.RoleId, ur.TenantId } equals new { rp.RoleId, rp.TenantId }
+                      join p in _uow.PermissionRepository.Query().AsNoTracking()
+                          on rp.PermissionId equals p.PermissionId
+                      where ur.UserId == userId
+                            && ur.TenantId == tenantId
+                            && p.PermissionAction != null
+                         select p.PermissionAction ).Distinct().ToListAsync();
 
             _cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(30));
 

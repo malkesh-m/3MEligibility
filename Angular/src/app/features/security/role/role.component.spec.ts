@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GroupComponent } from './group.component';
+import { RoleComponent } from './role.component';
 
-describe('GroupComponent', () => {
-  let component: GroupComponent;
-  let fixture: ComponentFixture<GroupComponent>;
+describe('RoleComponent', () => {
+  let component: RoleComponent;
+  let fixture: ComponentFixture<RoleComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GroupComponent]
+      declarations: [RoleComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
-    fixture = TestBed.createComponent(GroupComponent);
+    fixture = TestBed.createComponent(RoleComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

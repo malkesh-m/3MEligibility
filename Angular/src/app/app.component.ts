@@ -5,6 +5,8 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { filter, map, mergeMap } from 'rxjs';
 import { HeaderTitleService } from './core/services/header-title.service';
+import { TranslateService } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -19,8 +21,14 @@ export class AppComponent {
     private titleService: Title,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private headerTitleService: HeaderTitleService
-  ) { }
+    private headerTitleService: HeaderTitleService,
+    private translate: TranslateService
+  ) {
+    // Initialize translations on startup so translate.instant() works everywhere
+    const savedLang = localStorage.getItem('appLanguage') || 'en';
+    this.translate.setDefaultLang('en');
+    this.translate.use(savedLang);
+  }
 
   ngOnInit(): void {
     if (this.oidcAuthService.isAuthenticated()) {
@@ -49,3 +57,4 @@ export class AppComponent {
 
   }
 }
+

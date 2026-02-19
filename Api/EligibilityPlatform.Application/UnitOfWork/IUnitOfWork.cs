@@ -146,14 +146,14 @@ namespace MEligibilityPlatform.Application.UnitOfWork
         IUserRepository UserRepository { get; }
 
         /// <summary>
-        /// Gets the security group repository.
+        /// Gets the security role repository.
         /// </summary>
-        ISecurityGroupRepository SecurityGroupRepository { get; }
+        ISecurityRoleRepository SecurityRoleRepository { get; }
 
         /// <summary>
-        /// Gets the user group repository.
+        /// Gets the user role repository.
         /// </summary>
-        IUserGroupRepository UserGroupRepository { get; }
+        IUserRoleRepository UserRoleRepository { get; }
 
         /// <summary>
         /// Gets the screen repository.
@@ -166,9 +166,9 @@ namespace MEligibilityPlatform.Application.UnitOfWork
         IPermissionRepository PermissionRepository { get; }
 
         /// <summary>
-        /// Gets the group role repository.
+        /// Gets the role permission repository.
         /// </summary>
-        IGroupPermissionRepository GroupPermissionRepository { get; }
+        IRolePermissionRepository RolePermissionRepository { get; }
 
         /// <summary>
         /// Gets the user status repository.

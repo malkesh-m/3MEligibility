@@ -3,7 +3,7 @@
     public class UserInfo
     {
         public int UserId { get; set; }
-        public int GroupId { get; set; }
+        public int RoleId { get; set; }
         public required string UserName { get; set; }
         public required string MobileNo { get; set; }
 

@@ -160,12 +160,12 @@ namespace MEligibilityPlatform.Application.Constants
             public const string Export = "Permissions.Factor.Export";
             public const string Import = "Permissions.Factor.Import";
         }
-        public static class GroupPermission
+        public static class RolePermission
         {
-            public const string Create = "Permissions.GroupPermission.Create";
-            public const string Delete = "Permissions.GroupPermission.Delete";
-            public const string Edit = "Permissions.GroupPermission.Edit";
-            public const string View = "Permissions.GroupPermission.View";
+            public const string Create = "Permissions.RolePermission.Create";
+            public const string Delete = "Permissions.RolePermission.Delete";
+            public const string Edit = "Permissions.RolePermission.Edit";
+            public const string View = "Permissions.RolePermission.View";
         }
         public static class HistoryEc
         {
@@ -361,14 +361,12 @@ namespace MEligibilityPlatform.Application.Constants
 
 
         }
-        public static class UserGroup
+        public static class UserRole
         {
-            public const string Create = "Permissions.UserGroup.Create";
-            public const string Delete = "Permissions.UserGroup.Delete";
-            public const string Edit = "Permissions.UserGroup.Edit";
-            public const string View = "Permissions.UserGroup.View";
-
-
+            public const string Create = "Permissions.UserRole.Create";
+            public const string Delete = "Permissions.UserRole.Delete";
+            public const string Edit = "Permissions.UserRole.Edit";
+            public const string View = "Permissions.UserRole.View";
         }
         public static class UserStatus
         {
@@ -396,15 +394,12 @@ namespace MEligibilityPlatform.Application.Constants
 
 
         }
-        public static class Group
+        public static class Role
         {
-            public const string Create = "Permissions.Group.Create";
-            public const string Delete = "Permissions.Group.Delete";
-            public const string Edit = "Permissions.Group.Edit";
-            public const string View = "Permissions.Group.View";
-
-
+            public const string Create = "Permissions.Role.Create";
+            public const string Delete = "Permissions.Role.Delete";
+            public const string Edit = "Permissions.Role.Edit";
+            public const string View = "Permissions.Role.View";
         }
     }
 }
-

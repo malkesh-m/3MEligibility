@@ -27,11 +27,11 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         #region Properties
         private CategoryRepository? _categoryRepository;
         private UserRepository? _userRepository;
-        private SecurityGroupRepository? _securityGroupRepository;
-        private UserGroupRepository? _userGroupRepository;
+        private SecurityRoleRepository? _securityRoleRepository;
+        private UserRoleRepository? _userRoleRepository;
         private ScreenRepository? _screenRepository;
         private PermissionRepository? _permissionRepository;
-        private GroupPermissionRepository? _groupPermissionRepository;
+        private RolePermissionRepository? _rolePermissionRepository;
         private UserStatusRepository? _userStatusRepository;
         private BulkImportRepository? _bulkImportRepository;
 
@@ -51,14 +51,14 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         public IUserRepository UserRepository => _userRepository ??= new UserRepository(_dbContext, _userContext);
 
         /// <summary>
-        /// Gets the security group repository.
+        /// Gets the security role repository.
         /// </summary>
-        public ISecurityGroupRepository SecurityGroupRepository => _securityGroupRepository ??= new SecurityGroupRepository(_dbContext, _userContext);
+        public ISecurityRoleRepository SecurityRoleRepository => _securityRoleRepository ??= new SecurityRoleRepository(_dbContext, _userContext);
 
         /// <summary>
-        /// Gets the user group repository.
+        /// Gets the user role repository.
         /// </summary>
-        public IUserGroupRepository UserGroupRepository => _userGroupRepository ??= new UserGroupRepository(_dbContext, _userContext);
+        public IUserRoleRepository UserRoleRepository => _userRoleRepository ??= new UserRoleRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the screen repository.
@@ -71,9 +71,9 @@ namespace MEligibilityPlatform.Infrastructure.UnitOfWork
         public IPermissionRepository PermissionRepository => _permissionRepository ??= new PermissionRepository(_dbContext, _userContext);
 
         /// <summary>
-        /// Gets the group role repository.
+        /// Gets the role permission repository.
         /// </summary>
-        public IGroupPermissionRepository GroupPermissionRepository => _groupPermissionRepository ??= new GroupPermissionRepository(_dbContext, _userContext);
+        public IRolePermissionRepository RolePermissionRepository => _rolePermissionRepository ??= new RolePermissionRepository(_dbContext, _userContext);
 
         /// <summary>
         /// Gets the user status repository.

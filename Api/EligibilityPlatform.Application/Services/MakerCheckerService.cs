@@ -31,7 +31,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="ecardService">The ecard service instance for ecard operations.</param>
     /// <param name="entityService">The entity service instance for entity operations.</param>
     /// <param name="eruleService">The erule service instance for erule operations.</param>
-    /// <param name="groupPermissionService">The group role service instance for group role operations.</param>
+    /// <param name="rolePermissionService">The role permission service instance for role permission operations.</param>
     /// <param name="historyEcService">The history EC service instance for EC history operations.</param>
     /// <param name="historyErService">The history ER service instance for ER history operations.</param>
     /// <param name="historyParameterService">The history parameter service instance for parameter history operations.</param>
@@ -49,16 +49,16 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="exceptionManagement">The exception management service instance for exception handling.</param>
     /// <param name="productCapService">The product cap service instance for product cap operations.</param>
     /// <param name="eruleMasterService">The erule master service instance for erule master operations.</param>
-    /// <param name="securityGroupService">The security group service instance for security group operations.</param>
-    /// <param name="userGroupService">The user group service instance for user group operations.</param>
+    /// <param name="securityRoleService">The security role service instance for security role operations.</param>
+    /// <param name="userRoleService">The user role service instance for user role operations.</param>
     /// <param name="productCapAmountService">The product cap amount service instance for product cap amount operations.</param>
     public class MakerCheckerService(IUnitOfWork uow, IMapper mapper, IFactorService factorService, IParameterService parameterService,
         IApiDetailService apiDetailService, ICategoryService categoryService, ICityService cityService, IConditionService conditionService, ICountryService countryService,
-        ICurrencyService currencyService, IDataTypeService dataTypeService, IEcardService ecardService, /*IEntityService entityService,*/ IEruleService eruleService, IGroupPermissionService groupPermissionService,
+        ICurrencyService currencyService, IDataTypeService dataTypeService, IEcardService ecardService, /*IEntityService entityService,*/ IEruleService eruleService, IRolePermissionService rolePermissionService,
         IHistoryEcService historyEcService, IHistoryErService historyErService, IHistoryParameterService historyParameterService, IHistoryPcService historyPcService,
         IListItemService listItemService, IManagedListService managedListService, IMappingfunctionService mappingfunctionService, INodeApiService nodeApiService, INodeService nodeService, IParamtersMapService paramtersMapService,
         IPcardService pcardService, IProductService productService, IProductParamservice productParamservice, /*IUserService userService,*/ IExceptionManagementService exceptionManagement, IProductCapService productCapService,
-        IEruleMasterService eruleMasterService, ISecurityGroupService securityGroupService, IUserGroupService userGroupService, IProductCapAmountService productCapAmountService, IApiParametersService apiParametersService, IApiParameterMapservice apiParameterMapservice) : IMakerCheckerService
+        IEruleMasterService eruleMasterService, ISecurityRoleService securityRoleService, IUserRoleService userRoleService, IProductCapAmountService productCapAmountService, IApiParametersService apiParametersService, IApiParameterMapservice apiParameterMapservice) : IMakerCheckerService
     {
         // The unit of work instance for database operations and transaction management
         private readonly IUnitOfWork _uow = uow;
@@ -79,7 +79,7 @@ namespace MEligibilityPlatform.Application.Services
         private readonly IEcardService _ecardService = ecardService;
         //private readonly IEntityService _entityService = entityService;
         private readonly IEruleService _eruleService = eruleService;
-        private readonly IGroupPermissionService _groupPermissionService = groupPermissionService;
+        private readonly IRolePermissionService _rolePermissionService = rolePermissionService;
         private readonly IHistoryEcService _historyEcService = historyEcService;
         private readonly IHistoryErService _historyErService = historyErService;
         private readonly IHistoryParameterService _historyParameterService = historyParameterService;
@@ -97,8 +97,8 @@ namespace MEligibilityPlatform.Application.Services
         private readonly IExceptionManagementService _exceptionManagement = exceptionManagement;
         private readonly IProductCapService _productCapService = productCapService;
         private readonly IEruleMasterService _eruleMasterService = eruleMasterService;
-        private readonly ISecurityGroupService _securityGroupService = securityGroupService;
-        private readonly IUserGroupService _userGroupService = userGroupService;
+        private readonly ISecurityRoleService _securityRoleService = securityRoleService;
+        private readonly IUserRoleService _userRoleService = userRoleService;
         private readonly IProductCapAmountService _productCapAmountService = productCapAmountService;
         private readonly IApiParametersService _apiParametersService = apiParametersService;
         private readonly IApiParameterMapservice _apiParameterMapservice = apiParameterMapservice;
@@ -1340,54 +1340,54 @@ namespace MEligibilityPlatform.Application.Services
                         // Exit the EruleMaster case
                         break;
 
-                    // Process operations for the SecurityGroup entity
-                    case nameof(SecurityGroup):
-                        // Process Add operation for SecurityGroup
+                    // Process operations for the SecurityRole entity
+                    case nameof(SecurityRole):
+                        // Process Add operation for SecurityRole
                         if (model.ActionName == "Add")
                         {
-                            // Deserialize the JSON data containing new SecurityGroup values
-                            var newValue = JsonConvert.DeserializeObject<SecurityGroupUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Call the service to add the new SecurityGroup to the database
-                            await _securityGroupService.Add(newValue);
+                            // Deserialize the JSON data containing new SecurityRole values
+                            var newValue = JsonConvert.DeserializeObject<SecurityRoleUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
+                            // Call the service to add the new SecurityRole to the database
+                            await _securityRoleService.Add(newValue);
                         }
-                        // Process Update operation for SecurityGroup
+                        // Process Update operation for SecurityRole
                         else if (model.ActionName == "Update")
                         {
-                            // Deserialize the JSON data containing updated SecurityGroup values
-                            var newValue = JsonConvert.DeserializeObject<SecurityGroupUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Call the service to update the existing SecurityGroup in the database
-                            await _securityGroupService.Update(newValue);
+                            // Deserialize the JSON data containing updated SecurityRole values
+                            var newValue = JsonConvert.DeserializeObject<SecurityRoleUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
+                            // Call the service to update the existing SecurityRole in the database
+                            await _securityRoleService.Update(newValue);
                         }
-                        // Process Delete operation for SecurityGroup
+                        // Process Delete operation for SecurityRole
                         else if (model.ActionName == "Delete")
                         {
-                            // Deserialize the JSON data containing the SecurityGroup to be deleted
-                            var newValue = JsonConvert.DeserializeObject<SecurityGroupModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Call the service to remove the SecurityGroup from the database
-                            await _securityGroupService.Remove(newValue.GroupId);
+                            // Deserialize the JSON data containing the SecurityRole to be deleted
+                            var newValue = JsonConvert.DeserializeObject<SecurityRoleModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
+                            // Call the service to remove the SecurityRole from the database
+                            await _securityRoleService.Remove(newValue.RoleId);
                         }
-                        // Exit the SecurityGroup case
+                        // Exit the SecurityRole case
                         break;
 
-                    // Process operations for the UserGroup entity
-                    case nameof(UserGroup):
-                        // Process Add operation for UserGroup
+                    // Process operations for the UserRole entity
+                    case nameof(UserRole):
+                        // Process Add operation for UserRole
                         if (model.ActionName == "Add")
                         {
-                            // Deserialize the JSON data containing new UserGroup values
-                            var newValue = JsonConvert.DeserializeObject<UserGroupCreateUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Call the service to add the new UserGroup to the database
-                            await _userGroupService.Add(newValue);
+                            // Deserialize the JSON data containing new UserRole values
+                            var newValue = JsonConvert.DeserializeObject<UserRoleCreateUpdateModel>(model.NewValueJson) ?? throw new Exception("Invalid JSON data");
+                            // Call the service to add the new UserRole to the database
+                            await _userRoleService.Add(newValue);
                         }
-                        // Process Delete operation for UserGroup
+                        // Process Delete operation for UserRole
                         else if (model.ActionName == "Delete")
                         {
-                            // Deserialize the JSON data containing the UserGroup to be deleted
-                            var newValue = JsonConvert.DeserializeObject<UserGroupModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
-                            // Call the service to remove the UserGroup from the database
-                            await _userGroupService.RemoveUserGroup(newValue.UserId, newValue.GroupId);
+                            // Deserialize the JSON data containing the UserRole to be deleted
+                            var newValue = JsonConvert.DeserializeObject<UserRoleModel>(model.OldValueJson) ?? throw new Exception("Invalid JSON data");
+                            // Call the service to remove the UserRole from the database
+                            await _userRoleService.RemoveUserRole(newValue.UserId, newValue.RoleId);
                         }
-                        // Exit the UserGroup case
+                        // Exit the UserRole case
                         break;
                     case nameof(ApiParameter):
                         // Process Add operation for UserGroup

@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
-import { GroupService } from '../../../core/services/security/group.service';
+import { RoleService } from '../../../core/services/security/role.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { UserService } from '../../../core/services/security/user.service';
@@ -17,16 +17,16 @@ import { UserprogileService } from '../../../core/services/security/userprofile.
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
 import { Rank } from '../../../core/enum/rank.enum';
 import { TranslateService } from '@ngx-translate/core';
-export interface GroupRecord {
-  groupId: number | null;
-  groupName: string;
-  groupDesc: string;
+export interface RoleRecord {
+  roleId: number | null;
+  roleName: string;
+  roleDesc: string;
   userCount?: number;
 }
 
 export interface AssignedUserRecord {
   id: number | null;
-  groupId: number | null;
+  roleId: number | null;
   userName: string;
   loginId: number;
   email: string;
@@ -49,60 +49,60 @@ export interface UserRecord {
 
 export interface requestBody {
   userId: number | null;
-  groupId: string | null;
+  roleId: string | null;
 }
 
 @Component({
-  selector: 'app-group',
+  selector: 'app-role',
   standalone: false,
-  templateUrl: './group.component.html',
-  styleUrl: './group.component.scss'
+  templateUrl: './role.component.html',
+  styleUrl: './role.component.scss'
 })
-export class GroupComponent implements OnInit, AfterViewInit {
-  private readonly superAdminGroupName = 'Super Admin';
-  private readonly adminGroupName = 'Admin';
-  private readonly userGroupName = 'User';
+export class RoleComponent implements OnInit, AfterViewInit {
+  private readonly superAdminRoleName = 'Super Admin';
+  private readonly adminRoleName = 'Admin';
+  private readonly userRoleName = 'User';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   searchTerm: string = '';
-  searchGroup: string = '';
+  searchRole: string = '';
   menuVisible = false;
   formVisible = false;
   isEditMode = false;
-  displayedColumns: string[] = ['groupName', 'groupDesc', 'actions'];
+  displayedColumns: string[] = ['roleName', 'roleDesc', 'actions'];
   assignedUserColumns: string[] = ['userName', 'email', 'mobileNo', 'actions'];
   Rank: any = Rank;
-  records: GroupRecord[] = [];
+  records: RoleRecord[] = [];
   userRecords: UserRecord[] = [];
   assignedUserData: AssignedUserRecord[] = [];
 
-  dataSource = new MatTableDataSource<GroupRecord>(this.records);
+  dataSource = new MatTableDataSource<RoleRecord>(this.records);
   userdataSource = new MatTableDataSource<UserRecord>(this.userRecords);
   assignedUserDataSource = new MatTableDataSource<AssignedUserRecord>(this.assignedUserData);
 
-  formData: GroupRecord = {
-    groupId: 0,
-    groupName: '',
-    groupDesc: '',
+  formData: RoleRecord = {
+    roleId: 0,
+    roleName: '',
+    roleDesc: '',
   };
-  activeTab?: string = 'group';
-  selectedGroupName: string | null = null;
-  filteredGroupNames: UserRecord[] = [];
-  requestBody: { id: number | null; groupId: string | null } = { id: null, groupId: null };
+  activeTab?: string = 'role';
+  selectedRoleName: string | null = null;
+  filteredRoleNames: UserRecord[] = [];
+  requestBody: { id: number | null; roleId: string | null } = { id: null, roleId: null };
   private _snackBar = inject(MatSnackBar);
   UnassignedUser: boolean = false;
-  recordMessage: string = 'Please select group to view assigned user list';
+  recordMessage: string = '';
   isLoading: boolean = false;
   isDownloading: boolean = false
   isUploading: boolean = false
   message: string = "Loading data, please wait...";
-  currentUserGroups: string[] = [];
+  currentUserRoles: string[] = [];
   currentUserRank: number = 0;
   currentUserId: number | null = null;
 
   constructor(
-    private groupService: GroupService,
+    private roleService: RoleService,
     private utilityService: UtilityService,
     private cdr: ChangeDetectorRef,
     private userService: UserService,
@@ -123,20 +123,20 @@ export class GroupComponent implements OnInit, AfterViewInit {
         this.activeTab = params['tab'];
       }
     });
-    this.fetchGroupList();
+    this.fetchRoleList();
     this.fetchUsersList();
-    this.loadCurrentUserGroups();
+    this.loadCurrentUserRoles();
     this.updateTitle();
   }
 
   get activeTabTitle(): string {
     switch (this.activeTab) {
-      case 'group':
-        return 'Group - Groups';
+      case 'role':
+        return 'Role - Roles';
       case 'assignedUser':
-        return 'Group - Assigned User';
+        return 'Role - Assigned User';
       default:
-        return 'Group - Groups';
+        return 'Role - Roles';
     }
   }
 
@@ -149,7 +149,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'group' && this.hasPermission('49')) ||
+    return (this.activeTab === 'role' && this.hasPermission('49')) ||
       (this.activeTab === 'assignedUser' && this.hasPermission('45'));
   }
 
@@ -157,36 +157,36 @@ export class GroupComponent implements OnInit, AfterViewInit {
     return this.PermissionsService.hasPermission(permissionId);
   }
 
-  canEditGroup(record: GroupRecord): boolean {
-    return this.hasPermission('Permissions.Group.Edit');
+  canEditRole(record: RoleRecord): boolean {
+    return this.hasPermission('Permissions.Role.Edit');
   }
 
-  canDeleteGroup(record: GroupRecord): boolean {
-    if (!this.hasPermission('Permissions.Group.Delete')) {
+  canDeleteRole(record: RoleRecord): boolean {
+    if (!this.hasPermission('Permissions.Role.Delete')) {
       return false;
     }
-    if (this.isSuperAdminGroup(record.groupName)) {
+    if (this.isSuperAdminRole(record.roleName)) {
       return this.currentUserRank === 3 && (record.userCount ?? 0) > 1;
     }
     return true;
   }
 
   canDeleteAssignedUser(): boolean {
-    return this.hasPermission('Permissions.UserGroup.Delete');
+    return this.hasPermission('Permissions.UserRole.Delete');
   }
 
-  private isSuperAdminGroup(groupName: string): boolean {
-    return groupName?.toLowerCase() === this.superAdminGroupName.toLowerCase();
+  private isSuperAdminRole(roleName: string): boolean {
+    return roleName?.toLowerCase() === this.superAdminRoleName.toLowerCase();
   }
 
-  private canManageSelectedGroup(): boolean {
-    if (!this.selectedGroupName) {
+  private canManageSelectedRole(): boolean {
+    if (!this.selectedRoleName) {
       return false;
     }
-    const selectedGroupId = Number(this.selectedGroupName);
-    const groupName = this.records.find(g => g.groupId === selectedGroupId)?.groupName ?? '';
-    if (this.isSuperAdminGroup(groupName)) {
-      if (this.hasPermission('Permissions.UserGroup.Delete')) {
+    const selectedRoleId = Number(this.selectedRoleName);
+    const roleName = this.records.find(r => r.roleId === selectedRoleId)?.roleName ?? '';
+    if (this.isSuperAdminRole(roleName)) {
+      if (this.hasPermission('Permissions.UserRole.Delete')) {
         return true;
       }
       return this.currentUserRank === 3;
@@ -194,7 +194,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
     return true;
   }
 
-  private loadCurrentUserGroups(): void {
+  private loadCurrentUserRoles(): void {
     this.authService.currentUser$.subscribe((user) => {
       const userId = user?.user?.userId ?? user?.userId;
       if (!userId) {
@@ -205,12 +205,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
               this.currentUserId = resolvedId;
               this.userprofileService.getUserProfileById(resolvedId).subscribe({
                 next: (response) => {
-                  const groups = response?.data?.groups ?? [];
-                  this.currentUserGroups = groups.map((g: any) => g.groupName).filter(Boolean);
-                  this.currentUserRank = this.getHighestRank(this.currentUserGroups);
+                  const roles = response?.data?.roles ?? [];
+                  this.currentUserRoles = roles.map((r: any) => r.roleName).filter(Boolean);
+                  this.currentUserRank = this.getHighestRank(this.currentUserRoles);
                 },
                 error: () => {
-                  this.currentUserGroups = [];
+                  this.currentUserRoles = [];
                   this.currentUserRank = 0;
                 }
               });
@@ -222,21 +222,21 @@ export class GroupComponent implements OnInit, AfterViewInit {
       this.currentUserId = userId;
       this.userprofileService.getUserProfileById(userId).subscribe({
         next: (response) => {
-          const groups = response?.data?.groups ?? [];
-          this.currentUserGroups = groups.map((g: any) => g.groupName).filter(Boolean);
-          this.currentUserRank = this.getHighestRank(this.currentUserGroups);
+          const roles = response?.data?.roles ?? [];
+          this.currentUserRoles = roles.map((r: any) => r.roleName).filter(Boolean);
+          this.currentUserRank = this.getHighestRank(this.currentUserRoles);
         },
         error: () => {
-          this.currentUserGroups = [];
+          this.currentUserRoles = [];
           this.currentUserRank = 0;
         }
       });
     });
   }
 
-  private getHighestRank(groupNames: string[]): number {
+  private getHighestRank(roleNames: string[]): number {
     let highest = 0;
-    for (const name of groupNames) {
+    for (const name of roleNames) {
       const rank = this.getRank(name);
       if (rank > highest) {
         highest = rank;
@@ -245,14 +245,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
     return highest;
   }
 
-  private getRank(groupName: string): number {
-    if (groupName?.toLowerCase() === this.superAdminGroupName.toLowerCase()) {
+  private getRank(roleName: string): number {
+    if (roleName?.toLowerCase() === this.superAdminRoleName.toLowerCase()) {
       return 3;
     }
-    if (groupName?.toLowerCase() === this.adminGroupName.toLowerCase()) {
+    if (roleName?.toLowerCase() === this.adminRoleName.toLowerCase()) {
       return 2;
     }
-    if (groupName?.toLowerCase() === this.userGroupName.toLowerCase()) {
+    if (roleName?.toLowerCase() === this.userRoleName.toLowerCase()) {
       return 1;
     }
     return 0;
@@ -277,12 +277,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (this.activeTab === 'group') {
+    if (this.activeTab === 'role') {
 
       if (this.isEditMode) {
-        this.groupService.updateUserDetails(this.formData).subscribe({
+        this.roleService.updateRoleDetails(this.formData).subscribe({
           next: (response) => {
-            this.fetchGroupList();
+            this.fetchRoleList();
             this.closeForm();
             this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
@@ -293,10 +293,10 @@ export class GroupComponent implements OnInit, AfterViewInit {
         });
 
       } else {
-        this.groupService.addGroup(this.formData).subscribe({
+        this.roleService.addRole(this.formData).subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              this.fetchGroupList();
+              this.fetchRoleList();
               this.closeForm();
             }
             this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
@@ -313,8 +313,8 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
     if (this.activeTab === 'assignedUser') {
 
-      if (!this.selectedGroupName) {
-        this._snackBar.open(this.translate.instant('Please select Group'), this.translate.instant('Okay'), {
+      if (!this.selectedRoleName) {
+        this._snackBar.open(this.translate.instant('Please select Role'), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000
@@ -322,7 +322,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      const selectedUsers = this.filteredGroupNames.filter(u => u.selected);
+      const selectedUsers = this.filteredRoleNames.filter(u => u.selected);
 
       if (selectedUsers.length === 0) {
         this._snackBar.open(this.translate.instant('Please select at least one user.'), this.translate.instant('Okay'), {
@@ -337,7 +337,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
       const alreadyAssigned: string[] = [];
       const usersToAssign = selectedUsers.filter(user => {
         const isAssigned = this.assignedUserDataSource.data.some((item: any) =>
-          item.id === user.id && item.groupId === Number(this.selectedGroupName)
+          item.id === user.id && item.roleId === Number(this.selectedRoleName)
         );
         if (isAssigned) {
           alreadyAssigned.push(user.displayName ?? user.email);
@@ -347,14 +347,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
       });
 
       if (alreadyAssigned.length > 0) {
-        const selectedGroupId = Number(this.selectedGroupName);
-        const groupName =
-          this.records.find(g => g.groupId === selectedGroupId)?.groupName ??
-          this.selectedGroupName ??
-          'selected group';
+        const selectedRoleId = Number(this.selectedRoleName);
+        const roleName =
+          this.records.find(r => r.roleId === selectedRoleId)?.roleName ??
+          this.selectedRoleName ??
+          'selected role';
 
         this._snackBar.open(
-          this.translate.instant('User already present in group: {{groupName}}', { groupName }),
+          this.translate.instant('User already present in role: {{roleName}}', { roleName }),
           this.translate.instant('Okay'),
           { horizontalPosition: 'right', verticalPosition: 'top', duration: 4000 }
         );
@@ -366,12 +366,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
       usersToAssign.forEach(user => {
         const payload = {
-          groupId: this.selectedGroupName,
+          roleId: this.selectedRoleName,
           userId: user.id
         };
         console.log('Assigning user with payload:', payload);
 
-        this.groupService.addUsers(payload).subscribe({
+        this.roleService.addUsers(payload).subscribe({
           next: (response) => {
             this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
@@ -382,10 +382,10 @@ export class GroupComponent implements OnInit, AfterViewInit {
             completedCount++;
 
             if (completedCount === selectedUsers.length) {
-              this.fetchAssignedUserbyId(String(this.selectedGroupName));
+              this.fetchAssignedUserbyId(String(this.selectedRoleName));
               this.closeForm();
-              this.searchGroup = '';
-              this.filteredGroupNames = [];
+              this.searchRole = '';
+              this.filteredRoleNames = [];
               this.userRecords.forEach(u => u.selected = false);
             }
           },
@@ -396,7 +396,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.filteredGroupNames = [];
+    this.filteredRoleNames = [];
   }
   toggleMenu() {
     this.menuVisible = !this.menuVisible;
@@ -407,13 +407,13 @@ export class GroupComponent implements OnInit, AfterViewInit {
   }
 
   openForm(): void {
-    if (this.activeTab == 'group') {
+    if (this.activeTab == 'role') {
       this.formVisible = true;
       this.isEditMode = false;
       this.formData = {
-        groupId: 0,
-        groupName: '',
-        groupDesc: ''
+        roleId: 0,
+        roleName: '',
+        roleDesc: ''
       };
     } else {
       this.UnassignedUser = true;
@@ -422,12 +422,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
   }
 
   addRecord() {
-    if (this.activeTab === 'group') {
+    if (this.activeTab === 'role') {
       if (this.isEditMode) {
-        this.groupService.updateUserDetails(this.formData).subscribe({
+        this.roleService.updateRoleDetails(this.formData).subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              this.fetchGroupList();
+              this.fetchRoleList();
               this.closeForm();
               this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
@@ -440,13 +440,13 @@ export class GroupComponent implements OnInit, AfterViewInit {
               });
             }
           },
-          error: (error) => console.error('Error updating group:', error),
+          error: (error) => console.error('Error updating role:', error),
         });
       } else {
-        this.groupService.addGroup(this.formData).subscribe({
+        this.roleService.addRole(this.formData).subscribe({
           next: (response) => {
             if (response.isSuccess) {
-              this.fetchGroupList();
+              this.fetchRoleList();
               this.closeForm();
               this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
                 horizontalPosition: 'right',
@@ -459,23 +459,23 @@ export class GroupComponent implements OnInit, AfterViewInit {
               });
             }
           },
-          error: (error) => console.error('Error adding group:', error),
+          error: (error) => console.error('Error adding role:', error),
         });
       }
     } else if (this.activeTab === 'assignedUser') {
       const isUserAssigned = this.assignedUserDataSource.data.some((item: any) =>
-        item.id === this.requestBody.id && item.groupId === parseInt(this.requestBody.groupId!)
+        item.id === this.requestBody.id && item.roleId === parseInt(this.requestBody.roleId!)
       );
       if (isUserAssigned) {
-        this._snackBar.open(this.translate.instant('User is already assigned to this group.'), this.translate.instant('Okay'), {
+        this._snackBar.open(this.translate.instant('User is already assigned to this role.'), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
         return;
       }
 
-      if (this.selectedGroupName === null) {
-        this._snackBar.open(this.translate.instant('Please select Group'), this.translate.instant('Okay'), {
+      if (this.selectedRoleName === null) {
+        this._snackBar.open(this.translate.instant('Please select Role'), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
         });
@@ -483,19 +483,18 @@ export class GroupComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      this.groupService.addUsers(this.requestBody).subscribe({
+      this.roleService.addUsers(this.requestBody).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
+            this.fetchAssignedUserbyId(this.selectedRoleName!.toString());
             this.closeForm();
-            this.searchGroup = '';
-            this.filteredGroupNames = []; // Clear filtered list
+            this.searchRole = '';
+            this.filteredRoleNames = []; // Clear filtered list
             this.userRecords.forEach(user => user.selected = false); // Reset selected state
             this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000,
             });
-            //this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
           } else {
             this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
@@ -506,56 +505,56 @@ export class GroupComponent implements OnInit, AfterViewInit {
         error: (error) => console.error('Error adding assigned user:', error),
       });
     }
-    this.filteredGroupNames = [];
+    this.filteredRoleNames = [];
   }
 
-  trackByUserId(index: number, group: any): number {
-    return group.userId;
+  trackByUserId(index: number, role: any): number {
+    return role.userId;
   }
 
-  filterGroupNames() {
+  filterRoleNames() {
     if (!this.userRecords || this.userRecords.length === 0) {
       return;
     }
-    const query = this.searchGroup.toLowerCase().trim();
+    const query = this.searchRole.toLowerCase().trim();
     if (query) {
-      this.filteredGroupNames = this.userRecords.filter(group =>
-        group.displayName.toLowerCase().startsWith(query)
+      this.filteredRoleNames = this.userRecords.filter(role =>
+        role.displayName.toLowerCase().startsWith(query)
       );
     } else {
-      this.filteredGroupNames = [];
+      this.filteredRoleNames = [];
     }
     this.cdr.detectChanges();
   }
 
-  onGroupSelectionChange(id: number | null) {
+  onRoleSelectionChange(id: number | null) {
     this.requestBody.id = id;
-    this.requestBody.groupId = this.selectedGroupName;
+    this.requestBody.roleId = this.selectedRoleName;
   }
 
   closeForm() {
     this.formVisible = false;
-    if (this.activeTab === 'group') {
-      this.formData = { groupId: 0, groupName: '', groupDesc: '' };
+    if (this.activeTab === 'role') {
+      this.formData = { roleId: 0, roleName: '', roleDesc: '' };
     }
-    this.searchGroup = '';
-    this.filteredGroupNames = []; // Clear filtered list
+    this.searchRole = '';
+    this.filteredRoleNames = []; // Clear filtered list
     this.userRecords.forEach(user => user.selected = false); // Reset selected state
     this.isEditMode = false;
     this.UnassignedUser = false;
   }
 
-  editRecord(record: GroupRecord) {
-    if (!this.hasPermission('Permissions.Group.Edit')) {
-      this._snackBar.open(this.translate.instant('You do not have permission to edit groups.'), this.translate.instant('Okay'), {
+  editRecord(record: RoleRecord) {
+    if (!this.hasPermission('Permissions.Role.Edit')) {
+      this._snackBar.open(this.translate.instant('You do not have permission to edit roles.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
       });
       return;
     }
-    if (this.isSuperAdminGroup(record.groupName)) {
-      this._snackBar.open(this.translate.instant('You can not edit this group.'), this.translate.instant('Okay'), {
+    if (this.isSuperAdminRole(record.roleName)) {
+      this._snackBar.open(this.translate.instant('You can not edit this role.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -567,17 +566,17 @@ export class GroupComponent implements OnInit, AfterViewInit {
     this.formData = { ...record };
   }
 
-  deleteRecord(record: GroupRecord) {
-    if (!this.hasPermission('Permissions.Group.Delete')) {
-      this._snackBar.open(this.translate.instant('You do not have permission to delete groups.'), this.translate.instant('Okay'), {
+  deleteRecord(record: RoleRecord) {
+    if (!this.hasPermission('Permissions.Role.Delete')) {
+      this._snackBar.open(this.translate.instant('You do not have permission to delete roles.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
       });
       return;
     }
-    if (this.isSuperAdminGroup(record.groupName)) {
-      this._snackBar.open(this.translate.instant('You cannot delete Super Admin group.'), this.translate.instant('Okay'), {
+    if (this.isSuperAdminRole(record.roleName)) {
+      this._snackBar.open(this.translate.instant('You cannot delete Super Admin role.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
@@ -587,7 +586,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
       data: {
         title: this.translate.instant('Confirm'),
-        message: this.translate.instant('Are you sure you want to delete Group: "{{groupName}}"?', { groupName: record.groupName }),
+        message: this.translate.instant('Are you sure you want to delete Role: "{{roleName}}"?', { roleName: record.roleName }),
         confirmText: this.translate.instant('Confirm'),
         cancelText: this.translate.instant('Cancel')
       }
@@ -596,11 +595,11 @@ export class GroupComponent implements OnInit, AfterViewInit {
       if (!result?.delete) {
         return;
       }
-      this.groupService.deleteGroupWithId(Number(record.groupId)).subscribe({
+      this.roleService.deleteRoleWithId(Number(record.roleId)).subscribe({
         next: (response) => {
           if (response.isSuccess) {
-            console.log(`Group with ID ${record.groupId} deleted successfully.`);
-            this.fetchGroupList();
+            console.log(`Role with ID ${record.roleId} deleted successfully.`);
+            this.fetchRoleList();
           } else {
             this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
               horizontalPosition: 'right',
@@ -619,25 +618,25 @@ export class GroupComponent implements OnInit, AfterViewInit {
   }
 
   onSelect(event: any): void {
-    this.selectedGroupName = event.target.value; // Set selected group name
-    if (this.selectedGroupName) {
-      this.requestBody.groupId = this.selectedGroupName;
-      this.fetchAssignedUserbyId(this.selectedGroupName); // Fetch assigned users based on selected group
+    this.selectedRoleName = event.target.value; // Set selected role name
+    if (this.selectedRoleName) {
+      this.requestBody.roleId = this.selectedRoleName;
+      this.fetchAssignedUserbyId(this.selectedRoleName); // Fetch assigned users based on selected role
     }
   }
 
   deleteAssignedUserRecord(record: AssignedUserRecord) {
-    if (!this.canManageSelectedGroup()) {
-      this._snackBar.open(this.translate.instant('You can not delete users from this group.'), this.translate.instant('Okay'), {
+    if (!this.canManageSelectedRole()) {
+      this._snackBar.open(this.translate.instant('You can not delete users from this role.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
         duration: 3000
       });
       return;
     }
-    const selectedGroupId = Number(this.selectedGroupName);
-    const selectedGroup = this.records.find(g => g.groupId === selectedGroupId);
-    if (selectedGroup && this.isSuperAdminGroup(selectedGroup.groupName) && this.assignedUserDataSource.data.length <= 1) {
+    const selectedRoleId = Number(this.selectedRoleName);
+    const selectedRole = this.records.find(r => r.roleId === selectedRoleId);
+    if (selectedRole && this.isSuperAdminRole(selectedRole.roleName) && this.assignedUserDataSource.data.length <= 1) {
       this._snackBar.open(this.translate.instant('You cannot delete the last Super Admin user.'), this.translate.instant('Okay'), {
         horizontalPosition: 'right',
         verticalPosition: 'top',
@@ -649,19 +648,19 @@ export class GroupComponent implements OnInit, AfterViewInit {
     if (record.id === null) {
       return;
     }
-    this.groupService.getUserGroupCount(record.id).subscribe({
+    this.roleService.getUserRoleCount(record.id).subscribe({
       next: (response) => {
-        const groupCount = response?.data ?? 0;
-        let warningMessage = 'You will remove this user from the group. Do you want to continue?';
+        const roleCount = response?.data ?? 0;
+        let warningMessageKey = 'You will remove this user from the role. Do you want to continue?';
         if (isSelf) {
-          warningMessage = 'You will lose access to this group. Do you want to continue?';
-        } else if (groupCount <= 1) {
-          warningMessage = 'This user will have no groups and will lose access. Do you want to continue?';
+          warningMessageKey = 'You will lose access to this role. Do you want to continue?';
+        } else if (roleCount <= 1) {
+          warningMessageKey = 'This user will have no roles and will lose access. Do you want to continue?';
         }
         const dialogRef = this.dialog.open(DeleteDialogComponent, {
           data: {
             title: this.translate.instant('Confirm'),
-            message: this.translate.instant(warningMessage),
+            message: this.translate.instant(warningMessageKey),
             confirmText: this.translate.instant('Confirm'),
             cancelText: this.translate.instant('Cancel')
           }
@@ -671,10 +670,10 @@ export class GroupComponent implements OnInit, AfterViewInit {
             return;
           }
           console.log('Deleting assigned user record:', record);
-          this.groupService.deleteAssignedUser(record.id, record.groupId).subscribe({
+          this.roleService.deleteAssignedUser(record.id, record.roleId).subscribe({
             next: (deleteResponse) => {
               if (deleteResponse.isSuccess) {
-                this.fetchAssignedUserbyId(this.selectedGroupName!.toString());
+                this.fetchAssignedUserbyId(this.selectedRoleName!.toString());
               } else {
                 this._snackBar.open(this.translate.instant(deleteResponse.message), this.translate.instant('Okay'), {
                   horizontalPosition: 'right',
@@ -720,24 +719,24 @@ export class GroupComponent implements OnInit, AfterViewInit {
   }
 
   getAssignedUserDeleteTooltip(): string {
-    if (!this.selectedGroupName) {
+    if (!this.selectedRoleName) {
       return this.translate.instant('Delete');
     }
-    const selectedGroupId = Number(this.selectedGroupName);
-    const selectedGroup = this.records.find(g => g.groupId === selectedGroupId);
-    if (selectedGroup && this.isSuperAdminGroup(selectedGroup.groupName) && this.assignedUserDataSource.data.length <= 1) {
+    const selectedRoleId = Number(this.selectedRoleName);
+    const selectedRole = this.records.find(r => r.roleId === selectedRoleId);
+    if (selectedRole && this.isSuperAdminRole(selectedRole.roleName) && this.assignedUserDataSource.data.length <= 1) {
       return this.translate.instant('You cannot delete the last Super Admin user');
     }
     return this.translate.instant('Delete');
   }
 
-  fetchAssignedUserbyId(groupId: string) {
+  fetchAssignedUserbyId(roleId: string) {
     this.isLoading = true;
-    this.groupService.getAssignedUserbyId(parseInt(groupId)).subscribe({
+    this.roleService.getAssignedUserbyId(parseInt(roleId)).subscribe({
       next: (response) => {
         this.assignedUserDataSource.data = response.data.map((item: any) => ({
           id: item.userId,
-          groupId: item.groupId,
+          roleId: item.roleId,
           displayName: item.userName,
           loginId: item.loginId,
           email: item.email,
@@ -746,7 +745,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         }));
         this.assignedUserData = this.assignedUserDataSource.data;
         if (this.assignedUserDataSource.data.length === 0) {
-          this.recordMessage = "No User Assigned to this group";
+          this.recordMessage = this.translate.instant('No User Assigned to this role');
         }
 
         this.isLoading = false;
@@ -771,18 +770,18 @@ export class GroupComponent implements OnInit, AfterViewInit {
     }
   }
 
-  fetchGroupList() {
+  fetchRoleList() {
     this.isLoading = true;
-    this.groupService.getGroupList().subscribe({
+    this.roleService.getRoleList().subscribe({
       next: (response) => {
         this.dataSource.data = response.data.map((item: any) => ({
-          groupId: item.groupId,
-          groupName: item.groupName,
-          groupDesc: item.groupDesc,
+          roleId: item.roleId,
+          roleName: item.roleName,
+          roleDesc: item.roleDesc,
           userCount: item.userCount
         }));
         this.records = response.data;
-        if (this.records.some(g => this.isSuperAdminGroup(g.groupName))) {
+        if (this.records.some(r => this.isSuperAdminRole(r.roleName))) {
           this.currentUserRank = Math.max(this.currentUserRank, 3);
         }
         this.dataSource.paginator = this.paginator;
@@ -828,7 +827,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    if (this.activeTab === 'group') {
+    if (this.activeTab === 'role') {
       this.dataSource.filter = filterValue;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -849,12 +848,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
     this.location.go(urlTree.toString());
     this.updateTitle();
 
-    if (tab === 'group') {
-      this.fetchGroupList();
+    if (tab === 'role') {
+      this.fetchRoleList();
     }
     if (tab === 'assignedUser') {
-      if (this.selectedGroupName!) {
-        this.fetchAssignedUserbyId(this.selectedGroupName!);
+      if (this.selectedRoleName!) {
+        this.fetchAssignedUserbyId(this.selectedRoleName!);
       }
     }
   }

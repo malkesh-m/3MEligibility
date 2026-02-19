@@ -16,7 +16,7 @@ export class UserprogileService {
     let params = new HttpParams()
       .set('UserId', payload.userId)
       .set('Phone', payload.phone);
-      
+
     if (payload.entityId) {
       params = params.set('EntityId', payload.entityId);
     }
@@ -25,26 +25,26 @@ export class UserprogileService {
       .pipe(catchError(this.handleError));
   }
 
-  getUserProfileById(groupId: number) {
-    return this.http.get<any>(`${this.apiUrl}/user/${groupId}`).pipe(catchError(this.handleError))
+  getUserProfileById(userId: number) {
+    return this.http.get<any>(`${this.apiUrl}/user/${userId}`).pipe(catchError(this.handleError))
   }
 
-  changePassword(payload:any){
+  changePassword(payload: any) {
     return this.http
       .post<any>(`${this.apiUrl}/user/ChangePassword`, payload)
       .pipe(catchError(this.handleError));
   }
 
-  getUserGroup(){
+  getUserRole() {
     return this.http
-    .get<any>(`${this.apiUrl}/usergroup`)
-    .pipe(catchError(this.handleError));
+      .get<any>(`${this.apiUrl}/userrole`)
+      .pipe(catchError(this.handleError));
   }
 
-  getGroupById(groupId: number){
+  getRoleById(roleId: number) {
     return this.http
-    .get<any>(`${this.apiUrl}/usergroup/${groupId}`)
-    .pipe(catchError(this.handleError));
+      .get<any>(`${this.apiUrl}/userrole/${roleId}`)
+      .pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

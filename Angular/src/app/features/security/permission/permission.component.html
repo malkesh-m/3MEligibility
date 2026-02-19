@@ -8,10 +8,10 @@
     <div class="card p-3 mb-3 d-flex flex-row justify-content-between align-items-center">
         <div class="col-4" *ngIf="activeTab === 'AssignedPermissions'">
             <label class="inputLabel">{{ 'Assigned Permissions' | translate }}</label>
-            <select #parameterSelect class="form-control" [(ngModel)]="selectedGroupId" (change)="onSelect($event)">
-                <option value="null" disabled [selected]="selectedGroupId === null">{{ 'Select' | translate }}</option>
-                <option *ngFor="let param of records" [value]="param.groupId">
-                    {{ param.groupName }}
+            <select #parameterSelect class="form-control" [(ngModel)]="selectedRoleId" (change)="onSelect($event)">
+                <option value="null" disabled [selected]="selectedRoleId === null">{{ 'Select' | translate }}</option>
+                <option *ngFor="let param of records" [value]="param.roleId">
+                    {{ param.roleName }}
                 </option>
             </select>
             <div *ngIf="isSuperAdminSelected()" class="text-danger mt-1 ms-3"

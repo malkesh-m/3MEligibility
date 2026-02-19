@@ -434,10 +434,10 @@ namespace MEligibilityPlatform.Controllers
                 //new("EntityId", user.EntityId.ToString())
             };
 
-            // Adds role claim if user has security group
-            if (user.SecurityGroup != null && !string.IsNullOrEmpty(user.SecurityGroup.GroupName))
+            // Adds role claim if user has security role
+            if (user.SecurityRole != null && !string.IsNullOrEmpty(user.SecurityRole.RoleName))
             {
-                claimsList.Add(new Claim(ClaimTypes.Role, user.SecurityGroup.GroupId.ToString()));
+                claimsList.Add(new Claim(ClaimTypes.Role, user.SecurityRole.RoleId.ToString()));
             }
 
             // Converts claims list to array

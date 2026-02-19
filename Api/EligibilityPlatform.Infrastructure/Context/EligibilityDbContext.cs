@@ -53,7 +53,7 @@ public partial class EligibilityDbContext : DbContext
 
     public virtual DbSet<Factor> Factors { get; set; }
 
-    public virtual DbSet<GroupPermission> GroupPermissions { get; set; }
+    public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
     public virtual DbSet<HistoryEc> HistoryEcs { get; set; }
 
@@ -96,13 +96,13 @@ public partial class EligibilityDbContext : DbContext
 
     public virtual DbSet<Screen> Screens { get; set; }
 
-    public virtual DbSet<SecurityGroup> SecurityGroups { get; set; }
+    public virtual DbSet<SecurityRole> SecurityRoles { get; set; }
 
     public virtual DbSet<Setting> Settings { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
-    public virtual DbSet<UserGroup> UserGroups { get; set; }
+    public virtual DbSet<UserRole> UserRoles { get; set; }
 
     public virtual DbSet<UserStatus> UserStatuses { get; set; }
 
@@ -472,23 +472,23 @@ public partial class EligibilityDbContext : DbContext
                 .HasConstraintName("FK__Factors__Paramet__1EA48E88");
         });
 
-        modelBuilder.Entity<GroupPermission>(entity =>
+        modelBuilder.Entity<RolePermission>(entity =>
         {
-            entity.ToTable("GroupPermissions");
-            entity.HasKey(e => new { e.PermissionId, e.GroupId }).HasName("PK__GroupPerm__3BB3612C136B1C77");
-            entity.HasIndex(e => e.TenantId, "IX_GroupPermission_TenantId");
+            entity.ToTable("RolePermissions");
+            entity.HasKey(e => new { e.PermissionId, e.RoleId }).HasName("PK__RolePerm__3BB3612C136B1C77");
+            entity.HasIndex(e => e.TenantId, "IX_RolePermission_TenantId");
 
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-            entity.HasIndex(gr => gr.GroupId)
-                .HasDatabaseName("IX_GroupPermission_GroupId");
-            entity.HasOne(d => d.Group).WithMany(p => p.GroupPermissions)
-                .HasForeignKey(d => d.GroupId)
+            entity.HasIndex(gr => gr.RoleId)
+                .HasDatabaseName("IX_RolePermission_RoleId");
+            entity.HasOne(d => d.Role).WithMany(p => p.RolePermissions)
+                .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GroupPerm__Group__1F98B2C1");          
-            entity.HasOne(d => d.Permission).WithMany(p => p.GroupPermissions)
+                .HasConstraintName("FK__RolePerm__Role__1F98B2C1");          
+            entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissions)
                 .HasForeignKey(d => d.PermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GroupPerm__PermI__208CD6FA");
+                .HasConstraintName("FK__RolePerm__PermI__208CD6FA");
         });
         modelBuilder.Entity<HistoryEc>(entity =>
         {
@@ -993,15 +993,16 @@ public partial class EligibilityDbContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<SecurityGroup>(entity =>
+        modelBuilder.Entity<SecurityRole>(entity =>
         {
-            entity.HasKey(e => e.GroupId).HasName("PK__Security__149AF30AF87E70F1");
-            entity.HasIndex(e => e.TenantId, "IX_SecurityGroup_TenantId");
+            entity.ToTable("SecurityRoles");
+            entity.HasKey(e => e.RoleId).HasName("PK__Security__149AF30AF87E70F1");
+            entity.HasIndex(e => e.TenantId, "IX_SecurityRole_TenantId");
 
-            entity.Property(e => e.GroupId).HasColumnName("GroupID");
+            entity.Property(e => e.RoleId).HasColumnName("RoleId");
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
-            entity.Property(e => e.GroupDesc).HasMaxLength(250);
-            entity.Property(e => e.GroupName).HasMaxLength(50);
+            entity.Property(e => e.RoleDesc).HasMaxLength(250);
+            entity.Property(e => e.RoleName).HasMaxLength(50);
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
         });
@@ -1049,27 +1050,38 @@ public partial class EligibilityDbContext : DbContext
             entity.HasOne(d => d.Status).WithMany(p => p.Users)
                 .HasForeignKey(d => d.StatusId)
                 .HasConstraintName("FK__Users__StatusId__42E1EEFE");
+
+            //entity.HasMany(d => d.Roles).WithMany(p => p.Users)
+            //    .UsingEntity<UserRole>(
+            //        r => r.HasOne<SecurityRole>(d => d.Role).WithMany(p => p.UserRoles).HasForeignKey(d => d.RoleId),
+            //        l => l.HasOne<User>(d => d.User).WithMany(p => p.UserRoles).HasForeignKey(d => d.UserId),
+            //        j =>
+            //        {
+            //            j.HasKey(e => new { e.UserId, e.RoleId }).HasName("PK__UserRole__A6C1637AF327336E");
+            //            j.ToTable("UserRoles");
+            //        });
         });
 
-        modelBuilder.Entity<UserGroup>(entity =>
+        modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.GroupId }).HasName("PK__UserGrou__A6C1637AF327336E");
-            entity.HasIndex(e => e.TenantId, "IX_UserGroup_TenantId");
+            entity.ToTable("UserRoles");
+            entity.HasKey(e => new { e.UserId, e.RoleId }).HasName("PK__UserRole__A6C1637AF327336E");
+            entity.HasIndex(e => e.TenantId, "IX_UserRole_TenantId");
 
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.HasIndex(ug => ug.UserId)
-            .HasDatabaseName("IX_UserGroup_UserId");
-            entity.HasOne(d => d.Group).WithMany(p => p.UserGroups)
-                .HasForeignKey(d => d.GroupId)
+            .HasDatabaseName("IX_UserRole_UserId");
+            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserGroup__Group__40058253");
+                .HasConstraintName("FK__UserRole__Role__40058253");
 
-            //entity.HasOne(d => d.User).WithMany(p => p.UserGroups)
+            //entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
             //    .HasForeignKey(d => d.UserId)
             //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK__UserGroup__UserI__40F9A68C");
+            //    .HasConstraintName("FK__UserRole__UserI__40F9A68C");
         });
 
         modelBuilder.Entity<UserStatus>(entity =>

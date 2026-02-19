@@ -11,26 +11,26 @@ export class PermissionService {
 
   constructor(private http: HttpClient) { }
 
-  getGroupList() {
-    return this.http.get<any>(`${this.apiUrl}/securitygroup/getall`).pipe(catchError(this.handleError))
+  getRoleList() {
+    return this.http.get<any>(`${this.apiUrl}/securityrole/getall`).pipe(catchError(this.handleError))
   }
 
-  getUnAssignedPermissionsByGroupId(groupId:number) {
-    return this.http.get<any>(`${this.apiUrl}/grouppermission/getUnAssignedPermissionsByGroupId?groupId=${groupId}`).pipe(catchError(this.handleError))
+  getUnAssignedPermissionsByRoleId(roleId: number) {
+    return this.http.get<any>(`${this.apiUrl}/rolepermission/getUnAssignedPermissionsByRoleId?roleId=${roleId}`).pipe(catchError(this.handleError))
   }
 
-  getAssignedPermissionsByGroupId(groupId:number) {
-    return this.http.get<any>(`${this.apiUrl}/grouppermission/getAssignedPermissionsByGroupId?groupId=${groupId}`).pipe(catchError(this.handleError))
+  getAssignedPermissionsByRoleId(roleId: number) {
+    return this.http.get<any>(`${this.apiUrl}/rolepermission/getAssignedPermissionsByRoleId?roleId=${roleId}`).pipe(catchError(this.handleError))
   }
 
   addPermission(payload: any) {
     return this.http
-      .post<any>(`${this.apiUrl}/grouppermission`, payload)
+      .post<any>(`${this.apiUrl}/rolepermission`, payload)
       .pipe(catchError(this.handleError));
   }
 
   deletePermission(payload: any) {
-    return this.http.delete<any>(`${this.apiUrl}/grouppermission`, { body: payload }).pipe(catchError(this.handleError));
+    return this.http.delete<any>(`${this.apiUrl}/rolepermission`, { body: payload }).pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

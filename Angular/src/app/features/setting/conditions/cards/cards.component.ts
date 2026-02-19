@@ -12,6 +12,7 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { ValidatorDialogComponent } from '../../../../core/components/validator-dialog/validator-dialog.component';
 import { ValidationDialogService } from '../../../../core/services/setting/validation-dialog.service';
 import { PermissionsService } from '../../../../core/services/setting/permission.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-cards',
@@ -24,7 +25,7 @@ export class CardsComponent {
   @ViewChild('paginator') paginator!: MatPaginator;
   // Table Columns and Data
   cardsColumnsAry: string[] = ['Select', 'CardName', 'Description', 'Exp shown', 'Created By', 'Updated By'];
-  cardsHeaderAry = ['CardName', 'Description', 'Exp shown','Created By', 'Updated By'];
+  cardsHeaderAry = ['CardName', 'Description', 'Exp shown', 'Created By', 'Updated By'];
   eCardsListAry: any[] = [];
   rules: any[] = [];
   parameters: any[] = [];
@@ -83,7 +84,8 @@ export class CardsComponent {
     private parameterService: ParameterService,
     private rulesService: RulesService,
     private validationDialogService: ValidationDialogService,
-    private PermissionsService:PermissionsService
+    private PermissionsService: PermissionsService,
+    private translate: TranslateService
   ) {
     this.expressionForm = this.fb.group({
       CardName: ['', Validators.required],
@@ -106,7 +108,7 @@ export class CardsComponent {
   }
 
   fetchCards(): void {
-          this.isLoading = true;
+    this.isLoading = true;
 
     this.eCardsListAry = [];
     this.cardService.getCardsList().subscribe({
@@ -129,7 +131,7 @@ export class CardsComponent {
           }));
           this.filteredCards = this.eCardsListAry; // Initialize filtered list
         }
-            this.isLoading = false;
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error fetching cards:', error);
@@ -252,7 +254,7 @@ export class CardsComponent {
       this.updateCard(payload);
     }
   }
-  
+
   addCard(payload: any) {
     // payload.createdBy = this.loggedInUser.user.userName;
     // payload.updatedBy = this.loggedInUser.user.userName;
@@ -324,9 +326,9 @@ export class CardsComponent {
           this.selectedRules.push(selectedRuleObject);
           if (this.combinevalue) {
             this.combinevalue += ` ${logicalOperator} ${selectedRuleObject.expShown}`;
-        } else {
+          } else {
             this.combinevalue = selectedRuleObject.expShown;
-        }
+          }
         }
       }
     } else if (type === 'logicalOperator') {
@@ -409,7 +411,7 @@ export class CardsComponent {
 
       const lastEditValue = this.sequence[this.sequence.length - 1]?.type;
       this.updateUIState(lastEditValue);
-    
+
     }
     else if (event.action === 'delete') {
       this.deleteCard(event.data.ecardId, event.data.CardName);
@@ -524,14 +526,14 @@ export class CardsComponent {
           result.push(tempRule.trim()); // Push the accumulated rule
           tempRule = "";
         }
-        result.push(part); 
+        result.push(part);
       } else {
-       
+
         tempRule += (tempRule ? " " : "") + part;
       }
     }
 
-    
+
     if (tempRule) {
       result.push(tempRule.trim());
     }
@@ -646,50 +648,50 @@ export class CardsComponent {
         .some((value: any) => value.toString().toLowerCase().includes(term));
     });
   }
-deleteCard(id: number, cardName: string) {
+  deleteCard(id: number, cardName: string) {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the Eligibility Card: "${cardName}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.cardService.deleteCard(id).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.fetchCards();
-          this.fetchRuleList();
-          this.closeForm();
-        }
-
-      },
-      error: (error) => {
-        this._snackBar.open(
-          error?.error?.message || error.message || 'Something went wrong.',
-          'Okay',
-          {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          }
-        );
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the Eligibility Card: "{{name}}"?', { name: cardName })
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.cardService.deleteCard(id).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.fetchCards();
+            this.fetchRuleList();
+            this.closeForm();
+          }
+
+        },
+        error: (error) => {
+          this._snackBar.open(
+            error?.error?.message || error.message || 'Something went wrong.',
+            'Okay',
+            {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            }
+          );
+        }
+      });
+
+    });
+  }
   //parseExpressionToSequence(expression: string): { type: string; value: string }[] {
   //  const sequence: { type: string; value: string }[] = [];
   //  const tokens = expression.split(/\s+/); // Split expression into tokens
@@ -820,9 +822,9 @@ deleteCard(id: number, cardName: string) {
   }
 
   importCard(selectedFile: File) {
-  //   this.authService.currentUser$.subscribe((user) => {
-  //     this.loggedInUser = user;
-  // });
+    //   this.authService.currentUser$.subscribe((user) => {
+    //     this.loggedInUser = user;
+    // });
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
     this.cardService.importCard(selectedFile,).subscribe({
@@ -942,7 +944,7 @@ deleteCard(id: number, cardName: string) {
         });
       });
     };
-  
+
     const getParameters = (): Promise<any[]> => {
       return new Promise((resolve, reject) => {
         this.parameterService.getParameters().subscribe({
@@ -955,7 +957,7 @@ deleteCard(id: number, cardName: string) {
     const processValidation = async () => {
       try {
         const rules = await getRulesList();
-  
+
         //rules.forEach((rule) => {
         //  const ruleWithoutParentheses = rule.expShown.replace(/^\(|\)$/g, '');
         //  expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), ruleWithoutParentheses);
@@ -966,11 +968,11 @@ deleteCard(id: number, cardName: string) {
             expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), ruleWithoutParentheses);
           }
         });
-  
+
         const parameters = await getParameters();
-  
+
         this.validationDialogService.openValidationDialog({
-          actionType:'form',
+          actionType: 'form',
           expshown: expressionWithPNames,
           parameters: parameters,
           expression: expressionExp,
@@ -985,7 +987,7 @@ deleteCard(id: number, cardName: string) {
         });
       }
     };
-  
+
     processValidation();
   }
 }

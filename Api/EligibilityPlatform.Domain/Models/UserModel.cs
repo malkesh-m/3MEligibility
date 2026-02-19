@@ -85,8 +85,8 @@ namespace MEligibilityPlatform.Domain.Models
 
         public string DisplayName { get; set; } = string.Empty;
 
-        // Groups from local database (enriched)
-        public List<GroupModel> Groups { get; set; } = [];
+        // Roles from local database (enriched)
+        public List<RoleModel> Roles { get; set; } = [];
     }
 
     public class UserAddModel : UserModel
@@ -150,9 +150,9 @@ namespace MEligibilityPlatform.Domain.Models
         [NotMapped]
         public IFormFile? UserProfileFile { get; set; }
     }
-    public class GroupModel
+    public class RoleModel
     {
-        public int GroupId { get; set; }
-        public required string GroupName { get; set; }
+        public int RoleId { get; set; }
+        public required string RoleName { get; set; }
     }
 }

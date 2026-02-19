@@ -11,15 +11,15 @@ import { MatPaginator } from "@angular/material/paginator";
 import { PermissionsService } from "../../../core/services/setting/permission.service";
 import { TranslateService } from "@ngx-translate/core";
 
-export interface GroupRecord {
-  groupId: number | null;
-  groupName: string;
-  groupDesc: string;
+export interface RoleRecord {
+  roleId: number | null;
+  roleName: string;
+  roleDesc: string;
 }
 
 export interface PermissionRecord {
   permissionId: number;
-  groupId: number;
+  roleId: number;
   permissionAction: string;
   selected: boolean;
 }
@@ -32,7 +32,7 @@ export interface PermissionRecord {
 
 export class PermissionComponent implements OnInit {
   // Show all permissions returned by the API (no whitelist filtering).
-  records: GroupRecord[] = [];
+  records: RoleRecord[] = [];
   permissionRecord: PermissionRecord[] = [];
   permissionAssignedDataSource = new MatTableDataSource<PermissionRecord>(this.permissionRecord);
   permissionUnassignedDataSource = new MatTableDataSource<PermissionRecord>(this.permissionRecord);
@@ -45,9 +45,9 @@ export class PermissionComponent implements OnInit {
   availablePermissions: any[] = [];
   assignedPermissions: any[] = [];
   selectedPermissionIds: number[] = [];
-  selectedGroupId: number | null = null;
-  requestBody: { groupId: number; permissionIds: number[] } = {
-    groupId: 0,
+  selectedRoleId: number | null = null;
+  requestBody: { roleId: number; permissionIds: number[] } = {
+    roleId: 0,
     permissionIds: [],
   };
   selectedRows: Set<number> = new Set();
@@ -90,7 +90,7 @@ export class PermissionComponent implements OnInit {
     });
 
     this.combinedColumns = ['select', ...this.displayedColumns];
-    this.fetchGroupList();
+    this.fetchRoleList();
     this.updateTitle();
   }
 
@@ -109,8 +109,8 @@ export class PermissionComponent implements OnInit {
     this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
   }
   isSuperAdminSelected(): boolean {
-    const group = this.records.find(g => g.groupId == this.selectedGroupId);
-    return group?.groupName?.toLowerCase() === 'super admin';
+    const role = this.records.find(r => r.roleId == this.selectedRoleId);
+    return role?.roleName?.toLowerCase() === 'super admin';
   }
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
@@ -126,23 +126,23 @@ export class PermissionComponent implements OnInit {
     this.location.go(urlTree.toString());
     this.updateTitle();
 
-    if (this.selectedGroupId !== null) {
+    if (this.selectedRoleId !== null) {
       if (tab === 'AssignedPermissions') {
-        this.getAssignedPermissionsByGroupId(this.selectedGroupId!);
+        this.getAssignedPermissionsByRoleId(this.selectedRoleId!);
       } else {
-        this.getUnAssignedPermissionsByGroupId(this.selectedGroupId!);
+        this.getUnAssignedPermissionsByRoleId(this.selectedRoleId!);
       }
     }
   }
 
-  fetchGroupList() {
+  fetchRoleList() {
     this.isLoading = true;
-    this.permissionService.getGroupList().subscribe({
+    this.permissionService.getRoleList().subscribe({
       next: (response) => {
         this.records = response.data.map((item: any) => ({
-          groupId: item.groupId,
-          groupName: item.groupName,
-          groupDesc: item.groupDesc
+          roleId: item.roleId,
+          roleName: item.roleName,
+          roleDesc: item.roleDesc
         }));
         this.isLoading = false;
       },
@@ -157,8 +157,8 @@ export class PermissionComponent implements OnInit {
   }
 
   onSelect(event: any): void {
-    this.selectedGroupId = event.target.value;
-    this.getAssignedPermissionsByGroupId(this.selectedGroupId!);
+    this.selectedRoleId = event.target.value;
+    this.getAssignedPermissionsByRoleId(this.selectedRoleId!);
   }
 
   onSelectPermission(event: Event): void {
@@ -170,7 +170,7 @@ export class PermissionComponent implements OnInit {
 
     if (this.isSuperAdminSelected()) {
       this._snackBar.open(
-        this.translate.instant("You cannot remove permissions from Super Admin group."),
+        this.translate.instant("You cannot remove permissions from Super Admin role."),
         this.translate.instant('Okay'),
         {
           horizontalPosition: 'right',
@@ -181,14 +181,14 @@ export class PermissionComponent implements OnInit {
       return;
     }
 
-    this.requestBody.groupId = this.selectedGroupId!;
+    this.requestBody.roleId = this.selectedRoleId!;
     this.requestBody.permissionIds = this.selectedPermissionIds;
 
     this.permissionService.deletePermission(this.requestBody).subscribe({
       next: (response) => {
         if (response.isSuccess) {
           this.selectedPermissionIds = [];
-          this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
+          this.getAssignedPermissionsByRoleId(this.requestBody.roleId);
 
           this._snackBar.open(this.translate.instant("Permission removed successfully."), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
@@ -207,7 +207,7 @@ export class PermissionComponent implements OnInit {
   }
 
   addPermission() {
-    this.requestBody.groupId = this.selectedGroupId!;
+    this.requestBody.roleId = this.selectedRoleId!;
     this.requestBody.permissionIds = this.selectedPermissionIds;
     if (!this.requestBody.permissionIds || this.requestBody.permissionIds.length === 0) {
       this._snackBar.open(this.translate.instant("Please select at least one permission."), this.translate.instant('Okay'), {
@@ -221,8 +221,8 @@ export class PermissionComponent implements OnInit {
       next: (response) => {
         if (response.isSuccess) {
           this.selectedPermissionIds = [];
-          this.getUnAssignedPermissionsByGroupId(this.requestBody.groupId);
-          this.getAssignedPermissionsByGroupId(this.requestBody.groupId);
+          this.getUnAssignedPermissionsByRoleId(this.requestBody.roleId);
+          this.getAssignedPermissionsByRoleId(this.requestBody.roleId);
           this._snackBar.open(this.translate.instant("Permission added successfully."), this.translate.instant('Okay'), {
             horizontalPosition: 'right',
             verticalPosition: 'top', duration: 3000,
@@ -244,16 +244,13 @@ export class PermissionComponent implements OnInit {
     })
   };
 
-
-
-
-  getUnAssignedPermissionsByGroupId(groupId: number) {
+  getUnAssignedPermissionsByRoleId(roleId: number) {
     this.isLoading = true;
-    this.permissionService.getUnAssignedPermissionsByGroupId(groupId).subscribe({
+    this.permissionService.getUnAssignedPermissionsByRoleId(roleId).subscribe({
       next: (response) => {
         this.permissionUnassignedDataSource.data = response.data.map((item: any) => ({
           permissionId: item.permissionId,
-          groupId: item.groupId,
+          roleId: item.roleId,
           permissionAction: item.permissionAction
         }))
           .sort((a: any, b: any) => this.comparePermissions(a.permissionAction, b.permissionAction));
@@ -273,13 +270,13 @@ export class PermissionComponent implements OnInit {
     });
   }
 
-  getAssignedPermissionsByGroupId(groupId: number) {
+  getAssignedPermissionsByRoleId(roleId: number) {
     this.isLoading = true;
-    this.permissionService.getAssignedPermissionsByGroupId(groupId).subscribe({
+    this.permissionService.getAssignedPermissionsByRoleId(roleId).subscribe({
       next: (response) => {
         this.permissionAssignedDataSource.data = response.data.map((item: any) => ({
           permissionId: item.permissionId,
-          groupId: item.groupId,
+          roleId: item.roleId,
           permissionAction: item.permissionAction
         }))
           .sort((a: any, b: any) => this.comparePermissions(a.permissionAction, b.permissionAction));

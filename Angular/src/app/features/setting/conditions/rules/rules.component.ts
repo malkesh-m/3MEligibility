@@ -18,6 +18,7 @@ import { ValidationDialogService } from '../../../../core/services/setting/valid
 import { PermissionsService } from '../../../../core/services/setting/permission.service';
 import { ExceptionManagementService } from '../../../../core/services/setting/exception-management.service';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 
 export function optionalValidToValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -133,7 +134,8 @@ export class RulesComponent {
     private dialog: MatDialog,
     private utilityService: UtilityService,
     private PermissionsService: PermissionsService,
-    private exceptionsService: ExceptionManagementService
+    private exceptionsService: ExceptionManagementService,
+    private translate: TranslateService
   ) {
 
   }
@@ -284,8 +286,8 @@ export class RulesComponent {
       name: rule.eruleName || '',
       eruleMasterId: Number(rule.eruleMasterId),
       description: rule.description || '',
-      validFrom: this.formatDateForInputUTC(today)  ,
-      validTo:  null,
+      validFrom: this.formatDateForInputUTC(today),
+      validTo: null,
       expshown: latestVersion?.expShown || '',
       factorName: latestVersion?.factorName || '',
       expression: ''
@@ -711,7 +713,8 @@ export class RulesComponent {
           duration: 3000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
-        });      }
+        });
+      }
     });
   }
   fetchParametersList() {
@@ -840,7 +843,7 @@ export class RulesComponent {
     this.authService.currentUser$.subscribe((user) => {
       this.loggedInUser = user;
     });
- 
+
     payload.eruleName = payload.name.trim()
 
     this.ruleService.addNewEruleMaster(payload).subscribe({
@@ -871,10 +874,10 @@ export class RulesComponent {
     this.IfAddNewVersion = false
     const formValue = this.expressionForm.value;
     payload.eruleMasterId = formValue.eruleMasterId
- 
 
-   payload.validFrom = formValue.validFrom ? this.toUTCDateString(formValue.validFrom) : null;
-payload.validTo   = formValue.validTo   ? this.toUTCDateString(formValue.validTo)   : null;
+
+    payload.validFrom = formValue.validFrom ? this.toUTCDateString(formValue.validFrom) : null;
+    payload.validTo = formValue.validTo ? this.toUTCDateString(formValue.validTo) : null;
     this.ruleService.addNewRule(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {
@@ -901,8 +904,8 @@ payload.validTo   = formValue.validTo   ? this.toUTCDateString(formValue.validTo
     }
 
     //payload.expression = this.expressionForm.value.expshown;
-    payload.validFrom = this.expressionForm.value.validFrom? this.toUTCDateString(this.expressionForm.value.validFrom): null;
-    payload.validTo = this.expressionForm.value.validTo? this.toUTCDateString(this.expressionForm.value.validTo): null;
+    payload.validFrom = this.expressionForm.value.validFrom ? this.toUTCDateString(this.expressionForm.value.validFrom) : null;
+    payload.validTo = this.expressionForm.value.validTo ? this.toUTCDateString(this.expressionForm.value.validTo) : null;
     this.ruleService.updateExistingRule(payload).subscribe({
       next: (response) => {
         this._snackBar.open(response.message, 'Okay', {
@@ -922,95 +925,95 @@ payload.validTo   = formValue.validTo   ? this.toUTCDateString(formValue.validTo
     })
   }
 
-deleteRule(id: number) {
+  deleteRule(id: number) {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: 'Are you sure you want to delete this rule?'
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.ruleService.deleteSingleRule(id).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.refreshRules();
-        }
-
-      },
-      error: (error) => {
-        this._snackBar.open(
-          error?.error?.message || error.message || 'Something went wrong.',
-          'Okay',
-          {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          }
-        );
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete this rule?')
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.ruleService.deleteSingleRule(id).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.refreshRules();
+          }
+
+        },
+        error: (error) => {
+          this._snackBar.open(
+            error?.error?.message || error.message || 'Something went wrong.',
+            'Okay',
+            {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            }
+          );
+        }
+      });
+
+    });
+  }
   deleteEruleMaster(Erule: any) {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete the Rule: "${Erule.eruleName}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.ruleService.deleteEruleMaster(Erule.eruleMasterId).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.refreshRules();
-          this.selectedRules.clear();
-          this.cancelEvent();
-        }
-
-      },
-      error: (error) => {
-
-        this._snackBar.open(
-          error?.error?.message || error.message || 'Something went wrong.',
-          'Okay',
-          {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          }
-        );
-
-        this.selectedRules.clear();
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete the Rule: "{{ruleName}}"?', { ruleName: Erule.eruleName })
       }
     });
 
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.ruleService.deleteEruleMaster(Erule.eruleMasterId).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.refreshRules();
+            this.selectedRules.clear();
+            this.cancelEvent();
+          }
+
+        },
+        error: (error) => {
+
+          this._snackBar.open(
+            error?.error?.message || error.message || 'Something went wrong.',
+            'Okay',
+            {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            }
+          );
+
+          this.selectedRules.clear();
+        }
+      });
+
+    });
+  }
   selectedRules = new Set<any>();
 
   // Toggle rule selection
@@ -1096,7 +1099,7 @@ deleteRule(id: number) {
     });
 
     this.paginatedRules = filteredRules;
-    this.dataSource.data=filteredRules
+    this.dataSource.data = filteredRules
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -1310,61 +1313,61 @@ deleteRule(id: number) {
     }, 0);
   }
 
-deleteRecord(event: any) {
+  deleteRecord(event: any) {
 
-  const dialogRef = this.dialog.open(DeleteDialogComponent, {
-    data: {
-      title: 'Confirm',
-      message: `Are you sure you want to delete Rule Version: "${event.version}"?`
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-
-    if (!result?.delete) return;
-
-    this.ruleService.deleteSingleRule(event.eruleId).subscribe({
-      next: (response) => {
-
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-
-        if (response.isSuccess) {
-          this.refreshRules();
-        }
-
-      },
-      error: (error) => {
-        this._snackBar.open(
-          error?.error?.message || error.message || 'Something went wrong.',
-          'Okay',
-          {
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-            duration: 3000
-          }
-        );
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: {
+        title: this.translate.instant('Confirm'),
+        message: this.translate.instant('Are you sure you want to delete Rule Version: "{{version}}"?', { version: event.version })
       }
     });
 
-  });
-}
-private toUTCDateString(dateStr: string | null): string | null {
-  if (!dateStr) return null;
-  const [year, month, day] = dateStr.split('-').map(Number);
-  const utcDate = new Date(Date.UTC(year, month - 1, day)); // construct in UTC
-  return utcDate.toISOString(); // always "YYYY-MM-DDT00:00:00.000Z"
-}
-private formatDateForInputUTC(date: string | Date): string {
-  const d = new Date(date);
-  const year = d.getUTCFullYear();
-  const month = ('0' + (d.getUTCMonth() + 1)).slice(-2);
-  const day = ('0' + d.getUTCDate()).slice(-2);
-  return `${year}-${month}-${day}`;
-}
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (!result?.delete) return;
+
+      this.ruleService.deleteSingleRule(event.eruleId).subscribe({
+        next: (response) => {
+
+          this._snackBar.open(response.message, 'Okay', {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+
+          if (response.isSuccess) {
+            this.refreshRules();
+          }
+
+        },
+        error: (error) => {
+          this._snackBar.open(
+            error?.error?.message || error.message || 'Something went wrong.',
+            'Okay',
+            {
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+              duration: 3000
+            }
+          );
+        }
+      });
+
+    });
+  }
+  private toUTCDateString(dateStr: string | null): string | null {
+    if (!dateStr) return null;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const utcDate = new Date(Date.UTC(year, month - 1, day)); // construct in UTC
+    return utcDate.toISOString(); // always "YYYY-MM-DDT00:00:00.000Z"
+  }
+  private formatDateForInputUTC(date: string | Date): string {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = ('0' + (d.getUTCMonth() + 1)).slice(-2);
+    const day = ('0' + d.getUTCDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+  }
   tableRowAction(event: { action: string; data: any }): void {
     if (event.action === 'edit') {
       this.isInsertNewRecord = false;
@@ -1382,7 +1385,7 @@ private formatDateForInputUTC(date: string | Date): string {
         const parameter = this.parameters[i];
         if (event.data.expshown.includes(parameter.parameterName)) {
           lastMatchingParameterId = parameter.parameterId;
-          break; 
+          break;
         }
       }
 
@@ -2393,7 +2396,7 @@ private formatDateForInputUTC(date: string | Date): string {
   }
   paginatedRules: any[] = [];
   loadParentRules() {
-      this.isLoading = true;
+    this.isLoading = true;
 
     this.ruleService.getRulesList().subscribe({
       next: (response: any) => {
@@ -2425,7 +2428,7 @@ private formatDateForInputUTC(date: string | Date): string {
 
           // Initialize pagination after fetching data
           setTimeout(() => this.initPagination(), 0);
-                this.isLoading = false;
+          this.isLoading = false;
 
         }
       }
