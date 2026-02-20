@@ -10,6 +10,7 @@ using MEligibilityPlatform.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using MEligibilityPlatform.Application.Constants;
 
 namespace MEligibilityPlatform.Application.Services
 {
@@ -174,41 +175,35 @@ namespace MEligibilityPlatform.Application.Services
                 // Processes each sheet based on its name
                 switch (sheetName)
                 {
-                    //case "entities":
-                    //    results.Add(await ImportEntities(worksheet, createdBy));
-                    //    break;
                     case "lists":
                         results.Add(await ImportList(worksheet, createdBy, tenantId));
                         break;
                     case "listitem":
-                        results.Add(await ImportListIteams(worksheet, createdBy,tenantId));
+                        results.Add(await ImportListIteams(worksheet, createdBy, tenantId));
                         break;
-                    //case "customer-parameter":
-                    //    results.Add(await ImportParameterCustomer( worksheet, 1, createdBy));
-                    //    break;
                     case "parameter":
-                        results.Add(await ImportParameterProduct(worksheet, 2, createdBy, tenantId));
+                        results.Add(await ImportParameterProduct(worksheet, createdBy, tenantId));
                         break;
                     case "factors":
                         results.Add(await ImportFactor(worksheet, createdBy, tenantId));
                         break;
                     case "category":
-                        results.Add(await ImportCategory(worksheet, createdBy,tenantId));
+                        results.Add(await ImportCategory(worksheet, createdBy, tenantId));
                         break;
                     case "stream":
                         results.Add(await ImportInfo(worksheet, createdBy, tenantId));
                         break;
                     case "details":
-                        results.Add(await ImportDetails(worksheet, createdBy));
+                        results.Add(await ImportDetails(worksheet, createdBy, tenantId));
                         break;
                     case "erules":
                         results.Add(await ImportEruleMaster(worksheet, createdBy, tenantId));
                         break;
                     case "ecards":
-                        results.Add(await ImportECard(worksheet, tenantId, createdBy));
+                        results.Add(await ImportECard(worksheet, createdBy, tenantId));
                         break;
                     case "streamcards":
-                        results.Add(await ImportPCard(worksheet, tenantId, createdBy));
+                        results.Add(await ImportPCard(worksheet, createdBy, tenantId));
                         break;
                     default:
                         results.Add($"Skipped unrecognized sheet: {sheetName}");
@@ -543,24 +538,16 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
                 // Updates import counts
                 UpdateImportCounts(rowCount, insertedRecordsCount);
+                
                 // Builds result message based on import results
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $" List Page = {insertedRecordsCount} List Items Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" List Page = {skippedRecordsCount} records were not inserted because of missing required field.{Environment.NewLine}";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" List Page = {dublicatedRecordsCount}  record already exists.{Environment.NewLine}";
-                }
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Returns error message if exception occurs
-                resultMessage += "Error On List Page = " + ex.Message + Environment.NewLine;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Lists): {ex.Message}";
             }
             return resultMessage;
         }
@@ -682,24 +669,16 @@ namespace MEligibilityPlatform.Application.Services
 
                 // Updates import counts
                 UpdateImportCounts(rowCount, insertedRecordsCount);
+
                 // Builds result message based on import results
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $"List Iteam = {models.Count} List Items Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $"List Iteam = {skippedRecordsCount} records were not inserted because of missing required field. {Environment.NewLine}";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $"List Iteam = {dublicatedRecordsCount} record already exists.{Environment.NewLine}";
-                }
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Returns error message if exception occurs
-                resultMessage = "Error On List Iteam page = " + ex.Message + Environment.NewLine;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (ListItem): {ex.Message}";
             }
             return resultMessage;
         }
@@ -711,140 +690,6 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="Identifier">The identifier for the parameter type.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportParameterCustomer(ExcelWorksheet worksheet, int Identifier, string createdBy)
-        {
-            // Gets the number of data rows in the worksheet
-            int rowCount = GetRowCount(worksheet);
-            // List to store parameter models
-            var models = new List<Parameter>();
-            // Counter for skipped records
-            int skippedRecordsCount = 0;
-            // Counter for duplicate records
-            int dublicatedRecordsCount = 0;
-            // Counter for inserted records
-            int insertedRecordsCount = 0;
-            // Result message for the import operation
-            var resultMessage = "";
-
-            try
-            {
-                // Checks if the worksheet is empty
-                if (rowCount == 0 || rowCount == -1)
-                {
-                    return resultMessage = " Cutomer Parameter = Uploaded File Customer-Parameter sheets Is Empty";
-                }
-                // Read data from the Excel file into models
-                for (int row = 2; row <= rowCount + 1; row++)
-                {
-                    // Reads parameter name from column 1
-                    var ParameterName = worksheet.Cells[row, 1].Text;
-                    // Reads data type ID from column 3
-                    var DataTypeId = worksheet.Cells[row, 3].Text;
-                    // Reads has factors flag from column 4
-                    var HasFactors = worksheet.Cells[row, 4].Text;
-                    // Reads entity ID from column 10
-                    var TenantId = worksheet.Cells[row, 10].Text;
-                    // Reads condition ID from column 8
-                    var ConditionId = worksheet.Cells[row, 8].Text;
-                    // Reads factor order from column 6
-                    var FactorOrder = worksheet.Cells[row, 6].Text;
-
-                    // Check for missing or invalid data
-                    if (string.IsNullOrWhiteSpace(ParameterName) || !int.TryParse(DataTypeId, out _) || string.IsNullOrWhiteSpace(HasFactors) || !int.TryParse(TenantId, out _))
-                    {
-                        // Increments skipped records count if required fields are missing
-                        skippedRecordsCount++;
-                        continue;
-                    }
-                    // Parses has factors flag
-                    bool factors = bool.TryParse(HasFactors, out bool hasFactors) && hasFactors;
-                    // Additional validation if factors are enabled
-                    if (factors)
-                    {
-                        if (string.IsNullOrWhiteSpace(FactorOrder) || !int.TryParse(ConditionId, out _))
-                        {
-                            // Increments skipped records count if factor-related fields are missing
-                            skippedRecordsCount++;
-                            continue;
-                        }
-                    }
-
-                    // Creates a new parameter model
-                    var model = new Parameter
-                    {
-                        // Sets the parameter name
-                        ParameterName = ParameterName,
-                        // Parses and sets data type ID
-                        DataTypeId = int.TryParse(DataTypeId, out int dataTypeId) ? dataTypeId : 0,
-                        // Sets the has factors flag
-                        HasFactors = factors,
-                        // Sets the created by user
-                        CreatedBy = createdBy,
-                        // Sets the parameter identifier
-                        Identifier = Identifier,
-                        // Marks parameter as required
-                        IsRequired = true,
-                        // Parses and sets entity ID
-                        TenantId = int.TryParse(TenantId, out int tenantId) ? tenantId : 0,
-                        // Parses and sets condition ID (nullable)
-                        ConditionId = int.TryParse(ConditionId, out int conditionId) ? conditionId : null,
-                        // Sets the factor order
-                        FactorOrder = FactorOrder,
-                    };
-                    // Adds model to the list
-                    models.Add(model);
-                }
-
-                // Processes each model for insertion
-                foreach (var model in models)
-                {
-                    // Checks if the parameter already exists
-                    var existingEntity = await _uow.ParameterRepository.Query().AnyAsync(p => p.ParameterName == model.ParameterName && p.DataTypeId == model.DataTypeId && p.HasFactors == model.HasFactors && p.TenantId == model.TenantId && p.ConditionId == model.ConditionId && p.FactorOrder == model.FactorOrder);
-                    if (existingEntity)
-                    {
-                        // Increments duplicate count if parameter exists
-                        dublicatedRecordsCount++;
-                        continue;
-                    }
-
-                    // Sets creation and update timestamps
-                    model.CreatedByDateTime = DateTime.UtcNow;
-                    model.UpdatedByDateTime = DateTime.UtcNow;
-                    // Maps model to parameter entity
-                    var entity = _mapper.Map<Parameter>(model);
-                    // Adds parameter to repository
-                    _uow.ParameterRepository.Add(entity);
-                    // Increments inserted records count
-                    insertedRecordsCount++;
-                }
-
-                // Commits changes to the database
-                await _uow.CompleteAsync();
-
-                // Updates import counts
-                UpdateImportCounts(rowCount, insertedRecordsCount);
-
-                // Builds result message based on import results
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $" Cutomer Parameter = {models.Count} Parameter Customer Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" Cutomer Parameter = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" Cutomer Parameter =  {dublicatedRecordsCount} record already exists.";
-                }
-            }
-            catch (Exception ex)
-            {
-                // Returns error message if exception occurs
-                resultMessage = "Error On Cutomer Parameter = " + ex.Message;
-            }
-            return resultMessage;
-        }
 
         /// <summary>
         /// Imports product parameters from an Excel worksheet.
@@ -853,7 +698,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="Identifier">The identifier for the parameter type.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportParameterProduct(ExcelWorksheet worksheet, int Identifier, string createdBy, int tenantId)
+        public async Task<string> ImportParameterProduct(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             // Gets the number of data rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -943,7 +788,7 @@ namespace MEligibilityPlatform.Application.Services
                         DataTypeId = int.TryParse(dataTypeId, out int dataTypeIds) ? dataTypeIds : 0,
                         // Sets the has factors flag
                         // Sets the parameter identifier
-                        Identifier = Identifier,
+                        Identifier = 0,
                         // Sets the created by user
                         CreatedBy = createdBy,
                         // Parses and sets entity ID
@@ -981,22 +826,14 @@ namespace MEligibilityPlatform.Application.Services
 
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $" Product Parameter = {insertedRecordsCount} Product Parameter Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" Product Parameter = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" Product Parameter = {dublicatedRecordsCount} record already exists.";
-                }
+                // Final message
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
-                resultMessage = "Error On Product Parameter = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Product Parameter): {ex.Message}";
             }
 
             return resultMessage;
@@ -1132,32 +969,17 @@ namespace MEligibilityPlatform.Application.Services
                 // Commits all changes to database
                 await _uow.CompleteAsync();
 
-                // Updates global import statistics
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
-                // Builds success message if records were inserted
-                if (insertedRecordsCount > 0)
-                {
-                    // Sets success message with count
-                    resultMessage = $" Factor page = {insertedRecordsCount} Factor Inserted Successfully.";
-                }
-                // Appends skipped records message if any were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    // Appends skipped records information to result message
-                    resultMessage += $" Factor page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                // Appends duplicate records message if any duplicates found
-                if (dublicatedRecordsCount > 0)
-                {
-                    // Appends duplicate records information to result message
-                    resultMessage += $" Factor page = {dublicatedRecordsCount} record already exists.";
-                }
+                // Builds result message based on import results
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Returns error message with exception details
-                resultMessage = "Error On Factor page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Factor): {ex.Message}";
             }
 
             // Returns final result message
@@ -1277,32 +1099,17 @@ namespace MEligibilityPlatform.Application.Services
                 // Commits all changes to database
                 await _uow.CompleteAsync();
 
-                // Updates global import statistics
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
-                // Builds success message if records were inserted
-                if (insertedRecordsCount > 0)
-                {
-                    // Sets success message with count
-                    resultMessage = $" Category page = {insertedRecordsCount} Category Inserted Successfully.";
-                }
-                // Appends skipped records message if any were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    // Appends skipped records information to result message
-                    resultMessage += $" Category page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                // Appends duplicate records message if any duplicates found
-                if (dublicatedRecordsCount > 0)
-                {
-                    // Appends duplicate records information to result message
-                    resultMessage += $" Category page =  {dublicatedRecordsCount} record already exists.";
-                }
+                // Builds result message based on import results
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Returns error message with exception details
-                resultMessage = "Error On Category page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Category): {ex.Message}";
             }
 
             // Returns final result message
@@ -1336,7 +1143,7 @@ namespace MEligibilityPlatform.Application.Services
     "Category*",
     "CategoryId*",
     "Entity*",
-    "TenantId*",
+    "Entity*",
     "StreamImage",
     "Narrative",
     "Description"
@@ -1378,8 +1185,6 @@ namespace MEligibilityPlatform.Application.Services
                     var CategoryId = worksheet.Cells[row, 4].Text;
                     // Reads entity from column 5
                     var Entity = worksheet.Cells[row, 5].Text;
-                    // Reads entity ID from column 6
-                    var TenantId = worksheet.Cells[row, 6].Text;
                     // Reads image URL from column 7
                     var imageUrl = worksheet.Cells[row, 7].Text;
                     // Reads narrative from column 8
@@ -1388,7 +1193,7 @@ namespace MEligibilityPlatform.Application.Services
                     var Description = worksheet.Cells[row, 9].Text;
 
                     // Check for missing or invalid data
-                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || !int.TryParse(TenantId, out _))
+                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1444,32 +1249,17 @@ namespace MEligibilityPlatform.Application.Services
                 // Commits all changes to database
                 await _uow.CompleteAsync();
 
-                // Updates global import statistics
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
-                // Builds success message if records were inserted
-                if (insertedRecordsCount > 0)
-                {
-                    // Sets success message with count
-                    resultMessage = $" Stream page = {insertedRecordsCount} Stream Inserted Successfully.";
-                }
-                // Appends skipped records message if any were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    // Appends skipped records information to result message
-                    resultMessage += $" Stream page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                // Appends duplicate records message if any duplicates found
-                if (dublicatedRecordsCount > 0)
-                {
-                    // Appends duplicate records information to result message
-                    resultMessage += $" Stream page = {dublicatedRecordsCount} record already exists.";
-                }
+                // Builds result message based on import results
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Returns error message with exception details
-                resultMessage = "Error On Stream page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Stream): {ex.Message}";
             }
 
             // Returns final result message
@@ -1540,7 +1330,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the details data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportDetails(ExcelWorksheet worksheet, string createdBy)
+        public async Task<string> ImportDetails(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
@@ -1568,8 +1358,6 @@ namespace MEligibilityPlatform.Application.Services
                 {
                     // Reads product ID from column 2
                     var productId = worksheet.Cells[row, 2].Text;
-                    // Reads entity ID from column 4
-                    var tenantId = worksheet.Cells[row, 4].Text;
                     // Reads parameter ID from column 6
                     var parameterId = worksheet.Cells[row, 6].Text;
                     // Reads parameter value from column 7
@@ -1579,8 +1367,8 @@ namespace MEligibilityPlatform.Application.Services
                     // Reads is required flag from column 9
                     var IsRequired = worksheet.Cells[row, 9].Text;
 
-                    // Check if required fields are empty or invalid
-                    if (!int.TryParse(productId, out _) || !int.TryParse(tenantId, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
+                     // Check if required fields are empty or invalid
+                    if (!int.TryParse(productId, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1593,8 +1381,8 @@ namespace MEligibilityPlatform.Application.Services
                     {
                         // Parses and sets product ID, defaults to 0 if invalid
                         ProductId = int.TryParse(productId, out int ProductId) ? ProductId : 0,
-                        // Parses and sets entity ID, defaults to 0 if invalid
-                        TenantId = int.TryParse(tenantId, out int TenantId) ? TenantId : 0,
+                        // Sets entity ID from the passed tenantId parameter
+                        TenantId = tenantId,
                         // Parses and sets parameter ID, defaults to 0 if invalid
                         ParameterId = int.TryParse(parameterId, out int ParameterId) ? ParameterId : 0,
                         // Sets parameter value from Excel data
@@ -1648,160 +1436,23 @@ namespace MEligibilityPlatform.Application.Services
                     resultMessage = $" Details page = {models.Count} Details Inserted Successfully.";
                 }
                 // Appends skipped records message if any were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    // Appends skipped records information to result message
-                    resultMessage += $" Details page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                // Appends duplicate records message if any duplicates found
-                if (dublicatedRecordsCount > 0)
-                {
-                    // Appends duplicate records information to result message
-                    resultMessage += $" Details page = {dublicatedRecordsCount} record already exists.";
-                }
+                UpdateImportCounts(rowCount, insertedRecordsCount);
+
+                // Builds result message based on import results
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Returns error message with exception details
-                resultMessage = "Error On Details page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Details): {ex.Message}";
             }
 
             // Returns final result message
             return resultMessage;
         }
 
-        public async Task<string> ImportEruleMaster(int tenantId, Stream fileStream, string createdBy)
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using var package = new ExcelPackage(fileStream);
-            var worksheet = package.Workbook.Worksheets[0];
-
-            if (worksheet == null)
-                return "Invalid file format. Worksheet not found.";
-
-            // Expected header row
-            string[] expectedHeaders =
-            [
-        "RuleName*",
-        "RuleDescription*",
-        "IsActive"
-            ];
-
-            static bool Same(string a, string b)
-            {
-                return string.Equals(
-                    a?.Replace(" ", "").Trim(),
-                    b?.Replace(" ", "").Trim(),
-                    StringComparison.OrdinalIgnoreCase
-                );
-            }
-
-            // Validate header row
-            for (int col = 0; col < expectedHeaders.Length; col++)
-            {
-                string header = worksheet.Cells[1, col + 1].Text.Trim();
-                if (!Same(header, expectedHeaders[col]))
-                {
-                    return $"Incorrect file format at Column {col + 1}. Expected '{expectedHeaders[col]}'.";
-                }
-            }
-
-            int rowCount = worksheet.Dimension?.Rows ?? 0;
-
-            if (rowCount <= 1)
-                return "ERuleMaster = Uploaded file is empty.";
-
-            int inserted = 0, skipped = 0, duplicate = 0;
-            var models = new List<EruleMaster>();
-            HashSet<string> excelDuplicateCheck = [];
-
-            try
-            {
-                for (int row = 2; row <= rowCount; row++)
-                {
-                    string ruleName = worksheet.Cells[row, 1].Text.Trim();
-                    string ruleDesc = worksheet.Cells[row, 2].Text.Trim();
-                    string isActiveStr = worksheet.Cells[row, 3].Text.Trim();
-
-                    // Excel-level duplicate prevention
-                    string excelKey = $"{ruleName?.ToLower()}_{tenantId}";
-                    if (excelDuplicateCheck.Contains(excelKey))
-                    {
-                        skipped++;
-                        continue;
-                    }
-                    excelDuplicateCheck.Add(excelKey);
-
-                    // Required field validation
-                    if (string.IsNullOrEmpty(ruleName) || string.IsNullOrEmpty(ruleDesc))
-                    {
-                        skipped++;
-                        continue;
-                    }
-
-                    // Parse IsActive (supports: true/false/1/0/yes/no)
-                    bool isActive = false;
-                    if (!string.IsNullOrWhiteSpace(isActiveStr))
-                    {
-                        string lower = isActiveStr.ToLower();
-                        if (lower == "1" || lower == "true" || lower == "yes")
-                            isActive = true;
-                    }
-
-                    var master = new EruleMaster
-                    {
-                        EruleName = ruleName,
-                        EruleDesc = ruleDesc,
-                        IsActive = isActive,
-                        TenantId = tenantId,
-                        CreatedBy = createdBy,
-                        CreatedByDateTime = DateTime.UtcNow,
-                        UpdatedBy = createdBy,
-                        UpdatedByDateTime = DateTime.UtcNow
-                    };
-
-                    models.Add(master);
-                }
-
-                // Insert models into DB
-                foreach (var model in models)
-                {
-                    bool exists = await _uow.EruleMasterRepository.Query()
-                        .AnyAsync(x => x.TenantId == tenantId && x.EruleName == model.EruleName);
-
-                    if (exists)
-                    {
-                        duplicate++;
-                        continue;
-                    }
-
-                    _uow.EruleMasterRepository.Add(model);
-                    inserted++;
-                }
-
-                await _uow.CompleteAsync();
-
-                // Final combined message
-                var messages = new List<string>();
-
-                if (inserted > 0)
-                    messages.Add($" ERuleMaster = {inserted} record{(inserted > 1 ? "s" : "")} inserted successfully");
-
-                if (skipped > 0)
-                    messages.Add($" ERuleMaster = {skipped} record{(skipped > 1 ? "s were" : " was")} skipped due to missing required fields");
-
-                if (duplicate > 0)
-                    messages.Add($" ERuleMaster = {duplicate} duplicate record{(duplicate > 1 ? "s" : "")} found");
-
-                return messages.Count > 0
-                    ? string.Join(". ", messages) + "."
-                    : "No new records to insert.";
-            }
-            catch (Exception ex)
-            {
-                return "Error on ERuleMaster page: " + ex.Message;
-            }
-        }
 
         public async Task<string> ImportEruleMaster(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
@@ -1852,7 +1503,7 @@ namespace MEligibilityPlatform.Application.Services
                     string isActiveStr = worksheet.Cells[row, 3].Text.Trim();
 
                     // Excel-level duplicate prevention
-                    string excelKey = ruleName?.ToLower()!;
+                    string excelKey = $"{ruleName?.ToLower()}_{tenantId}";
                     if (excelDuplicateCheck.Contains(excelKey))
                     {
                         skipped++;
@@ -1895,7 +1546,7 @@ namespace MEligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     bool exists = await _uow.EruleMasterRepository.Query()
-                        .AnyAsync(x => x.EruleName == model.EruleName);
+                        .AnyAsync(x => x.TenantId == tenantId && x.EruleName == model.EruleName);
 
                     if (exists)
                     {
@@ -1910,22 +1561,14 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
                 UpdateImportCounts(rowCount, inserted);
 
-                // Final combined message
-                var messages = new List<string>();
-                if (inserted > 0)
-                    messages.Add($"{inserted} record{(inserted > 1 ? "s" : "")} inserted successfully");
-                if (skipped > 0)
-                    messages.Add($"{skipped} record{(skipped > 1 ? "s were" : " was")} skipped due to missing required fields");
-                if (duplicate > 0)
-                    messages.Add($"{duplicate} duplicate record{(duplicate > 1 ? "s" : "")} found");
-
-                return messages.Count > 0
-                    ? string.Join(". ", messages) + "."
-                    : "No new records to insert.";
+                // Builds result message based on import results
+                return $"{inserted} {GlobalcConstants.Created} " +
+                       $"{duplicate} duplicates skipped, " +
+                       $"{skipped} invalid rows skipped.";
             }
             catch (Exception ex)
             {
-                return "Error on ERuleMaster page: " + ex.Message;
+                return $"{GlobalcConstants.GeneralError} Error (ERuleMaster): {ex.Message}";
             }
         }
 
@@ -1935,123 +1578,8 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the rule data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportErule(ExcelWorksheet worksheet, string createdBy)
-        {
-            // Gets the number of rows in the worksheet
-            int rowCount = GetRowCount(worksheet);
 
-            // Initializes a list to store Erule models
-            var models = new List<EruleListModel>();
-
-            // Counter for skipped records
-            int skippedRecordsCount = 0;
-
-            // Counter for inserted records
-            int insertedRecordsCount = 0;
-
-            // Counter for duplicated records
-            int dublicatedRecordsCount = 0;
-
-            // Result message for the import operation
-            var resultMessage = "";
-
-            try
-            {
-                // Checks if the worksheet is empty
-                if (rowCount == 0 || rowCount == -1)
-                {
-                    // Returns message indicating empty worksheet
-                    return resultMessage = " Rule page = Uploaded File ERules sheets Is Empty";
-                }
-
-                // Reads data from the Excel file into models
-                for (int row = 2; row <= rowCount + 1; row++)
-                {
-                    // Gets Erule name from cell
-                    var EruleName = worksheet.Cells[row, 1].Text;
-
-                    // Gets Erule description from cell
-                    var EruleDesc = worksheet.Cells[row, 2].Text;
-
-                    // Gets expression shown from cell
-                    var ExpShown = worksheet.Cells[row, 9].Text;
-
-                    // Checks if required fields are empty
-                    if (string.IsNullOrEmpty(EruleName) || string.IsNullOrEmpty(EruleDesc) || string.IsNullOrEmpty(ExpShown))
-                    {
-                        // Increments skipped records counter
-                        skippedRecordsCount++;
-
-                        // Skips the record if any required field is missing
-                        continue;
-                    }
-
-                    // Creates a new Erule model
-                    var model = new EruleListModel
-                    {
-                        // Sets expression properties
-                        Expression = ExpShown,
-                        ExpShown = ExpShown,
-
-                        // Sets created by information
-                        CreatedBy = createdBy
-                    };
-
-                    // Adds model to the list
-                    models.Add(model);
-                }
-
-                // Processes each model for insertion
-                foreach (var model in models)
-                {
-                    // Sets creation timestamp
-                    model.CreatedByDateTime = DateTime.UtcNow;
-
-                    // Sets update timestamp
-                    model.UpdatedByDateTime = DateTime.UtcNow;
-
-                    // Maps and adds the model to repository
-                    _uow.EruleRepository.Add(_mapper.Map<Erule>(model));
-
-                    // Increments inserted records counter
-                    insertedRecordsCount++;
-                }
-
-                // Commits changes to database
-                await _uow.CompleteAsync();
-
-                // Updates import statistics
-                UpdateImportCounts(rowCount, insertedRecordsCount);
-
-                // Appends success message if records were inserted
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $" Rule page = {models.Count} Factor Inserted Successfully.";
-                }
-
-                // Appends skipped records message if any records were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" Rule page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-
-                // Appends duplicate records message if any duplicates found
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" Rule page = {dublicatedRecordsCount} record already exists.";
-                }
-            }
-            catch (Exception ex)
-            {
-                // Returns error message if exception occurs
-                resultMessage = "Error On Rule page = " + ex.Message;
-            }
-
-            // Returns the result message
-            return resultMessage;
-        }
-
-        public async Task<string> ImportECard(ExcelWorksheet worksheet, int tenantId, string createdBy)
+        public async Task<string> ImportECard(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             int rowCount = GetRowCount(worksheet);
             var models = new List<EcardListModel>();
@@ -2117,7 +1645,7 @@ namespace MEligibilityPlatform.Application.Services
                 // Save models
                 foreach (var model in models)
                 {
-                    var finalExpression = await BuildExpressionFromShown(model.Expshown!, _uow);
+                    var finalExpression = await BuildExpressionFromShown(model.Expshown!, _uow, tenantId);
 
                     if (finalExpression == null)
                     {
@@ -2155,35 +1683,19 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $"E Card page = {insertedRecordsCount} Ecard Inserted Successfully.";
-                }
-
-                // Appends skipped records message if any records were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $"E Card page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-
-                // Appends duplicate records message if any duplicates found
-                if (duplicatedRecordsCount > 0)
-                {
-                    resultMessage += $"E Card page = {duplicatedRecordsCount} record already exists.";
-                }
-                //resultMessage =
-                //    $"E Card page = {insertedRecordsCount} Ecard Inserted Successfully." +
-                //    $"E Card page = {skippedRecordsCount} records were not inserted because of missing required field." +
-                //    $"E Card page = {duplicatedRecordsCount} record already exists.";
+                // Builds result message based on import results
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{duplicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
-                resultMessage = "Error On E Card Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (E Card): {ex.Message}";
             }
 
             return resultMessage;
         }
-        private static async Task<string?> BuildExpressionFromShown(string exprShown, IUnitOfWork _uow)
+        private static async Task<string?> BuildExpressionFromShown(string exprShown, IUnitOfWork _uow, int tenantId)
         {
             if (string.IsNullOrWhiteSpace(exprShown))
                 return null;
@@ -2207,15 +1719,14 @@ namespace MEligibilityPlatform.Application.Services
 
             // 3️⃣ First fetch matching EruleMaster rows
             var masterRules = await _uow.EruleMasterRepository.Query()
-                                .Where(m => ruleNames.Contains(m.EruleName))
+                                .Where(m => m.TenantId == tenantId && ruleNames.Contains(m.EruleName))
                                 .ToListAsync();
 
             if (masterRules.Count != ruleNames.Count)
                 return null;
 
-            var masterIds = masterRules.Select(x => x.Id).ToList();
-
             // 4️⃣ Get related Erule rows (child rule table)
+            var masterIds = masterRules.Select(m => m.Id).ToList();
             var childRules = await _uow.EruleRepository.Query()
                                 .Where(r => masterIds.Contains(r.EruleMasterId))
                                 .ToListAsync();
@@ -2267,287 +1778,8 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the ECard data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportECard(ExcelWorksheet worksheet, string createdBy)
-        {
-            // Gets the number of rows in the worksheet
-            int rowCount = GetRowCount(worksheet);
 
-            // Initializes a list to store Ecard models
-            var models = new List<EcardListModel>();
-
-            // Counter for skipped records
-            int skippedRecordsCount = 0;
-
-            // Counter for inserted records
-            int insertedRecordsCount = 0;
-
-            // Counter for duplicated records
-            int dublicatedRecordsCount = 0;
-
-            // Result message for the import operation
-            var resultMessage = "";
-
-            try
-            {
-                // Checks if the worksheet is empty
-                if (rowCount == 0 || rowCount == -1)
-                {
-                    // Returns message indicating empty worksheet
-                    return resultMessage = " E Card Page = Uploaded File ECards sheets Is Empty";
-                }
-
-                // Reads data from the Excel file into models
-                for (int row = 2; row <= rowCount + 1; row++)
-                {
-                    // Gets Ecard name from cell
-                    var EcardName = worksheet.Cells[row, 1].Text;
-
-                    // Gets Ecard description from cell
-                    var EcardDesc = worksheet.Cells[row, 2].Text;
-
-                    // Gets expression shown from cell
-                    var ExpShown = worksheet.Cells[row, 7].Text;
-
-                    // Checks if required fields are empty
-                    if (string.IsNullOrEmpty(EcardName) || string.IsNullOrEmpty(EcardDesc) || string.IsNullOrEmpty(ExpShown))
-                    {
-                        // Increments skipped records counter
-                        skippedRecordsCount++;
-
-                        // Skips the record if any required field is missing
-                        continue;
-                    }
-
-                    // Creates a new Ecard model
-                    var model = new EcardListModel
-                    {
-                        // Sets Ecard name
-                        EcardName = EcardName,
-
-                        // Sets Ecard description
-                        EcardDesc = EcardDesc,
-
-                        // Sets expression shown
-                        Expshown = ExpShown,
-
-                        // Sets created by information
-                        CreatedBy = createdBy
-                    };
-
-                    // Adds model to the list
-                    models.Add(model);
-                }
-
-                // Processes each model for insertion
-                foreach (var model in models)
-                {
-                    // Checks if entity already exists in database
-                    var existingEntity = await _uow.EcardRepository.Query().AnyAsync(p => p.EcardName == model.EcardName && p.EcardDesc == model.EcardDesc);
-
-                    // If entity exists, skip insertion
-                    if (existingEntity)
-                    {
-                        // Increments duplicate records counter
-                        dublicatedRecordsCount++;
-
-                        // Skips to next model
-                        continue;
-                    }
-
-                    // Sets creation timestamp
-                    model.CreatedByDateTime = DateTime.UtcNow;
-
-                    // Sets update timestamp
-                    model.UpdatedByDateTime = DateTime.UtcNow;
-
-                    // Maps and adds the model to repository
-                    _uow.EcardRepository.Add(_mapper.Map<Ecard>(model));
-
-                    // Increments inserted records counter
-                    insertedRecordsCount++;
-                }
-
-                // Commits changes to database
-                await _uow.CompleteAsync();
-
-                // Updates import statistics
-                UpdateImportCounts(rowCount, insertedRecordsCount);
-
-                // Appends success message if records were inserted
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $" E Card Page = {models.Count} New Eligibility Cards Inserted Successfully.";
-                }
-
-                // Appends skipped records message if any records were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" E Card Page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-
-                // Appends duplicate records message if any duplicates found
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" E Card Page = {dublicatedRecordsCount} record already exists.";
-                }
-            }
-            catch (Exception ex)
-            {
-                // Returns error message if exception occurs
-                resultMessage = "Error On E Card Page = " + ex.Message;
-            }
-
-            // Returns the result message
-            return resultMessage;
-        }
-
-        /// <summary>
-        /// Imports PCard data from an Excel worksheet.
-        /// </summary>
-        /// <param name="worksheet">The worksheet containing the PCard data.</param>
-        /// <param name="createdBy">The identifier of the user who initiated the import.</param>
-        /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportPCards(ExcelWorksheet worksheet, string createdBy)
-        {
-            // Gets the number of rows in the worksheet
-            int rowCount = GetRowCount(worksheet);
-
-            // Initializes a list to store Pcard models
-            var models = new List<PcardListModel>();
-
-            // Counter for skipped records
-            int skippedRecordsCount = 0;
-
-            // Counter for inserted records
-            int insertedRecordsCount = 0;
-
-            // Counter for duplicated records
-            int dublicatedRecordsCount = 0;
-
-            // Result message for the import operation
-            var resultMessage = "";
-
-            try
-            {
-                // Checks if the worksheet is empty
-                if (rowCount == 0 || rowCount == -1)
-                {
-                    // Returns message indicating empty worksheet
-                    return resultMessage = " P Card Page = Uploaded File PCards sheets Is Empty";
-                }
-
-                // Reads data from the Excel file into models
-                for (int row = 2; row <= rowCount + 1; row++)
-                {
-                    // Gets Pcard name from cell
-                    var PcardName = worksheet.Cells[row, 1].Text;
-
-                    // Gets Pcard description from cell
-                    var PcardDesc = worksheet.Cells[row, 2].Text;
-
-                    // Gets product ID from cell
-                    var ProductId = worksheet.Cells[row, 4].Text;
-
-                    // Gets expression shown from cell
-                    var Expshown = worksheet.Cells[row, 9].Text;
-
-                    // Checks if required fields are empty or invalid
-                    if (string.IsNullOrEmpty(PcardName) || string.IsNullOrEmpty(PcardDesc) || string.IsNullOrEmpty(Expshown) || !int.TryParse(ProductId, out _))
-                    {
-                        // Increments skipped records counter
-                        skippedRecordsCount++;
-
-                        // Skips the record if any required field is missing
-                        continue;
-                    }
-
-                    // Creates a new Pcard model
-                    var model = new PcardListModel
-                    {
-                        // Sets Pcard name
-                        PcardName = PcardName,
-
-                        // Sets Pcard description
-                        PcardDesc = PcardDesc,
-
-                        // Sets expression shown
-                        Expshown = Expshown,
-
-                        // Sets created by information
-                        CreatedBy = createdBy,
-
-                        // Parses and sets product ID
-                        ProductId = int.TryParse(ProductId, out int productId) ? productId : 0,
-                    };
-
-                    // Adds model to the list
-                    models.Add(model);
-                }
-
-                // Processes each model for insertion
-                foreach (var model in models)
-                {
-                    // Checks if entity already exists in database
-                    var existingEntity = await _uow.PcardRepository.Query().AnyAsync(p => p.PcardName == model.PcardName && p.PcardDesc == model.PcardDesc && p.ProductId == model.ProductId);
-
-                    // If entity exists, skip insertion
-                    if (existingEntity)
-                    {
-                        // Increments duplicate records counter
-                        dublicatedRecordsCount++;
-
-                        // Skips to next model
-                        continue;
-                    }
-
-                    // Sets creation timestamp
-                    model.CreatedByDateTime = DateTime.UtcNow;
-
-                    // Sets update timestamp
-                    model.UpdatedByDateTime = DateTime.UtcNow;
-
-                    // Maps and adds the model to repository
-                    _uow.PcardRepository.Add(_mapper.Map<Pcard>(model));
-
-                    // Increments inserted records counter
-                    insertedRecordsCount++;
-                }
-
-                // Commits changes to database
-                await _uow.CompleteAsync();
-
-                // Updates import statistics
-                UpdateImportCounts(rowCount, insertedRecordsCount);
-
-                // Appends success message if records were inserted
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $" P Card Page = {models.Count} Product Card Inserted Successfully.";
-                }
-
-                // Appends skipped records message if any records were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" P Card Page = {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-
-                // Appends duplicate records message if any duplicates found
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" P Card Page = {dublicatedRecordsCount} record already exists.";
-                }
-            }
-            catch (Exception ex)
-            {
-                // Returns error message if exception occurs
-                resultMessage = "Error On P Card Page = " + ex.Message;
-            }
-
-            // Returns the result message
-            return resultMessage;
-        }
-
-        public async Task<string> ImportPCard(ExcelWorksheet worksheet, int tenantId, string createdBy)
+        public async Task<string> ImportPCard(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             int rowCount = GetRowCount(worksheet);
             var models = new List<PcardListModel>();
@@ -2618,7 +1850,7 @@ namespace MEligibilityPlatform.Application.Services
 
                     // Check product exists
                     var product = await _uow.ProductRepository.Query()
-                        .Where(p => p.ProductName != null &&
+                        .Where(p => p.TenantId == tenantId && p.ProductName != null &&
                                     p.ProductName == ProductName)
                         .FirstOrDefaultAsync();
                                         if (product == null)
@@ -2655,7 +1887,7 @@ namespace MEligibilityPlatform.Application.Services
                 foreach (var model in models)
                 {
                     // Build final expression similar to ECard
-                    var finalExpression = await BuildPCardExpressionFromShown(model.Expshown!, _uow);
+                    var finalExpression = await BuildPCardExpressionFromShown(model.Expshown!, _uow, tenantId);
 
                     if (finalExpression == null)
                     {
@@ -2693,25 +1925,20 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
-                // Messages
-                if (insertedRecordsCount > 0)
-                    resultMessage += $" Stream Card Page = {insertedRecordsCount} Stream Card(s) inserted successfully.";
-
-                if (skippedRecordsCount > 0)
-                    resultMessage += $" Stream Card Page = {skippedRecordsCount} record(s) skipped due to missing/invalid data or expression.";
-
-                if (duplicatedRecordsCount > 0)
-                    resultMessage += $" Stream Card Page = {duplicatedRecordsCount} record(s) already exist.";
+                // Builds result message based on import results
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{duplicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
-                resultMessage = "Error On Stream Card Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Stream Card): {ex.Message}";
             }
 
             return resultMessage;
         }
 
-        private static async Task<string?> BuildPCardExpressionFromShown(string exprShown, IUnitOfWork _uow)
+        private static async Task<string?> BuildPCardExpressionFromShown(string exprShown, IUnitOfWork _uow, int tenantId)
         {
             if (string.IsNullOrWhiteSpace(exprShown))
                 return null;
@@ -2734,7 +1961,7 @@ namespace MEligibilityPlatform.Application.Services
 
             // 3️⃣ Fetch matching ECard rows
             var ecardList = await _uow.EcardRepository.Query()
-                                  .Where(e => ecardNames.Contains(e.EcardName))
+                                  .Where(e => e.TenantId == tenantId && ecardNames.Contains(e.EcardName))
                                   .ToListAsync();
 
             if (ecardList.Count != ecardNames.Count)
@@ -2808,41 +2035,69 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A byte array containing the template file.</returns>
         public async Task<byte[]> DownloadTemplate(int tenantId, string selectedList)
         {
-            // Retrieves all countries from service
-            List<CountryModel> countries = _countryService.GetAll();
+            bool isAll = selectedList == "All";
+            bool needLists = isAll || selectedList == "Lists";
+            bool needListItem = isAll || selectedList == "ListItem";
+            bool needParameter = isAll || selectedList == "Parameter";
+            bool needFactors = isAll || selectedList == "Factors";
+            bool needCategory = isAll || selectedList == "Category";
+            bool needStream = isAll || selectedList == "Stream";
+            bool needDetails = isAll || selectedList == "Details";
+            bool needErules = isAll || selectedList == "ERules";
+            bool needEcards = isAll || selectedList == "ECards";
+            bool needStreamCards = isAll || selectedList == "StreamCards";
 
-            // Retrieves all cities from service, ordered by country ID
-            List<CityModel> cities = [.. _cityService.GetAll().OrderBy(x => x.CountryId)];
+            List<ManagedListGetModel> listItem = [];
+            List<ParameterListModel> parameters = [];
+            List<ConditionModel> conditions = [];
+            List<FactorListModel> factors = [];
+            List<DataTypeModel> dataTypes = [];
+            List<CategoryListModel> categories = [];
+            List<EruleListModel> erule = [];
+            List<EcardListModel> ecard = [];
+            List<ProductListModel> product = [];
 
-            // Retrieves all entities from service
-            //List<EntityModel> entities = _entityService.GetAll();
+            if (needListItem || needFactors)
+            {
+                listItem = await _managedListService.GetAll(tenantId);
+            }
+            if (needParameter || needFactors || needDetails)
+            {
+                parameters = await _parameterService.GetAll(tenantId);
+            }
+            if (needParameter || needFactors)
+            {
+                conditions = _conditionService.GetAll();
+            }
+            if (needFactors || needDetails)
+            {
+                factors = await _factorService.GetAll(tenantId);
+            }
+            if (needParameter)
+            {
+                dataTypes = _dataTypeService.GetAll();
+            }
+            if (needCategory || needStream)
+            {
+                categories = await _categoryService.GetAll(tenantId);
+            }
+            if (needErules || needEcards)
+            {
+                erule = await _eruleService.GetAll(tenantId);
+            }
+            if (needEcards || needStreamCards)
+            {
+                ecard = await _ecardService.GetAll(tenantId);
+            }
+            if (needDetails || needStreamCards)
+            {
+                product = await _productService.GetAll(tenantId);
+            }
 
-            // Retrieves all erules for the specified entity
-            List<EruleListModel> erule = _eruleService.GetAll(tenantId);
-
-            // Retrieves all parameters for the specified entity
-            List<ParameterListModel> parameters = _parameterService.GetAll(tenantId);
-
-            // Retrieves all conditions from service
-            List<ConditionModel> conditions = _conditionService.GetAll();
-
-            // Retrieves all factors for the specified entity
-            List<FactorListModel> factors = _factorService.GetAll(tenantId);
-
-            // Retrieves all managed list items for the specified entity
-            List<ManagedListGetModel> listItem = _managedListService.GetAll(tenantId);
-
-            // Retrieves all data types from service
-            List<DataTypeModel> dataTypes = _dataTypeService.GetAll();
-
-            // Retrieves all ecards for the specified entity
-            List<EcardListModel> ecard = _ecardService.GetAll(tenantId);
-
-            // Retrieves all products for the specified entity
-            List<ProductListModel> product = _productService.GetAll(tenantId);
-
-            // Retrieves all categories for the specified entity
-            List<CategoryListModel> categories = _categoryService.GetAll(tenantId);
+            // Retrieves current tenant entity (for dropdowns that depend on EntityName/TenantId)
+            List<Entity> entities = await _uow.EntityRepository.Query()
+                .Where(e => e.EntityId == tenantId)
+                .ToListAsync();
 
             // Sets EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -2854,16 +2109,7 @@ namespace MEligibilityPlatform.Application.Services
             package.Workbook.CreateVBAProject();
 
             // Only add pages based on selectedList
-            if (selectedList == "All" || selectedList == "Entities")
-            {
-                // Adds Entities worksheet
-                var sheet1 = package.Workbook.Worksheets.Add("Entities");
-
-                // Populates Entities template
-                EntityTemplate(sheet1, countries, cities/*, entities*/);
-            }
-
-            if (selectedList == "All" || selectedList == "Lists")
+            if (needLists)
             {
                 // Adds Lists worksheet
                 var sheet2 = package.Workbook.Worksheets.Add("Lists");
@@ -2872,7 +2118,7 @@ namespace MEligibilityPlatform.Application.Services
                 ListsTemplate(sheet2);
             }
 
-            if (selectedList == "All" || selectedList == "ListItem")
+            if (needListItem)
             {
                 // Adds ListItem worksheet
                 var sheet3 = package.Workbook.Worksheets.Add("ListItem");
@@ -2883,7 +2129,7 @@ namespace MEligibilityPlatform.Application.Services
 
 
 
-            if (selectedList == "All" || selectedList == "Parameter")
+            if (needParameter)
             {
                 // Adds Product-Parameter worksheet
                 var sheet5 = package.Workbook.Worksheets.Add("Parameter");
@@ -2892,7 +2138,7 @@ namespace MEligibilityPlatform.Application.Services
                 ProductParameterTemplate(sheet5, dataTypes, conditions/*, entities*/);
             }
 
-            if (selectedList == "All" || selectedList == "Factors")
+            if (needFactors)
             {
                 // Adds Factors worksheet
                 var sheet6 = package.Workbook.Worksheets.Add("Factors");
@@ -2901,34 +2147,34 @@ namespace MEligibilityPlatform.Application.Services
                 FactorTemplate(sheet6, parameters, conditions, listItem);
             }
 
-            if (selectedList == "All" || selectedList == "Category")
+            if (needCategory)
             {
                 // Adds Category worksheet
                 var sheet7 = package.Workbook.Worksheets.Add("Category");
 
                 // Populates Category template
-                CategoryTemplate(sheet7/*, entities*/);
+                CategoryTemplate(sheet7, entities);
             }
 
-            if (selectedList == "All" || selectedList == "Stream")
+            if (needStream)
             {
                 // Adds Info worksheet
                 var sheet8 = package.Workbook.Worksheets.Add("Stream");
 
                 // Populates Info template
-                InfoTemplate(sheet8/*, entities*/, categories);
+                InfoTemplate(sheet8, entities, categories);
             }
 
-            //if (selectedList == "All" || selectedList == "Details")
-            //{
-            //    // Adds Details worksheet
-            //    var sheet9 = package.Workbook.Worksheets.Add("Details");
+            if (needDetails)
+            {
+                // Adds Details worksheet
+                var sheet9 = package.Workbook.Worksheets.Add("Details");
 
-            //    // Populates Details template
-            //    DetailsTemplate(sheet9, product, entities, parameters, factors);
-            //}
+                // Populates Details template
+                DetailsTemplate(sheet9, product, entities, parameters, factors);
+            }
 
-            if (selectedList == "All" || selectedList == "ERules")
+            if (needErules)
             {
                 // Adds ERules worksheet
                 var sheet10 = package.Workbook.Worksheets.Add("ERules");
@@ -2937,7 +2183,7 @@ namespace MEligibilityPlatform.Application.Services
                 EruleMasterRulesTemplate(sheet10);
             }
 
-            if (selectedList == "All" || selectedList == "ECards")
+            if (needEcards)
             {
                 // Adds ECards worksheet
                 var sheet11 = package.Workbook.Worksheets.Add("ECards");
@@ -2946,7 +2192,7 @@ namespace MEligibilityPlatform.Application.Services
                 ECardsTemplates(sheet11, erule);
             }
 
-            if (selectedList == "All" || selectedList == "StreamCards")
+            if (needStreamCards)
             {
                 // Adds PCards worksheet
                 var sheet12 = package.Workbook.Worksheets.Add("StreamCards");
@@ -3363,7 +2609,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="sheet7">The worksheet to populate.</param>
         /// <param name="entities">List of entities.</param>
 
-        public void CategoryTemplate(ExcelWorksheet sheet7/*, List<EntityModel> entities*/)
+        public void CategoryTemplate(ExcelWorksheet sheet7, List<Entity> entities)
         {
             string[] headers = ["CategoryName*", "CatDescription*", "EntityName*", "TenantId*", "Field Description"];
             for (int i = 0; i < headers.Length; i++)
@@ -3379,8 +2625,8 @@ namespace MEligibilityPlatform.Application.Services
             sheet7.Cells[1, 10].Value = "EntityName";
             sheet7.Cells[1, 11].Value = "TenantId";
 
-            //PopulateColumn(sheet7, [.. entities.Select(e => e.EntityName ?? "")], 10);
-            //PopulateColumn(sheet7, [.. entities.Select(e => e.TenantId.ToString())], 11);
+            PopulateColumn(sheet7, [.. entities.Select(e => e.EntityName ?? "")], 10);
+            PopulateColumn(sheet7, [.. entities.Select(e => e.EntityId.ToString())], 11);
 
             ApplyDropdown(sheet7, "EntityNameRange", "C", 10, 100);
 
@@ -3394,7 +2640,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="sheet8">The worksheet to populate.</param>
         /// <param name="entities">List of entities to populate the entity dropdowns.</param>
         /// <param name="categories">List of categories to populate the category dropdowns.</param>
-        public void InfoTemplate(ExcelWorksheet sheet8/*, List<EntityModel> entities*/, List<CategoryListModel> categories)
+        public void InfoTemplate(ExcelWorksheet sheet8, List<Entity> entities, List<CategoryListModel> categories)
         {
             // Defines the column headers for the product information template.
             string[] headers = ["Code*", "StreamName*", "Category*", "CategoryId*", "Entity*", "TenantId*", "StreamImage", "Narrative", "Description"];
@@ -3423,8 +2669,8 @@ namespace MEligibilityPlatform.Application.Services
             sheet8.Cells[1, 17].Value = "CategoryId";
 
             // Populates the hidden Entity reference columns with data.
-            //PopulateColumn(sheet8, [.. entities.Select(e => e.EntityName ?? "")], 13);
-            //PopulateColumn(sheet8, [.. entities.Select(e => e.TenantId.ToString())], 14);
+            PopulateColumn(sheet8, [.. entities.Select(e => e.EntityName ?? "")], 13);
+            PopulateColumn(sheet8, [.. entities.Select(e => e.EntityId.ToString())], 14);
             // Populates the hidden Category reference columns with data.
             PopulateColumn(sheet8, [.. categories.Select(e => e.CategoryName ?? "".ToString())], 16);
             PopulateColumn(sheet8, [.. categories.Select(e => e.CategoryId.ToString())], 17);
@@ -3438,9 +2684,9 @@ namespace MEligibilityPlatform.Application.Services
             ApplyDropdown(sheet8, "CategoryNameRange", "C", 16, 100);
 
             // Adds a formula to auto-populate TenantId based on the selected EntityName.
-            //AddFormula(sheet8, "F", "E", 13, 14, entities.Count);
-            //// Adds a formula to auto-populate CategoryId based on the selected CategoryName.
-            //AddFormula(sheet8, "D", "C", 16, 17, entities.Count);
+            AddFormula(sheet8, "F", "E", 13, 14, Math.Max(entities.Count, 1));
+            // Adds a formula to auto-populate CategoryId based on the selected CategoryName.
+            AddFormula(sheet8, "D", "C", 16, 17, Math.Max(categories.Count, 1));
         }
 
         /// <summary>
@@ -3451,7 +2697,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="entities">List of entities for dropdown validation.</param>
         /// <param name="parameters">List of parameters for dropdown validation.</param>
         /// <param name="factors">List of factors for dynamic value dropdowns.</param>
-        public void DetailsTemplate(ExcelWorksheet sheet9, List<ProductListModel> product/*, List<EntityModel> entities*/, List<ParameterListModel> parameters, List<FactorListModel> factors)
+        public void DetailsTemplate(ExcelWorksheet sheet9, List<ProductListModel> product, List<Entity> entities, List<ParameterListModel> parameters, List<FactorListModel> factors)
         {
             // Defines the column headers for the product details template.
             string[] headers = ["ProductName*", "ProductId*", "EntityName*", "TenantId*", "ParameterName*", "ParameterId*", "ParamValue*", "DisplayOrder*", "Category*", "Field Description"];
@@ -3499,8 +2745,8 @@ namespace MEligibilityPlatform.Application.Services
             PopulateColumn(sheet9, [.. product.Select(e => e.ProductId.ToString())], 14);
             PopulateColumn(sheet9, [.. product.Select(e => e.TenantId.ToString())], 15);
             // Populates the hidden Entity reference columns with data.
-            //PopulateColumn(sheet9, [.. entities.Select(e => e.EntityName ?? "")], 16);
-            //PopulateColumn(sheet9, [.. entities.Select(e => e.TenantId.ToString())], 17);
+            PopulateColumn(sheet9, [.. entities.Select(e => e.EntityName ?? "")], 16);
+            PopulateColumn(sheet9, [.. entities.Select(e => e.EntityId.ToString())], 17);
             // Populates the hidden Parameter reference columns with data.
             PopulateColumn(sheet9, [.. parameters.Select(e => e.ParameterName ?? "")], 19);
             PopulateColumn(sheet9, [.. parameters.Select(e => e.ParameterId.ToString())], 20);

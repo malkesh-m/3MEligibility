@@ -62,12 +62,12 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task ImportEntities(int tenantId, Stream fileStream);
 
         /// <summary>
-        /// Exports PCard data to a stream for the specified entity.
+        /// Exports PCard records based on standardized selection or filters.
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity.</param>
-        /// <param name="selectedPcardIds">A list of PCard identifiers to include in the export.</param>
-        /// <returns>A task that represents the asynchronous operation, containing the export stream.</returns>
-        Task<Stream> ExportPCards(int tenantId, List<int> selectedPcardIds);
+        /// <param name="request">The export request containing identifiers or filters.</param>
+        /// <returns>A stream containing the exported PCard records.</returns>
+        Task<Stream> ExportPCards(int tenantId, ExportRequestModel request);
 
         /// <summary>
         /// Downloads a template file for PCard operations for the specified entity.

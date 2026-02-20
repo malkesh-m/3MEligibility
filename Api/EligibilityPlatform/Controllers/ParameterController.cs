@@ -21,16 +21,16 @@ namespace MEligibilityPlatform.Controllers
         private readonly IParameterService _parameterService = parameterService;
 
         /// <summary>
-        /// Retrieves all parameter records for the current entity.
+        /// Retrieves all list item records
         /// </summary>
-        /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ParameterListModel"/> objects.</returns>
         /// 
         [Authorize(Policy = Permissions.Parameter.View)]
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
+            var tenantId = User.GetTenantId();
             // Retrieves all parameter records for the current entity
-            List<ParameterListModel> result = _parameterService.GetAll(User.GetTenantId());
+            List<ParameterListModel> result = await _parameterService.GetAll(tenantId);
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -168,20 +168,16 @@ namespace MEligibilityPlatform.Controllers
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Deleted });
         }
 
-        /// <summary>
-        /// Exports selected parameters for the current entity.
-        /// </summary>
-        /// <param name="Identifier">The identifier for export context.</param>
-        /// <param name="selectedParameterIds">The list of selected parameter IDs to export.</param>
-        /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
-        /// 
         [Authorize(Policy = Permissions.Parameter.Export)]
-
         [HttpPost("export")]
-        public async Task<IActionResult> ExportParameter(int Identifier, [FromBody] List<int> selectedParameterIds)
+        public async Task<IActionResult> ExportParameter(int Identifier, [FromBody] ExportRequestModel request)
         {
-            // Exports selected parameters to a stream
-            var stream = await _parameterService.ExportParameter(User.GetTenantId(), Identifier, selectedParameterIds);
+            // Exports parameters to a stream based on standardized logic
+            var stream = await _parameterService.ExportParameter(User.GetTenantId(), Identifier, request);
+
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
             // Returns the exported file as a downloadable Excel file
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter.xlsx");
         }
@@ -196,8 +192,9 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Parameter.Import)]
 
         [HttpPost("importcustomer")]
-        public async Task<IActionResult> ImportParameterCustomer(IFormFile file, string createdBy)
+        public async Task<IActionResult> ImportParameterCustomer(IFormFile file)
         {
+            var createdBy = User.GetUserName() ?? "";
             // Validates if file is provided and not empty
             if (file == null || file.Length == 0)
                 return BadRequest(new ResponseModel { IsSuccess = false, Message = "No file uploaded." });
@@ -298,7 +295,7 @@ namespace MEligibilityPlatform.Controllers
         public async Task<IActionResult> DownloadTemplate()
         {
             // Retrieves the import template as byte array
-            var excelBytes = await _parameterService.DownloadTemplate();
+            var excelBytes = await _parameterService.DownloadTemplate(User.GetTenantId());
             // Returns the template file as a downloadable Excel file
             // Returns the template file as a downloadable Excel file
             return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsx");

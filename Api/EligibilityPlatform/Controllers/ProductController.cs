@@ -28,12 +28,12 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Product.View)]
 
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task< IActionResult> Get()
         {
             // Retrieves the entity ID from the current user context
             int tenantId = Convert.ToInt32(User.GetTenantId());
             // Retrieves all product records for the current entity
-            List<ProductListModel> result = _productService.GetAll(tenantId);
+            List<ProductListModel> result = await _productService.GetAll(tenantId);
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -236,10 +236,14 @@ namespace MEligibilityPlatform.Controllers
         /// 
         [Authorize(Policy = Permissions.Product.Export)]
         [HttpPost("export")]
-        public async Task<IActionResult> ExportInfo([FromBody] List<int> selectedProductIds)
+        public async Task<IActionResult> ExportInfo([FromBody] ExportRequestModel request)
         {
-            // Exports selected product records for the current entity
-            var stream = await _productService.ExportInfo(User.GetTenantId(), selectedProductIds);
+            // Exports product records for the current entity based on selection or filters
+            var stream = await _productService.ExportInfo(User.GetTenantId(), request);
+            
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
             // Returns the exported file as a downloadable Excel document
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Product.xlsx");
         }

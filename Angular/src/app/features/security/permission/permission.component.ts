@@ -97,11 +97,11 @@ export class PermissionComponent implements OnInit {
   get activeTabTitle(): string {
     switch (this.activeTab) {
       case 'AssignedPermissions':
-        return this.translate.instant('Assigned Permissions');
+        return 'Assigned Permissions';
       case 'AvailablePermissions':
-        return this.translate.instant('Available Permissions');
+        return 'Available Permissions';
       default:
-        return this.translate.instant('Permissions');
+        return 'Permissions';
     }
   }
 

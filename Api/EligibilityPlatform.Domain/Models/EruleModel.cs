@@ -112,4 +112,23 @@ namespace MEligibilityPlatform.Domain.Models
         public string? ExpShown { get; set; }
 
     }
+    public sealed class RuleExportRow
+    {
+        [System.ComponentModel.DataAnnotations.Display(Order = 1)]
+        public int EruleId { get; set; }
+        [System.ComponentModel.DataAnnotations.Display(Order = 2)]
+        public string? RuleName { get; set; }
+        [System.ComponentModel.DataAnnotations.Display(Order = 3)]
+        public string? RuleDescription { get; set; }
+        [System.ComponentModel.DataAnnotations.Display(Order = 4)]
+        public bool? IsActive { get; set; }
+        [System.ComponentModel.DataAnnotations.Display(Order = 5)]
+        public string? CreatedBy { get; set; }
+        [System.ComponentModel.DataAnnotations.Display(Order = 6)]
+        public DateTime? CreatedByDateTime { get; set; }
+        [System.ComponentModel.DataAnnotations.Display(Order = 7)]
+        public string? UpdatedBy { get; set; }
+        [System.ComponentModel.DataAnnotations.Display(Order = 8)]
+        public DateTime? UpdatedByDateTime { get; set; }
+    }
 }

@@ -32,10 +32,10 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Factor.View)]
 
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             // Retrieves all factor records for the current entity
-            List<FactorListModel> result = _factorService.GetAll(User.GetTenantId());
+            List<FactorListModel> result = await _factorService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved factor list
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -148,14 +148,17 @@ namespace MEligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
         [Authorize(Policy = Permissions.Factor.Export)]
-
         [HttpPost("export")]
-        public async Task<IActionResult> ExportFactors([FromBody] List<int> selectedFactorIds)
+        public async Task<IActionResult> ExportFactors([FromBody] ExportRequestModel request)
         {
-            // Exports selected factors and gets the file stream
-            var stream = await _factorService.ExportFactors(User.GetTenantId(), selectedFactorIds);
-            // Returns the exported file as Excel document
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Factor.xlsx");
+            // Exports factors to a stream based on standardized logic
+            var stream = await _factorService.ExportFactors(User.GetTenantId(), request);
+
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
+            // Returns the exported file as a downloadable Excel file
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "factors.xlsx");
         }
 
         /// <summary>

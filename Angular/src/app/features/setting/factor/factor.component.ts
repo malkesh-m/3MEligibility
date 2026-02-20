@@ -958,8 +958,9 @@ export class FactorsComponent implements OnInit, AfterViewInit {
   // }
 
   exportFactors() {
-    const factorIdsToDelete = Array.from(this.selectedRows);
-    this.factorsService.exportFactors(factorIdsToDelete).subscribe({
+    const selectedIds = Array.from(this.selectedRows);
+    const searchTerm = selectedIds.length === 0 ? (this.searchTerm || '').trim() : '';
+    this.factorsService.exportFactors(selectedIds, searchTerm).subscribe({
       next: (response: Blob) => {
         console.log('Blob resp: ', response);
         const url = window.URL.createObjectURL(response);
@@ -1001,6 +1002,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
     if (this.selectedFile) {
       this.importFactors(this.selectedFile);
     } else {
@@ -1013,12 +1015,12 @@ export class FactorsComponent implements OnInit, AfterViewInit {
   }
 
   importFactors(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
+    // this.authService.currentUser$.subscribe((user) => {
+    //   this.loggedInUser = user;
+    // });
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
-    this.factorsService.importFactor(selectedFile, this.loggedInUser.user.userName).subscribe({
+    this.factorsService.importFactor(selectedFile).subscribe({
       next: (response) => {
         this.isUploading = false;
         this.fetchFactorsList();

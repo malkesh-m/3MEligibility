@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity for which to retrieve Erules.</param>
         /// <returns>A list of <see cref="EruleListModel"/> objects containing all Erules for the specified entity.</returns>
-        List<EruleListModel> GetAll(int tenantId);
+        Task<List<EruleListModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific Erule by its identifier and entity identifier.
@@ -72,12 +72,12 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task<string> ImportEruleMaster(int tenantId, Stream fileStream, string createdBy);
 
         /// <summary>
-        /// Exports Erules to a stream for the selected Erule IDs and specific entity.
+        /// Exports erules based on standardized selection or filters.
         /// </summary>
-        /// <param name="tenantId">The unique identifier of the entity for which to export Erules.</param>
-        /// <param name="selectedEruleIds">A list of Erule IDs to export.</param>
-        /// <returns>A task that represents the asynchronous operation, containing a stream with the exported Erule data.</returns>
-        Task<Stream> ExportErule(int tenantId, List<int> selectedEruleIds);
+        /// <param name="tenantId">The unique identifier of the entity.</param>
+        /// <param name="request">The export request model containing selection and filtering criteria.</param>
+        /// <returns>A task representing the asynchronous operation, returning a stream containing the Excel file.</returns>
+        Task<Stream> ExportErule(int tenantId, ExportRequestModel request);
 
         /// <summary>
         /// Publishes a draft Erule to make it active.

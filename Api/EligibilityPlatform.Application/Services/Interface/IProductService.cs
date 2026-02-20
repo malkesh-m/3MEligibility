@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="ProductListModel"/> objects containing all product records for the specified entity.</returns>
-        List<ProductListModel> GetAll(int tenantId);
+        Task<List<ProductListModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves product records by category within a specific entity.
@@ -81,12 +81,12 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task<string> ImportInfo(int tenantId, Stream fileStream, string createdBy);
 
         /// <summary>
-        /// Exports product information to a stream for the specified entity and selected products.
+        /// Exports product information to a stream for the specified entity based on selection or filters.
         /// </summary>
-        /// <param name="enttiyId">The unique identifier of the entity.</param>
-        /// <param name="selectedProductIds">A list of product identifiers to include in the export.</param>
+        /// <param name="tenantId">The unique identifier of the entity.</param>
+        /// <param name="request">The export request containing selected IDs or filters.</param>
         /// <returns>A task that represents the asynchronous operation, containing the export stream.</returns>
-        Task<Stream> ExportInfo(int enttiyId, List<int> selectedProductIds);
+        Task<Stream> ExportInfo(int tenantId, ExportRequestModel request);
 
         /// <summary>
         /// Downloads a template file for product operations for the specified entity.

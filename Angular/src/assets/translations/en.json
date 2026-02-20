@@ -555,5 +555,7 @@
   "Are you sure you want to delete the list: \"{{list}}\"?": "Are you sure you want to delete the list: \"{{list}}\"?",
   "Are you sure you want to delete the list item: \"{{list}}\"?": "Are you sure you want to delete the list item: \"{{list}}\"?",
   "Are you sure you want to delete parameter?": "Are you sure you want to delete parameter?",
-  "Are you sure you want to delete the selected records?": "Are you sure you want to delete the selected records?"
+  "Are you sure you want to delete the selected records?": "Are you sure you want to delete the selected records?",
+  "Search Product Cards": "Search Product Cards"
+
 }

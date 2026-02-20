@@ -32,12 +32,12 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Rule.View)]
 
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             /// <summary>
             /// Retrieves all erules for the current entity and returns a success response.
             /// </summary>
-            List<EruleListModel> result = _eruleService.GetAll(User.GetTenantId());
+            List<EruleListModel> result = await _eruleService.GetAll(User.GetTenantId());
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
 
@@ -333,8 +333,9 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Rule.Import)]
 
         [HttpPost("import")]
-        public async Task<IActionResult> ImportErule(IFormFile file, string createdBy)
+        public async Task<IActionResult> ImportErule(IFormFile file)
         {
+            var userName = User.GetUserName();
             /// <summary>
             /// Validates that a file was uploaded before proceeding with import.
             /// </summary>
@@ -345,7 +346,7 @@ namespace MEligibilityPlatform.Controllers
                 /// <summary>
                 /// Processes the erule file import and returns the result message.
                 /// </summary>
-                string resultMessage = await _eruleService.ImportErule(User.GetTenantId(), file.OpenReadStream(), createdBy);
+                string resultMessage = await _eruleService.ImportErule(User.GetTenantId(), file.OpenReadStream(), userName ?? "");
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }
             catch (Exception ex)
@@ -415,14 +416,16 @@ namespace MEligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
         [Authorize(Policy = Permissions.Rule.Export)]
-
         [HttpPost("export")]
-        public async Task<IActionResult> ExportERule([FromBody] List<int> selectedEruleIds)
+        public async Task<IActionResult> ExportERule([FromBody] ExportRequestModel request)
         {
-            /// <summary>
-            /// Exports the selected erules and returns the Excel file as a download.
-            /// </summary>
-            var stream = await _eruleService.ExportErule(User.GetTenantId(), selectedEruleIds);
+            // Exports erules to a stream based on standardized logic
+            var stream = await _eruleService.ExportErule(User.GetTenantId(), request);
+
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
+            // Returns the exported file as a downloadable Excel file
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "rules.xlsx");
         }
 

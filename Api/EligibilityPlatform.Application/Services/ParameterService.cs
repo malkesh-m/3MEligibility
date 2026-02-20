@@ -23,7 +23,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="dataTypeService">The data type service instance.</param>
     /// <param name="conditionService">The condition service instance.</param>
     /// <param name="entityService">The entity service instance.</param>
-    public partial class ParameterService(IUnitOfWork uow, IMapper mapper, IDataTypeService dataTypeService, IConditionService conditionService/*, IEntityService entityService*/) : IParameterService
+    public partial class ParameterService(IUnitOfWork uow, IMapper mapper, IDataTypeService dataTypeService, IConditionService conditionService, IExportService exportService) : IParameterService
     {
       
         /// <summary>
@@ -45,6 +45,11 @@ namespace MEligibilityPlatform.Application.Services
         /// The condition service instance for condition operations.
         /// </summary>
         private readonly IConditionService _conditionService = conditionService;
+
+        /// <summary>
+        /// The export service instance for exporting data.
+        /// </summary>
+        private readonly IExportService _exportService = exportService;
 
         /// <summary>
         /// The entity service instance for entity operations.
@@ -111,12 +116,17 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ParameterListModel representing all parameters for the entity.</returns>
-        public List<ParameterListModel> GetAll(int tenantId)
+        /// <summary>
+        /// Gets all parameters for a specific entity.
+        /// </summary>
+        /// <param name="tenantId">The entity ID.</param>
+        /// <returns>A list of ParameterListModel representing all parameters for the entity.</returns>
+        public async Task<List<ParameterListModel>> GetAll(int tenantId)
         {
             // Queries parameters filtered by entity ID and includes computed values
-            var parameters = _uow.ParameterRepository.Query()
+            var parameters = await _uow.ParameterRepository.Query()
                 .Include(x => x.ComputedValues)
-                .Where(f => f.TenantId == tenantId);
+                .Where(f => f.TenantId == tenantId).ToListAsync();
             // Maps the parameters to ParameterListModel objects
             return _mapper.Map<List<ParameterListModel>>(parameters);
         }
@@ -264,111 +274,51 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="Identifier">The identifier for the parameter type.</param>
         /// <param name="selectedParameterIds">A list of selected parameter IDs to export.</param>
         /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportParameter(int tenantId, int Identifier, [FromBody] List<int> selectedParameterIds)
+        public async Task<Stream> ExportParameter(int tenantId, int Identifier, ExportRequestModel request)
         {
-            IQueryable<ParameterCsvModel> parameters;
-            var sheetName = "";
+            var query = from parameter in _uow.ParameterRepository.Query()
+                        join datatype in _uow.DataTypeRepository.Query()
+                        on parameter.DataTypeId equals datatype.DataTypeId into datatypeJoin
+                        from datatype in datatypeJoin.DefaultIfEmpty()
+                        join condition in _uow.ConditionRepository.Query()
+                        on parameter.ConditionId equals condition.ConditionId into conditionJoin
+                        from condition in conditionJoin.DefaultIfEmpty()
+                        where parameter.TenantId == tenantId && parameter.Identifier == Identifier
+                        select new ParameterCsvModel
+                        {
+                            ParameterId = parameter.ParameterId,
+                            ParameterName = parameter.ParameterName,
+                            HasFactors = parameter.HasFactors,
+                            Identifier = parameter.Identifier,
+                            IsKyc = parameter.IsKyc,
+                            IsRequired = parameter.IsRequired,
+                            TenantId = parameter.TenantId,
+                            DataTypeId = parameter.DataTypeId,
+                            DataTypeName = datatype != null ? datatype.DataTypeName : null,
+                            ConditionId = parameter.ConditionId,
+                            ConditionValue = condition != null ? condition.ConditionValue : null,
+                            FactorOrder = parameter.FactorOrder
+                        };
 
-            // Determines query and sheet name based on identifier
-            if (Identifier == 1)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                // Builds query for customer parameters
-                parameters = from parameter in _uow.ParameterRepository.Query()
-                             join datatype in _uow.DataTypeRepository.Query()
-                             on parameter.DataTypeId equals datatype.DataTypeId
-                             join entity in _uow.EntityRepository.Query()
-                             on parameter.TenantId equals entity.EntityId
-                             join condition in _uow.ConditionRepository.Query()
-                             on parameter.ConditionId equals condition.ConditionId
-                             where parameter.TenantId == tenantId && parameter.Identifier == 1
-                             select new ParameterCsvModel
-                             {
-                                 ParameterId = parameter.ParameterId,
-                                 ParameterName = parameter.ParameterName,
-                                 HasFactors = parameter.HasFactors,
-                                 Identifier = parameter.Identifier,
-                                 IsKyc = parameter.IsKyc,
-                                 IsRequired = parameter.IsRequired,
-                                 TenantId = parameter.TenantId,
-                                 EntityName = entity.EntityName,
-                                 DataTypeId = parameter.DataTypeId,
-                                 DataTypeName = datatype.DataTypeName,
-                                 ConditionId = parameter.ConditionId,
-                                 ConditionValue = condition.ConditionValue,
-                                 FactorOrder = parameter.FactorOrder
-                             };
-                sheetName = "Customer-Parameters";
+                query = query.Where(p => request.SelectedIds!.Contains(p.ParameterId));
             }
-            else
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
-                // Builds query for product parameters
-                parameters = from parameter in _uow.ParameterRepository.Query()
-                             join datatype in _uow.DataTypeRepository.Query()
-                             on parameter.DataTypeId equals datatype.DataTypeId
-                             join entity in _uow.EntityRepository.Query()
-                             on parameter.TenantId equals entity.EntityId
-                             where parameter.TenantId == tenantId && parameter.Identifier == 2
-                             select new ParameterCsvModel
-                             {
-                                 ParameterId = parameter.ParameterId,
-                                 ParameterName = parameter.ParameterName,
-                                 HasFactors = parameter.HasFactors,
-                                 Identifier = parameter.Identifier,
-                                 IsKyc = parameter.IsKyc,
-                                 IsRequired = parameter.IsRequired,
-                                 TenantId = parameter.TenantId,
-                                 EntityName = entity.EntityName,
-                                 DataTypeId = parameter.DataTypeId,
-                                 DataTypeName = datatype.DataTypeName,
-                                 ConditionId = parameter.ConditionId,
-                                 FactorOrder = parameter.FactorOrder
-                             };
-                sheetName = "Product-Parameters";
+                string search = request.SearchTerm.ToLower();
+                query = query.Where(p => 
+                    (p.ParameterName != null && p.ParameterName.Contains(search)) ||
+                    (p.DataTypeName != null && p.DataTypeName.Contains(search)) ||
+                    (p.ConditionValue != null && p.ConditionValue.Contains(search))
+                );
             }
 
-            // Filters by selected parameter IDs if provided
-            if (selectedParameterIds != null && selectedParameterIds.Count > 0)
-            {
-                parameters = parameters.Where(query => selectedParameterIds.Contains(query.ParameterId));
-            }
-
-            // Executes the query and retrieves results
-            var Parameters = await parameters.ToListAsync();
-            // Maps the results to CSV models
-            var models = _mapper.Map<List<ParameterCsvModel>>(Parameters);
-
-            // Sets up Excel package license context
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using var package = new ExcelPackage();
-            // Creates worksheet with specified name
-            var worksheet = package.Workbook.Worksheets.Add(sheetName);
-
-            // Gets properties of ParameterCsvModel for column headers
-            var properties = typeof(ParameterCsvModel).GetProperties();
-            for (int col = 0; col < properties.Length; col++)
-            {
-                // Sets column headers
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Populates worksheet with data
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    // Sets cell values from model properties
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits columns for better readability
-            worksheet.Cells.AutoFitColumns();
-
-            // Creates memory stream and saves Excel package to it
-            var memoryStream = new MemoryStream();
-            package.SaveAs(memoryStream);
-            memoryStream.Position = 0;
-            return memoryStream;
+            var data = await query.ToListAsync();
+            string sheetName = Identifier == 1 ? "Customer-Parameters" : "Product-Parameters";
+            
+            return await _exportService.ExportToExcel(data, sheetName, ["EntityName", "TenantId"]);
         }
 
         /// <summary>
@@ -705,11 +655,11 @@ namespace MEligibilityPlatform.Application.Services
         /// Downloads an Excel template for parameters.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation, with the Excel file as a byte array.</returns>
-        public async Task<byte[]> DownloadTemplate()
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Fetches required data from services
             List<DataTypeModel> dataTypes = _dataTypeService.GetAll();
-            List<ConditionModel> conditions = _conditionService.GetAll();
+            //List<ConditionModel> conditions = _conditionService.GetAll();
             //List<EntityModel> entities = _entityService.GetAll();
 
             // Sanitizes data type names for Excel range compatibility
@@ -733,8 +683,8 @@ namespace MEligibilityPlatform.Application.Services
             sheet.Cells[1, 17].Value = "DataTypeId";
             sheet.Cells[1, 19].Value = "ConditionValue";
             sheet.Cells[1, 20].Value = "ConditionId";
-            sheet.Cells[1, 22].Value = "EntityName";
-            sheet.Cells[1, 23].Value = "TenantId";
+            //sheet.Cells[1, 22].Value = "EntityName";
+            //sheet.Cells[1, 23].Value = "TenantId";
             sheet.Cells[1, 24].Value = "FactorOptions";
             sheet.Cells[1, 25].Value = "FactorOrderValues";
 
@@ -777,8 +727,8 @@ namespace MEligibilityPlatform.Application.Services
             // Populates auxiliary columns with data
             PopulateColumn(sheet, [.. dataTypes.Select(d => d.DataTypeName ?? "")], 16);
             PopulateColumn(sheet, [.. dataTypes.Select(d => d.DataTypeId.ToString() ?? "")], 17);
-            PopulateColumn(sheet, [.. conditions.Select(c => c.ConditionValue ?? "")], 19);
-            PopulateColumn(sheet, [.. conditions.Select(c => c.ConditionId.ToString())], 20);
+            //PopulateColumn(sheet, [.. conditions.Select(c => c.ConditionValue ?? "")], 19);
+            //PopulateColumn(sheet, [.. conditions.Select(c => c.ConditionId.ToString())], 20);
             //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 22);
             //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 23);
 

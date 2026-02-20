@@ -26,7 +26,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
     /// <param name="categoryService">The category service instance.</param>
-    public class ProductService(IUnitOfWork uow, IMapper mapper, ICategoryService categoryService, IWebHostEnvironment webHostEnvironment, IDriveService driveService) : IProductService
+    public class ProductService(IUnitOfWork uow, IMapper mapper, ICategoryService categoryService, IWebHostEnvironment webHostEnvironment, IDriveService driveService, IParameterService parameterService, IFactorService factorService, IExportService exportService) : IProductService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -48,6 +48,8 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
         private readonly IDriveService _driveService = driveService;
+        private readonly IParameterService _parameterService = parameterService;
+        private readonly IFactorService _factorService = factorService;
         /// <summary>
         /// Adds a new product to the database.
         /// </summary>
@@ -130,10 +132,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ProductListModel representing all products for the entity.</returns>
-        public List<ProductListModel> GetAll(int tenantId)
+        public async Task< List<ProductListModel>> GetAll(int tenantId)
         {
             // Retrieves products filtered by entity ID and includes category information.
-            var products = _uow.ProductRepository.Query().AsNoTracking()
+            var products = await  _uow.ProductRepository.Query().AsNoTracking()
                 .Where(f => f.TenantId == tenantId)
                 .Select(s => new ProductListModel
                 {
@@ -149,12 +151,11 @@ namespace MEligibilityPlatform.Application.Services
                     ProductId = s.ProductId,
                     ProductImagePath = s.ProductImagePath,
                     ProductImageId = s.ProductImageId,
-                    ProductName = s.ProductName,
-
+                    ProductName = s.ProductName,   
                     UpdatedBy = s.UpdatedBy,
                     UpdatedByDateTime = s.UpdatedByDateTime,
                     MaxEligibleAmount = (int?)s.MaxEligibleAmount
-                }).ToList();
+                }).ToListAsync();
 
             // Returns the list of product models.
             return products;
@@ -338,90 +339,53 @@ namespace MEligibilityPlatform.Application.Services
             await _uow.CompleteAsync();
         }
 
+        private readonly IExportService _exportService = exportService;
+
+
+        // ... elsewhere in the file, update ExportInfo
+        
         /// <summary>
-        /// Exports product information to an Excel file.
+        /// Exports product information to an Excel file based on standardized rules.
         /// </summary>
         /// <param name="tenantId">The entity ID.</param>
-        /// <param name="selectedProductIds">A list of selected product IDs to export.</param>
-        /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportInfo(int tenantId, List<int> selectedProductIds)
+        /// <param name="request">The export request.</param>
+        /// <returns>A stream containing the Excel file.</returns>
+        public async Task<Stream> ExportInfo(int tenantId, ExportRequestModel request)
         {
-            // Queries product information with joins to category and entity tables.
-            var infos = from product in _uow.ProductRepository.Query()
+            var query = from product in _uow.ProductRepository.Query()
                         join category in _uow.CategoryRepository.Query()
                         on product.CategoryId equals category.CategoryId
-                        join entity in _uow.EntityRepository.Query()
-                        on product.TenantId equals entity.EntityId into entityGroup
-                        from entity in entityGroup.DefaultIfEmpty() // LEFT JOIN
                         where product.TenantId == tenantId && category.TenantId == tenantId
                         select new ProductDescription
                         {
-                            // Maps product information to the description model.
                             Code = product.Code,
                             ProductId = product.ProductId,
                             ProductName = product.ProductName,
                             CategoryId = product.CategoryId,
                             CategoryName = category.CategoryName,
-                            TenantId = product.TenantId,
-                            EntityName = entity.EntityName ?? "",
                             ProductImagePath = product.ProductImagePath,
                             Narrative = product.Narrative,
                             Description = product.Description
                         };
 
-            // Filters by selected product IDs if provided.
-            if (selectedProductIds != null && selectedProductIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                infos = infos.Where(query => selectedProductIds.Contains(query.ProductId));
+                query = query.Where(p => request.SelectedIds!.Contains(p.ProductId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                query = query.Where(p => 
+                    (p.ProductName != null && p.ProductName.Contains(search)) ||
+                    (p.Code != null && p.Code.Contains(search)) ||
+                    (p.CategoryName != null && p.CategoryName.Contains(search)) ||
+                    (p.Description != null && p.Description.Contains(search))
+                );
             }
 
-            // Executes the query and retrieves the results.
-            var Info = await infos.ToListAsync();
-
-            // Maps the entities to description models.
-            var models = _mapper.Map<List<ProductDescription>>(Info);
-
-            // Sets the EPPlus license context to non-commercial.
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            // Creates a new Excel package.
-            using var package = new ExcelPackage();
-
-            // Adds a worksheet named "Info" to the workbook.
-            var worksheet = package.Workbook.Worksheets.Add("Info");
-
-            // Gets the properties of the ProductDescription type.
-            var properties = typeof(ProductDescription).GetProperties();
-
-            // Adds headers to the worksheet.
-            for (int col = 0; col < properties.Length; col++)
-            {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Adds data rows to the worksheet.
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits the columns to the content.
-            worksheet.Cells.AutoFitColumns();
-
-            // Creates a memory stream to hold the Excel file.
-            var memoryStream = new MemoryStream();
-
-            // Saves the Excel package to the memory stream.
-            package.SaveAs(memoryStream);
-
-            // Resets the memory stream position to the beginning.
-            memoryStream.Position = 0;
-
-            // Returns the memory stream containing the Excel file.
-            return memoryStream;
+            var data = await query.ToListAsync();
+            return await _exportService.ExportToExcel(data, "Products", ["EntityName", "TenantId"]);
         }
 
         /// <summary>
@@ -496,7 +460,7 @@ namespace MEligibilityPlatform.Application.Services
                 // Returns a message if the uploaded file is empty.
                 if (rowCount == 0 || rowCount == -1)
                 {
-                    return resultMessage = "Uploaded File Is Empty";
+                    return GlobalcConstants.NoRecordsToExport; // Or a specific empty file message
                 }
 
                 // Processes each row in the worksheet.
@@ -506,9 +470,9 @@ namespace MEligibilityPlatform.Application.Services
                     var Code = worksheet.Cells[row, 1].Text;
                     var ProductName = worksheet.Cells[row, 2].Text;
                     var CategoryId = worksheet.Cells[row, 4].Text;
-                    var imageUrl = worksheet.Cells[row, 7].Text;
-                    var Narrative = worksheet.Cells[row, 8].Text;
-                    var Description = worksheet.Cells[row, 9].Text;
+                    var imageUrl = worksheet.Cells[row, 5].Text;
+                    var Narrative = worksheet.Cells[row, 6].Text;
+                    var Description = worksheet.Cells[row, 7].Text;
 
                     // Checks for missing or invalid data and skips the row if found.
                     if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName) || string.IsNullOrWhiteSpace(imageUrl))
@@ -584,27 +548,19 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
 
                 // Builds the result message based on the operation outcome.
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $"{models.Count} Product Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" {dublicatedRecordsCount} record already exists.";
-                }
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
+
                 if (duplicateCodes.Count > 0)
                 {
-                    resultMessage += $" The following Codes already exist: {string.Join(", ", duplicateCodes)}.";
+                    resultMessage += $" Remaining codes already exist: {string.Join(", ", duplicateCodes)}.";
                 }
             }
             catch (Exception ex)
             {
                 // Returns an error message if an exception occurs.
-                resultMessage = "Error On Info Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
 
             // Returns the result message.
@@ -715,7 +671,9 @@ namespace MEligibilityPlatform.Application.Services
             //List<EntityModel> entities = _entityService.GetAll();
 
             // Fetches all categories for the specified entity from the category service.
-            List<CategoryListModel> categories = _categoryService.GetAll(tenantId);
+            List<CategoryListModel> categories = await _categoryService.GetAll(tenantId);
+            List<ParameterListModel> parameters = await _parameterService.GetAll(tenantId);
+            List<FactorListModel> factors = await _factorService.GetAll(tenantId);
 
             // Sets the EPPlus license context to non-commercial.
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -727,7 +685,7 @@ namespace MEligibilityPlatform.Application.Services
             var sheet = package.Workbook.Worksheets.Add("Info");
 
             // Defines the column headers for the template.
-            string[] headers = ["Code*", "ProductName*", "Category*", "CategoryId*", "Entity*", "TenantId*", "ProductImage", "Narrative", "Description", "Field Description"];
+            string[] headers = ["Code*", "ProductName*", "Category*", "CategoryId*", "ProductImage", "Narrative", "Description", "Field Description"];
 
             // Adds headers to the worksheet.
             for (int i = 0; i < headers.Length; i++)
@@ -748,8 +706,8 @@ namespace MEligibilityPlatform.Application.Services
             sheet.Column(1).Style.Numberformat.Format = "@";
 
             // Adds additional headers for reference data.
-            sheet.Cells[1, 13].Value = "EntityName";
-            sheet.Cells[1, 14].Value = "TenantId";
+            //sheet.Cells[1, 13].Value = "EntityName";
+            //sheet.Cells[1, 14].Value = "TenantId";
             sheet.Cells[1, 16].Value = "CategoryName";
             sheet.Cells[1, 17].Value = "CategoryId";
 
@@ -762,13 +720,11 @@ namespace MEligibilityPlatform.Application.Services
             // Populates the product image column with sample data.
             PopulateImageColumn(sheet, 7);
 
-            // Applies dropdown validation to entity and category columns.
-            ApplyDropdown(sheet, "EntityNameRange", "E", 13, 100);
+            // Applies dropdown validation to category column.
             ApplyDropdown(sheet, "CategoryNameRange", "C", 16, 100);
 
-            // Adds formulas to automatically populate ID columns based on name selections.
-            //AddFormula(sheet, "F", "E", 13, 14, entities.Count);
-            //AddFormula(sheet, "D", "C", 16, 17, entities.Count);
+            // Adds formulas to automatically populate ID column based on name selection.
+            AddFormula(sheet, "D", "C", 16, 17, categories.Count);
 
             // Auto-fits the columns to the content.
             sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
@@ -847,23 +803,42 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="maxRows">The maximum number of rows to apply validation to.</param>
         private static void ApplyDropdown(ExcelWorksheet sheet, string rangeName, string column, int dataColumnIndex, int maxRows)
         {
-            // Detects non-empty values in the data column.
-            int lastRow = sheet.Cells[sheet.Dimension.Start.Row, dataColumnIndex, sheet.Dimension.End.Row, dataColumnIndex]
-                .Where(c => c.Value != null).Count();
+            int startRow = 2;
 
-            // Adds a blank value if no data is available.
-            if (lastRow == 0)
+            // If sheet has no dimension yet, handle safely
+            if (sheet.Dimension == null)
             {
-                sheet.Cells[2, dataColumnIndex].Value = ""; // Add a blank value
-                lastRow = 2;
+                sheet.Cells[startRow, dataColumnIndex].Value = "";
+                sheet.Workbook.Names.Add(rangeName,
+                    sheet.Cells[startRow, dataColumnIndex, startRow, dataColumnIndex]);
+                return;
             }
 
-            // Defines the range for validation data.
-            var range = sheet.Cells[2, dataColumnIndex, lastRow, dataColumnIndex];
+            // Get actual last used row in that column
+            int lastUsedRow = sheet.Dimension.End.Row;
 
-            // Adds the range as a named range in the workbook.
+            // Find last row in that column that has a value
+            int lastRow = startRow;
+
+            for (int row = lastUsedRow; row >= startRow; row--)
+            {
+                if (sheet.Cells[row, dataColumnIndex].Value != null)
+                {
+                    lastRow = row;
+                    break;
+                }
+            }
+
+            // If no data found, add blank
+            if (lastRow < startRow)
+            {
+                sheet.Cells[startRow, dataColumnIndex].Value = "";
+                lastRow = startRow;
+            }
+
+            // Create named range safely
+            var range = sheet.Cells[startRow, dataColumnIndex, lastRow, dataColumnIndex];
             sheet.Workbook.Names.Add(rangeName, range);
-
             // Applies list validation to each cell in the target column.
             for (int row = 2; row <= maxRows; row++)
             {

@@ -21,7 +21,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
-    public class CategoryService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/) : ICategoryService
+    public class CategoryService(IUnitOfWork uow, IMapper mapper, IExportService exportService) : ICategoryService
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
@@ -32,10 +32,15 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The entity ID.</param>
         /// <returns>List of CategoryListModel objects.</returns>
-        public List<CategoryListModel> GetAll(int tenantId)
+        /// <summary>
+        /// Retrieves all categories from the database for a specific entity.
+        /// </summary>
+        /// <param name="tenantId">The entity ID.</param>
+        /// <returns>List of CategoryListModel objects.</returns>
+        public async Task<List<CategoryListModel>> GetAll(int tenantId)
         {
             // Queries categories filtered by entity ID and converts to list
-            var categories = _uow.CategoryRepository.Query().Where(w => w.TenantId == tenantId).ToList();
+            var categories = await _uow.CategoryRepository.Query().Where(w => w.TenantId == tenantId).ToListAsync();
             // Maps category entities to CategoryListModel objects
             return _mapper.Map<List<CategoryListModel>>(categories);
         }
@@ -201,77 +206,35 @@ namespace MEligibilityPlatform.Application.Services
         }
 
 
+        private readonly IExportService _exportService = exportService;
+
         /// <summary>
-        /// Exports selected categories to an Excel file for a specific entity.
+        /// Exports categories based on standardized selection or filters.
         /// </summary>
-        /// <param name="tenantId">The entity ID.</param>
-        /// <param name="selectedCategoryIds">List of category IDs to export.</param>
-        /// <returns>A Stream containing the Excel file.</returns>
-        public async Task<Stream> ExportCategory(int tenantId, List<int> selectedCategoryIds)
+        public async Task<Stream> ExportCategory(int tenantId, ExportRequestModel request)
         {
-            // Creates a query joining categories with entities
-            var categories = from category in _uow.CategoryRepository.Query()
-                             join entity in _uow.EntityRepository.Query()
-                             on category.TenantId equals entity.EntityId
-                             where entity.EntityId == tenantId
-                             select new CategoryCsvModel
-                             {
-                                 CategoryId = category.CategoryId,
-                                 CategoryName = category.CategoryName,
-                                 CatDescription = category.CatDescription,
-                                 TenantId = category.TenantId,
-                                 EntityName = entity.EntityName
-                             };
+            var query = _uow.CategoryRepository.Query().Where(x => x.TenantId == tenantId);
 
-            // If selected category IDs are provided, filter the query
-            if (selectedCategoryIds != null && selectedCategoryIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                categories = categories.Where(query => selectedCategoryIds.Contains(query.CategoryId));
+                query = query.Where(q => request.SelectedIds!.Contains(q.CategoryId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                query = query.Where(q => 
+                    (q.CategoryName != null && q.CategoryName.Contains(search)) ||
+                    (q.CatDescription != null && q.CatDescription.Contains(search))
+                );
             }
 
-            // Executes the query and gets the results as a list
-            var categorys = await categories.ToListAsync();
-            // Maps the results to CategoryCsvModel objects
-            var models = _mapper.Map<List<CategoryCsvModel>>(categorys);
-
-            // Sets the EPPlus license context to non-commercial
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Creates a new Excel package
-            using var package = new ExcelPackage();
-            // Adds a new worksheet named "Category"
-            var worksheet = package.Workbook.Worksheets.Add("Category");
-
-            // Gets the properties of CategoryCsvModel for column headers
-            var properties = typeof(CategoryCsvModel).GetProperties();
-            // Sets column headers in the first row
-            for (int col = 0; col < properties.Length; col++)
-            {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Populates the worksheet with data
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits all columns to content
-            worksheet.Cells.AutoFitColumns();
-
-            // Creates a memory stream to hold the Excel file
-            var memoryStream = new MemoryStream();
-            // Saves the Excel package to the memory stream
-            package.SaveAs(memoryStream);
-            // Resets the stream position to the beginning
-            memoryStream.Position = 0;
-            // Returns the memory stream containing the Excel file
-            return memoryStream;
+            var categorys = await query.ToListAsync();
+            var data = _mapper.Map<List<CategoryCsvModel>>(categorys);
+            
+            return await _exportService.ExportToExcel(data, "Categories", ["EntityName", "TenantId"]);
         }
 
-        /// <summary>
         /// Imports categories from an uploaded Excel file for a specific entity.
         /// </summary>
         /// <param name="tenantId">The entity ID.</param>
@@ -313,8 +276,6 @@ namespace MEligibilityPlatform.Application.Services
                     var CategoryName = worksheet.Cells[row, 1].Text;
                     // Gets category description from column 2
                     var CatDescription = worksheet.Cells[row, 2].Text;
-                    // Gets entity ID from column 4
-                    //var TenantId = worksheet.Cells[row, 4].Text;
 
                     // Validates required fields are present and valid
                     if (string.IsNullOrWhiteSpace(CategoryName))
@@ -360,8 +321,6 @@ namespace MEligibilityPlatform.Application.Services
                     model.UpdatedByDateTime = DateTime.UtcNow;
                     // Sets creation timestamp to current UTC time
                     model.CreatedByDateTime = DateTime.UtcNow;
-                    // Sets update timestamp again (duplicate line)
-                    model.UpdatedByDateTime = DateTime.UtcNow;
                     // Marks the record as imported
                     model.IsImport = true;
                     // Adds the mapped category entity to repository
@@ -374,23 +333,15 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
 
                 // Builds result message based on import results
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $"{insertedRecordsCount} Category Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" {dublicatedRecordsCount} record with the same CategoryName and TenantId already exists.";
-                }
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
+
             }
             catch (Exception ex)
             {
                 // Handles any exceptions during import
-                resultMessage = "Error On Category Page " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
 
             // Returns the result message
@@ -434,7 +385,7 @@ namespace MEligibilityPlatform.Application.Services
         /// Generates an Excel template for category import.
         /// </summary>
         /// <returns>A byte array containing the template file.</returns>
-        public async Task<byte[]> DownloadTemplate()
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Gets all entities from the entity service
             //List<EntityModel> entities = _entityService.GetAll();
@@ -460,21 +411,6 @@ namespace MEligibilityPlatform.Application.Services
             sheet.Cells[2, 3].Style.Font.Bold = true;
             // Sets the text color to red
             sheet.Cells[2, 3].Style.Font.Color.SetColor(System.Drawing.Color.Red);
-
-            // Sets header for entity name reference data in column 10
-            //sheet.Cells[1, 10].Value = "EntityName";
-            //// Sets header for entity ID reference data in column 11
-            //sheet.Cells[1, 11].Value = "TenantId";
-
-            // Populates column 10 with entity names
-            //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName ?? "")], 10);
-            //// Populates column 11 with entity IDs
-            //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 11);
-
-            // Applies dropdown validation to column C using data from column 10
-            //ApplyDropdown(sheet, "EntityNameRange", "C", 10, 100);
-            //// Adds formula to column D to lookup entity ID based on entity name
-            //AddFormula(sheet, "D", "C", 10, 11, 100);
 
             // Hides column 4 (TenantId) from view
          

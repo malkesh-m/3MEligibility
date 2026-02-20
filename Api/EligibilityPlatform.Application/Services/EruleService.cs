@@ -24,7 +24,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="parameterService">The parameter service instance.</param>
     /// <param name="conditionService">The condition service instance.</param>
     /// <param name="factorService">The factor service instance.</param>
-    public class EruleService(IUnitOfWork uow, IMapper mapper, IParameterService parameterService, IConditionService conditionService, IFactorService factorService) : IEruleService
+    public class EruleService(IUnitOfWork uow, IMapper mapper, IParameterService parameterService, IConditionService conditionService, IFactorService factorService, IExportService exportService) : IEruleService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -224,15 +224,19 @@ namespace MEligibilityPlatform.Application.Services
         /// Retrieves all rules from the system and maps them to a list of `EruleModel` objects.
         /// </summary>
         /// <returns>A list of `EruleModel` objects representing all the rules in the system.</returns>
-        public List<EruleListModel> GetAll(int tenantId)
+        /// <summary>
+        /// Retrieves all rules from the system and maps them to a list of `EruleModel` objects.
+        /// </summary>
+        /// <returns>A list of `EruleModel` objects representing all the rules in the system.</returns>
+        public async Task<List<EruleListModel>> GetAll(int tenantId)
         {
             // Performs a join between EruleMaster and Erule repositories
-            var rules = (from master in _uow.EruleMasterRepository.Query().Where(f => f.TenantId == tenantId)
+            var rules = (await (from master in _uow.EruleMasterRepository.Query().Where(f => f.TenantId == tenantId)
                          join rule in _uow.EruleRepository.Query().Where(f => f.TenantId == tenantId)
                              on master.Id equals rule.EruleMasterId into gj
                          from rule in gj.DefaultIfEmpty()
                          select new { master, rule })
-            .ToList() // Materializes the query
+            .ToListAsync()) // Materializes the query asynchronously
             .Select(x => new EruleListModel
             {
                 // Maps EruleMaster properties
@@ -523,14 +527,14 @@ namespace MEligibilityPlatform.Application.Services
                 for (int row = 2; row <= rowCount + 1; row++)
                 {
                     // Gets the value from column 1 (RuleName)
-                    var EruleName = worksheet.Cells[row, 1].Text;
+                    var EruleNameStr = worksheet.Cells[row, 1].Text;
                     // Gets the value from column 2 (RuleDescription)
-                    var EruleDesc = worksheet.Cells[row, 2].Text;
+                    var EruleDescStr = worksheet.Cells[row, 2].Text;
                     // Gets the value from column 9 (Expression)
-                    var Expression = worksheet.Cells[row, 9].Text;
+                    var ExpressionStr = worksheet.Cells[row, 9].Text;
 
                     // Checks if any required field is empty
-                    if (string.IsNullOrEmpty(EruleName) || string.IsNullOrEmpty(EruleDesc) || string.IsNullOrEmpty(Expression))
+                    if (string.IsNullOrEmpty(EruleNameStr) || string.IsNullOrEmpty(ExpressionStr))
                     {
                         // Increments the skipped records counter
                         skippedRecordsCount++;
@@ -541,9 +545,10 @@ namespace MEligibilityPlatform.Application.Services
                     // Creates a new EruleListModel instance
                     var model = new EruleListModel
                     {
-                        // Sets the Expression property
-                        Expression = Expression,
-                        // Sets the CreatedBy property
+                        EruleName = EruleNameStr,
+                        Description = EruleDescStr,
+                        Expression = ExpressionStr,
+                        ExpShown = ExpressionStr, // Assuming ExpShown is same as expression if not separate
                         CreatedBy = createdBy
                     };
                     // Adds the model to the list
@@ -553,8 +558,21 @@ namespace MEligibilityPlatform.Application.Services
                 // Processes each model in the list
                 foreach (var model in models)
                 {
-                    // Checks if an entity with the same ExpShown already exists
-                    var existingEntity = await _uow.EruleRepository.Query().AnyAsync(x => x.TenantId == tenantId && x.ExpShown == model.ExpShown);
+                    // Find or verify EruleMasterId
+                    var master = await _uow.EruleMasterRepository.Query()
+                        .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.EruleName == model.EruleName);
+
+                    if (master == null)
+                    {
+                        skippedRecordsCount++;
+                        continue;
+                    }
+
+                    model.EruleMasterId = master.Id;
+
+                    // Checks if an entity with the same ExpShown already exists for this master
+                    var existingEntity = await _uow.EruleRepository.Query()
+                        .AnyAsync(x => x.TenantId == tenantId && x.EruleMasterId == master.Id && x.Expression == model.Expression);
 
                     // If entity already exists
                     if (existingEntity)
@@ -567,14 +585,14 @@ namespace MEligibilityPlatform.Application.Services
 
                     // Sets the TenantId property
                     model.TenantId = tenantId;
-                    // Sets the UpdatedByDateTime property to current UTC time
-                    model.UpdatedByDateTime = DateTime.UtcNow;
-                    // Sets the CreatedByDateTime property to current UTC time
+                    // Sets audit fields
                     model.CreatedByDateTime = DateTime.UtcNow;
-                    // Sets the UpdatedByDateTime property to current UTC time again
                     model.UpdatedByDateTime = DateTime.UtcNow;
+                    model.UpdatedBy = createdBy;
+
                     // Maps the model to Erule entity and adds it to the repository
-                    _uow.EruleRepository.Add(_mapper.Map<Erule>(model));
+                    var eruleEntity = _mapper.Map<Erule>(model);
+                    _uow.EruleRepository.Add(eruleEntity);
                     // Increments the inserted records counter
                     insertedRecordsCount++;
                 }
@@ -582,29 +600,15 @@ namespace MEligibilityPlatform.Application.Services
                 // Commits all changes to the database
                 await _uow.CompleteAsync();
 
-                // Checks if any records were inserted
-                if (insertedRecordsCount > 0)
-                {
-                    // Adds success message with count of inserted records
-                    resultMessage = $"{models.Count} Factor Inserted Successfully.";
-                }
-                // Checks if any records were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    // Adds message about skipped records
-                    resultMessage += $" {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                // Checks if any records were duplicates
-                if (dublicatedRecordsCount > 0)
-                {
-                    // Adds message about duplicate records
-                    resultMessage += $" {dublicatedRecordsCount} record already exists.";
-                }
+                // Final combined message
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Sets error message with exception details
-                resultMessage = "Error On ERule Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
             // Returns the result message
             return resultMessage;
@@ -654,11 +658,11 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Fetches all parameters for the specified entity
-            List<ParameterListModel> parameter = _parameterService.GetAll(tenantId);
+            List<ParameterListModel> parameter = await _parameterService.GetAll(tenantId);
             // Fetches all conditions
             List<ConditionModel> conditions = _conditionService.GetAll();
             // Fetches all factors for the specified entity
-            List<FactorListModel> factors = _factorService.GetAll(tenantId);
+            List<FactorListModel> factors = await _factorService.GetAll(tenantId);
 
             // Sets the ExcelPackage license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -764,11 +768,11 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplateEruleMaster(int tenantId)
         {
             // Fetches all parameters for the specified entity
-            _ = _parameterService.GetAll(tenantId);
+            _ = await _parameterService.GetAll(tenantId);
             // Fetches all conditions
             _ = _conditionService.GetAll();
             // Fetches all factors for the specified entity
-            _ = _factorService.GetAll(tenantId);
+            _ = await _factorService.GetAll(tenantId);
 
             // Sets the ExcelPackage license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -1097,6 +1101,7 @@ namespace MEligibilityPlatform.Application.Services
                 return "Uploaded file is empty.";
 
             int inserted = 0, skipped = 0, duplicate = 0;
+            var resultMessage = "";
             var models = new List<EruleMaster>();
             HashSet<string> excelDuplicateCheck = [];
 
@@ -1167,25 +1172,15 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
 
                 // Final combined message
-                List<string> messages = [];
-
-                if (inserted > 0)
-                    messages.Add($"{inserted} record{(inserted > 1 ? "s" : "")} inserted successfully");
-
-                if (skipped > 0)
-                    messages.Add($"{skipped} record{(skipped > 1 ? "s were" : " was")} skipped due to missing required fields");
-
-                if (duplicate > 0)
-                    messages.Add($"{duplicate} duplicate record{(duplicate > 1 ? "s" : "")} found");
-
-                return messages.Count > 0
-                    ? string.Join(". ", messages) + "."
-                    : "No new records to insert.";
+                resultMessage = $"{inserted} {GlobalcConstants.Created} " +
+                               $"{duplicate} duplicates skipped, " +
+                               $"{skipped} invalid rows skipped.";
             }
             catch (Exception ex)
             {
-                return "Error on ERuleMaster page: " + ex.Message;
+                return $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
+            return resultMessage;
         }
 
         /// <summary>
@@ -1195,66 +1190,45 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="selectedEruleIds">A list of eRule IDs to be exported.</param>
         /// <returns>A stream containing the Excel file with the selected eRules.</returns>
         /// <exception cref="Exception">Throws an exception if an error occurs during the export process.</exception>
-        public async Task<Stream> ExportErule(int tenantId, List<int> selectedEruleIds)
+        private readonly IExportService _exportService = exportService;
+
+        /// <summary>
+        /// Exports erules based on standardized selection or filters.
+        /// </summary>
+        public async Task<Stream> ExportErule(int tenantId, ExportRequestModel request)
         {
-            // Queries the eRules for the specified entity
-            var Erules = from erule in _uow.EruleRepository.Query().Where(f => f.TenantId == tenantId)
-                         select new EruleModelDescription
-                         {
-                             EruleId = erule.EruleId,
-                             ExpShown = erule.ExpShown,
-                             Expression = erule.Expression
-                         };
+            var query = _uow.EruleMasterRepository.Query().Where(f => f.TenantId == tenantId);
 
-            // Checks if specific eRule IDs were provided
-            if (selectedEruleIds != null && selectedEruleIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                // Filters the query to only include the selected IDs
-                Erules = Erules.Where(query => selectedEruleIds.Contains(query.EruleId));
+                query = query.Where(q => request.SelectedIds!.Contains(q.Id));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                query = query.Where(q => 
+                    (q.EruleName != null && q.EruleName.Contains(search)) ||
+                    (q.EruleDesc != null && q.EruleDesc.Contains(search))
+                );
             }
 
-            // Executes the query and gets the results as a list
-            var Erule = await Erules.ToListAsync();
-            // Maps the results to EruleModelDescription objects
-            var models = _mapper.Map<List<EruleModelDescription>>(Erule);
-            // Sets the ExcelPackage license context to non-commercial
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Creates a new ExcelPackage instance
-            using var package = new ExcelPackage();
-            // Adds a new worksheet named "Erules"
-            var worksheet = package.Workbook.Worksheets.Add("Erules");
-
-            // Gets the properties of the EruleModelDescription type
-            var properties = typeof(EruleModelDescription).GetProperties();
-            // Loops through each property and sets it as a header
-            for (int col = 0; col < properties.Length; col++)
+            var masters = await query.ToListAsync();
+            var data = masters.Select(m => new RuleExportRow
             {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Loops through each model
-            for (int row = 0; row < models.Count; row++)
-            {
-                // Loops through each property
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    // Sets the property value in the worksheet
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits all columns in the worksheet
-            worksheet.Cells.AutoFitColumns();
-
-            // Creates a memory stream
-            var memoryStream = new MemoryStream();
-            // Saves the Excel package to the memory stream
-            package.SaveAs(memoryStream);
-            // Resets the stream position to the beginning
-            memoryStream.Position = 0;
-
-            // Returns the memory stream
-            return memoryStream;
+                EruleId = m.Id,
+                RuleName = m.EruleName,
+                RuleDescription = m.EruleDesc,
+                IsActive = m.IsActive,
+                CreatedBy = m.CreatedBy,
+                CreatedByDateTime = m.CreatedByDateTime,
+                UpdatedBy = m.UpdatedBy,
+                UpdatedByDateTime = m.UpdatedByDateTime
+            }).ToList();
+            
+            return await _exportService.ExportToExcel(data, "Rules");
         }
+
+       
     }
 }

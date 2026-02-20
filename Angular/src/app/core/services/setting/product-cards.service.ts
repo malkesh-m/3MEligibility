@@ -34,7 +34,7 @@ export class ProductCardsService {
 
   deleteMultipleProductCard(payload: any) {
     console.log("service callimns ", payload)
-    return this.http.delete<any>(`${this.apiUrl}/pcard/multipledelete`, { body: payload, headers: this.getHeaders() } ).pipe(catchError(this.handleError))
+    return this.http.delete<any>(`${this.apiUrl}/pcard/multipledelete`, { body: payload, headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
   // exportPCards(): Observable<Blob> {
@@ -43,9 +43,9 @@ export class ProductCardsService {
   //   );
   // }
 
-  exportPCards(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/pcard/export`, selectedIds, { 
-      responseType: 'blob', headers: this.getHeaders() 
+  exportPCards(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/pcard/export`, { selectedIds, searchTerm }, {
+      responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
     );
@@ -64,14 +64,14 @@ export class ProductCardsService {
     return this.http.post(this.apiUrl + `/pcard/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
 
-  validatePCard(pcardId: number, payload: {[parameterId: number]: string}) {
+  validatePCard(pcardId: number, payload: { [parameterId: number]: string }) {
     return this.http.post<any>(`${this.apiUrl}/validator/validatepcard?pCardId=${pcardId}`, payload, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
-  validateFormPCard(expreesion: string, payload: {[parameterId: number]: string}) {
+  validateFormPCard(expreesion: string, payload: { [parameterId: number]: string }) {
     return this.http.post<any>(`${this.apiUrl}/validator/validateformpcard?expreesion=${expreesion}`, payload, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
-  
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
     console.log("error.error ", error.error)

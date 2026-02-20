@@ -47,16 +47,16 @@ export class ParameterService {
 
   downloadTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/parameter/Download-Template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
+      .get(this.apiUrl + '/parameter/download-template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
         catchError(this.handleError)
       );
   }
 
-  importParameter(file: File, identifier: number, createdBy: string): Observable<any> { // Return an Observable
+  importParameter(file: File, identifier: number): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     if (identifier === 1) {
-      return this.http.post(this.apiUrl + `/parameter/importcustomer?createdBy=${createdBy}`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
+      return this.http.post(this.apiUrl + `/parameter/importcustomer`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
     } else {
       return this.http.post(this.apiUrl + `/parameter/importproduct`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
     }
@@ -81,8 +81,8 @@ export class ParameterService {
   //     catchError(this.handleError)
   //   );
   // }
-  exportParameters(identifier: number, selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/parameter/export?Identifier=${identifier}`, selectedIds, {
+  exportParameters(identifier: number, selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/parameter/export?Identifier=${identifier}`, { selectedIds: selectedIds, searchTerm: searchTerm }, {
       responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)

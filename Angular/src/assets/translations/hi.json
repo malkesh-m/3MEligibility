@@ -529,5 +529,7 @@
   "Are you sure you want to delete the selected records?": "क्या आप वाकई चुने गए रिकॉर्ड हटाना चाहते हैं?",
   "(You)": "(आप)",
   "No User Assigned to this role": "इस भूमिका में कोई उपयोगकर्ता असाइन नहीं है",
-  "Please select role to view assigned user list": "असाइन किए गए उपयोगकर्ताओं की सूची देखने के लिए भूमिका चुनें"
+  "Please select role to view assigned user list": "असाइन किए गए उपयोगकर्ताओं की सूची देखने के लिए भूमिका चुनें",
+  "Search Product Cards": "उत्पाद कार्ड खोजें"
+
 }

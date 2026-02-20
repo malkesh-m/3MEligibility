@@ -22,7 +22,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="productService">The product service instance.</param>
     /// <param name="parameterService">The parameter service instance.</param>
     /// <param name="factorService">The factor service instance.</param>
-    public class ProductParamService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/, IProductService productService, IParameterService parameterService, IFactorService factorService) : IProductParamservice
+    public class ProductParamService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/, IProductService productService, IParameterService parameterService, IFactorService factorService, IExportService exportService) : IProductParamservice
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -277,8 +277,6 @@ namespace MEligibilityPlatform.Application.Services
                 {
                     // Gets product ID from cell
                     var productId = worksheet.Cells[row, 2].Text;
-                    // Gets entity ID from cell
-                    var tenantIdFromFile = worksheet.Cells[row, 4].Text;
                     // Gets parameter ID from cell
                     var parameterId = worksheet.Cells[row, 6].Text;
                     // Gets parameter value from cell
@@ -289,7 +287,7 @@ namespace MEligibilityPlatform.Application.Services
                     var IsRequired = worksheet.Cells[row, 9].Text;
 
                     // Check if required fields are empty
-                    if (!int.TryParse(productId, out _) || !int.TryParse(tenantIdFromFile, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
+                    if (!int.TryParse(productId, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -301,7 +299,7 @@ namespace MEligibilityPlatform.Application.Services
                     var model = new ProductParam
                     {
                         ProductId = int.TryParse(productId, out int ProductId) ? ProductId : 0,
-                        TenantId = int.TryParse(tenantIdFromFile, out int TenantId) ? TenantId : 0,
+                        TenantId = tenantId,
                         ParameterId = int.TryParse(parameterId, out int ParameterId) ? ParameterId : 0,
                         ParamValue = paramValue,
                         CreatedBy = createdBy,
@@ -341,28 +339,16 @@ namespace MEligibilityPlatform.Application.Services
                 // Commits the changes to the database
                 await _uow.CompleteAsync();
 
-                // Builds result message based on operation results
-                if (insertedRecordsCount > 0)
-                {
-                    // Adds success message
-                    resultMessage = $"{models.Count} Details Inserted Successfully.";
-                }
-                // Adds skipped records message if any
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                // Adds duplicated records message if any
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" {dublicatedRecordsCount} record with the same Product Name and Parameter Name already exists.";
-                }
+                // Final combined message
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             // Catches any exceptions during import
             catch (Exception ex)
             {
                 // Sets error message
-                resultMessage = "Error On Details Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
             // Returns the result message
             return resultMessage;
@@ -411,11 +397,11 @@ namespace MEligibilityPlatform.Application.Services
             // Gets all entities
             //List<EntityModel> entities = _entityService.GetAll();
             // Gets all products for the entity
-            List<ProductListModel> product = _productService.GetAll(tenantId);
+            List<ProductListModel> product = await _productService.GetAll(tenantId);
             // Gets all parameters for the entity
-            List<ParameterListModel> parameters = _parameterService.GetAll(tenantId);
+            List<ParameterListModel> parameters = await _parameterService.GetAll(tenantId);
             // Gets all factors for the entity
-            List<FactorListModel> factors = _factorService.GetAll(tenantId);
+            List<FactorListModel> factors = await _factorService.GetAll(tenantId);
 
             // Sets the EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -660,13 +646,12 @@ namespace MEligibilityPlatform.Application.Services
             }
         }
 
+        private readonly IExportService _exportService = exportService;
+
         /// <summary>
-        /// Exports product parameter details to an Excel file.
+        /// Exports product parameter details based on standardized selection or filters.
         /// </summary>
-        /// <param name="selectedProductIds">A list of selected product IDs to export.</param>
-        /// <param name="tenantId">The entity ID.</param>
-        /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportDetails(List<int> selectedProductIds, int tenantId)
+        public async Task<Stream> ExportDetails(int tenantId, ExportRequestModel request)
         {
             // Queries product details with joins to related tables
             var productDetails = from productParam in _uow.ProductParamRepository.Query()
@@ -676,18 +661,13 @@ namespace MEligibilityPlatform.Application.Services
                                  join parameter in _uow.ParameterRepository.Query()
                                  on productParam.ParameterId equals parameter.ParameterId
 
-                                 join entity in _uow.EntityRepository.Query()
-                                 on productParam.TenantId equals entity.EntityId into entityGroup
-                                 from entity in entityGroup.DefaultIfEmpty()
-
-                                 where productParam.TenantId == tenantId
+                                 where productParam.TenantId == tenantId && product.TenantId == tenantId
 
                                  select new ProductParamDescription
                                  {
                                      ProductId = productParam.ProductId,
                                      ProductName = product.ProductName,
                                      TenantId = productParam.TenantId,
-                                     EntityName = entity.EntityName ?? "",
                                      ParameterId = productParam.ParameterId,
                                      ParameterName = parameter.ParameterName,
                                      ParamValue = productParam.ParamValue,
@@ -695,10 +675,18 @@ namespace MEligibilityPlatform.Application.Services
                                      IsRequired = productParam.IsRequired
                                  };
 
-            // Optional: Filter by selected product IDs
-            if (selectedProductIds != null && selectedProductIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                productDetails = productDetails.Where(query => selectedProductIds.Contains(query.ProductId));
+                productDetails = productDetails.Where(q => request.SelectedIds!.Contains(q.ProductId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                productDetails = productDetails.Where(q => 
+                    (q.ProductName != null && q.ProductName.Contains(search)) ||
+                    (q.ParameterName != null && q.ParameterName.Contains(search))
+                );
             }
 
             // Executes the query and gets the results
@@ -706,41 +694,7 @@ namespace MEligibilityPlatform.Application.Services
             // Maps the entities to description models
             var models = _mapper.Map<List<ProductParamDescription>>(productList);
 
-            // Sets the EPPlus license context
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Creates a new Excel package
-            using var package = new ExcelPackage();
-            // Adds a new worksheet named "Details"
-            var worksheet = package.Workbook.Worksheets.Add("Details");
-
-            // Gets the properties of the description model
-            var properties = typeof(ProductParamDescription).GetProperties();
-            // Sets the header row with property names
-            for (int col = 0; col < properties.Length; col++)
-            {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Populates the worksheet with data
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits all columns
-            worksheet.Cells.AutoFitColumns();
-
-            // Creates a memory stream for the Excel file
-            var memoryStream = new MemoryStream();
-            // Saves the package to the memory stream
-            package.SaveAs(memoryStream);
-            // Resets the stream position
-            memoryStream.Position = 0;
-            // Returns the memory stream
-            return memoryStream;
+            return await _exportService.ExportToExcel(models, "Details");
         }
     }
 }

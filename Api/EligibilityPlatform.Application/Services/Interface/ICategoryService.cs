@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity to retrieve categories for.</param>
         /// <returns>A list of <see cref="CategoryListModel"/> objects containing the categories.</returns>
-        List<CategoryListModel> GetAll(int tenantId);
+        Task<List<CategoryListModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific category by its identifier within a given entity.
@@ -54,12 +54,12 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task<string> RemoveMultiple(int tenantId, List<int> ids);
 
         /// <summary>
-        /// Exports categories to a stream for the specified entity and selected category IDs.
+        /// Exports categories to a stream for the specified entity based on selection or filters.
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity.</param>
-        /// <param name="selectedCategoryIds">A list of category IDs to export.</param>
+        /// <param name="request">The export request containing selected IDs or filters.</param>
         /// <returns>A stream containing the exported category data.</returns>
-        Task<Stream> ExportCategory(int tenantId, List<int> selectedCategoryIds);
+        Task<Stream> ExportCategory(int tenantId, ExportRequestModel request);
 
         /// <summary>
         /// Imports categories from a file stream for the specified entity.
@@ -74,6 +74,6 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// Downloads a template file for category import.
         /// </summary>
         /// <returns>A byte array containing the template file data.</returns>
-        Task<byte[]> DownloadTemplate();
+        Task<byte[]> DownloadTemplate(int tenantId);
     }
 }

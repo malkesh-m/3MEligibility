@@ -19,7 +19,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="uow">The unit of work instance for database operations.</param>
     /// <param name="mapper">The AutoMapper instance for object mapping.</param>
     /// <param name="entityService">The entity service instance for entity operations.</param>
-    public class ManagedListService(IUnitOfWork uow, IMapper mapper/*, IEntityService entityService*/) : IManagedListService
+    public class ManagedListService(IUnitOfWork uow, IMapper mapper, IExportService exportService/*, IEntityService entityService*/) : IManagedListService
     {
         // The unit of work instance for database operations and transaction management
         private readonly IUnitOfWork _uow = uow;
@@ -78,11 +78,11 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The ID of the entity to retrieve lists for.</param>
         /// <returns>A list of managed list models for the specified entity.</returns>
-        public List<ManagedListGetModel> GetAll(int tenantId)
+        public async Task<List<ManagedListGetModel>> GetAll(int tenantId)
         {
             // Query the repository for all lists belonging to the specified entity
             // Map the entities to get models and return as a list
-            return _mapper.Map<List<ManagedListGetModel>>(_uow.ManagedListRepository.GetAllByTenantId(tenantId));
+            return _mapper.Map<List<ManagedListGetModel>>(await _uow.ManagedListRepository.Query().Where(x => x.TenantId == tenantId).ToListAsync());
         }
 
         /// <summary>
@@ -163,78 +163,46 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="tenantId">The ID of the entity to export lists for.</param>
         /// <param name="selectedListIds">The list of specific list IDs to export, or null for all lists.</param>
         /// <returns>A stream containing the Excel file with exported data.</returns>
-        public async Task<Stream> ExportLists(int tenantId, List<int> selectedListIds)
+        private readonly IExportService _exportService = exportService;
+
+        /// <summary>
+        /// Exports managed lists based on standardized selection or filters.
+        /// </summary>
+        public async Task<Stream> ExportLists(int tenantId, ExportRequestModel request)
         {
-            // Create a query joining managed lists with their associated entities
-            var lists = from managedlist in _uow.ManagedListRepository.Query()
-                        join entity in _uow.EntityRepository.Query()
-                        on managedlist.TenantId equals entity.EntityId
-                        where managedlist.TenantId == tenantId && entity.EntityId == tenantId
-                        select new ManagedListModelDescription
-                        {
-                            ListId = managedlist.ListId,
-                            ListName = managedlist.ListName,
-                            TenantId = managedlist.TenantId,
-                            EntityName = entity.EntityName ?? ""
-                        };
+            var listsQuery = from list in _uow.ManagedListRepository.Query()
+                             where list.TenantId == tenantId
+                             select new ManagedListModelDescription
+                             {
+                                 ListId = list.ListId,
+                                 ListName = list.ListName,
+                                 TenantId = list.TenantId
+                             };
 
-            // If specific list IDs are provided, filter the query to only include those IDs
-            if (selectedListIds != null && selectedListIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                lists = lists.Where(entity => selectedListIds.Contains(entity.ListId));
+                listsQuery = listsQuery.Where(q => request.SelectedIds!.Contains(q.ListId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                listsQuery = listsQuery.Where(q => 
+                    q.ListName != null && q.ListName.Contains(search)
+                );
             }
 
-            // Execute the query and get the results as a list
-            var List = await lists.ToListAsync();
-
-            // Map the entity results to model objects
-            var models = _mapper.Map<List<ManagedListModelDescription>>(List);
-
-            // Set the EPPlus license context to non-commercial
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Create a new Excel package
-            using var package = new ExcelPackage();
-            // Add a worksheet named "Lists" to the workbook
-            var worksheet = package.Workbook.Worksheets.Add("Lists");
-
-            // Get the properties of the model type for column headers
-            var properties = typeof(ManagedListModelDescription).GetProperties();
-            // Loop through each property to create column headers
-            for (int col = 0; col < properties.Length; col++)
-            {
-                // Set the header cell value to the property name
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Loop through each model to populate the worksheet data
-            for (int row = 0; row < models.Count; row++)
-            {
-                // Loop through each property of the current model
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    // Set the cell value to the property value of the current model
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fit all columns to content for better readability
-            worksheet.Cells.AutoFitColumns();
-
-            // Create a memory stream to hold the Excel file
-            var memoryStream = new MemoryStream();
-            // Save the Excel package to the memory stream
-            package.SaveAs(memoryStream);
-            // Reset the stream position to the beginning for reading
-            memoryStream.Position = 0;
-            // Return the stream containing the Excel file
-            return memoryStream;
+            var lists = await listsQuery.ToListAsync();
+            var models = _mapper.Map<List<ManagedListModelDescription>>(lists);
+            
+            return await _exportService.ExportToExcel(models, "Lists", ["EntityName"]);
         }
 
         /// <summary>
         /// Generates and downloads an Excel template for managed list import.
         /// </summary>
         /// <returns>A byte array containing the Excel template file.</returns>
-        public async Task<byte[]> DownloadTemplate()
+        public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Get all entities from the entity service
             //List<EntityModel> entities = _entityService.GetAll();
@@ -261,22 +229,6 @@ namespace MEligibilityPlatform.Application.Services
             sheet.Cells[2, 4].Style.Font.Bold = true;
             // Set the description text color to red for visibility
             sheet.Cells[2, 4].Style.Font.Color.SetColor(System.Drawing.Color.Red);
-
-            // Set header for entity name reference data
-            //sheet.Cells[1, 10].Value = "EntityName";
-            //// Set header for entity ID reference data
-            //sheet.Cells[1, 11].Value = "TenantId";
-
-            // Populate the entity name reference column with entity names
-            //PopulateColumn(sheet, [.. entities.Select(e => e.EntityName!)], 10);
-            //// Populate the entity ID reference column with entity IDs
-            //PopulateColumn(sheet, [.. entities.Select(e => e.TenantId.ToString())], 11);
-
-            // Apply dropdown validation to the EntityName column (column B)
-            //ApplyDropdown(sheet, "EntityNameRange", "B", 10, 100);
-
-            //// Add VLOOKUP formula to automatically populate TenantId based on EntityName
-            //AddFormula(sheet, "C", "B", 10, 11, 100);
 
             // Auto-fit all columns to content
             sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
@@ -523,29 +475,15 @@ namespace MEligibilityPlatform.Application.Services
                 // Persist all changes to the database
                 await _uow.CompleteAsync();
 
-                // Build result message based on operation outcomes
-                if (insertedRecordsCount > 0)
-                {
-                    // Add success message with count of inserted records
-                    resultMessage = $"{insertedRecordsCount} List Inserted Successfully.";
-                }
-
-                // Add skip information if any records were skipped
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-
-                // Add duplicate information if any duplicates were found
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" {dublicatedRecordsCount} record already exists.";
-                }
+                // Final combined message
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Handle any exceptions and return error message
-                resultMessage = "Error On Lists page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
 
             // Return the final result message

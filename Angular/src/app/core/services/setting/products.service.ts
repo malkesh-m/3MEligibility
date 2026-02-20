@@ -9,7 +9,6 @@ import { environment } from '../../../../environments/environment';
 export class ProductsService {
 
   private apiUrl = environment.apiUrl;
-  private imageBaseUrl = environment.imagePath;
 
   constructor(private http: HttpClient) { }
   private getHeaders(): HttpHeaders {
@@ -48,8 +47,8 @@ export class ProductsService {
   //   );
   // }
 
-  exportCategories(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/category/export`, selectedIds, {
+  exportCategories(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/category/export`, { selectedIds: selectedIds, searchTerm }, {
       responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
@@ -71,7 +70,7 @@ export class ProductsService {
   }
   DownloadCategoryTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/category/Download-Template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
+      .get(this.apiUrl + '/category/download-template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
         catchError(this.handleError)
       );
   }
@@ -125,8 +124,8 @@ export class ProductsService {
   //   );
   // }
 
-  exportInfoList(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/product/export`, selectedIds, {
+  exportInfoList(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/product/export`, { selectedIds: selectedIds, searchTerm }, {
       responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
@@ -135,12 +134,12 @@ export class ProductsService {
 
   DownloadInfoTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/product/Download-Template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
+      .get(this.apiUrl + '/product/download-template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
         catchError(this.handleError)
       );
   }
 
-  importInfo(file: File, createdBy: string): Observable<any> { // Return an Observable
+  importInfo(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/product/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
@@ -173,8 +172,8 @@ export class ProductsService {
   //   );
   // }
 
-  exportDetails(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/productParam/export`, selectedIds, {
+  exportDetails(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/productParam/export`, { selectedIds: selectedIds, searchTerm }, {
       responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
@@ -195,15 +194,15 @@ export class ProductsService {
 
   DownloadDetailsTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/productParam/Download-Template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
+      .get(this.apiUrl + '/productParam/download-template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
         catchError(this.handleError)
       );
   }
 
-  importDetails(file: File, createdBy: string): Observable<any> { // Return an Observable
+  importDetails(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post(this.apiUrl + `/productParam/import?createdBy=${createdBy}`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
+    return this.http.post(this.apiUrl + `/productParam/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
 
   getParameterList() {

@@ -30,11 +30,11 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.ListItem.View)]
 
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             var tenantId = User.GetTenantId();
             // Retrieves all list item records
-            List<ListItemModel> result = _listItemService.GetAll(tenantId);
+            List<ListItemModel> result = await _listItemService.GetAll(tenantId);
             // Returns success response with the retrieved list item list
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -170,10 +170,10 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.ListItem.Export)]
 
         [HttpPost("export")]
-        public async Task<IActionResult> ExportListIteam([FromBody] List<int> selectedListItemIds)
+        public async Task<IActionResult> ExportListIteam([FromBody] ExportRequestModel request)
         {
-            // Exports selected list items and gets the file stream
-            var stream = await _listItemService.ExportListIteam(selectedListItemIds);
+            // Exports list items based on standardized logic
+            var stream = await _listItemService.ExportListIteam(User.GetTenantId(), request);
             // Returns the exported file as Excel document
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Factor.xlsx");
         }
@@ -190,7 +190,7 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportListIteams(IFormFile file)
         {
-            var userName = User.GetUserName();
+            var createdBy = User.GetUserName();
             var tenantId = User.GetTenantId();  
             // Validates if file exists and has content
             if (file == null || file.Length == 0)
@@ -199,7 +199,7 @@ namespace MEligibilityPlatform.Controllers
             try
             {
                 // Imports list items from the uploaded file stream
-                string resultMessage = await _listItemService.ImportListIteams(file.OpenReadStream(), userName ?? "", tenantId);
+                string resultMessage = await _listItemService.ImportListIteams(file.OpenReadStream(), createdBy ?? "", tenantId);
                 // Returns success response with import result message
                 return Ok(new ResponseModel { IsSuccess = true, Message = resultMessage });
             }

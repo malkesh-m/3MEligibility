@@ -725,7 +725,8 @@ export class ParametersComponent {
       excelName = "Product-Parameters.xlsx"
     }
     const selectedIds = Array.from(this.selectedRows);
-    this.parameterService.exportParameters(identifier, selectedIds).subscribe({
+    const searchTerm = selectedIds.length === 0 ? (this.searchTerms[this.activeTab] || '').trim() : '';
+    this.parameterService.exportParameters(identifier, selectedIds, searchTerm).subscribe({
       next: (response: Blob) => {
         const url = window.URL.createObjectURL(response);
         const anchor = document.createElement('a');
@@ -775,6 +776,7 @@ export class ParametersComponent {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
     if (this.selectedFile) {
       this.importParameter(this.selectedFile);
     } else {
@@ -787,12 +789,12 @@ export class ParametersComponent {
   }
 
   importParameter(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
+    // this.authService.currentUser$.subscribe((user) => {
+    //   this.loggedInUser = user;
+    // });
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
-    this.parameterService.importParameter(selectedFile, this.activeTab === 'customer' ? 1 : 2, this.loggedInUser.user.userName).subscribe({
+    this.parameterService.importParameter(selectedFile, this.activeTab === 'customer' ? 1 : 2).subscribe({
       next: (response) => {
         this.isUploading = false;
         this.fetchAllParameters();

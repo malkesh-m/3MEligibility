@@ -32,12 +32,12 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Category.View)]
 
         [HttpGet("getall")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             /// <summary>
             /// Retrieves all categories for the current user's entity from the service.
             /// </summary>
-            List<CategoryListModel> result = _categoryService.GetAll(User.GetTenantId());
+            List<CategoryListModel> result = await _categoryService.GetAll(User.GetTenantId());
 
             /// <summary>
             /// Returns successful response with the retrieved categories.
@@ -296,26 +296,18 @@ namespace MEligibilityPlatform.Controllers
             }
         }
 
-        /// <summary>
-        /// Exports selected categories for the current entity.
-        /// </summary>
-        /// <param name="selectedCategoryIds">The list of selected category IDs to export.</param>
-        /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
-        /// 
         [Authorize(Policy = Permissions.Category.Export)]
-
         [HttpPost("export")]
-        public async Task<IActionResult> ExportCategory([FromBody] List<int> selectedCategoryIds)
+        public async Task<IActionResult> ExportCategory([FromBody] ExportRequestModel request)
         {
-            /// <summary>
-            /// Calls the service to export categories for the current user's entity.
-            /// </summary>
-            var stream = await _categoryService.ExportCategory(User.GetTenantId(), selectedCategoryIds);
+            // Exports categories to a stream based on standardized logic
+            var stream = await _categoryService.ExportCategory(User.GetTenantId(), request);
 
-            /// <summary>
-            /// Returns the exported file as a downloadable Excel document.
-            /// </summary>
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "entities.xlsx");
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
+            // Returns the exported file as a downloadable Excel file
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Category.xlsx");
         }
 
         /// <summary>
@@ -328,7 +320,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to download the category import template.
             /// </summary>
-            byte[] excelBytes = await _categoryService.DownloadTemplate();
+            byte[] excelBytes = await _categoryService.DownloadTemplate(User.GetTenantId());
 
             /// <summary>
             /// Returns the template file as a downloadable Excel document.

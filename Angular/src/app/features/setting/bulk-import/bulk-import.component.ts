@@ -22,7 +22,6 @@ export class BulkImportComponent {
   selectedFile: File | null = null;
   dropdownList: string[] = [
     "All",
-    "Entities",
     "Lists",
     "ListItem",
     "Parameter",
@@ -131,6 +130,7 @@ export class BulkImportComponent {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
 
     if (this.selectedFile) {
       const fileExtension = this.selectedFile.name.split('.').pop()?.toLowerCase();
@@ -163,7 +163,7 @@ export class BulkImportComponent {
     this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = this.translate.instant("Uploading file, please wait...");
-    this.bulkImportService.bulkImport(selectedFile, this.createdBy).subscribe({
+    this.bulkImportService.bulkImport(selectedFile).subscribe({
       next: (response) => {
         this.isUploading = false;
         this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {

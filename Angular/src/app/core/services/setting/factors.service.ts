@@ -46,7 +46,7 @@ export class FactorsService {
 
   deleteMultipleFactors(ids: number[]): Observable<any> {
     return this.http.request<any>('delete', `${this.apiUrl}/factors/multipleDelete`, {
-      body: ids,  headers: this.getHeaders() 
+      body: ids, headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
     );
@@ -58,9 +58,9 @@ export class FactorsService {
   //   );
   // }
 
-  exportFactors(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/factors/export`, selectedIds, { 
-      responseType: 'blob',   headers: this.getHeaders() 
+  exportFactors(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/factors/export`, { selectedIds: selectedIds, searchTerm }, {
+      responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
     );
@@ -72,17 +72,17 @@ export class FactorsService {
 
   downloadTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/factors/Download-Template', { responseType: 'blob',  headers: this.getHeaders() }).pipe(
+      .get(this.apiUrl + '/factors/download-template', { responseType: 'blob', headers: this.getHeaders() }).pipe(
         catchError(this.handleError)
       );
   }
-  
-  importFactor(file: File,createdBy:string): Observable<any> { // Return an Observable
+
+  importFactor(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/factors/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
-  
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
     console.log("error.error ", error.error)

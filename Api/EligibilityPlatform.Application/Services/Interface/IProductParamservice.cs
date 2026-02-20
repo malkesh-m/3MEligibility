@@ -72,12 +72,12 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task<byte[]> DownloadTemplate(int tenantId);
 
         /// <summary>
-        /// Exports product parameter details to a stream for the specified entity and selected products.
+        /// Exports product parameter details based on standardized selection or filters.
         /// </summary>
-        /// <param name="selectedProductIds">A list of product identifiers to include in the export.</param>
         /// <param name="tenantId">The unique identifier of the entity.</param>
-        /// <returns>A task that represents the asynchronous operation, containing the export stream.</returns>
-        Task<Stream> ExportDetails(List<int> selectedProductIds, int tenantId);
+        /// <param name="request">The export request containing identifiers or filters.</param>
+        /// <returns>A stream containing the exported product parameter details.</returns>
+        Task<Stream> ExportDetails(int tenantId, ExportRequestModel request);
 
         /// <summary>
         /// Imports product parameter details from a stream for the specified entity.

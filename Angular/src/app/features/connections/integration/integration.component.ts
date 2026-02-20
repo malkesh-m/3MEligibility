@@ -118,12 +118,12 @@ export class IntegrationComponent implements OnInit {
 
   get activeTabTitle(): string {
     switch (this.activeTab) {
-      case 'nodes': return this.translate.instant('Integration - Nodes');
-      case 'api': return this.translate.instant('Integration - API');
-      case 'addParameters': return this.translate.instant('Integration - API Parameters');
-      case 'mapApiParams': return this.translate.instant('Integration - Map API Parameters');
-      case 'testApi': return this.translate.instant('Integration - Test API');
-      default: return this.translate.instant('Integration');
+      case 'nodes': return 'Integration - Nodes';
+      case 'api': return 'Integration - API';
+      case 'addParameters': return 'Integration - API Parameters';
+      case 'mapApiParams': return 'Integration - Map API Parameters';
+      case 'testApi': return 'Integration - Test API';
+      default: return 'Integration';
     }
   }
 

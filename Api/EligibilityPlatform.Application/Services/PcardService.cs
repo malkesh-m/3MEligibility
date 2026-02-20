@@ -26,7 +26,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="ecardService">The ecard service instance.</param>
     /// <param name="productService">The product service instance.</param>
-    public partial class PcardService(IUnitOfWork uow, IMapper mapper, IEcardService ecardService, IProductService productService) : IPcardService
+    public partial class PcardService(IUnitOfWork uow, IMapper mapper, IExportService exportService, IEcardService ecardService, IProductService productService) : IPcardService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -178,77 +178,47 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="tenantId">The entity ID.</param>
         /// <param name="selectedPcardIds">A list of selected Pcard IDs to export.</param>
         /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportPCards(int tenantId, List<int> selectedPcardIds)
+        private readonly IExportService _exportService = exportService;
+
+        /// <summary>
+        /// Exports PCard records based on standardized selection or filters.
+        /// </summary>
+        public async Task<Stream> ExportPCards(int tenantId, ExportRequestModel request)
         {
-            // Query Pcards with joins to related entities
-            var Pcards = from pcard in _uow.PcardRepository.Query()
-                         join product in _uow.ProductRepository.Query()
-                         on pcard.ProductId equals product.ProductId
-                         join entity in _uow.EntityRepository.Query()
-                         on pcard.TenantId equals entity.EntityId into entityGroup
-                         from entity in entityGroup.DefaultIfEmpty() // LEFT JOINs
-                         where pcard.TenantId == tenantId && product.TenantId == tenantId && entity.EntityId == tenantId
-                         select new PcardCsvModel
-                         {
-                             PcardId = pcard.PcardId,
-                             PcardName = pcard.PcardName,
-                             PcardDesc = pcard.PcardDesc,
-                             Expression = pcard.Expression,
-                             //TenantId = pcard.TenantId,
-                             //EntityName = entity != null ? entity.EntityName : null,
-                             ProductId = pcard.ProductId,
-                             ProductName = product.ProductName,
-                             Expshown = pcard.Expshown,
-                             Pstatus = pcard.Pstatus
-                         };
+            var pCardsQuery = from pcard in _uow.PcardRepository.Query()
+                             join product in _uow.ProductRepository.Query()
+                             on pcard.ProductId equals product.ProductId
+                             where pcard.TenantId == tenantId && product.TenantId == tenantId
+                             select new PcardCsvModel
+                             {
+                                 PcardId = pcard.PcardId,
+                                 PcardName = pcard.PcardName,
+                                 PcardDesc = pcard.PcardDesc,
+                                 Expression = pcard.Expression,
+                                 ProductId = pcard.ProductId,
+                                 ProductName = product.ProductName,
+                                 Expshown = pcard.Expshown,
+                                 Pstatus = pcard.Pstatus
+                             };
 
-            // If selectedTenantIds is not null and contains items, filter by IDs
-            if (selectedPcardIds != null && selectedPcardIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                // Filter by selected Pcard IDs
-                Pcards = Pcards.Where(query => selectedPcardIds.Contains(query.PcardId));
+                pCardsQuery = pCardsQuery.Where(q => request.SelectedIds!.Contains(q.PcardId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                pCardsQuery = pCardsQuery.Where(q => 
+                    (q.PcardName != null && q.PcardName.Contains(search)) ||
+                    (q.ProductName != null && q.ProductName.Contains(search))
+                );
             }
 
-            // Execute query and get results
-            var PCards = await Pcards.ToListAsync();
-            // Map entities to CSV models
-            var models = _mapper.Map<List<PcardCsvModel>>(PCards);
-
-            // Set Excel license context
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Create new Excel package
-            using var package = new ExcelPackage();
-            // Add worksheet
-            var worksheet = package.Workbook.Worksheets.Add("Pcard");
-
-            // Get properties of CSV model
-            var properties = typeof(PcardCsvModel).GetProperties();
-            // Add headers to worksheet
-            for (int col = 0; col < properties.Length; col++)
-            {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Add data to worksheet
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fit columns
-            worksheet.Cells.AutoFitColumns();
-
-            // Create memory stream
-            var memoryStream = new MemoryStream();
-            // Save package to stream
-            package.SaveAs(memoryStream);
-            // Reset stream position
-            memoryStream.Position = 0;
-            // Return stream
-            return memoryStream;
+            var entities = await pCardsQuery.ToListAsync();
+            var models = _mapper.Map<List<PcardCsvModel>>(entities);
+            
+            return await _exportService.ExportToExcel(models, "Pcard");
         }
 
         /// <summary>
@@ -437,19 +407,14 @@ namespace MEligibilityPlatform.Application.Services
 
                 await _uow.CompleteAsync();
 
-                // Build result message
-                if (insertedRecordsCount > 0)
-                    resultMessage += $" Stream Card Page = {insertedRecordsCount} Stream Card(s) inserted successfully.";
-
-                if (skippedRecordsCount > 0)
-                    resultMessage += $" Stream Card Page = {skippedRecordsCount} record(s) skipped due to missing/invalid data or expression.";
-
-                if (duplicatedRecordsCount > 0)
-                    resultMessage += $" Stream Card Page = {duplicatedRecordsCount} record(s) already exist.";
+                // Final combined message
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{duplicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
-                resultMessage = "Error On Stream Card Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
 
             return resultMessage;
@@ -553,8 +518,8 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Fetch all ecards and products for the entity
-            List<EcardListModel> ecard = _ecardService.GetAll(tenantId);
-            List<ProductListModel> product = _productService.GetAll(tenantId);
+            List<EcardListModel> ecard = await _ecardService.GetAll(tenantId);
+            List<ProductListModel> product = await _productService.GetAll(tenantId);
 
             // Set EPPlus license context
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

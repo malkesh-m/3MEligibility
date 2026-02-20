@@ -75,19 +75,19 @@ export class ListsService {
 
   downloadListTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/managedlist/Download-Template', { responseType: 'blob' }).pipe(
+      .get(this.apiUrl + '/managedlist/download-template', { responseType: 'blob' }).pipe(
         catchError(this.handleError)
       );
   }
 
   downloadItemTemplate(): Observable<Blob> {
     return this.http
-      .get(this.apiUrl + '/listitem/Download-Template', { responseType: 'blob' }).pipe(
+      .get(this.apiUrl + '/listitem/download-template', { responseType: 'blob' }).pipe(
         catchError(this.handleError)
       );
   }
 
-  importList(file: File,createdBy:string): Observable<any> { // Return an Observable
+  importList(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/managedlist/import`, formData).pipe(catchError(this.handleError));
@@ -99,9 +99,9 @@ export class ListsService {
   //   );
   // }
 
-  ExportListIteam(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/listitem/export`, selectedIds, { 
-      responseType: 'blob' 
+  ExportListIteam(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/listitem/export`, { selectedIds, searchTerm }, {
+      responseType: 'blob'
     }).pipe(
       catchError(this.handleError)
     );
@@ -113,15 +113,15 @@ export class ListsService {
   //   );
   // }
 
-  ExportLists(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/managedlist/export`, selectedIds, { 
-      responseType: 'blob' 
+  ExportLists(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/managedlist/export`, { selectedIds, searchTerm }, {
+      responseType: 'blob'
     }).pipe(
       catchError(this.handleError)
     );
   }
 
-  importListItem(file: File,createdBy:string): Observable<any> { // Return an Observable
+  importListItem(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/listitem/import`, formData).pipe(catchError(this.handleError));

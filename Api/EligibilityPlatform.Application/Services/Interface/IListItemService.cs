@@ -12,7 +12,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// Retrieves all list items.
         /// </summary>
         /// <returns>A list of <see cref="ListItemModel"/> objects containing all list items.</returns>
-        List<ListItemModel> GetAll(int tenantId);
+        Task<List<ListItemModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific list item by its identifier.
@@ -50,11 +50,12 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task MultipleDelete(List<int> ids);
 
         /// <summary>
-        /// Exports list items to a stream for the selected list item IDs.
+        /// Exports list items based on standardized selection or filters.
         /// </summary>
-        /// <param name="selectedListItemIds">A list of list item IDs to export.</param>
-        /// <returns>A task that represents the asynchronous operation, containing a stream with the exported list item data.</returns>
-        Task<Stream> ExportListIteam(List<int> selectedListItemIds);
+        /// <param name="tenantId">The unique identifier of the entity.</param>
+        /// <param name="request">The export request containing identifiers or filters.</param>
+        /// <returns>A stream containing the exported list item data.</returns>
+        Task<Stream> ExportListIteam(int tenantId, ExportRequestModel request);
 
         /// <summary>
         /// Imports list items from a file stream.

@@ -62,6 +62,7 @@ export class ProductListComponent implements OnDestroy {
   isExceptionRule: boolean = false;
   isDataReady: boolean = false;
   isLoading: boolean = false;  // General data loading flag
+  currentSearchTerm: string = '';
 
   private editingItem: any = null;
   private formBackup: any = null;
@@ -408,6 +409,7 @@ export class ProductListComponent implements OnDestroy {
   }
 
   loadTabData(searchTerm: string, action?: string) {
+    this.currentSearchTerm = searchTerm || '';
     if (this.tableChild) {
       if (action && action == 'delete') {
         this.rows = this.listAry
@@ -1111,7 +1113,9 @@ export class ProductListComponent implements OnDestroy {
   exportProducts() {
     if (this.currentTab === 'Category') {
       let listOfSelectedIds = new Set(this.tableChild.selectedRowsItem);
-      this.productService.exportCategories([...listOfSelectedIds]).subscribe({
+      const selectedIds = [...listOfSelectedIds];
+      const searchTerm = selectedIds.length === 0 ? (this.currentSearchTerm || '').trim() : '';
+      this.productService.exportCategories(selectedIds, searchTerm).subscribe({
         next: (response: Blob) => {
           console.log('Blob resp: ', response);
           const url = window.URL.createObjectURL(response);
@@ -1133,7 +1137,9 @@ export class ProductListComponent implements OnDestroy {
     }
     if (this.currentTab === 'Info') {
       let listOfSelectedIds = new Set(this.tableChild.selectedRowsItem);
-      this.productService.exportInfoList([...listOfSelectedIds]).subscribe({
+      const selectedIds = [...listOfSelectedIds];
+      const searchTerm = selectedIds.length === 0 ? (this.currentSearchTerm || '').trim() : '';
+      this.productService.exportInfoList(selectedIds, searchTerm).subscribe({
         next: (response: Blob) => {
           console.log('Blob resp: ', response);
           const url = window.URL.createObjectURL(response);
@@ -1155,7 +1161,9 @@ export class ProductListComponent implements OnDestroy {
     }
     if (this.currentTab === 'Details') {
       let listOfSelectedIds = new Set(this.tableChild.selectedRowsItem);
-      this.productService.exportDetails([...listOfSelectedIds]).subscribe({
+      const selectedIds = [...listOfSelectedIds];
+      const searchTerm = selectedIds.length === 0 ? (this.currentSearchTerm || '').trim() : '';
+      this.productService.exportDetails(selectedIds, searchTerm).subscribe({
         next: (response: Blob) => {
           console.log('Blob resp: ', response);
           const url = window.URL.createObjectURL(response);

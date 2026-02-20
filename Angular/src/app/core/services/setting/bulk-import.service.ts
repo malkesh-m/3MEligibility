@@ -19,7 +19,7 @@ export class BulkImportService {
     const formData = new FormData();
     formData.append('selectedList', selectedList);
     return this.http
-      .post(this.apiUrl + '/bulkImport/download-template', formData, { responseType: 'blob', headers: this.getHeaders() })
+      .post(this.apiUrl + '/bulkimport/download-template', formData, { responseType: 'blob', headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
@@ -27,18 +27,18 @@ export class BulkImportService {
     const formData = new FormData();
     formData.append('id', id);
     return this.http
-      .post(this.apiUrl + '/bulkImport/download', formData, { responseType: 'blob', headers: this.getHeaders() })
+      .post(this.apiUrl + '/bulkimport/download', formData, { responseType: 'blob', headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
-  
+
   fetchBulkImportHistory() {
-    return this.http.get<any>(`${this.apiUrl}/bulkImport/getAll`, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
+    return this.http.get<any>(`${this.apiUrl}/bulkimport/getall`, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
-  bulkImport(file: File,createdBy:string): Observable<any> { // Return an Observable
+  bulkImport(file: File): Observable<any> { // Return an Observable
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post(this.apiUrl + `/bulkImport/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
+    return this.http.post(this.apiUrl + `/bulkimport/import`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
 
 

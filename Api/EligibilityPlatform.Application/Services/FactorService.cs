@@ -26,7 +26,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="parameterService">The parameter service instance.</param>
     /// <param name="conditionService">The condition service instance.</param>
     /// <param name="managedListService">The managed list service instance.</param>
-    public partial class FactorService(IUnitOfWork uow, IMapper mapper, IParameterService parameterService, IConditionService conditionService, IManagedListService managedListService) : IFactorService
+    public partial class FactorService(IUnitOfWork uow, IMapper mapper, IParameterService parameterService, IConditionService conditionService, IManagedListService managedListService, IExportService exportService) : IFactorService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -104,10 +104,16 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The entity ID to filter factor records.</param>
         /// <returns>A list of FactorListModel objects containing all factor records for the specified entity.</returns>
-        public List<FactorListModel> GetAll(int tenantId)
+        /// <summary>
+        /// Retrieves all factor records from the database for a specific entity.
+        /// Maps the data to a list of FactorListModel objects for easier presentation.
+        /// </summary>
+        /// <param name="tenantId">The entity ID to filter factor records.</param>
+        /// <returns>A list of FactorListModel objects containing all factor records for the specified entity.</returns>
+        public async Task<List<FactorListModel>> GetAll(int tenantId)
         {
             // Retrieves all factors for the specified entity
-            var factors = _uow.FactorRepository.GetAllByTenantId(tenantId);
+            var factors = await _uow.FactorRepository.Query().Where(x => x.TenantId == tenantId).ToListAsync();
             // Maps the factors to FactorListModel objects
             return _mapper.Map<List<FactorListModel>>(factors);
         }
@@ -169,20 +175,19 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="selectedFactorIds">List of selected factor IDs to filter the data (if provided).</param>
         /// <returns>A Task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
         /// <exception cref="Exception">Thrown when any error occurs during the export process.</exception>
-        public async Task<Stream> ExportFactors(int tenantId, List<int> selectedFactorIds)
+        private readonly IExportService _exportService = exportService;
+
+        /// <summary>
+        /// Exports factors based on standardized selection or filters.
+        /// </summary>
+        public async Task<Stream> ExportFactors(int tenantId, ExportRequestModel request)
         {
             // Creates a query joining Factor, Parameter, Condition, and Entity tables
-            var factors = from factor in _uow.FactorRepository.Query()
+            var factorsQuery = from factor in _uow.FactorRepository.Query()
                           join parameter in _uow.ParameterRepository.Query()
                           on factor.ParameterId equals parameter.ParameterId
-
                           join condition in _uow.ConditionRepository.Query()
                           on factor.ConditionId equals condition.ConditionId
-
-                          //join entity in _uow.EntityRepository.Query()
-                          //on factor.TenantId equals entity.TenantId into entityGroup
-                          //from entity in entityGroup.DefaultIfEmpty() // LEFT JOIN
-
                           where factor.TenantId == tenantId && parameter.TenantId == tenantId
                           select new FactorModelDescription
                           {
@@ -193,61 +198,36 @@ namespace MEligibilityPlatform.Application.Services
                               Value2 = factor.Value2,
                               ConditionId = factor.ConditionId,
                               TenantId = factor.TenantId,
-                              //EntityName = entity != null ? entity.EntityName : null,
                               ParameterId = factor.ParameterId,
                               ParameterName = parameter.ParameterName,
                               ConditionValue = condition.ConditionValue
                           };
 
-            // If selectedFactorIds is not null and contains items, filter by IDs
-            if (selectedFactorIds != null && selectedFactorIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                // Filters factors by selected IDs
-                factors = factors.Where(query => selectedFactorIds.Contains(query.FactorId));
+                factorsQuery = factorsQuery.Where(q => request.SelectedIds!.Contains(q.FactorId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                factorsQuery = factorsQuery.Where(q => 
+                    (q.FactorName != null && q.FactorName.Contains(search)) ||
+                    (q.ParameterName != null && q.ParameterName.Contains(search)) ||
+                    (q.ConditionValue != null && q.ConditionValue.Contains(search)) ||
+                    (q.Note != null && q.Note.Contains(search)) ||
+                    (q.Value1 != null && q.Value1.Contains(search)) ||
+                    (q.Value2 != null && q.Value2.Contains(search))
+                );
             }
 
             // Executes the query and retrieves results as list
-            var entities = await factors.ToListAsync();
+            var entities = await factorsQuery.ToListAsync();
 
             // Maps the entities to FactorModelDescription objects
-            var models = _mapper.Map<List<FactorModelDescription>>(factors);
+            var models = _mapper.Map<List<FactorModelDescription>>(entities);
 
-            // Sets the Excel package license context
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Creates a new Excel package
-            using var package = new ExcelPackage();
-            // Adds a new worksheet named "Factor"
-            var worksheet = package.Workbook.Worksheets.Add("Factor");
-
-            // Gets all properties of FactorModelDescription type
-            var properties = typeof(FactorModelDescription).GetProperties();
-            // Sets column headers using property names
-            for (int col = 0; col < properties.Length; col++)
-            {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Populates worksheet with data from models
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits columns to content
-            worksheet.Cells.AutoFitColumns();
-
-            // Creates a memory stream to hold the Excel file
-            var memoryStream = new MemoryStream();
-            // Saves the package to the memory stream
-            package.SaveAs(memoryStream);
-            // Resets the stream position to beginning
-            memoryStream.Position = 0;
-
-            // Returns the memory stream containing the Excel file
-            return memoryStream;
+            return await _exportService.ExportToExcel(models, "Factor", ["EntityName"]);
         }
 
         /// <summary>
@@ -516,24 +496,15 @@ namespace MEligibilityPlatform.Application.Services
                 // Commits the changes to the database
                 await _uow.CompleteAsync();
 
-                // Builds result message based on operation outcomes
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $"{insertedRecordsCount} Factor Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" {dublicatedRecordsCount} record already exists.";
-                }
+                // Final combined message
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Handles any exceptions during import
-                resultMessage = "Error On Factors Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
             // Returns the result message
             return resultMessage;
@@ -588,11 +559,11 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Retrieves all parameters for the specified entity
-            List<ParameterListModel> parameterList = _parameterService.GetAll(tenantId);
+            List<ParameterListModel> parameterList = await _parameterService.GetAll(tenantId);
             // Retrieves all conditions
             List<ConditionModel> conditionsList = _conditionService.GetAll();
             // Retrieves all managed lists for the specified entity
-            List<ManagedListGetModel> managedList = _managedListService.GetAll(tenantId);
+            List<ManagedListGetModel> managedList = await _managedListService.GetAll(tenantId);
 
             // Sanitizes parameter names for Excel range compatibility
             parameterList.ForEach(dataType => dataType.ParameterName = SanitizeRangeName(dataType.ParameterName ?? ""));
@@ -622,7 +593,7 @@ namespace MEligibilityPlatform.Application.Services
             // Adds reference column headers for internal data mapping
             sheet.Cells[1, 11].Value = "ParameterName";
             sheet.Cells[1, 12].Value = "ParameterId";
-            sheet.Cells[1, 13].Value = "TenantId";
+            //sheet.Cells[1, 13].Value = "TenantId";
             sheet.Cells[1, 14].Value = "ConditionValue";
             sheet.Cells[1, 15].Value = "ConditionId";
             sheet.Cells[1, 17].Value = "ListName";

@@ -31,12 +31,12 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.ECard.View)]
 
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             /// <summary>
             /// Retrieves all e-card records for the current user's entity from the service.
             /// </summary>
-            List<EcardListModel> result = _ecardService.GetAll(User.GetTenantId());
+            List<EcardListModel> result = await _ecardService.GetAll(User.GetTenantId());
 
             /// <summary>
             /// Returns successful response with the retrieved e-card records.
@@ -315,28 +315,20 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Returns the template file as a downloadable Excel document.
             /// </summary>
-            return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsm");
+            return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ECard-Template.xlsx");
         }
 
-        /// <summary>
-        /// Exports selected e-cards for the current entity.
-        /// </summary>
-        /// <param name="selectedEntityIds">The list of selected e-card IDs to export.</param>
-        /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
-        /// 
         [Authorize(Policy = Permissions.ECard.Export)]
-
         [HttpPost("export")]
-        public async Task<IActionResult> ExportECard([FromBody] List<int> selectedEntityIds)
+        public async Task<IActionResult> ExportECard([FromBody] ExportRequestModel request)
         {
-            /// <summary>
-            /// Calls the service to export e-cards for the current user's entity.
-            /// </summary>
-            var stream = await _ecardService.ExportECard(User.GetTenantId(), selectedEntityIds);
+            // Exports e-cards to a stream based on standardized logic
+            var stream = await _ecardService.ExportECard(User.GetTenantId(), request);
 
-            /// <summary>
-            /// Returns the exported file as a downloadable Excel document.
-            /// </summary>
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
+            // Returns the exported file as a downloadable Excel file
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Ecards.xlsx");
         }
     }

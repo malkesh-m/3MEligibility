@@ -20,7 +20,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="entityService">The entity service instance.</param>
     /// <param name="managedListService">The managed list service instance.</param>
-    public class ListItemService(IUnitOfWork uow, IMapper mapper, /*IEntityService entityService,*/ IManagedListService managedListService) : IListItemService
+    public class ListItemService(IUnitOfWork uow, IMapper mapper, IExportService exportService, /*IEntityService entityService,*/ IManagedListService managedListService) : IListItemService
     {
         /// <summary>
         /// The unit of work instance for database operations.
@@ -93,10 +93,10 @@ namespace MEligibilityPlatform.Application.Services
         /// Gets all list items.
         /// </summary>
         /// <returns>A list of ListItemModel representing all list items.</returns>
-        public List<ListItemModel> GetAll(int tenantId)
+        public async Task<List<ListItemModel>> GetAll(int tenantId)
         {
             // Retrieves all list items from the repository
-            var items = _uow.ListItemRepository.GetAllByTenantId(tenantId);
+            var items = await _uow.ListItemRepository.Query().Where(x => x.TenantId == tenantId).ToListAsync();
             // Maps the list items to ListItemModel objects
             return _mapper.Map<List<ListItemModel>>(items);
         }
@@ -185,63 +185,45 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="selectedListItemIds">A list of selected list item IDs to export.</param>
         /// <returns>A task that represents the asynchronous operation, with a stream containing the exported Excel file.</returns>
-        public async Task<Stream> ExportListIteam(List<int> selectedListItemIds)
+        private readonly IExportService _exportService = exportService;
+
+        /// <summary>
+        /// Exports list items based on standardized selection or filters.
+        /// </summary>
+        public async Task<Stream> ExportListIteam(int tenantId, ExportRequestModel request)
         {
-            // Queries list items joined with managed lists
-            var lists = from list in _uow.ListItemRepository.Query()
+            var listsQuery = from list in _uow.ListItemRepository.Query()
                         join managedlist in _uow.ManagedListRepository.Query()
                         on list.ListId equals managedlist.ListId
+                        where list.TenantId == tenantId
                         select new ListItemModelDescription
                         {
                             ItemId = list.ItemId,
                             ItemName = list.ItemName,
                             ListId = list.ListId,
-                            ListName = managedlist.ListName ?? ""
+                            ListName = managedlist.ListName ?? "",
+                            Code = list.Code
                         };
 
-            // Filters by selected IDs if provided
-            if (selectedListItemIds != null && selectedListItemIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                lists = lists.Where(listItem => selectedListItemIds.Contains(listItem.ItemId));
+                listsQuery = listsQuery.Where(q => request.SelectedIds!.Contains(q.ItemId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                listsQuery = listsQuery.Where(q => 
+                    (q.ItemName != null && q.ItemName.Contains(search)) ||
+                    (q.ListName != null && q.ListName.Contains(search)) ||
+                    (q.Code != null && q.Code.Contains(search))
+                );
             }
 
-            // Executes the query and retrieves results
-            var Lists = await lists.ToListAsync();
-            // Maps results to model objects
-            var models = _mapper.Map<List<ListItemModelDescription>>(Lists);
-
-            // Sets EPPlus license context to non-commercial
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            // Creates a new Excel package
-            using var package = new ExcelPackage();
-            // Adds a new worksheet named "ListItem"
-            var worksheet = package.Workbook.Worksheets.Add("ListItem");
-
-            // Gets properties of the model for column headers
-            var properties = typeof(ListItemModelDescription).GetProperties();
-            // Populates header row with property names
-            for (int col = 0; col < properties.Length; col++)
-            {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Populates data rows with model values
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits columns to content
-            worksheet.Cells.AutoFitColumns();
-
-            // Saves package to memory stream and returns
-            var memoryStream = new MemoryStream();
-            package.SaveAs(memoryStream);
-            memoryStream.Position = 0;
-            return memoryStream;
+            var entities = await listsQuery.ToListAsync();
+            var models = _mapper.Map<List<ListItemModelDescription>>(entities);
+            
+            return await _exportService.ExportToExcel(models, "ListItem", ["EntityName"]);
         }
 
         /// <summary>
@@ -363,24 +345,15 @@ namespace MEligibilityPlatform.Application.Services
                 // Commits changes to database
                 await _uow.CompleteAsync();
 
-                // Builds result message based on import outcomes
-                if (insertedRecordsCount > 0)
-                {
-                    resultMessage = $"{insertedRecordsCount} List Items Inserted Successfully.";
-                }
-                if (skippedRecordsCount > 0)
-                {
-                    resultMessage += $" {skippedRecordsCount} records were not inserted because of missing required field.";
-                }
-                if (dublicatedRecordsCount > 0)
-                {
-                    resultMessage += $" {dublicatedRecordsCount} record with the same ItemName and ListId already exists.";
-                }
+                // Final combined message
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
                 // Returns error message if exception occurs
-                resultMessage = "Error On List Iteam page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
             return resultMessage;
         }
@@ -424,7 +397,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<byte[]> DownloadTemplate(int tenantId)
         {
             // Gets all managed lists for the specified entity
-            List<ManagedListGetModel> listItem = managedListService.GetAll(tenantId);
+            List<ManagedListGetModel> listItem = await managedListService.GetAll(tenantId);
 
             // Sets EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

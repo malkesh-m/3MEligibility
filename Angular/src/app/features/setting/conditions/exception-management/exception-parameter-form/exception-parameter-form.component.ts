@@ -1102,6 +1102,7 @@ export class ExceptionParameterFormComponent {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
     if (this.selectedFile) {
       this.importRules(this.selectedFile);
     } else {
@@ -1174,7 +1175,8 @@ export class ExceptionParameterFormComponent {
 
   exportRules() {
     const selectedIds = Array.from(this.selection).map(row => row.eruleId);
-    this.ruleService.exportRules(selectedIds).subscribe({
+    const searchTerm = selectedIds.length === 0 ? (this.searchTerm || '').trim() : '';
+    this.ruleService.exportRules(selectedIds, searchTerm).subscribe({
       next: (response: Blob) => {
         console.log('Blob resp: ', response);
         const url = window.URL.createObjectURL(response);

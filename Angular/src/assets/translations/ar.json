@@ -552,5 +552,6 @@
   "Are you sure you want to delete the selected records?": "هل أنت متأكد أنك تريد حذف السجلات المحددة؟",
   "(You)": "(أنت)",
   "No User Assigned to this role": "لا يوجد مستخدم معين لهذا الدور",
-  "Please select role to view assigned user list": "يرجى تحديد الدور لعرض قائمة المستخدمين المعينين"
+  "Please select role to view assigned user list": "يرجى تحديد الدور لعرض قائمة المستخدمين المعينين",
+  "Search Product Cards": "البحث عن بطاقات المنتجات"
 }

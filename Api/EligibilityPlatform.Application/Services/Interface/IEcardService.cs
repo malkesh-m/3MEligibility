@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity to retrieve e-cards for.</param>
         /// <returns>A list of <see cref="EcardListModel"/> objects containing all e-cards.</returns>
-        List<EcardListModel> GetAll(int tenantId);
+        Task<List<EcardListModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific e-card by its identifier within a given entity.
@@ -71,11 +71,11 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task<string> ImportECard(int tenantId, Stream fileStream, string createdBy);
 
         /// <summary>
-        /// Exports e-cards to a stream for the specified entity and selected e-card IDs.
+        /// Exports e-cards to a stream for the specified entity based on selection or filters.
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity.</param>
-        /// <param name="ids">A list of e-card IDs to export.</param>
+        /// <param name="request">The export request containing selected IDs or filters.</param>
         /// <returns>A stream containing the exported e-card data.</returns>
-        Task<Stream> ExportECard(int tenantId, List<int> ids);
+        Task<Stream> ExportECard(int tenantId, ExportRequestModel request);
     }
 }

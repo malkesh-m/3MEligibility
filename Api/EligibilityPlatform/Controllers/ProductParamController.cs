@@ -183,12 +183,16 @@ namespace MEligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         [Authorize(Policy = Permissions.ProductParam.Export)]
         [HttpPost("export")]
-        public async Task<IActionResult> ExportDetails([FromBody] List<int> selectedProductIds)
+        public async Task<IActionResult> ExportDetails([FromBody] ExportRequestModel request)
         {
-            // Exports product parameters to an Excel stream
-            var stream = await _productParamservice.ExportDetails(selectedProductIds, User.GetTenantId());
+            // Exports product parameters to a stream based on standardized logic
+            var stream = await _productParamservice.ExportDetails(User.GetTenantId(), request);
+
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
             // Returns the Excel file as a downloadable response
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Product.xlsx");
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "product_parameters.xlsx");
         }
 
         /// <summary>
@@ -212,8 +216,9 @@ namespace MEligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> indicating the result of the import operation.</returns>
         [Authorize(Policy = Permissions.ProductParam.Import)]
         [HttpPost("import")]
-        public async Task<IActionResult> ImportDetails(IFormFile file, string createdBy)
+        public async Task<IActionResult> ImportDetails(IFormFile file)
         {
+            var createdBy = User.GetUserName() ?? "";
             // Validates that a file was uploaded
             if (file == null || file.Length == 0)
                 // Returns bad request if no file is uploaded

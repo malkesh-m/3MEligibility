@@ -741,6 +741,7 @@ export class ListsComponent implements OnInit {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
     if (this.selectedFile) {
       this.importList(this.selectedFile);
     } else {
@@ -753,14 +754,14 @@ export class ListsComponent implements OnInit {
   }
 
   importList(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
-    this.createdBy = this.loggedInUser.user.userName;
+    // this.authService.currentUser$.subscribe((user) => {
+    //   this.loggedInUser = user;
+    // });
+    // this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = this.translate.instant("Uploading file, please wait...");
     if (this.activeTab?.toLowerCase() === 'lists') {
-      this.listsService.importList(selectedFile, this.createdBy).subscribe({
+      this.listsService.importList(selectedFile).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchLists();
@@ -778,7 +779,7 @@ export class ListsComponent implements OnInit {
         },
       });
     } else {
-      this.listsService.importListItem(selectedFile, this.createdBy).subscribe({
+      this.listsService.importListItem(selectedFile).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchListItems();
@@ -860,12 +861,12 @@ export class ListsComponent implements OnInit {
 
   ExportLists() {
     if (this.activeTab?.toLowerCase() === 'lists') {
-      // If nothing is selected, export all rows
       const listsIdsToExport = this.selectedRows.size > 0
         ? Array.from(this.selectedRows)
-        : this.dataSource.data.map(item => item.listId); // all rows
+        : [];
+      const searchTerm = listsIdsToExport.length === 0 ? (this.searchTerms[this.activeTab] || '').trim() : '';
 
-      this.listsService.ExportLists(listsIdsToExport).subscribe({
+      this.listsService.ExportLists(listsIdsToExport, searchTerm).subscribe({
         next: (response: Blob) => {
           const url = window.URL.createObjectURL(response);
           const anchor = document.createElement('a');
@@ -893,9 +894,10 @@ export class ListsComponent implements OnInit {
       // For List Items tab
       const listItemIdsToExport = this.selectedRows.size > 0
         ? Array.from(this.selectedRows)
-        : this.listItemDataSource.data.map(item => item.itemId); // all rows
+        : [];
+      const searchTerm = listItemIdsToExport.length === 0 ? (this.searchTerms[this.activeTab] || '').trim() : '';
 
-      this.listsService.ExportListIteam(listItemIdsToExport).subscribe({
+      this.listsService.ExportListIteam(listItemIdsToExport, searchTerm).subscribe({
         next: (response: Blob) => {
           const url = window.URL.createObjectURL(response);
           const anchor = document.createElement('a');

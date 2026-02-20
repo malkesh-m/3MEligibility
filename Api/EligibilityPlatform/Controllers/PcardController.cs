@@ -152,14 +152,17 @@ namespace MEligibilityPlatform.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the exported file.</returns>
         /// 
         [Authorize(Policy = Permissions.PCard.Export)]
-
         [HttpPost("export")]
-        public async Task<IActionResult> ExportPCards([FromBody] List<int> selectedPcardIds)
+        public async Task<IActionResult> ExportPCards([FromBody] ExportRequestModel request)
         {
-            // Exports selected pcard records for the current entity
-            var stream = await _pcardService.ExportPCards(User.GetTenantId(), selectedPcardIds);
+            // Exports PCard records to a stream based on standardized logic
+            var stream = await _pcardService.ExportPCards(User.GetTenantId(), request);
+
+            if (stream == null || stream.Length == 0)
+                return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
+
             // Returns the exported file as a downloadable Excel document
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "entities.xlsx");
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "pcards.xlsx");
         }
 
         /// <summary>

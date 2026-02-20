@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="ParameterListModel"/> objects containing all parameter records for the specified entity.</returns>
-        List<ParameterListModel> GetAll(int tenantId);
+        Task<List<ParameterListModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves parameter records by entity identifier.
@@ -76,7 +76,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="Identifier">The identifier for the export operation.</param>
         /// <param name="selectedParameterIds">A list of parameter identifiers to include in the export.</param>
         /// <returns>A task that represents the asynchronous operation, containing the export stream.</returns>
-        Task<Stream> ExportParameter(int tenantId, int Identifier, List<int> selectedParameterIds);
+        Task<Stream> ExportParameter(int tenantId, int Identifier, ExportRequestModel request);
 
         /// <summary>
         /// Imports entities from a stream for the specified entity.
@@ -106,6 +106,6 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// Downloads a template file for parameter operations.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation, containing the template file as a byte array.</returns>
-        Task<byte[]> DownloadTemplate();
+        Task<byte[]> DownloadTemplate(int tenantId);
     }
 }

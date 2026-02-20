@@ -455,6 +455,7 @@ export class ProductComponent {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
     if (this.selectedFile) {
       this.importProduct(this.selectedFile);
     } else {
@@ -493,7 +494,7 @@ export class ProductComponent {
       });
     }
     else if (this.activeTab === 'Info') {
-      this.productService.importInfo(selectedFile, this.createdBy).subscribe({
+      this.productService.importInfo(selectedFile).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchInfoList();
@@ -512,7 +513,7 @@ export class ProductComponent {
       });
     }
     else if (this.activeTab === 'Details') {
-      this.productService.importDetails(selectedFile, this.createdBy).subscribe({
+      this.productService.importDetails(selectedFile).subscribe({
         next: (response) => {
           this.isUploading = false;
           this.fetchDetailsList();

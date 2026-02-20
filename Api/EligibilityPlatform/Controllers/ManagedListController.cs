@@ -27,10 +27,10 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.ManagedList.View)]
 
         [HttpGet("getall")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             // Retrieves all managed list records for the current entity
-            List<ManagedListGetModel> result = _managedListService.GetAll(User.GetTenantId());
+            List<ManagedListGetModel> result = await _managedListService.GetAll(User.GetTenantId());
             // Returns success response with the retrieved data
             return Ok(new ResponseModel { IsSuccess = true, Data = result, Message = GlobalcConstants.Success });
         }
@@ -166,10 +166,10 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.ManagedList.Export)]
 
         [HttpPost("export")]
-        public async Task<IActionResult> ExportLists([FromBody] List<int> selectedListIds)
+        public async Task<IActionResult> ExportLists([FromBody] ExportRequestModel request)
         {
-            // Exports selected managed lists to a stream
-            var stream = await _managedListService.ExportLists(User.GetTenantId(), selectedListIds);
+            // Exports managed lists based on standardized logic
+            var stream = await _managedListService.ExportLists(User.GetTenantId(), request);
             // Returns the exported file as a downloadable Excel file
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Factor.xlsx");
         }
@@ -213,9 +213,9 @@ namespace MEligibilityPlatform.Controllers
         public async Task<ActionResult> DownloadTemplate()
         {
             // Retrieves the import template as byte array
-            var excelBytes = await _managedListService.DownloadTemplate();
+            var excelBytes = await _managedListService.DownloadTemplate(User.GetTenantId());
             // Returns the template file as a downloadable Excel file
-            return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Parameter-Template.xlsx");
+            return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ManagedList-Template.xlsx");
         }
     }
 }

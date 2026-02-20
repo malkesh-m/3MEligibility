@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity for which to retrieve factors.</param>
         /// <returns>A list of <see cref="FactorListModel"/> objects containing all factors for the specified entity.</returns>
-        List<FactorListModel> GetAll(int tenantId);
+        Task<List<FactorListModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific factor by its identifier and entity identifier.
@@ -62,12 +62,12 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task ImportEntities(int tenantId, Stream fileStream);
 
         /// <summary>
-        /// Exports factors to a stream for the selected factor IDs and specific entity.
+        /// Exports factors to a stream for the specified entity based on selection or filters.
         /// </summary>
-        /// <param name="tenantId">The unique identifier of the entity for which to export factors.</param>
-        /// <param name="selectedFactorIds">A list of factor IDs to export.</param>
-        /// <returns>A task that represents the asynchronous operation, containing a stream with the exported factor data.</returns>
-        Task<Stream> ExportFactors(int tenantId, List<int> selectedFactorIds);
+        /// <param name="tenantId">The unique identifier of the entity.</param>
+        /// <param name="request">The export request containing selected IDs or filters.</param>
+        /// <returns>A stream containing the exported factor data.</returns>
+        Task<Stream> ExportFactors(int tenantId, ExportRequestModel request);
 
         /// <summary>
         /// Retrieves factor values based on entity and parameter identifiers.

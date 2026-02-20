@@ -156,6 +156,7 @@ builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler
 builder.Services.AddScoped<ITenantOnboardingService, TenantOnboardingService>();
 
 //builder.Services.AddScoped<IDynamicApiService, DynamicApiService>();
+builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddScoped<IDriveService, DriveService>();
 
 // Also register other repositories if needed

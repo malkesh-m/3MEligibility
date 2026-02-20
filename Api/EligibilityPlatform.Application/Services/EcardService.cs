@@ -22,7 +22,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="uow">The unit of work instance.</param>
     /// <param name="mapper">The AutoMapper instance.</param>
     /// <param name="eruleService">The Erule service instance.</param>
-    public partial class EcardService(IUnitOfWork uow, IMapper mapper, IEruleService eruleService, IEruleMasterService eruleMasterService) : IEcardService
+    public partial class EcardService(IUnitOfWork uow, IMapper mapper, IEruleService eruleService, IEruleMasterService eruleMasterService, IExportService exportService) : IEcardService
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
@@ -102,10 +102,15 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The entity ID to filter Ecards.</param>
         /// <returns>A list of EcardListModel objects representing all the Ecards.</returns>
-        public List<EcardListModel> GetAll(int tenantId)
+        /// <summary>
+        /// Retrieves all the Ecards from the database for a specific entity.
+        /// </summary>
+        /// <param name="tenantId">The entity ID to filter Ecards.</param>
+        /// <returns>A list of EcardListModel objects representing all the Ecards.</returns>
+        public async Task<List<EcardListModel>> GetAll(int tenantId)
         {
             // Retrieves all Ecard entities for the specified entity ID
-            var ecards = _uow.EcardRepository.GetAllByTenantId(tenantId);
+            var ecards = await _uow.EcardRepository.Query().Where(x => x.TenantId == tenantId).ToListAsync();
             // Maps the Ecard entities to EcardListModel objects and returns the list
             return _mapper.Map<List<EcardListModel>>(ecards);
         }
@@ -392,12 +397,13 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
 
                 // Final message
-                resultMessage =
-                    $"{insertedRecordsCount} inserted. {skippedRecordsCount} skipped. {dublicatedRecordsCount} duplicates.";
+                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                               $"{dublicatedRecordsCount} duplicates skipped, " +
+                               $"{skippedRecordsCount} invalid rows skipped.";
             }
             catch (Exception ex)
             {
-                resultMessage = "E Card Page = " + ex.Message;
+                resultMessage = $"{GlobalcConstants.GeneralError} Error: {ex.Message}";
             }
 
             return resultMessage;
@@ -576,10 +582,14 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="tenantId">The entity ID associated with the Ecards.</param>
         /// <param name="selectedEcardIds">A list of selected Ecard IDs to be exported.</param>
         /// <returns>A stream containing the Excel file with the Ecard data.</returns>
-        public async Task<Stream> ExportECard(int tenantId, List<int> selectedEcardIds)
+        private readonly IExportService _exportService = exportService;
+
+        /// <summary>
+        /// Exports e-cards based on standardized selection or filters.
+        /// </summary>
+        public async Task<Stream> ExportECard(int tenantId, ExportRequestModel request)
         {
-            // Queries Ecard entities for the specified entity ID
-            var Ecards = from ecard in _uow.EcardRepository.Query()
+            var query = from ecard in _uow.EcardRepository.Query()
                          where ecard.TenantId == tenantId
                          select new EcardModelDescription
                          {
@@ -590,45 +600,24 @@ namespace MEligibilityPlatform.Application.Services
                              Expression = ecard.Expression
                          };
 
-            // Filters by selected Ecard IDs if provided
-            if (selectedEcardIds != null && selectedEcardIds.Count > 0)
+            // Apply standardized Export logic: Selected -> Filtered -> All
+            if (request.HasSelection)
             {
-                Ecards = Ecards.Where(query => selectedEcardIds.Contains(query.EcardId));
+                query = query.Where(q => request.SelectedIds!.Contains(q.EcardId));
+            }
+            else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                string search = request.SearchTerm.ToLower();
+                query = query.Where(q => 
+                    (q.EcardName != null && q.EcardName.Contains(search)) ||
+                    (q.EcardDesc != null && q.EcardDesc.Contains(search))
+                );
             }
 
-            var Ecard = await Ecards.ToListAsync();
-
-            // Maps Ecard entities to model objects
-            var models = _mapper.Map<List<EcardModelDescription>>(Ecard);
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using var package = new ExcelPackage();
-            var worksheet = package.Workbook.Worksheets.Add("Ecards");
-
-            // Adds headers to the worksheet
-            var properties = typeof(EcardModelDescription).GetProperties();
-            for (int col = 0; col < properties.Length; col++)
-            {
-                worksheet.Cells[1, col + 1].Value = properties[col].Name;
-            }
-
-            // Populates the worksheet with Ecard data
-            for (int row = 0; row < models.Count; row++)
-            {
-                for (int col = 0; col < properties.Length; col++)
-                {
-                    worksheet.Cells[row + 2, col + 1].Value = properties[col].GetValue(models[row]);
-                }
-            }
-
-            // Auto-fits columns for better readability
-            worksheet.Cells.AutoFitColumns();
-
-            // Creates a memory stream with the Excel file
-            var memoryStream = new MemoryStream();
-            package.SaveAs(memoryStream);
-            memoryStream.Position = 0;
-
-            return memoryStream;
+            var EcardList = await query.ToListAsync();
+            var data = _mapper.Map<List<EcardModelDescription>>(EcardList);
+            
+            return await _exportService.ExportToExcel(data, "Ecards", ["EntityName", "TenantId"]);
         }
 
         [GeneratedRegex(@"\d+")]

@@ -61,6 +61,7 @@ namespace MEligibilityPlatform.Domain.Models
 
         public int? ListId { get; set; }
         public required string ListName { get; set; }
+        public string? Code { get; set; }
 
     }
 }

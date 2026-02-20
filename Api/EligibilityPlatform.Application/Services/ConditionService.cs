@@ -51,7 +51,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<ConditionModel> GetAll()
         {
             // Retrieves all condition entities from the repository
-            var conditions = _uow.ConditionRepository.GetAll();
+            var conditions = _uow.ConditionRepository.GetAll().ToList();
             // Maps the condition entities to ConditionModel objects and returns the list
             return _mapper.Map<List<ConditionModel>>(conditions);
         }

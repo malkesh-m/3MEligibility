@@ -47,8 +47,9 @@ export class RulesService {
 
   deleteMultipleRules(payload: any) {
     console.log("service callimns ", payload)
-    return this.http.delete<any>(`${this.apiUrl}/erule/multipledeleteerulemaster`, { body: payload, headers: this.getHeaders() 
-}).pipe(catchError(this.handleError))
+    return this.http.delete<any>(`${this.apiUrl}/erule/multipledeleteerulemaster`, {
+      body: payload, headers: this.getHeaders()
+    }).pipe(catchError(this.handleError))
   }
 
   //downloadTemplate(): Observable<Blob> {
@@ -63,7 +64,7 @@ export class RulesService {
         catchError(this.handleError)
       );
   }
-  
+
   //importRule(file: File,createdBy:string): Observable<any> { // Return an Observable
   //  const formData = new FormData();
   //  formData.append('file', file);
@@ -74,30 +75,30 @@ export class RulesService {
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/erule/importerulemaster`, formData, { headers: this.getHeaders() }).pipe(catchError(this.handleError));
   }
-  
+
   // exportRules(): Observable<Blob> {
   //   return this.http.get(`${this.apiUrl}/erule/export`, { responseType: 'blob' }).pipe(
   //     catchError(this.handleError)
   //   );
   // }
 
-  exportRules(selectedIds: number[]): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/erule/export`, selectedIds, { 
-      responseType: 'blob', headers: this.getHeaders() 
+  exportRules(selectedIds: number[], searchTerm?: string): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/erule/export`, { selectedIds: selectedIds, searchTerm }, {
+      responseType: 'blob', headers: this.getHeaders()
     }).pipe(
       catchError(this.handleError)
     );
   }
 
-  validateRule(ruleId: number, payload: {[parameterId: number]: string}) {
+  validateRule(ruleId: number, payload: { [parameterId: number]: string }) {
     return this.http.post<any>(`${this.apiUrl}/validator/validateerule?ruleId=${ruleId}`, payload, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
-  validateFormErule(expreesion: string, payload: {[parameterId: number]: string}) {
+  validateFormErule(expreesion: string, payload: { [parameterId: number]: string }) {
     return this.http.post<any>(`${this.apiUrl}/validator/validateformerule?expreesion=${expreesion}`, payload, { headers: this.getHeaders() }).pipe(catchError(this.handleError))
   }
 
-  
+
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';

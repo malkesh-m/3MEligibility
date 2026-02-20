@@ -13,7 +13,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="tenantId">The unique identifier of the entity for which to retrieve managed lists.</param>
         /// <returns>A list of <see cref="ManagedListGetModel"/> objects containing all managed lists for the specified entity.</returns>
-        List<ManagedListGetModel> GetAll(int tenantId);
+        Task<List<ManagedListGetModel>> GetAll(int tenantId);
 
         /// <summary>
         /// Retrieves a specific managed list by its identifier and entity identifier.
@@ -66,14 +66,14 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// Downloads a template file for managed list import.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation, containing a byte array with the template file data.</returns>
-        Task<byte[]> DownloadTemplate();
+        Task<byte[]> DownloadTemplate(int tenantId);
 
         /// <summary>
-        /// Exports managed lists to a stream for the selected list IDs and specific entity.
+        /// Exports managed lists based on selection or filters.
         /// </summary>
-        /// <param name="tenantId">The unique identifier of the entity for which to export managed lists.</param>
-        /// <param name="selectedListIds">A list of managed list IDs to export.</param>
-        /// <returns>A task that represents the asynchronous operation, containing a stream with the exported managed list data.</returns>
-        Task<Stream> ExportLists(int tenantId, List<int> selectedListIds);
+        /// <param name="tenantId">The unique identifier of the entity.</param>
+        /// <param name="request">The export request containing identifiers or filters.</param>
+        /// <returns>A stream containing the exported managed list data.</returns>
+        Task<Stream> ExportLists(int tenantId, ExportRequestModel request);
     }
 }

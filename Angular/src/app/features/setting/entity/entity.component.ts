@@ -748,6 +748,7 @@ export class EntityComponent implements OnInit, AfterViewInit {
  */
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
     if (this.selectedFile) {
       this.importEntities(this.selectedFile);
     } else {

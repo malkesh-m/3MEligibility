@@ -857,7 +857,9 @@ export class ProductCardsComponent implements OnInit {
 
   exportPCards() {
     let listOfSelectedIds = new Set(this.tableChild.selectedRowsItem)
-    this.productsCardService.exportPCards([...listOfSelectedIds]).subscribe({
+    const selectedIds = [...listOfSelectedIds];
+    const searchTerm = selectedIds.length === 0 ? (this.searchTerm || '').trim() : '';
+    this.productsCardService.exportPCards(selectedIds, searchTerm).subscribe({
       next: (response: Blob) => {
         console.log('Blob resp: ', response);
         const url = window.URL.createObjectURL(response);
@@ -930,6 +932,7 @@ export class ProductCardsComponent implements OnInit {
 
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
+    event.target.value = '';
     if (this.selectedFile) {
       this.importPCard(this.selectedFile);
     } else {
