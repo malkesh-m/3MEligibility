@@ -52,8 +52,8 @@ export class DashboardComponent implements AfterViewInit {
   customerSegmentChart!: Chart;
   processingTimeChart!: Chart;
   riskScoreChart!: Chart;
-  evaluationHistory:any = [];
- 
+  evaluationHistory: any = [];
+
   //evaluationHistory = [
   //  {
   //    customerId: 'CUST001',
@@ -82,10 +82,10 @@ export class DashboardComponent implements AfterViewInit {
   //];
   getEvaluationHistory(): void {
     // Include pagination info in the filter
- this.filter.fromDate ? new Date(this.filter.fromDate).toISOString() : undefined,
- this.filter.toDate ? new Date(this.filter.toDate).toISOString() : undefined
- console.log('Fetching Evaluation History with filter:', this.filter);
-const request = {
+    this.filter.fromDate ? new Date(this.filter.fromDate).toISOString() : undefined,
+      this.filter.toDate ? new Date(this.filter.toDate).toISOString() : undefined
+    console.log('Fetching Evaluation History with filter:', this.filter);
+    const request = {
       ...this.filter,
       pageNumber: this.pageNumber ?? 1,
       pageSize: this.pageSize ?? 10
@@ -111,7 +111,7 @@ const request = {
     this.createProcessingTimeChart();
     this.createRiskScoreChart();
     this.getEvaluationHistory();
-  //  this.fetchApiEvaluationHistory();
+    //  this.fetchApiEvaluationHistory();
   }
   onPageChange(event: PageEvent) {
     this.pageNumber = event.pageIndex + 1; // paginator index is 0-based
@@ -128,8 +128,8 @@ const request = {
       customersEvaluated: this.dashboardService.getCustomersEvaluated(),
       approvalRate: this.dashboardService.getApprovalRate(),
       rejectionRate: this.dashboardService.getRejectionRate(),
-       avgProcessingTime: this.dashboardService.getAvgTimeProcessing(),
-     // processingTime: this.dashboardService.getProcessingTimeDistribution(),
+      avgProcessingTime: this.dashboardService.getAvgTimeProcessing(),
+      // processingTime: this.dashboardService.getProcessingTimeDistribution(),
       topFailureReason: this.dashboardService.getTopFailureReason(),
       //avgApprovedScore: this.dashboardService.getAvgApprovedScore(),
       //failureReasonsSummary: this.dashboardService.getFailureReasonsSummary()
@@ -140,8 +140,8 @@ const request = {
           { name: 'Customers Evaluated', count: res.customersEvaluated ?? 0, icon: 'person_search', footer: 'Today / Month / Year' },
           { name: 'Eligibility Rate', count: (res.approvalRate ?? 0) + '%', icon: 'check_circle', footer: 'Eligibility Rate' },
           { name: 'Non-Eligibility Rate', count: (res.rejectionRate ?? 0) + '%', icon: 'cancel', footer: 'Ineligibility Rate' },
-          { name: 'Avg. Processing Time', count: (res.avgProcessingTime??0)+' s', icon: 'timer', footer: 'Evaluation Duration' },
-          { name: 'Top Failure Reasons', count: res.topFailureReason, icon: 'error', footer: 'Most Frequent', class: 'small-text wide-tile'},
+          { name: 'Avg. Processing Time', count: (res.avgProcessingTime ?? 0) + ' s', icon: 'timer', footer: 'Evaluation Duration' },
+          { name: 'Top Failure Reasons', count: res.topFailureReason, icon: 'error', footer: 'Most Frequent', class: 'small-text wide-tile' },
           { name: 'Re-evaluations Triggered', count: 52, icon: 'autorenew', footer: 'Auto Triggers' },
           //{ name: 'Avg. Approved Score', count: res.avgApprovedScore ?? 'N/A', icon: 'insights', footer: 'MOZN Score Avg' },
 
@@ -211,8 +211,8 @@ const request = {
           data: {
             labels: labels,
             datasets: [
-              { label: '✅ Pass', data: passData, borderColor: 'green', fill: false },
-              { label: '❌ Fail', data: failData, borderColor: 'red', fill: false }
+              { label: '✅ Pass', data: passData, borderColor: '#2E7D32', backgroundColor: 'rgba(46, 125, 50, 0.1)', fill: true, tension: 0.3 },
+              { label: '❌ Fail', data: failData, borderColor: '#e11d48', backgroundColor: 'rgba(225, 29, 72, 0.1)', fill: true, tension: 0.3 }
             ]
           },
           options: { responsive: true }
@@ -246,10 +246,10 @@ const request = {
 
         const backgroundColors = labels.map((label: any) => {
           switch (label) {
-            case 'Low Credit Score': return '#e74c3c';
-            case 'Insufficient Income': return '#f39c12';
-            case 'Multiple Defaults': return '#8e44ad';
-            default: return '#3498db';
+            case 'Low Credit Score': return '#e11d48'; // Danger
+            case 'Insufficient Income': return '#d97706'; // Warning
+            case 'Multiple Defaults': return '#1A237E'; // Navy
+            default: return '#0ea5e9'; // Light Blue
           }
         });
 
@@ -259,12 +259,16 @@ const request = {
           data: {
             labels: labels,
             datasets: [{
-              label: 'Rejection ',
+              label: 'Rejection',
               data: data,
-              backgroundColor: backgroundColors
+              backgroundColor: backgroundColors,
+              borderRadius: 6
             }]
           },
-          options: { responsive: true }
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+          }
         });
       },
       error: (err) => {
@@ -283,8 +287,8 @@ const request = {
       data: {
         labels: ['Beginner', 'Intermediate', 'Expert'],
         datasets: [
-          { label: '✅ Pass', data: [80, 90, 120], backgroundColor: 'green' },
-          { label: '❌ Fail', data: [20, 30, 10], backgroundColor: 'red' }
+          { label: '✅ Pass', data: [80, 90, 120], backgroundColor: '#2E7D32', borderRadius: 4 },
+          { label: '❌ Fail', data: [20, 30, 10], backgroundColor: '#e11d48', borderRadius: 4 }
         ]
       },
       options: { responsive: true }
@@ -325,7 +329,8 @@ const request = {
             datasets: [{
               label: 'Evaluations',
               data: data,
-              backgroundColor: '#3498db'
+              backgroundColor: '#1A237E', // Midnight Navy
+              borderRadius: 6
             }]
           },
           options: { responsive: true }
@@ -344,7 +349,8 @@ const request = {
         this._snackBar.open(response.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
-        });      },
+        });
+      },
       error: (err) => {
         console.error('Failed to load API Evaluation History:', err);
       }
@@ -363,14 +369,14 @@ const request = {
             data: [
               { x: 101, y: 750 }, { x: 102, y: 680 }, { x: 103, y: 700 }
             ],
-            backgroundColor: 'green'
+            backgroundColor: '#2E7D32'
           },
           {
             label: '❌ Fail',
             data: [
               { x: 201, y: 450 }, { x: 202, y: 480 }, { x: 203, y: 460 }
             ],
-            backgroundColor: 'red'
+            backgroundColor: '#e11d48'
           }
         ]
       },

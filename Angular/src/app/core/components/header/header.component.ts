@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { OidcAuthService } from '../../services/auth/oidc-auth.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-header',
@@ -61,4 +62,10 @@ export class HeaderComponent {
     this.currentLanguage = lang;
     localStorage.setItem('appLanguage', lang);
   }
+
+ goToProfile() {
+  if (environment.identityAccountUrl?.Url) {
+    window.open(environment.identityAccountUrl.Url, '_blank');
+  }
+}
 }
