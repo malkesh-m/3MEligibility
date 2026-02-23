@@ -49,7 +49,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="apiConfig">The API configuration node model.</param>
         /// <param name="token">The authentication token, if any.</param>
         /// <returns>The authenticated HTTP request message.</returns>
-        public async Task<HttpRequestMessage> AuthenticateRequestAsync(HttpRequestMessage request, NodeModel apiConfig, string token)
+        public async Task<HttpRequestMessage> AuthenticateRequestAsync(HttpRequestMessage request, NodeModel apiConfig, string token, CancellationToken ct = default)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace MEligibilityPlatform.Application.Services
 
                     // Applies OAuth2 authentication
                     case "oauth2":
-                        return await ApplyOAuth2AuthAsync(request, authSettings);
+                        return await ApplyOAuth2AuthAsync(request, authSettings, ct);
 
                     // Applies API Key authentication
                     case "apikey":
@@ -136,7 +136,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="request">The HTTP request message.</param>
         /// <param name="authSettings">The authentication settings.</param>
         /// <returns>The HTTP request message with OAuth2 Authentication applied.</returns>
-        private async Task<HttpRequestMessage> ApplyOAuth2AuthAsync(HttpRequestMessage request, Dictionary<string, string> authSettings)
+        private async Task<HttpRequestMessage> ApplyOAuth2AuthAsync(HttpRequestMessage request, Dictionary<string, string> authSettings, CancellationToken ct)
         {
             try
             {
@@ -184,7 +184,7 @@ namespace MEligibilityPlatform.Application.Services
 
                 // Sends token request to token endpoint
                 var content = new FormUrlEncodedContent(tokenRequest);
-                var tokenResponse = await client.PostAsync(tokenUrl, content);
+                var tokenResponse = await client.PostAsync(tokenUrl, content, ct);
                 // Ensures the token request was successful
                 tokenResponse.EnsureSuccessStatusCode();
 

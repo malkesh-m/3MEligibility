@@ -17,6 +17,6 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="token">The authentication token for the API request.</param>
         /// <param name="requestBody">The request body content (optional, used for POST/PUT requests).</param>
         /// <returns>A dynamic object representing the API response.</returns>
-        Task<dynamic> FetchSampleResponseAsync(NodeModel ApiConfig, string endpointPath, string method, string token, string requestBody = "");
+        Task<dynamic> FetchSampleResponseAsync(NodeModel ApiConfig, string endpointPath, string method, string token, string requestBody = "", CancellationToken ct = default);
     }
 }

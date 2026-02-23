@@ -120,29 +120,29 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="entityId">The entity ID.</param>
         /// <returns>A list of UserGetModel representing all users for the entity.</returns>
-        public async Task<ApiResponse<List<UserGetModel>>> GetAll(int tenantId)
+        public async Task<ApiResponse<List<UserGetModel>>> GetAll(int tenantId, CancellationToken ct = default)
         {
             var version = _configuration["MIdentityAPI:Version"] ?? "1";
             var client = _httpClientFactory.CreateClient("MIdentityAPI");
-            var response = await client.GetAsync($"api/v{version}/Users/GetAllByTenantId/{tenantId}");
+            var response = await client.GetAsync($"api/v{version}/Users/GetAllByTenantId/{tenantId}", ct);
             // Executes the query and returns the results as a list.
             response.EnsureSuccessStatusCode();
 
-            var data = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserGetModel>>>();
+            var data = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserGetModel>>>(cancellationToken: ct);
             
             
             return data ?? new ApiResponse<List<UserGetModel>>();
         }
-        public async Task<ApiResponse<UserGetModel>> GetById(int userId)
+        public async Task<ApiResponse<UserGetModel>> GetById(int userId, CancellationToken ct = default)
         {
             var version = _configuration["MIdentityAPI:Version"] ?? "1";
 
             var client = _httpClientFactory.CreateClient("MIdentityAPI");
-            var response = await client.GetAsync($"api/v{version}/Users/{userId}");
+            var response = await client.GetAsync($"api/v{version}/Users/{userId}", ct);
             // Executes the query and returns the results as a list.
             response.EnsureSuccessStatusCode();
 
-            var data = await response.Content.ReadFromJsonAsync<ApiResponse<UserGetModel>>();
+            var data = await response.Content.ReadFromJsonAsync<ApiResponse<UserGetModel>>(cancellationToken: ct);
 
             // Enrich with groups from local database (filtered by tenantId for multi-tenant isolation)
 

@@ -57,7 +57,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<DataTypeModel> GetAll()
         {
             // Retrieves all data type entities from the repository
-            var dataTypes = _uow.DataTypeRepository.GetAll();
+            var dataTypes = _uow.DataTypeRepository.Query().AsNoTracking().ToList();
             // Maps the data type entities to DataTypeModel objects and returns the list
             return _mapper.Map<List<DataTypeModel>>(dataTypes);
         }

@@ -47,10 +47,10 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.UserRole.View)]
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(int id, CancellationToken ct)
         {
             var tenantId = User.GetTenantId();
-            var users = await _userService.GetAll(tenantId);
+            var users = await _userService.GetAll(tenantId, ct);
             // Retrieves users belonging to a specific role by its ID
             var result = _userRoleService.GetUserByRoleId(id,users);
             // Checks if the user role was found

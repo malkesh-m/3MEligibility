@@ -17,8 +17,8 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="entityId">The unique identifier of the entity.</param>
         /// <returns>A list of <see cref="UserGetModel"/> objects containing all user records for the specified entity.</returns>
-        Task<ApiResponse<List<UserGetModel>>> GetAll(int tenantId);
-        Task<ApiResponse<UserGetModel>> GetById(int userId);
+        Task<ApiResponse<List<UserGetModel>>> GetAll(int tenantId, CancellationToken ct = default);
+        Task<ApiResponse<UserGetModel>> GetById(int userId, CancellationToken ct = default);
 
         ///// <summary>
         ///// Retrieves a specific user record by its identifier within a specific entity.

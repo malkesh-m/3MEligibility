@@ -27,10 +27,10 @@ export class BulkImportComponent {
     "Parameter",
     "Factors",
     "Category",
-    "Stream",
+    "Product",
     "ERules",
     "ECards",
-    "StreamCards"
+    "ProductCards"
   ];
   selectedList: string = 'All';
   uploadedFileName: string | null = null;
@@ -157,31 +157,39 @@ export class BulkImportComponent {
   }
 
   BulkImport(selectedFile: File) {
-    this.authService.currentUser$.subscribe((user) => {
-      this.loggedInUser = user;
-    });
-    this.createdBy = this.loggedInUser.user.userName;
-    this.isUploading = true;
-    this.message = this.translate.instant("Uploading file, please wait...");
-    this.bulkImportService.bulkImport(selectedFile).subscribe({
-      next: (response) => {
-        this.isUploading = false;
-        this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 4000,
-        });
-        this.fetchBulkImportHistory();
-      },
-      error: (error) => {
-        this.isUploading = false;
-        this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          duration: 4000,
-        });
-      },
-    });
+    // this.authService.currentUser$.subscribe((user) => {
+    //   this.loggedInUser = user;
+    //   this.createdBy = this.loggedInUser?.user?.userName ?? '';
+      // if (!this.createdBy) {
+      //   this.isUploading = false;
+      //   this._snackBar.open(this.translate.instant('User not found. Please sign in again.'), this.translate.instant('Okay'), {
+      //     horizontalPosition: 'right',
+      //     verticalPosition: 'top',
+      //     duration: 4000,
+      //   });
+      //   return;
+      // }
+      this.isUploading = true;
+      this.message = this.translate.instant("Uploading file, please wait...");
+      this.bulkImportService.bulkImport(selectedFile).subscribe({
+        next: (response) => {
+          this.isUploading = false;
+          this._snackBar.open(this.translate.instant(response.message), this.translate.instant('Okay'), {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 4000,
+          });
+          this.fetchBulkImportHistory();
+        },
+        error: (error) => {
+          this.isUploading = false;
+          this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+            duration: 4000,
+          });
+        },
+      });
   }
 
   downloadFile(doc: any) {

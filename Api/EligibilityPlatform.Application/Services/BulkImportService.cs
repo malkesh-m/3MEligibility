@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -109,17 +109,17 @@ namespace MEligibilityPlatform.Application.Services
         /// <summary>
         /// Counter for successfully imported records.
         /// </summary>
-        public int successCount = 0;
+        private int _successCount = 0;
 
         /// <summary>
         /// Counter for failed import records.
         /// </summary>
-        public int failureCount = 0;
+        private int _failureCount = 0;
 
         /// <summary>
         /// Counter for total records processed.
         /// </summary>
-        public int totalRecords = 0;
+        private int _totalRecords = 0;
 
         /// <summary>
         /// Symbol indicating required fields in import templates.
@@ -140,87 +140,37 @@ namespace MEligibilityPlatform.Application.Services
             // Creates a new Excel package from the file stream
             using var package = new ExcelPackage(fileStream);
             // Creates a new import document record
-            var importDocument = new ImportDocument
-            {
-                // Sets the document name to the uploaded file name
-                Name = fileName,
-                // Sets the import start time to current UTC time
-                ImportTime = DateTime.UtcNow,
-                // Sets the import end time to current UTC time (will be updated later)
-                EndTime = DateTime.UtcNow,
-                // Marks the import as not completed initially
-                Completed = false,
-                // Initializes total records count to 0
-                TotalRecords = 0,
-                // Initializes success count to 0
-                SuccessCount = 0,
-                // Initializes failure count to 0
-                FailureCount = 0,
-                // Stores the file data as byte array
-                FileData = package.GetAsByteArray()
-            };
+            var importDocument = CreateImportDocument(fileName, package);
 
             // Adds the import document to the repository
             // Resets the counters for the new import
-            successCount = 0; failureCount = 0; totalRecords = 0;
+            _successCount = 0; _failureCount = 0; _totalRecords = 0;
 
             // List to store results from each worksheet
             var results = new List<string>();
-            // Iterates through each worksheet in the Excel package
+            var sheetHandlers = GetBulkImportSheetHandlers(createdBy, tenantId);
             foreach (var worksheet in package.Workbook.Worksheets)
             {
-                // Normalizes the sheet name by trimming and converting to lowercase
-                string sheetName = worksheet.Name.Trim().ToLower();
-
-                // Processes each sheet based on its name
-                switch (sheetName)
+                var sheetName = NormalizeSheetName(worksheet.Name);
+                if (!sheetHandlers.TryGetValue(sheetName, out var handler))
                 {
-                    case "lists":
-                        results.Add(await ImportList(worksheet, createdBy, tenantId));
-                        break;
-                    case "listitem":
-                        results.Add(await ImportListIteams(worksheet, createdBy, tenantId));
-                        break;
-                    case "parameter":
-                        results.Add(await ImportParameterProduct(worksheet, createdBy, tenantId));
-                        break;
-                    case "factors":
-                        results.Add(await ImportFactor(worksheet, createdBy, tenantId));
-                        break;
-                    case "category":
-                        results.Add(await ImportCategory(worksheet, createdBy, tenantId));
-                        break;
-                    case "stream":
-                        results.Add(await ImportInfo(worksheet, createdBy, tenantId));
-                        break;
-                    case "details":
-                        results.Add(await ImportDetails(worksheet, createdBy, tenantId));
-                        break;
-                    case "erules":
-                        results.Add(await ImportEruleMaster(worksheet, createdBy, tenantId));
-                        break;
-                    case "ecards":
-                        results.Add(await ImportECard(worksheet, createdBy, tenantId));
-                        break;
-                    case "streamcards":
-                        results.Add(await ImportPCard(worksheet, createdBy, tenantId));
-                        break;
-                    default:
-                        results.Add($"Skipped unrecognized sheet: {sheetName}");
-                        break;
+                    results.Add($"Skipped unrecognized sheet: {worksheet.Name}");
+                    continue;
                 }
+
+                results.Add(await handler(worksheet));
             }
 
             // Update import record after processing
 
             importDocument.Completed = true;
 
-            importDocument.TotalRecords = totalRecords;
-            importDocument.SuccessCount = successCount;
-            importDocument.FailureCount = failureCount;
+            importDocument.TotalRecords = _totalRecords;
+            importDocument.SuccessCount = _successCount;
+            importDocument.FailureCount = _failureCount;
             importDocument.EndTime = DateTime.UtcNow;
             importDocument.CreatedBy = createdBy;
-            if (totalRecords > 0)
+            if (_totalRecords > 0)
             {
                 importDocument = await _uow.ImportDocumentHistoryRepository.AddAsync(importDocument);
 
@@ -242,11 +192,11 @@ namespace MEligibilityPlatform.Application.Services
             int failedRecordsCount = rowCount - insertedRecordsCount;
 
             // Accumulates total records processed
-            totalRecords += rowCount;
+            _totalRecords += rowCount;
             // Accumulates successful records
-            successCount += insertedRecordsCount;
+            _successCount += insertedRecordsCount;
             // Accumulates failed records
-            failureCount += failedRecordsCount;
+            _failureCount += failedRecordsCount;
         }
 
         /// <summary>
@@ -257,6 +207,43 @@ namespace MEligibilityPlatform.Application.Services
         {
             // Retrieves all import history records from the repository
             return _uow.ImportDocumentHistoryRepository.GetAllImportHistory();
+        }
+
+        private static ImportDocument CreateImportDocument(string fileName, ExcelPackage package)
+        {
+            return new ImportDocument
+            {
+                Name = fileName,
+                ImportTime = DateTime.UtcNow,
+                EndTime = DateTime.UtcNow,
+                Completed = false,
+                TotalRecords = 0,
+                SuccessCount = 0,
+                FailureCount = 0,
+                FileData = package.GetAsByteArray()
+            };
+        }
+
+        private static string NormalizeSheetName(string name) =>
+            name.Trim().ToLowerInvariant();
+
+        private Dictionary<string, Func<ExcelWorksheet, Task<string>>> GetBulkImportSheetHandlers(
+            string createdBy,
+            int tenantId)
+        {
+            return new Dictionary<string, Func<ExcelWorksheet, Task<string>>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["lists"] = sheet => ImportList(sheet, createdBy, tenantId),
+                ["listitem"] = sheet => ImportListIteams(sheet, createdBy, tenantId),
+                ["parameter"] = sheet => ImportParameterProduct(sheet, createdBy, tenantId),
+                ["factors"] = sheet => ImportFactor(sheet, createdBy, tenantId),
+                ["category"] = sheet => ImportCategory(sheet, createdBy, tenantId),
+                ["product"] = sheet => ImportInfo(sheet, createdBy, tenantId),
+                ["details"] = sheet => ImportDetails(sheet, createdBy, tenantId),
+                ["erules"] = sheet => ImportEruleMaster(sheet, createdBy, tenantId),
+                ["ecards"] = sheet => ImportECard(sheet, createdBy, tenantId),
+                ["productcards"] = sheet => ImportPCard(sheet, createdBy, tenantId),
+            };
         }
 
         /// <summary>
@@ -318,7 +305,7 @@ namespace MEligibilityPlatform.Application.Services
         //                _ = int.TryParse(countryIdText, out int countryId);
         //                _ = int.TryParse(cityIdText, out int cityId);
 
-        //                // if required fields missing → skip
+        //                // if required fields missing ? skip
         //                if (string.IsNullOrWhiteSpace(Code) ||
         //                    string.IsNullOrWhiteSpace(entityName) ||
         //                    countryId == 0 ||
@@ -1139,12 +1126,12 @@ namespace MEligibilityPlatform.Application.Services
             string[] requiredHeaders =
 [
     "Code*",
-    "StreamName*",
+    "ProductName*",
     "Category*",
     "CategoryId*",
     "Entity*",
     "Entity*",
-    "StreamImage",
+    "ProductImage",
     "Narrative",
     "Description"
 
@@ -1172,7 +1159,7 @@ namespace MEligibilityPlatform.Application.Services
                 if (rowCount == 0 || rowCount == -1)
                 {
                     // Returns message indicating empty worksheet
-                    return resultMessage = " Stream page = Uploaded File Info sheets Is Empty";
+                    return resultMessage = "Product page = Uploaded File Info sheets Is Empty";
                 }
                 // Processes each row in the worksheet
                 for (int row = 2; row <= rowCount + 1; row++)
@@ -1259,7 +1246,7 @@ namespace MEligibilityPlatform.Application.Services
             catch (Exception ex)
             {
                 // Returns error message with exception details
-                resultMessage = $"{GlobalcConstants.GeneralError} Error (Stream): {ex.Message}";
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Product): {ex.Message}";
             }
 
             // Returns final result message
@@ -1276,7 +1263,7 @@ namespace MEligibilityPlatform.Application.Services
             }
             catch
             {
-                // URL not valid / file missing / permission denied → return null
+                // URL not valid / file missing / permission denied ? return null
                 return null;
             }
         }
@@ -1700,12 +1687,12 @@ namespace MEligibilityPlatform.Application.Services
             if (string.IsNullOrWhiteSpace(exprShown))
                 return null;
 
-            // 1️⃣ Split tokens by AND / OR
+            // 1?? Split tokens by AND / OR
             var tokens = MyRegex3().Split(exprShown)
                               .Where(t => !string.IsNullOrWhiteSpace(t))
                               .ToList();
 
-            // 2️⃣ Extract rule names from tokens
+            // 2?? Extract rule names from tokens
             var ruleNames = tokens
                 .Where(t =>
                     !string.Equals(t, "AND", StringComparison.OrdinalIgnoreCase) &&
@@ -1717,7 +1704,7 @@ namespace MEligibilityPlatform.Application.Services
             if (ruleNames.Count == 0)
                 return null;
 
-            // 3️⃣ First fetch matching EruleMaster rows
+            // 3?? First fetch matching EruleMaster rows
             var masterRules = await _uow.EruleMasterRepository.Query()
                                 .Where(m => m.TenantId == tenantId && ruleNames.Contains(m.EruleName))
                                 .ToListAsync();
@@ -1725,13 +1712,13 @@ namespace MEligibilityPlatform.Application.Services
             if (masterRules.Count != ruleNames.Count)
                 return null;
 
-            // 4️⃣ Get related Erule rows (child rule table)
+            // 4?? Get related Erule rows (child rule table)
             var masterIds = masterRules.Select(m => m.Id).ToList();
             var childRules = await _uow.EruleRepository.Query()
                                 .Where(r => masterIds.Contains(r.EruleMasterId))
                                 .ToListAsync();
 
-            // 5️⃣ Pick highest version child rule for each master rule
+            // 5?? Pick highest version child rule for each master rule
             var finalRuleMap = childRules
                 .GroupBy(r => r.EruleMasterId)
                 .ToDictionary(
@@ -1739,7 +1726,7 @@ namespace MEligibilityPlatform.Application.Services
                     g => g.OrderByDescending(x => x.Version).First()
                 );
 
-            // 6️⃣ Build final expression using Erule.Id (NOT EruleMaster.Id)
+            // 6?? Build final expression using Erule.Id (NOT EruleMaster.Id)
             string finalExpr = "";
             string lastToken;
 
@@ -1791,10 +1778,10 @@ namespace MEligibilityPlatform.Application.Services
             string resultMessage = "";
             string[] requiredHeaders =
             [
-                "StreamCardName*",
-        "StreamCardDescription*",
-        "StreamName*",
-        "StreamId*",
+                "ProductCardName*",
+        "ProductCardDescription*",
+        "ProductName*",
+        "ProductId*",
         "ExpressionShown*"
             ];
 
@@ -1818,7 +1805,7 @@ namespace MEligibilityPlatform.Application.Services
             try
             {
                 if (rowCount <= 0)
-                    return "Stream Card Page = Uploaded File PCards sheet is empty.";
+                    return "Product Card Page = Uploaded File ProductCards sheet is empty.";
 
                 // Read rows
                 for (int row = 2; row <= rowCount + 1; row++)
@@ -1856,7 +1843,7 @@ namespace MEligibilityPlatform.Application.Services
                                         if (product == null)
                     {
                         skippedRecordsCount++;
-                        resultMessage += $"Provide correct Stream name '{ProductName}' for PCard '{PcardName}'. ";
+                        resultMessage += $"Provide correct product name '{ProductName}' for Product Card '{PcardName}'. ";
                         continue;
                     }
 
@@ -1864,7 +1851,7 @@ namespace MEligibilityPlatform.Application.Services
                     var alreadyExist = _uow.PcardRepository.Query().Any(p => p.ProductId == productId);
                     if (alreadyExist)
                     {
-                        resultMessage += $"Stream '{ProductName}' for Stream Card '{PcardName}' is already associated with another Stream Card. ";
+                        resultMessage += $"Product '{ProductName}' for Product Card '{PcardName}' is already associated with another Product Card. ";
                         continue;
                     }
 
@@ -1892,7 +1879,7 @@ namespace MEligibilityPlatform.Application.Services
                     if (finalExpression == null)
                     {
                         skippedRecordsCount++;
-                        resultMessage += $"Invalid ExpressionShown for Stream Card '{model.PcardName}'. Please check expression. ";
+                        resultMessage += $"Invalid ExpressionShown for Product Card '{model.PcardName}'. Please check expression. ";
                         continue;
                     }
 
@@ -1932,7 +1919,7 @@ namespace MEligibilityPlatform.Application.Services
             }
             catch (Exception ex)
             {
-                resultMessage = $"{GlobalcConstants.GeneralError} Error (Stream Card): {ex.Message}";
+                resultMessage = $"{GlobalcConstants.GeneralError} Error (Product Card): {ex.Message}";
             }
 
             return resultMessage;
@@ -1943,12 +1930,12 @@ namespace MEligibilityPlatform.Application.Services
             if (string.IsNullOrWhiteSpace(exprShown))
                 return null;
 
-            // 1️⃣ Split tokens by AND / OR
+            // 1?? Split tokens by AND / OR
             var tokens = MyRegex3().Split(exprShown)
                             .Where(t => !string.IsNullOrWhiteSpace(t))
                             .ToList();
 
-            // 2️⃣ Extract ECard names from tokens
+            // 2?? Extract ECard names from tokens
             var ecardNames = tokens
                 .Where(t => !string.Equals(t, "AND", StringComparison.OrdinalIgnoreCase) &&
                             !string.Equals(t, "OR", StringComparison.OrdinalIgnoreCase))
@@ -1959,7 +1946,7 @@ namespace MEligibilityPlatform.Application.Services
             if (ecardNames.Count == 0)
                 return null;
 
-            // 3️⃣ Fetch matching ECard rows
+            // 3?? Fetch matching ECard rows
             var ecardList = await _uow.EcardRepository.Query()
                                   .Where(e => e.TenantId == tenantId && ecardNames.Contains(e.EcardName))
                                   .ToListAsync();
@@ -1967,10 +1954,10 @@ namespace MEligibilityPlatform.Application.Services
             if (ecardList.Count != ecardNames.Count)
                 return null; // Some ECard names are invalid
 
-            // 4️⃣ Build a map of ECard name -> Id
+            // 4?? Build a map of ECard name -> Id
             var ecardMap = ecardList.ToDictionary(e => e.EcardName, e => e.EcardId);
 
-            // 5️⃣ Build final expression using ECard.Id
+            // 5?? Build final expression using ECard.Id
             string finalExpr = "";
 
             foreach (var t in tokens)
@@ -2035,17 +2022,29 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A byte array containing the template file.</returns>
         public async Task<byte[]> DownloadTemplate(int tenantId, string selectedList)
         {
+            // Pre-initialize repositories to avoid constructor DB queries during active readers.
+            _ = _uow.ManagedListRepository;
+            _ = _uow.ParameterRepository;
+            _ = _uow.ConditionRepository;
+            _ = _uow.FactorRepository;
+            _ = _uow.DataTypeRepository;
+            _ = _uow.CategoryRepository;
+            _ = _uow.EruleRepository;
+            _ = _uow.EcardRepository;
+            _ = _uow.ProductRepository;
+            _ = _uow.EntityRepository;
+
             bool isAll = selectedList == "All";
             bool needLists = isAll || selectedList == "Lists";
             bool needListItem = isAll || selectedList == "ListItem";
             bool needParameter = isAll || selectedList == "Parameter";
             bool needFactors = isAll || selectedList == "Factors";
             bool needCategory = isAll || selectedList == "Category";
-            bool needStream = isAll || selectedList == "Stream";
+            bool needproduct = isAll || selectedList == "Product";
             bool needDetails = isAll || selectedList == "Details";
             bool needErules = isAll || selectedList == "ERules";
             bool needEcards = isAll || selectedList == "ECards";
-            bool needStreamCards = isAll || selectedList == "StreamCards";
+            bool needproductcards = isAll || selectedList == "ProductCards";
 
             List<ManagedListGetModel> listItem = [];
             List<ParameterListModel> parameters = [];
@@ -2077,7 +2076,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 dataTypes = _dataTypeService.GetAll();
             }
-            if (needCategory || needStream)
+            if (needCategory || needproduct)
             {
                 categories = await _categoryService.GetAll(tenantId);
             }
@@ -2085,11 +2084,11 @@ namespace MEligibilityPlatform.Application.Services
             {
                 erule = await _eruleService.GetAll(tenantId);
             }
-            if (needEcards || needStreamCards)
+            if (needEcards || needproductcards)
             {
                 ecard = await _ecardService.GetAll(tenantId);
             }
-            if (needDetails || needStreamCards)
+            if (needDetails || needproductcards)
             {
                 product = await _productService.GetAll(tenantId);
             }
@@ -2156,10 +2155,10 @@ namespace MEligibilityPlatform.Application.Services
                 CategoryTemplate(sheet7, entities);
             }
 
-            if (needStream)
+            if (needproduct)
             {
                 // Adds Info worksheet
-                var sheet8 = package.Workbook.Worksheets.Add("Stream");
+                var sheet8 = package.Workbook.Worksheets.Add("Product");
 
                 // Populates Info template
                 InfoTemplate(sheet8, entities, categories);
@@ -2192,10 +2191,10 @@ namespace MEligibilityPlatform.Application.Services
                 ECardsTemplates(sheet11, erule);
             }
 
-            if (needStreamCards)
+            if (needproductcards)
             {
                 // Adds PCards worksheet
-                var sheet12 = package.Workbook.Worksheets.Add("StreamCards");
+                var sheet12 = package.Workbook.Worksheets.Add("ProductCards");
 
                 // Populates PCard template
                 PCardsTemplates(sheet12, ecard, product);
@@ -2643,7 +2642,7 @@ namespace MEligibilityPlatform.Application.Services
         public void InfoTemplate(ExcelWorksheet sheet8, List<Entity> entities, List<CategoryListModel> categories)
         {
             // Defines the column headers for the product information template.
-            string[] headers = ["Code*", "StreamName*", "Category*", "CategoryId*", "Entity*", "TenantId*", "StreamImage", "Narrative", "Description"];
+            string[] headers = ["Code*", "ProductName*", "Category*", "CategoryId*", "Entity*", "TenantId*", "ProductImage", "Narrative", "Description"];
 
             // Populates the header row with the defined column names.
             for (int i = 0; i < headers.Length; i++)
@@ -3081,7 +3080,7 @@ namespace MEligibilityPlatform.Application.Services
             StringBuilder changeEvent = new();
             changeEvent.Append("Private Sub Worksheet_Change(ByVal Target As Range)\n")
                 .Append("     If Target.Column >= 5 And Target.Column <= 8 And Target.Value <> \"\" Then\n")
-                .Append("          PCards.Cells(Target.Row, 9).Value = PCards.Cells(Target.Row, 9).Value + \" \" + Target.Value\n")
+                .Append("          ProductCards.Cells(Target.Row, 9).Value = ProductCards.Cells(Target.Row, 9).Value + \" \" + Target.Value\n")
                 .Append("          Target.Value = \"\"\n")
                 .Append("     End If\n")
                 .Append("End Sub");
@@ -3168,7 +3167,7 @@ namespace MEligibilityPlatform.Application.Services
             StringBuilder changeEvent = new();
             changeEvent.Append("Private Sub Worksheet_Change(ByVal Target As Range)\n")
                 .Append("     If Target.Column >= 3 And Target.Column <= 6 And Target.Value <> \"\" Then\n")
-                .Append("          PCards.Cells(Target.Row, 7).Value = PCards.Cells(Target.Row, 7).Value + \" \" + Target.Value\n")
+                .Append("          ProductCards.Cells(Target.Row, 7).Value = ProductCards.Cells(Target.Row, 7).Value + \" \" + Target.Value\n")
                 .Append("          Target.Value = \"\"\n")
                 .Append("     End If\n")
                 .Append("End Sub");
@@ -3176,10 +3175,10 @@ namespace MEligibilityPlatform.Application.Services
             sheet12.CodeModule.Code = changeEvent.ToString();
 
             string[] headers = [
-                "StreamCardName*",
-        "StreamCardDescription*",
-        "StreamName*",
-        "StreamId*",
+                "ProductCardName*",
+        "ProductCardDescription*",
+        "ProductName*",
+        "ProductId*",
         "ExpressionShown*"
             ];
 
@@ -3195,8 +3194,8 @@ namespace MEligibilityPlatform.Application.Services
             sheet12.Cells[1, 10].Value = "OpenParenthesisValue";
             sheet12.Cells[1, 11].Value = "ECardName";
 
-            sheet12.Cells[1, 12].Value = "StreamName";
-            sheet12.Cells[1, 13].Value = "StreamId";
+            sheet12.Cells[1, 12].Value = "ProductName";
+            sheet12.Cells[1, 13].Value = "ProductId";
             sheet12.Cells[1, 15].Value = "LogicalOperatorValue";
             sheet12.Cells[1, 17].Value = "CloseParenthesisValue";
 
@@ -3900,66 +3899,13 @@ namespace MEligibilityPlatform.Application.Services
 
             // Create Excel package from file data
             using var package = new ExcelPackage(new MemoryStream(importDocumentHistory.FileData));
-            // Process each worksheet in the workbook
+            var processors = GetDownloadedFileProcessors(package);
             foreach (var worksheet in package.Workbook.Worksheets)
             {
-                // Normalize worksheet name for comparison
-                string sheetName = worksheet.Name.Trim().ToLower();
-
-                // Process worksheet based on its name
-                switch (sheetName)
+                var sheetName = NormalizeSheetName(worksheet.Name);
+                if (processors.TryGetValue(sheetName, out var processor))
                 {
-                    case "entities":
-                        // Process Entities worksheet
-                        ProcessEntitiesSheet(package.Workbook.Worksheets["Entities"]);
-                        break;
-                    case "lists":
-                        // Process Lists worksheet
-                        ProcessListsSheet(package.Workbook.Worksheets["Lists"]);
-                        break;
-                    case "listitem":
-                        // Process ListItem worksheet
-                        ProcessListItemsSheet(package.Workbook.Worksheets["ListItem"]);
-                        break;
-                    case "customer-parameter":
-                        // Process Customer-Parameter worksheet
-                        ProcessParameterCustomerSheet(package.Workbook.Worksheets["Customer-Parameter"]);
-                        break;
-                    case "product-parameter":
-                        // Process Product-Parameter worksheet
-                        ProcessParameterProductSheet(package.Workbook.Worksheets["Product-Parameter"]);
-                        break;
-                    case "factors":
-                        // Process Factors worksheet
-                        ProcessFactorSheet(package.Workbook.Worksheets["Factors"]);
-                        break;
-                    case "category":
-                        // Process Category worksheet
-                        ProcessCategorySheet(package.Workbook.Worksheets["Category"]);
-                        break;
-                    case "info":
-                        // Process Info worksheet
-                        ProcessInfoSheet(package.Workbook.Worksheets["Info"]);
-                        break;
-                    case "details":
-                        // Process Details worksheet
-                        ProcessDetailsSheet(package.Workbook.Worksheets["Details"]);
-                        break;
-                    case "rules":
-                        // Process Rules worksheet
-                        ProcessEruleSheet(package.Workbook.Worksheets["Rules"]);
-                        break;
-                    case "ecards":
-                        // Process ECards worksheet
-                        ProcessECardSheet(package.Workbook.Worksheets["ECards"]);
-                        break;
-                    case "pcards":
-                        // Process PCards worksheet
-                        ProcessPCardSheet(package.Workbook.Worksheets["PCards"]);
-                        break;
-                    default:
-                        // Skip unknown worksheets
-                        break;
+                    processor();
                 }
             }
 
@@ -3969,6 +3915,25 @@ namespace MEligibilityPlatform.Application.Services
             await package.SaveAsAsync(modifiedStream);
             // Return byte array of modified file
             return modifiedStream.ToArray();
+        }
+
+        private static Dictionary<string, Action> GetDownloadedFileProcessors(ExcelPackage package)
+        {
+            return new Dictionary<string, Action>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["entities"] = () => ProcessEntitiesSheet(package.Workbook.Worksheets["Entities"]),
+                ["lists"] = () => ProcessListsSheet(package.Workbook.Worksheets["Lists"]),
+                ["listitem"] = () => ProcessListItemsSheet(package.Workbook.Worksheets["ListItem"]),
+                ["customer-parameter"] = () => ProcessParameterCustomerSheet(package.Workbook.Worksheets["Customer-Parameter"]),
+                ["product-parameter"] = () => ProcessParameterProductSheet(package.Workbook.Worksheets["Product-Parameter"]),
+                ["factors"] = () => ProcessFactorSheet(package.Workbook.Worksheets["Factors"]),
+                ["category"] = () => ProcessCategorySheet(package.Workbook.Worksheets["Category"]),
+                ["product"] = () => ProcessInfoSheet(package.Workbook.Worksheets["Product"]),
+                ["details"] = () => ProcessDetailsSheet(package.Workbook.Worksheets["Details"]),
+                ["rules"] = () => ProcessEruleSheet(package.Workbook.Worksheets["Rules"]),
+                ["ecards"] = () => ProcessECardSheet(package.Workbook.Worksheets["ECards"]),
+                ["productcards"] = () => ProcessPCardSheet(package.Workbook.Worksheets["ProductCards"]),
+            };
         }
         /// <summary>
         /// Processes the "Entities" worksheet for validation and formatting.
@@ -4447,7 +4412,7 @@ namespace MEligibilityPlatform.Application.Services
 
                 List<string> errorFields = [];
 
-                if (string.IsNullOrWhiteSpace(productId) || !int.TryParse(productId, out _)) errorFields.Add("productId");
+                if (string.IsNullOrWhiteSpace(productId) || !int.TryParse(productId, out _)) errorFields.Add("ProductId");
                 if (string.IsNullOrWhiteSpace(tenantId) || !int.TryParse(tenantId, out _)) errorFields.Add("tenantId");
                 if (string.IsNullOrWhiteSpace(parameterId) || !int.TryParse(parameterId, out _)) errorFields.Add("parameterId");
                 if (string.IsNullOrWhiteSpace(paramValue)) errorFields.Add("paramValue");
@@ -4608,3 +4573,4 @@ namespace MEligibilityPlatform.Application.Services
         private static partial System.Text.RegularExpressions.Regex MyRegex();
     }
 }
+

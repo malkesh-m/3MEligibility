@@ -32,7 +32,8 @@ namespace MEligibilityPlatform.Application.Services
            NodeModel apiConfig,
             string endpointPath,
             string method, string? token = null,
-            string? requestBody = null)
+            string? requestBody = null,
+            CancellationToken ct = default)
         {
             try
             {
@@ -73,7 +74,7 @@ namespace MEligibilityPlatform.Application.Services
                 var request = new HttpRequestMessage(new HttpMethod(method), requestUri);
 
                 // Applies authentication to the request
-                request = await _authenticationService.AuthenticateRequestAsync(request, apiConfig, token!);
+                request = await _authenticationService.AuthenticateRequestAsync(request, apiConfig, token!, ct);
 
                 // Adds request body if provided for POST or PUT methods
                 if (!string.IsNullOrEmpty(requestBody) &&
@@ -86,11 +87,11 @@ namespace MEligibilityPlatform.Application.Services
                 }
 
                 // Executes the HTTP request
-                var response = await client.SendAsync(request);
+                var response = await client.SendAsync(request, ct);
                 // Ensures the response indicates success
                 response.EnsureSuccessStatusCode();
                 // Reads response content as string
-                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseContent = await response.Content.ReadAsStringAsync(ct);
 
                 // Parses response as dynamic object
                 dynamic responseData;

@@ -40,7 +40,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A list of <see cref="ApiParameterModel"/> representing the extracted API details.</returns>
         /// <exception cref="ArgumentException">Thrown when the WSDL URL is null or empty.</exception>
         /// <exception cref="Exception">Thrown when fetching or parsing the WSDL fails.</exception>
-        public async Task<List<ApiParameterModel>> GetApiDetailsAsync(int nodeId)
+        public async Task<List<ApiParameterModel>> GetApiDetailsAsync(int nodeId, CancellationToken ct = default)
         {
             // Retrieves the node entity by ID from the repository
             var node = _uow.NodeModelRepository.GetById(nodeId);
@@ -58,7 +58,7 @@ namespace MEligibilityPlatform.Application.Services
                 // Creates a new HTTP client instance for making the request
                 using HttpClient client = new();
                 // Sends a GET request to the node URL
-                HttpResponseMessage response = await client.GetAsync(node.NodeUrl);
+                HttpResponseMessage response = await client.GetAsync(node.NodeUrl, ct);
                 // Ensures the response status code indicates success
                 response.EnsureSuccessStatusCode();
 
@@ -200,7 +200,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A string containing the SOAP response from the API.</returns>
         /// <exception cref="HttpRequestException">Thrown if the HTTP request fails.</exception>
         /// <exception cref="Exception">Returns an error message if an exception occurs.</exception>
-        public async Task<string> CallSoapApi(SoapApiModel model)
+        public async Task<string> CallSoapApi(SoapApiModel model, CancellationToken ct = default)
         {
             try
             {
@@ -223,7 +223,7 @@ namespace MEligibilityPlatform.Application.Services
                 using HttpClient client = new();
 
                 // Sends a POST request to the specified URL with the SOAP content
-                var response = await client.PostAsync(model.Url, content);
+                var response = await client.PostAsync(model.Url, content, ct);
 
                 // Ensures the response status code indicates success
                 response.EnsureSuccessStatusCode();
@@ -250,7 +250,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A list of <see cref="ApiParameterModel"/> representing the available API endpoints.</returns>
         /// <exception cref="ArgumentException">Thrown if the Swagger URL is null or empty.</exception>
         /// <exception cref="Exception">Thrown if an error occurs while fetching or parsing the Swagger file.</exception>
-        public async Task<List<ApiParameterModel>> GetRestApiDetailsAsync(int nodeId)
+        public async Task<List<ApiParameterModel>> GetRestApiDetailsAsync(int nodeId, CancellationToken ct = default)
         {
             // Retrieves the node entity by ID from the repository
             var node = _uow.NodeModelRepository.GetById(nodeId);
@@ -444,7 +444,7 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="request">The request model containing API ID and parameters.</param>
         /// <returns>A response model indicating success or failure.</returns>
-        public async Task<ResponseModel> CallRestApi(ExecuteApiModel request)
+        public async Task<ResponseModel> CallRestApi(ExecuteApiModel request, CancellationToken ct = default)
         {
             // Retrieves the API details by ID from the repository
             var apiDetails = _uow.NodeApiRepository.GetById(request.ApiId);
@@ -461,7 +461,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 // Retrieves an authentication token from the login API
                 ArgumentException argumentException = new("Swagger URL cannot be null or empty.", nameof(request));
-                var token = await GetTokenFromLoginApiAsync(node, argumentException);
+                var token = await GetTokenFromLoginApiAsync(node, argumentException, ct);
                 // Checks if a token keyword exists for authentication header
                 if (node.IsTokenKeywordExist)
                 {
@@ -476,7 +476,7 @@ namespace MEligibilityPlatform.Application.Services
             }
 
             // Makes the API request and gets the response
-            var response = await MakeApiRequestAsync(url, apiDetails.HttpMethodType?.ToUpper() ?? "", request.Parameters!);
+            var response = await MakeApiRequestAsync(url, apiDetails.HttpMethodType?.ToUpper() ?? "", request.Parameters!, ct);
 
             // Checks if the response indicates success
             if (response.IsSuccessStatusCode)
@@ -496,7 +496,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="method">The HTTP method (GET, POST, PUT, DELETE).</param>
         /// <param name="parameters">The parameters to be sent with the request.</param>
         /// <returns>An HttpResponseMessage containing the API response.</returns>
-        private async Task<HttpResponseMessage> MakeApiRequestAsync(string url, string method, Dictionary<string, object> parameters)
+        private async Task<HttpResponseMessage> MakeApiRequestAsync(string url, string method, Dictionary<string, object> parameters, CancellationToken ct)
         {
             // Handles different HTTP methods
             switch (method)
@@ -505,25 +505,25 @@ namespace MEligibilityPlatform.Application.Services
                     // Constructs a query string from parameters for GET requests
                     var queryString = parameters == null ? "" : string.Join("&", parameters.Select(p => $"{p.Key}={p.Value}"));
                     // Sends a GET request with the query string
-                    return await _httpClient.GetAsync($"{url}?{queryString}");
+                    return await _httpClient.GetAsync($"{url}?{queryString}", ct);
 
                 case "POST":
                     // Serializes parameters to JSON for POST requests
                     var postContent = new StringContent(JsonSerializer.Serialize(parameters), Encoding.UTF8, "application/json");
                     // Sends a POST request with the JSON content
-                    return await _httpClient.PostAsync(url, postContent);
+                    return await _httpClient.PostAsync(url, postContent, ct);
 
                 case "PUT":
                     // Serializes parameters to JSON for PUT requests
                     var putContent = new StringContent(JsonSerializer.Serialize(parameters), Encoding.UTF8, "application/json");
                     // Sends a PUT request with the JSON content
-                    return await _httpClient.PutAsync(url, putContent);
+                    return await _httpClient.PutAsync(url, putContent, ct);
 
                 case "DELETE":
                     // Constructs a query string from parameters for DELETE requests
                     var deleteQueryString = string.Join("&", parameters.Select(p => $"{p.Key}={p.Value}"));
                     // Sends a DELETE request with the query string
-                    return await _httpClient.DeleteAsync($"{url}?{deleteQueryString}");
+                    return await _httpClient.DeleteAsync($"{url}?{deleteQueryString}", ct);
 
                 default:
                     // Throws an exception for invalid HTTP methods
@@ -540,14 +540,14 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A string containing the authentication token.</returns>
         /// <exception cref="ArgumentException">Thrown when the Swagger URL is null or empty.</exception>
         /// <exception cref="Exception">Thrown when fetching or parsing the Swagger file fails, or when the login endpoint is not found.</exception>
-        public async Task<string> GetTokenFromLoginApiAsync(Node node, Exception argumentException)
+        public async Task<string> GetTokenFromLoginApiAsync(Node node, Exception argumentException, CancellationToken ct = default)
         {
             // Validates that the node URL is not null or empty
             if (string.IsNullOrEmpty(node.NodeUrl))
                 throw argumentException;
 
             // Fetches and parses the Swagger document from the node URL
-            var openApiDocument = await FetchAndParseSwaggerAsync(node.NodeUrl) ?? throw new Exception("Failed to fetch or parse the Swagger file.");
+            var openApiDocument = await FetchAndParseSwaggerAsync(node.NodeUrl, ct) ?? throw new Exception("Failed to fetch or parse the Swagger file.");
 
             // Finds the login endpoint in the OpenAPI document
             var loginEndpoint = FindLoginEndpoint(openApiDocument) ?? throw new Exception("Login endpoint not found in the Swagger file.");
@@ -561,7 +561,7 @@ namespace MEligibilityPlatform.Application.Services
             var parameters = GetLoginCredentials(node);
 
             // Makes the login API request
-            var response = await MakeApiRequestAsync(url, loginEndpoint.Method, parameters);
+            var response = await MakeApiRequestAsync(url, loginEndpoint.Method, parameters, ct);
 
             // Checks if the login request was successful
             if (response.IsSuccessStatusCode)
@@ -652,12 +652,12 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="swaggerUrl">The URL of the Swagger API documentation.</param>
         /// <returns>An <see cref="OpenApiDocument"/> object representing the parsed API specification.</returns>
         /// <exception cref="Exception">Thrown when there is an error fetching or parsing the Swagger file.</exception>
-        private async Task<OpenApiDocument> FetchAndParseSwaggerAsync(string swaggerUrl)
+        private async Task<OpenApiDocument> FetchAndParseSwaggerAsync(string swaggerUrl, CancellationToken ct)
         {
             try
             {
                 // Fetches the Swagger content from the URL
-                var swaggerContent = await _httpClient.GetStringAsync(swaggerUrl);
+                var swaggerContent = await _httpClient.GetStringAsync(swaggerUrl, ct);
                 // Creates a new OpenAPI string reader
                 var openApiReader = new OpenApiStringReader();
                 // Reads the Swagger content into an OpenAPI document

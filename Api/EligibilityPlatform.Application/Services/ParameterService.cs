@@ -288,19 +288,12 @@ namespace MEligibilityPlatform.Application.Services
                         {
                             ParameterId = parameter.ParameterId,
                             ParameterName = parameter.ParameterName,
-                            HasFactors = parameter.HasFactors,
-                            Identifier = parameter.Identifier,
-                            IsKyc = parameter.IsKyc,
-                            IsRequired = parameter.IsRequired,
-                            TenantId = parameter.TenantId,
+                            IsMandatory = parameter.IsMandatory,
                             DataTypeId = parameter.DataTypeId,
                             DataTypeName = datatype != null ? datatype.DataTypeName : null,
-                            ConditionId = parameter.ConditionId,
-                            ConditionValue = condition != null ? condition.ConditionValue : null,
-                            FactorOrder = parameter.FactorOrder
+                       
                         };
 
-            // Apply standardized Export logic: Selected -> Filtered -> All
             if (request.HasSelection)
             {
                 query = query.Where(p => request.SelectedIds!.Contains(p.ParameterId));
@@ -310,15 +303,18 @@ namespace MEligibilityPlatform.Application.Services
                 string search = request.SearchTerm.ToLower();
                 query = query.Where(p => 
                     (p.ParameterName != null && p.ParameterName.Contains(search)) ||
-                    (p.DataTypeName != null && p.DataTypeName.Contains(search)) ||
-                    (p.ConditionValue != null && p.ConditionValue.Contains(search))
+                    (p.DataTypeName != null && p.DataTypeName.Contains(search)) 
                 );
             }
 
             var data = await query.ToListAsync();
             string sheetName = Identifier == 1 ? "Customer-Parameters" : "Product-Parameters";
             
-            return await _exportService.ExportToExcel(data, sheetName, ["EntityName", "TenantId"]);
+            return await _exportService.ExportToExcel(
+                data,
+                sheetName,
+                ["HasFactors", "Identifier", "IsKyc", "TenantId", "ConditionId", "ConditionValue", "FactorOrder", "EntityName"]
+            );
         }
 
         /// <summary>

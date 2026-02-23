@@ -15,6 +15,9 @@ export const environment = {
   server: {
     apiUrl: 'https://localhost:50647/',
   },
+    identityAccountUrl: {
+    Url: 'https://account.3m-technology.com/',
+  },
 };
 
 // export const keycloakConfig = {

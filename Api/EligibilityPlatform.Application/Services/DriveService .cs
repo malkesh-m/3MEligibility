@@ -17,7 +17,7 @@ namespace MEligibilityPlatform.Application.Services
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly IConfiguration _configuration = configuration;
 
-        public async Task<ApiResponse<FileUploadResponse>> UploadAsync(IFormFile file, string token)
+        public async Task<ApiResponse<FileUploadResponse>> UploadAsync(IFormFile file, string token, CancellationToken ct = default)
         {
             var client = _httpClientFactory.CreateClient("MDrive");
 
@@ -37,16 +37,16 @@ namespace MEligibilityPlatform.Application.Services
 
             var version = _configuration["MDrive:Version"] ?? "1";
 
-            var response = await client.PostAsync($"api/v{version}/Files/Upload", content);
+            var response = await client.PostAsync($"api/v{version}/Files/Upload", content, ct);
             
             // Check status code first
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync();
+                var errorBody = await response.Content.ReadAsStringAsync(ct);
                 throw new HttpRequestException($"MDrive Upload failed ({response.StatusCode}): {errorBody}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<ApiResponse<FileUploadResponse>>();
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<FileUploadResponse>>(cancellationToken: ct);
             
             // Check internal success flag
             if (result == null || !result.Succeeded)
@@ -57,7 +57,7 @@ namespace MEligibilityPlatform.Application.Services
 
             return result;
         }
-        public async Task DeleteAsync(int fileId, string token)
+        public async Task DeleteAsync(int fileId, string token, CancellationToken ct = default)
         {
             var client = _httpClientFactory.CreateClient("MDrive");
             client.DefaultRequestHeaders.Remove("Authorization");
@@ -68,16 +68,16 @@ namespace MEligibilityPlatform.Application.Services
 
             var version = _configuration["MDrive:Version"] ?? "1";
 
-            var response = await client.DeleteAsync($"api/v{version}/Files/{fileId}");
+            var response = await client.DeleteAsync($"api/v{version}/Files/{fileId}", ct);
             
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
+                var errorContent = await response.Content.ReadAsStringAsync(ct);
                 throw new HttpRequestException($"MDrive Delete returned {response.StatusCode}: {errorContent}");
             }
         }
 
-        public async Task<(byte[] Bytes, string ContentType)> DownloadAsync(int fileId, string token)
+        public async Task<(byte[] Bytes, string ContentType)> DownloadAsync(int fileId, string token, CancellationToken ct = default)
         {
             var client = _httpClientFactory.CreateClient("MDrive");
             
@@ -89,7 +89,7 @@ namespace MEligibilityPlatform.Application.Services
 
             var version = _configuration["MDrive:Version"] ?? "1";
 
-            var response = await client.GetAsync($"api/v{version}/Files/Download/{fileId}");
+            var response = await client.GetAsync($"api/v{version}/Files/Download/{fileId}", ct);
             
             if (!response.IsSuccessStatusCode)
             {
@@ -97,18 +97,18 @@ namespace MEligibilityPlatform.Application.Services
                 string errorMsg;
                 try 
                 {
-                    var errorObj = await response.Content.ReadFromJsonAsync<ApiResponse<object>>();
+                    var errorObj = await response.Content.ReadFromJsonAsync<ApiResponse<object>>(cancellationToken: ct);
                     errorMsg = errorObj?.Messages != null ? string.Join(", ", errorObj.Messages) : "Unknown error";
                 }
                 catch
                 {
-                    errorMsg = await response.Content.ReadAsStringAsync();
+                    errorMsg = await response.Content.ReadAsStringAsync(ct);
                 }
 
                 throw new HttpRequestException($"MDrive Download failed ({response.StatusCode}): {errorMsg}");
             }
 
-            var bytes = await response.Content.ReadAsByteArrayAsync();
+            var bytes = await response.Content.ReadAsByteArrayAsync(ct);
             var contentType = response.Content.Headers.ContentType?.ToString() ?? "image/jpeg";
 
             return (bytes, contentType);

@@ -22,7 +22,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="tenantId">The tenant ID to validate.</param>
         /// <returns>A task representing the asynchronous operation, with true if setup is complete.</returns>
         Task<bool> ValidateTenantSetupAsync(int tenantId);
-        Task<ApiResponse<TenantModel>> GetById(int tenantId);
+        Task<ApiResponse<TenantModel>> GetById(int tenantId, CancellationToken ct = default);
 
     }
 }

@@ -23,10 +23,10 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="nodeId">The node ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the SOAP API details.</returns>
         [HttpGet("getsoapapis")]
-        public async Task<IActionResult> GetSoapApis(int nodeId)
+        public async Task<IActionResult> GetSoapApis(int nodeId, CancellationToken ct)
         {
             // Retrieves SOAP API details for the specified node ID
-            var list = await _apiService.GetApiDetailsAsync(nodeId);
+            var list = await _apiService.GetApiDetailsAsync(nodeId, ct);
             // Returns success response with the retrieved SOAP API details
             return Ok(new ResponseModel { IsSuccess = true, Data = list });
         }
@@ -37,10 +37,10 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="nodeId">The node ID.</param>
         /// <returns>An <see cref="IActionResult"/> containing the REST API details.</returns>
         [HttpGet("getrestapis")]
-        public async Task<IActionResult> GetRestApis(int nodeId)
+        public async Task<IActionResult> GetRestApis(int nodeId, CancellationToken ct)
         {
             // Retrieves REST API details for the specified node ID
-            var list = await _apiService.GetRestApiDetailsAsync(nodeId);
+            var list = await _apiService.GetRestApiDetailsAsync(nodeId, ct);
             // Returns success response with the retrieved REST API details
             return Ok(new ResponseModel { IsSuccess = true, Data = list });
         }
@@ -51,7 +51,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="soapApiModel">The SOAP API model.</param>
         /// <returns>An <see cref="IActionResult"/> containing the response from the SOAP API.</returns>
         [HttpPost("soapapi")]
-        public async Task<IActionResult> SoapApi(SoapApiModel soapApiModel)
+        public async Task<IActionResult> SoapApi(SoapApiModel soapApiModel, CancellationToken ct)
         {
             // Validates the model state before proceeding
             if (!ModelState.IsValid)
@@ -61,7 +61,7 @@ namespace MEligibilityPlatform.Controllers
             }
 
             // Calls the SOAP API with the provided model
-            var response = await _apiService.CallSoapApi(soapApiModel);
+            var response = await _apiService.CallSoapApi(soapApiModel, ct);
             // Returns success response with the SOAP API response data
             return Ok(new ResponseModel { IsSuccess = true, Data = response });
         }
@@ -72,10 +72,10 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="model">The execute API model.</param>
         /// <returns>An <see cref="IActionResult"/> containing the response from the REST API.</returns>
         [HttpPost("restapi")]
-        public async Task<IActionResult> RestApi(ExecuteApiModel model)
+        public async Task<IActionResult> RestApi(ExecuteApiModel model, CancellationToken ct)
         {
             // Calls the REST API with the provided model
-            var result = await _apiService.CallRestApi(model);
+            var result = await _apiService.CallRestApi(model, ct);
             if (result.IsSuccess)
             {
                 // Returns success response with the REST API result

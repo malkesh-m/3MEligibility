@@ -15,6 +15,6 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// <param name="apiConfig">The <see cref="NodeModel"/> containing API configuration details.</param>
         /// <param name="token">The authentication token to be used for the request.</param>
         /// <returns>An authenticated <see cref="HttpRequestMessage"/> with appropriate headers.</returns>
-        Task<HttpRequestMessage> AuthenticateRequestAsync(HttpRequestMessage request, NodeModel apiConfig, string token);
+        Task<HttpRequestMessage> AuthenticateRequestAsync(HttpRequestMessage request, NodeModel apiConfig, string token, CancellationToken ct = default);
     }
 }

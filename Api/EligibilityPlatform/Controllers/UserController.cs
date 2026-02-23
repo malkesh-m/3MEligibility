@@ -33,10 +33,10 @@ namespace MEligibilityPlatform.Controllers
         //[RequirePermission("View Users Screen")]
         [Authorize(Policy = Permissions.User.View)]
         [HttpGet("getall")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(CancellationToken ct)
         {
             // Retrieves all users for the current entity
-            ApiResponse<List<UserGetModel>> result = await _userService.GetAll(User.GetTenantId());
+            ApiResponse<List<UserGetModel>> result = await _userService.GetAll(User.GetTenantId(), ct);
             // Returns success response with the list of users
             return Ok( result);
         }
@@ -54,10 +54,10 @@ namespace MEligibilityPlatform.Controllers
         }
         [Authorize]
         [HttpGet("getbyid")]
-        public async Task<IActionResult> GetById(int userId)
+        public async Task<IActionResult> GetById(int userId, CancellationToken ct)
         {
             // Retrieves all users for the current entity
-            var result = await _userService.GetById(userId);
+            var result = await _userService.GetById(userId, ct);
             // Returns success response with the list of users
             return Ok(result);
         }

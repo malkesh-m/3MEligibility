@@ -76,26 +76,10 @@ namespace MEligibilityPlatform.Domain.Models
 
         public string? ParameterName { get; set; }
 
-        public bool HasFactors { get; set; }
 
-        public int? Identifier { get; set; }
-
-        public bool IsKyc { get; set; }
-
-        public bool IsRequired { get; set; }
-
-        public int TenantId { get; set; }
-        public string? EntityName { get; set; }
         public int? DataTypeId { get; set; }
         public string? DataTypeName { get; set; }
-
-        public int? ConditionId { get; set; }
-        public string? ConditionValue { get; set; }
-
-        public string? FactorOrder { get; set; }
-
-
-
+        public bool IsMandatory { get; set; }
 
     }
 

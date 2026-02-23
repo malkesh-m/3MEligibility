@@ -37,11 +37,10 @@ namespace MEligibilityPlatform.Application.Services
 
             if (ordered.Any(x => x.Display?.GetOrder() != null))
             {
-                properties = ordered
+                properties = [.. ordered
                     .OrderBy(x => x.Display?.GetOrder() ?? int.MaxValue)
                     .ThenBy(x => x.Property.Name)
-                    .Select(x => x.Property)
-                    .ToArray();
+                    .Select(x => x.Property)];
             }
 
             // Add Headers

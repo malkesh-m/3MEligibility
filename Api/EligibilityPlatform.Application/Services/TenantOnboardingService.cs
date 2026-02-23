@@ -196,15 +196,15 @@ namespace MEligibilityPlatform.Application.Services
             };
         }
 
-        public async Task<ApiResponse<TenantModel>> GetById(int tenantId)
+        public async Task<ApiResponse<TenantModel>> GetById(int tenantId, CancellationToken ct = default)
         {
             var version = _configuration["MIdentityAPI:Version"] ?? "1";
             var client = _httpClientFactory.CreateClient("MIdentityAPI");
-            var response = await client.GetAsync($"api/v{version}/Tenants/{tenantId}");
+            var response = await client.GetAsync($"api/v{version}/Tenants/{tenantId}", ct);
             // Executes the query and returns the results as a list.
             response.EnsureSuccessStatusCode();
 
-            var data = await response.Content.ReadFromJsonAsync<ApiResponse<TenantModel>>();
+            var data = await response.Content.ReadFromJsonAsync<ApiResponse<TenantModel>>(cancellationToken: ct);
 
             // Enrich with groups from local database (filtered by tenantId for multi-tenant isolation)
 
