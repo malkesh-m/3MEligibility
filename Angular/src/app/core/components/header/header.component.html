@@ -10,7 +10,7 @@
         <span class="spacer"></span>
 
         <div class="header-actions">
-         
+
 
             <!-- Language Selector -->
             <button class="lang-btn" [matMenuTriggerFor]="languageMenu">
@@ -24,10 +24,13 @@
             </mat-menu>
 
             <!-- User Profile -->
-            <button class="profile-btn" [matMenuTriggerFor]="profileMenu">
-                <img *ngIf="userImageUrl" [src]="userImageUrl" alt="Profile" class="profile-image">
-                <div *ngIf="!userImageUrl" class="avatar-fallback">B</div>
-            </button>
+            <div class="user-profile">
+                <span class="user-name-text">{{ userName }}</span>
+                <button class="profile-btn" [matMenuTriggerFor]="profileMenu">
+                    <img *ngIf="userImageUrl" [src]="userImageUrl" alt="Profile" class="profile-image">
+                    <div *ngIf="!userImageUrl" class="avatar-fallback">{{ userInitials }}</div>
+                </button>
+            </div>
             <mat-menu #profileMenu="matMenu" class="custom-menu">
                 <button mat-menu-item (click)="goToProfile()"><mat-icon>person</mat-icon> {{ 'My Profile' | translate
                     }}</button>

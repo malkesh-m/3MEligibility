@@ -20,13 +20,13 @@
           </mat-nav-list>-->
       </mat-expansion-panel>
       <!-- Setup Section -->
-      <mat-expansion-panel *ngIf="hasPermission('Permissions.Setup.Access')" [expanded]="step() === 0"
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.MasterData.Access')" [expanded]="step() === 0"
         (opened)="setStep(0)" hideToggle>
         <mat-expansion-panel-header>
           <!-- <mat-panel-title>Setup</mat-panel-title> -->
           <mat-panel-title>
             <mat-icon class="accordion-icon">storage</mat-icon>
-            <span>{{ 'Setup' | translate }}</span>
+            <span>{{ 'Master Data' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -36,20 +36,23 @@
             translate }}</a>
           <a *ngIf="hasPermission('Permissions.Parameter.View')" mat-list-item routerLink="setting/parameters">{{
             'Parameters' | translate }}</a>
+          <a *ngIf="hasPermission('Permissions.ParameterBinding.View')" mat-list-item
+            routerLink="setting/parameter-binding">{{ 'Parameter Binding' | translate }}</a>
           <a *ngIf="hasPermission('Permissions.Factor.View')" mat-list-item routerLink="setting/factors">{{ 'Factors' |
             translate }}</a>
           <a *ngIf="hasPermission('Permissions.Product.View')" mat-list-item routerLink="setting/products">{{ 'Products'
             | translate }}</a>
+
         </mat-nav-list>
       </mat-expansion-panel>
 
       <!-- Conditions Section -->
-      <mat-expansion-panel *ngIf="hasPermission('Permissions.Conditions.Access')" [expanded]="step() === 1"
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.BusinessLogic.Access')" [expanded]="step() === 1"
         (opened)="setStep(1)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">mediation</mat-icon>
-            <span>{{ 'Conditions' | translate }}</span>
+            <span>{{ 'Business Logic' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -64,8 +67,7 @@
           <!-- <a *ngIf="hasPermission('Permissions.Exception.View')" mat-list-item routerLink="setting/exception">{{
             'Exception Management' |
             translate }}</a> -->
-          <a *ngIf="hasPermission('Permissions.ParameterBinding.View')" mat-list-item
-            routerLink="setting/parameter-binding">{{ 'Parameter Binding' | translate }}</a>
+
         </mat-nav-list>
       </mat-expansion-panel>
 
@@ -87,12 +89,12 @@
       </mat-expansion-panel>
 
       <!-- Security Section -->
-      <mat-expansion-panel *ngIf="hasPermission('Permissions.Security.Access')" [expanded]="step() === 3"
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.AccessControl.Access')" [expanded]="step() === 3"
         (opened)="setStep(3)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">admin_panel_settings</mat-icon>
-            <span>{{ 'Security' | translate }}</span>
+            <span>{{ 'Access Control' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -106,12 +108,12 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <mat-expansion-panel *ngIf="hasPermission('Permissions.MakerChecker.Access')" [expanded]="step() === 4"
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.Approvals.Access')" [expanded]="step() === 4"
         (opened)="setStep(4)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">fact_check</mat-icon>
-            <span>{{ 'Maker Checker' | translate }}</span>
+            <span>{{ 'Approvals' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -128,7 +130,7 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">receipt_long</mat-icon>
-            <span>{{ 'Logs' | translate }}</span>
+            <span>{{ 'Audit' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -140,12 +142,12 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <mat-expansion-panel *ngIf="hasPermission('Permissions.Configuration.Access')" [expanded]="step() === 6"
+      <mat-expansion-panel *ngIf="hasPermission('Permissions.LimitAndCaps.Access')" [expanded]="step() === 6"
         (opened)="setStep(6)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon class="accordion-icon">settings_applications</mat-icon>
-            <span>{{ 'Configuration' | translate }}</span>
+            <span>{{ 'Limits and Caps' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>

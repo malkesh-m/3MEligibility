@@ -59,17 +59,15 @@
 
         <!-- Actions Column -->
         <ng-container matColumnDef="actions">
-            <th class="cellStyling column-actions text-right" mat-header-cell *matHeaderCellDef>
+            <th class="cellStyling column-actions" mat-header-cell *matHeaderCellDef>
                 {{ 'Actions' | translate }}
             </th>
             <td class="cellStyling column-actions" mat-cell *matCellDef="let element">
-                <div class="cell-actions">
-                    <button class="addBtn btn-primary btn-sm " *ngIf="isModified(element)"
-                        (click)="saveParameter(element)">
+                <div class="cell-actions d-flex gap-2 justify-content-end">
+                    <button class="btn btn-primary btn-sm" *ngIf="isModified(element)" (click)="saveParameter(element)">
                         {{ 'Save' | translate }}
                     </button>
-                    <button class="cancelBtn btn-secondary btn-sm" *ngIf="isModified(element)"
-                        (click)="cancelChanges(element)">
+                    <button class="btn btn-outline btn-sm" *ngIf="isModified(element)" (click)="cancelChanges(element)">
                         {{ 'Cancel' | translate }}
                     </button>
                 </div>

@@ -1,45 +1,33 @@
+table {
+  width: 100%;
+  background-color: #f8f8f8;
+}
 
+table tr.select-row {
+  background-color: #f8f8f8 !important;
+  color: #17355A;
+  font-size: 14px;
+}
 
-  
-  
-  
-  table {
-    width: 100%;
-    background-color: #f8f8f8;
-  }
-  
-  table tr.select-row {
-    background-color: #f8f8f8 !important;
-    color: #17355A;
-    font-size: 14px;
-  }
-  
-  .paginator {
-    background-color: white;
-  }
-  
-  table tr.select-row:hover {
-    cursor: pointer;
-  }
-  
-  .table {
-    margin-top: 20px;
-  }
+.paginator {
+  background-color: white;
+}
 
-  .dropdown-menu {
-    display: block;
-    position: absolute;
-  }
+table tr.select-row:hover {
+  cursor: pointer;
+}
 
-  .no-items {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  .btn-container{
-    display: flex;
-    justify-content: end;
-  }
-  .map-btn, .cancelBtn{
-    min-width: 100px;
-  }
+.table {
+  margin-top: 20px;
+}
+
+.dropdown-menu {
+  display: block;
+  position: absolute;
+}
+
+.no-items {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}

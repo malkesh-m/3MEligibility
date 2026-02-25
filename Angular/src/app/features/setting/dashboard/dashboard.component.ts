@@ -90,27 +90,38 @@ export class DashboardComponent implements AfterViewInit {
   //];
   getEvaluationHistory(): void {
     // Include pagination info in the filter
-    const fromDateIso = this.filter.fromDate ? new Date(this.filter.fromDate).toISOString() : undefined;
-    const toDateIso = this.filter.toDate ? new Date(this.filter.toDate).toISOString() : undefined;
+    const fromDate = this.filter.fromDate;
+    const toDate = this.filter.toDate;
+    const fromDateIso = fromDate && this.isValidDate(fromDate) ? new Date(fromDate).toISOString() : undefined;
+    const toDateIso = toDate && this.isValidDate(toDate) ? new Date(toDate).toISOString() : undefined;
 
     console.log('Fetching Evaluation History with filter:', this.filter);
     const request = {
       ...this.filter,
       fromDate: fromDateIso,
       toDate: toDateIso,
-      pageNumber: this.pageNumber ?? 1,
-      pageSize: this.pageSize ?? 10
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize
     };
 
     this.dashboardService.getEvaluationHistory(request).subscribe({
       next: (response) => {
-        this.evaluationHistory = response.data; // assign only the data array
+        // Sanitize data to remove empty/phantom records
+        this.evaluationHistory = (response.data || []).filter((item: any) =>
+          item && (item.evaluationHistoryId || item.nationalId || item.loanNo)
+        );
         this.totalRecords = response.totalCount; // store total count for pagination
       },
       error: (err) => {
         console.error('Failed to load Evaluation History:', err);
       }
     });
+  }
+
+  private isValidDate(dateStr: string | undefined): boolean {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime());
   }
 
   ngAfterViewInit() {
@@ -125,8 +136,15 @@ export class DashboardComponent implements AfterViewInit {
     //  this.fetchApiEvaluationHistory();
   }
   onPageChange(event: PageEvent) {
-    this.pageNumber = event.pageIndex + 1; // paginator index is 0-based
+    const isPageSizeChanged = this.pageSize !== event.pageSize;
     this.pageSize = event.pageSize;
+
+    if (isPageSizeChanged) {
+      this.pageNumber = 1; // Reset to page 1 on size change for better UX
+    } else {
+      this.pageNumber = event.pageIndex + 1;
+    }
+
     this.getEvaluationHistory();
   }
   applyFilters() {

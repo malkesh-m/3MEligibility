@@ -99,16 +99,17 @@
             </div>
         </div>
         <div class="row">
-            <div class="col btn-container">
-                <button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
-                    [componentName]="'MappingComponent'" [actionType]="'SubmitForm'" type="submit"
-                    class="addBtn btn-primary me-2 mt-4 map-btn" [disabled]="mappingForm.invalid">
-                    <!-- {{ isEditMode ? 'Update' : 'Add' }} -->
+            <div class="d-flex flex-wrap align-items-center justify-content-end mt-4">
+                <button mat-flat-button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+                    [componentName]="'MappingComponent'" [actionType]="'SubmitForm'" type="submit" class="addBtn me-2"
+                    [disabled]="mappingForm.invalid">
                     {{ 'Map' | translate }}
                 </button>
-                <button appUseractivity="User Click on Cancel button" [componentName]="'MappingComponent'"
-                    [actionType]="'ButtonClick'" type="button" class="btn btn-secondary mt-4 cancelBtn"
-                    (click)="closeForm()">{{ 'Cancel' | translate }}</button>
+                <button mat-raised-button appUseractivity="User Click on Cancel button"
+                    [componentName]="'MappingComponent'" [actionType]="'ButtonClick'" type="button" class="cancelBtn"
+                    (click)="closeForm()">
+                    {{ 'Cancel' | translate }}
+                </button>
             </div>
         </div>
     </form>
@@ -169,7 +170,7 @@
         </ng-container>
 
         <ng-container matColumnDef="Actions">
-            <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
+            <th mat-header-cell *matHeaderCellDef class="text-left"> {{ 'Actions' | translate }} </th>
             <td mat-cell *matCellDef="let entity">
                 <div class="cell-actions">
                     <mat-icon class="clickable-icon edit" (click)="editMappingRecord(entity)"

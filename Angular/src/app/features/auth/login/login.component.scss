@@ -21,7 +21,8 @@
   }
 
   .error-text {
-    white-space: pre; /* preserves multiple spaces */
+    white-space: pre;
+    /* preserves multiple spaces */
   }
 
   .btn-sumit {
@@ -29,12 +30,14 @@
     justify-content: center;
   }
 }
+
 #login-form {
   .login-input {
     width: 14rem;
     margin-bottom: 0.6rem;
   }
 }
+
 .viewport-container {
   position: relative;
   width: calc(100% - 20px);
@@ -46,14 +49,16 @@
   overflow: hidden;
   // background: linear-gradient(to bottom right, #0066cc, #66ccff); /* Gradient background */
 }
+
 .cover {
   position: relative;
   width: 80%;
   height: 100%;
-//   background: url("../../../../assets/images/SDBBG_2.png") no-repeat center left;
+  //   background: url("../../../../assets/images/SDBBG_2.png") no-repeat center left;
   background-size: cover;
   z-index: 0;
 }
+
 .cover::after {
   content: "";
   position: absolute;
@@ -132,6 +137,7 @@
 .m-r-10 {
   margin-right: 10px;
 }
+
 .logo-container {
   text-align: center;
   margin-bottom: 1.5em;
@@ -159,7 +165,7 @@
   margin-bottom: 2em;
 }
 
-.forget{
+.forget {
   text-align: end;
 }
 
@@ -215,21 +221,24 @@
   margin-left: 4px;
 }
 
-#txtPassword{
-  -webkit-text-security:disc;
+#txtPassword {
+  -webkit-text-security: disc;
 }
 
 /* Adjust for mobile responsiveness */
 @media (max-width: 600px) {
-.login-container {
-  width: 90%;
+  .login-container {
+    width: 90%;
+  }
 }
-}
+
 .form-error {
-  color: #f44336; /* Angular Material error red */
+  color: #f44336;
+  /* Angular Material error red */
   font-size: 12px;
   margin: -6px 0 8px 4px;
 }
+
 .password-rules-container {
   margin-top: 12px;
   padding: 16px;
@@ -426,7 +435,9 @@ mat-form-field.mat-form-field-appearance-outline .mat-form-field-wrapper {
 }
 
 /* Smooth transitions */
-mat-form-field, .password-rules-container, .submit-button {
+mat-form-field,
+.password-rules-container,
+.submit-button {
   transition: all 0.3s ease;
 }
 

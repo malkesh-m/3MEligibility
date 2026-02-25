@@ -18,6 +18,8 @@ import { environment } from '../../../../environments/environment';
 export class HeaderComponent {
   currentLanguage: string;
   userImageUrl: SafeUrl | null = null;
+  userName: string = '';
+  userInitials: string = '';
   pageTitle: string = 'Dashboard';
   @Output() menuToggle = new EventEmitter<void>();
 
@@ -41,15 +43,29 @@ export class HeaderComponent {
 
   loadUserImage() {
     const profile = this.oidcAuthService.getUserProfile();
-    if (profile && profile.user_photo_id) {
-      this.authService.getUserImage(profile.user_photo_id).subscribe({
-        next: (blob) => {
-          const objectURL = URL.createObjectURL(blob);
-          this.userImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
-        },
-        error: (err) => console.error('Failed to load user image', err)
-      });
+    if (profile) {
+      this.userName = profile.name || profile.preferred_username || 'User';
+      this.userInitials = this.getInitials(this.userName);
+
+      if (profile.user_photo_id) {
+        this.authService.getUserImage(profile.user_photo_id).subscribe({
+          next: (blob) => {
+            const objectURL = URL.createObjectURL(blob);
+            this.userImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+          },
+          error: (err) => console.error('Failed to load user image', err)
+        });
+      }
     }
+  }
+
+  getInitials(name: string): string {
+    if (!name) return 'U';
+    const parts = name.split(' ');
+    if (parts.length > 1) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
   }
 
   toggleSidebar() {

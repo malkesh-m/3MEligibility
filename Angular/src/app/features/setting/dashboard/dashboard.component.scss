@@ -323,11 +323,16 @@
 }
 
 .status-badge {
-  padding: 4px 10px;
-  border-radius: 99px;
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
+  display: inline-block;
+  line-height: 1.4;
+  max-width: 100%;
+  word-wrap: break-word;
+  white-space: normal;
 
   &.approved {
     background: var(--emerald-dim);
@@ -340,13 +345,52 @@
   }
 }
 
-.action-btn {
-  color: var(--text-3);
-  transition: var(--transition);
+/* Table Column Widths */
+.mat-mdc-table {
+  width: 100%;
 
-  &:hover {
-    color: var(--indigo);
+  .mat-column-nationalId {
+    width: 15%;
   }
+
+  .mat-column-loanNo {
+    width: 15%;
+  }
+
+  .mat-column-evaluationTime {
+    width: 20%;
+  }
+
+  .mat-column-outcome {
+    width: 40%;
+    padding-right: 24px !important;
+  }
+
+  .mat-column-actions {
+    width: 10%;
+    min-width: 100px !important;
+    text-align: center !important;
+  }
+}
+
+.cell-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clickable-icon {
+  font-family: 'Material Icons' !important;
+  font-style: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
 }
 
 @media (max-width: 1200px) {

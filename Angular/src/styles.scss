@@ -451,11 +451,9 @@ h6 {
 
 .cell-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 8px;
   width: 100%;
-  margin-right: -6px;
-  /* Offset the padding of .clickable-icon to align perfectly with right-aligned header text */
 }
 
 /* Ensure Actions column has standardized padding and alignment */
@@ -463,10 +461,11 @@ h6 {
 .mat-mdc-header-cell.mat-column-Actions,
 .mat-mdc-cell.mat-column-actions,
 .mat-mdc-cell.mat-column-Actions {
-  text-align: right !important;
-  padding-right: 16px !important;
-  /* Standard gutter */
-  justify-content: flex-end !important;
+  text-align: center !important;
+  justify-content: center !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  padding: 0 16px !important;
 }
 
 .action-group {

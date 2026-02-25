@@ -197,14 +197,14 @@
         </div>
       </div>
 
-      <div class="d-flex flex-wrap align-items-center justify-content-end">
-        <button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+      <div class="d-flex flex-wrap align-items-center justify-content-end mt-4">
+        <button mat-flat-button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
           [componentName]="'FactorComponent'" [actionType]="'FormSubmit'" type="submit" class="addBtn me-2"
-          [disabled]="form.invalid || showMaxLengthWarning" mat-flat-button>
+          [disabled]="form.invalid || showMaxLengthWarning">
           {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
         </button>
-        <button appUseractivity="User Click on Cancel button" [componentName]="'FactorComponent'"
-          [actionType]="'ButtonClick'" type="button" class="cancelBtn" (click)="closeForm()" mat-raised-button>
+        <button mat-raised-button appUseractivity="User Click on Cancel button" [componentName]="'FactorComponent'"
+          [actionType]="'ButtonClick'" type="button" class="cancelBtn" (click)="closeForm()">
           {{ 'Cancel' | translate }}
         </button>
       </div>
@@ -234,7 +234,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Factor Name' | translate }}</th>
         <td mat-cell *matCellDef="let element" class="simple-text">{{ element.factorName }}</td>
       </ng-container>
-<!-- 
+      <!-- 
       <ng-container matColumnDef="isMandatory">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Mandatory' | translate }}</th>
         <td mat-cell *matCellDef="let parameter">
@@ -285,7 +285,7 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
+        <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
         <td mat-cell *matCellDef="let element">
           <div class="cell-actions">
             <mat-icon class="clickable-icon edit" (click)="editRecord(element)" matTooltip="{{ 'Edit' | translate }}"
