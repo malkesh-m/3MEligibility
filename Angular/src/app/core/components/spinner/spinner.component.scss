@@ -1,64 +1,82 @@
 .overlay {
   position: fixed;
+  /* Falls back to absolute-like behavior if container has transform */
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  /* Semi-transparent background */
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  text-align: center;
+  z-index: 999999;
+  transition: all 0.3s ease;
+  pointer-events: all;
+  align-items: flex-start;   
+   padding-top: 30vh;   
+   align-items: flex-start;
+
 }
 
 .overlay.local {
   position: absolute;
   z-index: 10;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.5);
-  /* Light background for local loader */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
 }
 
-.overlay.local .loader-content p {
-  color: #333;
-  /* Dark text for light background */
-}
-
-.loader-content {
+.loader-container {
   display: flex;
   flex-direction: column;
-  /* Stack spinner and text vertically */
   align-items: center;
-  justify-content: center;
+  gap: 16px;
+  /* Pushes the spinner a little down */
+  animation: fadeIn 0.4s ease;
 }
 
-.loader-content mat-spinner {
-  display: block;
-  margin-bottom: 15px;
-  /* Adds space between spinner and message */
+.elegant-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(79, 70, 229, 0.15);
+  /* Light Indigo ring */
+  border-left-color: #4F46E5;
+  /* Solid Indigo 600 */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.loader-content p {
-  font-size: 18px;
+.loader-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1E293B;
+  /* Slate 800 */
+  letter-spacing: 0.5px;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
-  color: white;
-}
-:host {
-  pointer-events: none; // host never blocks clicks
 }
 
-.spinner-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.7);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: all; // only overlay blocks clicks when visible
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+:host {
+  display: block;
 }

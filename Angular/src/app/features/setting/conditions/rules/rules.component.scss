@@ -1,431 +1,183 @@
-.card-wrap {
-  padding: 10px 20px;
-  background-color: #f9f9f9;
+.rules-container {
+  padding-bottom: 40px;
 }
 
-.remove,
-.cancel {
-  margin-top: 5% !important;
-}
+.rule-panel {
+  margin-bottom: 12px;
+  border-radius: 12px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  transition: var(--transition) !important;
+  overflow: hidden;
 
-.moduleLabel {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.container {
-  padding: 20px;
-}
-
-.mainTableRow {
-  font-size: 14px;
- // background: #f8f8f8;
-}
-
-table {
-  width: 100%;
-  background-color: #f8f8f8;
-}
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  /* Enables horizontal scrolling */
-  white-space: nowrap;
-  /* Prevents table from wrapping */
-}
-
-.table-wrapper table {
-  min-width: 1000px;
-  /* Ensures table doesn't shrink too much */
-  width: 100%;
-}
-
-table tr.select-row {
-  background-color: #f8f8f8 !important;
-  color: #17355A;
-  font-size: 14px;
-}
-
-.paginator {
-  background-color: white;
-}
-
-table tr.select-row:hover {
-  cursor: pointer;
-  //background-color: #f8f8f8 !important;
-  /* Change the cursor to pointer on hover */
-}
-
-.table {
-  margin-top: 20px;
-}
-
-.dropdown-menu {
-  display: block;
-  position: absolute;
-}
-
-.bgColorWhite {
-  background-color: #f8f8f8;
-}
-
-.tableHeader {
-  background-color: #f8f8f8;
-  color: #1CAEC8;
-  font-size: 16px;
-  //font-weight: 600;
-}
-
-.cellStyling {
-  border-bottom: 5px solid white !important;
-}
-
-.moduleLabel {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.card {
-  background: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.button-spacing button {
-  margin-right: 15px;
-
-  &:last-child {
-    margin-right: 0;
-    /* Remove margin for the last button */
+  &.mat-expanded {
+    border-color: var(--indigo) !important;
+    background: var(--surface-2) !important;
   }
+
+  &:hover:not(.mat-expanded) {
+    background: var(--surface-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+::ng-deep .mat-expansion-panel-header {
+  padding: 0 !important;
+  height: auto !important;
+  min-height: 64px !important;
+
+  .mat-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.rule-grid {
+  display: grid;
+  grid-template-columns: 48px 250px 1fr 140px 120px;
+  align-items: center;
+  width: 100%;
+  padding: 0 24px;
+  gap: 16px;
+
+  .rule-cell {
+    font-size: 14px;
+    color: var(--text-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.name-cell {
+      font-weight: 600;
+      color: var(--text-1);
+    }
+
+    &.status-cell {
+      .status-badge {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+
+        &.active {
+          background: rgba(var(--emerald-rgb), 0.1);
+          color: var(--emerald);
+        }
+
+        &.inactive {
+          background: rgba(var(--rose-rgb), 0.1);
+          color: var(--rose);
+        }
+      }
+    }
+
+    &.actions-cell {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+
+      button {
+        color: var(--text-3);
+        transition: var(--transition);
+
+        &:hover {
+          color: var(--indigo);
+          background: rgba(var(--indigo-rgb), 0.1);
+        }
+      }
+    }
+  }
+}
+
+.expression-builder-form {
+  padding: 24px;
+  background: var(--surface-2);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 32px;
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+
+    .form-group {
+      flex: 1;
+      min-width: 200px;
+    }
+  }
+
+  .expression-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 24px;
+
+    textarea {
+      background: transparent;
+      border: none;
+      color: var(--indigo);
+      font-family: var(--font-data);
+      font-weight: 600;
+      font-size: 14px;
+      resize: none;
+      width: 100%;
+      outline: none;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+}
+
+.version-table-container {
+  padding: 16px 24px 24px;
+
+  .version-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+}
+
+.large-checkbox {
+  transform: scale(1.1);
 }
 
 .clickable-icon {
   cursor: pointer;
-  /* Makes the icon clickable */
-  transition: transform 0.2s ease-in-out;
+  transition: var(--transition);
 
   &:hover {
-    transform: scale(1.2);
-    /* Slight zoom effect on hover */
+    color: var(--indigo);
   }
 }
 
-.badge {
-  font-weight: normal !important;
-  padding: 10px;
-  width: inherit;
-  font-size: 14px;
+.text-muted {
+  opacity: 0.5;
 }
 
-.d-flex {
-  display: flex;
-  flex-wrap: wrap;
-  /* Ensures wrapping on small screens */
-  //gap: 5px;
-  /* Adds space between items */
-  align-items: center;
+.mono {
+  font-family: var(--font-data);
+  font-weight: 600;
+  color: var(--indigo);
 }
-
-.rule-panel {
-  margin-bottom: 16px;
-  /* adjust spacing as needed */
-}
-
-::ng-deep .mat-expansion-panel-header {
-  min-height: 48px !important;
-  height: 48px !important;
-  padding: 6px 16px !important;
-}
-
-::ng-deep .mat-expansion-panel-header .mat-content {
-  margin: 0 !important;
-  align-items: center;
-}
-
-::ng-deep .mat-expansion-panel-header-title,
-::ng-deep .mat-expansion-panel-header-description {
-  font-size: 15px !important;
-  line-height: 1.5;
-}
-
-::ng-deep .mat-expansion-indicator {
-  transform: scale(1);
-  /* default size */
-}
-
-::ng-deep .mat-icon-button {
-  width: 36px;
-  height: 36px;
-}
-
-::ng-deep .mat-icon {
-  font-size: 22px;
-}
-
-.large-checkbox {
-  width: 20px;
-  height: 20px;
-  margin-top: -4px;
-}
-
-.container {
-  padding: 20px;
-}
-
-table {
-  width: 100%;
-  background-color: #f8f8f8;
-}
-
-table tr.select-row {
-  background-color: #f8f8f8 !important;
-  color: #17355A;
-  font-size: 14px;
-}
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  /* Enables horizontal scrolling */
-  white-space: nowrap;
-  /* Prevents table from wrapping */
-}
-
-.table-wrapper table {
-  min-width: 1000px;
-  /* Ensures table doesn't shrink too much */
-  width: 100%;
-}
-
-
-.paginator {
-  background-color: white;
-}
-
-table tr.select-row:hover {
-  cursor: pointer;
-  /* Change the cursor to pointer on hover */
-}
-
-.table {
-  margin-top: 20px;
-}
-
-.dropdown-menu {
-  display: block;
-  position: absolute;
-}
-
-.bgColorWhite {
-  background-color: #f8f8f8;
-}
-
-.tableHeader {
-  background-color: #f8f8f8;
-  color: #1CAEC8;
-  font-size: 16px;
-  //font-weight: 600;
-}
-
-.cellStyling {
-  border-bottom: 5px solid white !important;
-}
-
-.moduleLabel {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.card {
-  background: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.button-spacing button {
-  margin-right: 15px;
-
-  &:last-child {
-    margin-right: 0;
-    /* Remove margin for the last button */
-  }
-}
-
-.form-check-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  /* Optional spacing between checkbox and label text */
-  margin-bottom: 0;
-  /* Remove extra space below label */
-}
-
-.form-check-input {
-  margin-top: 0;
-  /* Align the checkbox properly */
-}
-/* Target the expansion panel header content */
-.mat-expansion-panel-header .mat-content {
-  color: #212529 !important; /* normal dark text */
-  font-weight: 400 !important; /* normal weight */
-  font-size: 14px !important; /* normal size, adjust as needed */
-  line-height: 1.4 !important; /* normal line height */
-}
-
-/* Optional: remove uppercase style if any */
-.mat-expansion-panel-header .mat-content .mat-expansion-panel-header-title {
-  text-transform: none !important;
-}
-
-/* Target your custom spans inside header */
-.rule-name-text,
-.description-text,
-.status-badge {
-  color: #212520 !important;
-  font-weight: 500 !important;
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-}
-.rule-panel {
-  margin-bottom: 10px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.rule-header {
-  background-color: #f8f8f8 !important;
-  padding: 0 !important;
-}
-
-/* Grid layout – evenly distribute space */
-.rule-grid {
-  display: grid;
-  align-items: center;
-  width: 100%;
-  grid-template-columns: 60px 20% 35% 15% auto;
-  /* checkbox | rule name | description | status | actions (auto takes remaining space) */
-  padding: 10px 15px;
-  box-sizing: border-box;
-  column-gap: 10px;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-}
-
-/* Actions cell - push to far right */
-.actions-cell {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-left: auto;
-  padding-right: 0 !important;
-}
-/* Specific columns */
-.checkbox-cell {
-  justify-content: center;
-}
-
-.name-cell {
-  font-weight: 500;
-  color: #222;
-}
-
-.desc-cell {
-  font-weight: 500;
-  color: #222;
-}
-
-.status-cell {
-  justify-content: center;
-}
-
-.actions-cell {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-left: auto;
-  padding-right: 30px !important;
-}
-
-/* Or use this for extreme right alignment */
-.actions-cell {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-left: auto;
-  margin-right: 0;
-  padding-right: 0 !important;
-}
-
-/* Status Badges */
-.status-badge {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
-}
-
-.status-badge.active {
-  background-color: #28a745;
-}
-
-.status-badge.inactive {
-  background-color: #dc3545;
-}
-
-/* Hover effect */
-.rule-header:hover {
-  background-color: #f2f8f6 !important;
-  cursor: pointer;
-}
-
-/* Icons */
-.mat-icon-button {
-  width: 36px !important;
-  height: 36px !important;
-}
-
-.mat-icon {
-  font-size: 25px !important;
-}
-
-/* Ensure equal alignment and spacing */
-::ng-deep .mat-expansion-panel-header {
-  overflow: visible !important;
-  min-height: 48px !important;
-  display: flex;
-  align-items: center;
-}
-
-/* Make sure grid stretches full width */
-.mat-expansion-panel-header .mat-content {
-  flex: 1 1 100%;
-}
-
-/* Responsive behavior */
-@media (max-width: 992px) {
-  .rule-grid {
-    display: grid;
-    grid-template-columns: 60px 25% 40% 15% 10%;
-    align-items: center;
-    width: 100%;
-    column-gap: 10px;
-    padding: 10px 15px;
-    box-sizing: border-box;
-  }
-
-  .status-cell,
-  .actions-cell {
-    justify-content: flex-start;
-  }
-}
-::ng-deep .mat-expansion-indicator {
-  margin-left: auto !important;
-  margin-right: 20px !important; /* adds space from right edge */
-  transform: scale(1);
-}
-

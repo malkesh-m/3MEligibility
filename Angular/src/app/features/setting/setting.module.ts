@@ -37,6 +37,8 @@ import { MakerCheckerConfigComponent } from './maker-checker-config/maker-checke
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BulkImportComponent } from './bulk-import/bulk-import.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MakerCheckerDetailsDialogComponent } from './maker-checker/maker-checker-details-dialog/maker-checker-details-dialog.component';
 import { MakerCheckerHistoryComponent } from './maker-checker/maker-checker-history/maker-checker-history.component';
 import { ExceptionManagementComponent } from './conditions/exception-management/exception-management.component';
@@ -109,6 +111,8 @@ import { ParameterBindingComponent } from './parameter-binding/parameter-binding
     QuillModule,
     TranslateModule, MatSlideToggleModule,
     MatProgressSpinnerModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     SharedModule
   ],
 

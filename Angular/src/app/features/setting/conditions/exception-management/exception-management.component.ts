@@ -56,7 +56,7 @@ export class ExceptionManagementComponent {
   private _snackBar = inject(MatSnackBar);
   parametersList: any[] = [];
   exceptionsTableData: any[] = [];
-  formVisible:boolean=false;
+  formVisible: boolean = false;
   searchTerms: { [key: string]: string } = {
     exception: '',
     exceptionParameter: ''
@@ -64,13 +64,13 @@ export class ExceptionManagementComponent {
   searchTerm: string = '';
   activeTab: ExceptionManagementTabs = 'Exceptions';
   formData: any;
-  isEditMode : boolean = false;
+  isEditMode: boolean = false;
   limitAmountType: 'Fixed' | 'Variation' = 'Fixed';
   constructor(
     private utilityService: UtilityService,
     private factorsService: FactorsService,
-    private exceptionService: ExceptionManagementService,private PermissionsService:PermissionsService) {
-      this.fetchTableData()
+    private exceptionService: ExceptionManagementService, private PermissionsService: PermissionsService) {
+    this.fetchTableData()
   }
 
   isLoading: boolean = false;
@@ -90,17 +90,17 @@ export class ExceptionManagementComponent {
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
 
-    this.searchTerm = filterValue; 
+    this.searchTerm = filterValue;
   }
 
   openForm() {
 
     this.formVisible = true;
   }
-  onnewClick(){
+  onnewClick() {
     this.formVisible = true;
     this.isEditMode = false;
-  
+
     this.formData = {
       exceptionManagementId: 0,
       exceptionName: '',
@@ -116,7 +116,8 @@ export class ExceptionManagementComponent {
       productId: [],
       limitAmountType: '',
       Products: [],
-      expShown: ['']}
+      expShown: ['']
+    }
   }
   onSubmit() {
     this.formVisible = false;
@@ -128,7 +129,7 @@ export class ExceptionManagementComponent {
     this.formVisible = false;
     this.isEditMode = false;
     this.formData = {
-      exceptionID:null,
+      exceptionID: null,
       exceptionName: '',
       parameterID: null,
       isTemporary: false,
@@ -139,7 +140,7 @@ export class ExceptionManagementComponent {
       endDate: '',
       fixedPercentage: 0,  // For fixed limit percentage
       variationPercentage: 0,
-      products:[]
+      products: []
     }
   }
 
@@ -168,7 +169,7 @@ export class ExceptionManagementComponent {
             const parameter = this.parametersList.find(
               (param) => param.parameterId === item.parameterID
             );
-           
+
             console.log("fetchExceptionList")
             return {
               exceptionManagementId: item.exceptionManagementId,
@@ -191,7 +192,7 @@ export class ExceptionManagementComponent {
           });
           this.isLoading = false;
         }
-       
+
       },
       error: (error: any) => {
         this._snackBar.open(error.message, 'Okay', {
@@ -211,7 +212,7 @@ export class ExceptionManagementComponent {
 
   async fetchExceptionById(Id: number) {
     return new Promise(async (resolve, reject) => {
-     
+
       await this.exceptionService.getExceptionById(Id).subscribe({
         next: (response) => {
           response.data.scope = response?.data?.scope?.split(',');
@@ -220,15 +221,15 @@ export class ExceptionManagementComponent {
 
 
           resolve(response.data)
-         
-        
+
+
         },
-        error: (err:any) => reject(err),
+        error: (err: any) => reject(err),
       });
     });
   }
 
-  
+
   sanitizeCode(event: any) {
     event.target.value = this.utilityService.sanitizeCode(event.target.value);
   }
@@ -250,27 +251,27 @@ export class ExceptionManagementComponent {
       startDate: this.formateDate(record.exceptionStartDate),
       endDate: this.formateDate(record.exceptionEndDate),
       expShown: record.expShown
-      
+
     }
     //console.log(record.expShown)
     this.formData = await this.fetchExceptionById(record.exceptionManagementId);
 
     this.openForm();
     this.isEditMode = true;
-  
+
     // this.formData = record;
   }
 
-  
+
   deleteException(Id: any) {
     this.exceptionService.deleteException(Id).subscribe({
       next: (response) => {
         this.fetchTableData();
         this.onFormClose();
       },
-      error: (err:any) => console.log(err),
+      error: (err: any) => console.log(err),
     });
-   
+
   }
 
   formateDate(date: any) {
@@ -279,10 +280,10 @@ export class ExceptionManagementComponent {
     let month: any = newDate.getMonth() + 1;
     let year = newDate.getFullYear();
     let day: any = newDate.getDate();
-    if(month < 10) {
+    if (month < 10) {
       month = `0${month}`;
     }
-    if(day < 10) {
+    if (day < 10) {
       day = `0${day}`;
     }
     return `${year}-${month}-${day}`

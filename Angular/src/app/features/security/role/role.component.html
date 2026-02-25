@@ -4,17 +4,16 @@
         </p>
     </div>
     <!-- Search and Actions Section -->
-    <div class="d-flex justify-content-between align-items-center">
-        <!-- Search Input -->
-        <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
-            <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
-                (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
+    <div class="filter-bar">
+        <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input type="text" class="filter-input" placeholder="{{ 'Search' | translate }}"
+                (input)="applyFilter($event)" [(ngModel)]="searchTerm" style="padding-left: 40px !important;" />
         </div>
 
-        <!-- Actions Buttons -->
-        <div class="d-flex align-items-center ms-3">
+        <div class="action-group">
             <button appUseractivity="User Click on Add button" [componentName]="'RoleComponent'"
-                [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()"
+                [actionType]="'ButtonClick'" class="clickable-icon" (click)="openForm()"
                 *ngIf="hasPermission('Permissions.Role.Create')">
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
@@ -70,35 +69,35 @@
         </form>
     </div>
     <div class="table-wrapper">
-        <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+        <table mat-table [dataSource]="dataSource" matSort>
 
             <ng-container matColumnDef="roleName">
-                <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Name' | translate }}</th>
-                <td class="cellStyling" mat-cell *matCellDef="let list">{{ list.roleName }}</td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Name' | translate }}</th>
+                <td mat-cell *matCellDef="let list">{{ list.roleName }}</td>
             </ng-container>
 
             <ng-container matColumnDef="roleDesc">
-                <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Description' | translate
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Description' | translate
                     }}
                 </th>
-                <td class="cellStyling" mat-cell *matCellDef="let list">{{ list.roleDesc }}</td>
+                <td mat-cell *matCellDef="let list">{{ list.roleDesc }}</td>
             </ng-container>
 
             <ng-container matColumnDef="actions">
-                <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
-                <td class="cellStyling" mat-cell *matCellDef="let list">
+                <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+                <td mat-cell *matCellDef="let list">
                     <mat-icon appUseractivity="User Click on Edit button" [componentName]="'RoleComponent'"
-                        [actionType]="'ButtonClick'" class="clickable-icon" color="primary" (click)="editRecord(list)"
+                        [actionType]="'ButtonClick'" class="clickable-icon edit" (click)="editRecord(list)"
                         [matTooltip]="list.roleName === 'Super Admin' ? ('You cannot edit Super Admin role' | translate) : ('Edit' | translate)"
-                        *ngIf="hasPermission('Permissions.Role.Edit') && list.roleName !== 'Super Admin'">edit</mat-icon>
+                        *ngIf="hasPermission('Permissions.Role.Edit') && list.roleName !== 'Super Admin'">edit_note</mat-icon>
                     <mat-icon appUseractivity="User Click on Delete button" [componentName]="'RoleComponent'"
-                        [actionType]="'ButtonClick'" class="clickable-icon" color="warn" (click)="deleteRecord(list)"
+                        [actionType]="'ButtonClick'" class="clickable-icon delete" (click)="deleteRecord(list)"
                         [matTooltip]="list.roleName === 'Super Admin' ? ('You cannot delete Super Admin role' | translate) : ('Delete' | translate)"
-                        *ngIf="hasPermission('Permissions.Role.Delete') && list.roleName !== 'Super Admin'">delete</mat-icon>
+                        *ngIf="hasPermission('Permissions.Role.Delete') && list.roleName !== 'Super Admin'">delete_outline</mat-icon>
                 </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
         </table>
         <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
@@ -153,14 +152,14 @@
     </div>
 </div>
 
-<div *ngIf="activeTab === 'assignedUser'">
+<div *ngIf="activeTab === 'assignedUser'" class="table-wrapper">
 
-    <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="assignedUserDataSource" matSort>
+    <table mat-table [dataSource]="assignedUserDataSource" matSort>
 
         <ng-container matColumnDef="userName">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity">
+            <td mat-cell *matCellDef="let entity">
                 {{ entity.displayName }}
                 <span *ngIf="currentUserId !== null && entity.id === currentUserId" class="self-tag">{{ '(You)' |
                     translate }}</span>
@@ -168,34 +167,34 @@
         </ng-container>
 
         <ng-container matColumnDef="mobileNo">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Mobile No' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Mobile No' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.mobileNo }} </td>
+            <td mat-cell *matCellDef="let entity"> {{ entity.mobileNo }} </td>
         </ng-container>
 
         <ng-container matColumnDef="email">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Email' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Email' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.email }} </td>
+            <td mat-cell *matCellDef="let entity"> {{ entity.email }} </td>
         </ng-container>
 
         <ng-container matColumnDef="entityName">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Entity' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Entity' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.entityName }} </td>
+            <td mat-cell *matCellDef="let entity"> {{ entity.entityName }} </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity">
+            <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+            <td mat-cell *matCellDef="let entity">
                 <mat-icon appUseractivity="User Click on Delete button" [componentName]="'RoleComponent'"
-                    [actionType]="'ButtonClick'" class="clickable-icon" color="warn"
+                    [actionType]="'ButtonClick'" class="clickable-icon delete"
                     (click)="deleteAssignedUserRecord(entity)" [matTooltip]="getAssignedUserDeleteTooltip()"
-                    *ngIf="canDeleteAssignedUser()">delete</mat-icon>
+                    *ngIf="canDeleteAssignedUser()">delete_outline</mat-icon>
             </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="assignedUserColumns" class="tableHeader"></tr>
+        <tr mat-header-row *matHeaderRowDef="assignedUserColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: assignedUserColumns;" class="select-row"></tr>
     </table>
     <p style="text-align: center;" *ngIf="assignedUserDataSource.data.length === 0">{{ recordMessage || ('Please select

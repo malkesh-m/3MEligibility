@@ -1,36 +1,37 @@
-<div class="mb-3">
-  <div>
-    <p class="moduleLabel mb-2">{{ 'Products' | translate }}</p>
-  </div>
+<div class="products-page">
+  <span class="moduleLabel">{{ 'Products' | translate }}</span>
 
-  <!-- Search and Actions Section -->
-  <div class="d-flex justify-content-between align-items-center">
-    <!-- Search Input -->
-    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
-      <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
-        [(ngModel)]="searchTerms[activeTab]" (input)="applyFilter()" />
+  <!-- Search and Actions Top Bar -->
+  <div class="top-bar">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input type="text" placeholder="{{ 'Search' | translate }}" [(ngModel)]="searchTerms[activeTab]"
+        (input)="applyFilter()" />
     </div>
 
-    <!-- Actions Buttons -->
-    <div class="d-flex align-items-center ms-3">
+    <div class="action-group">
       <button appUseractivity="User Click on Add button" [componentName]="'ProductComponent'"
-        [actionType]="'ButtonClick'" class="btn me-2" (click)="insertNewRecord()" *ngIf="getAddPermission()">
+        [actionType]="'ButtonClick'" class="btn" (click)="insertNewRecord()" *ngIf="getAddPermission()">
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
+
       <button appUseractivity="User Click on Download Template button" [componentName]="'ProductComponent'"
         [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="getImportPermission()">
-        <mat-icon matTooltip="{{ 'Download Template' | translate}}">cloud_download</mat-icon>
+        <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
+
       <button appUseractivity="User Click on Import button" [componentName]="'ProductComponent'"
-        [actionType]="'ButtonClick'" class="btn me-2" (click)="fileInput.click()" *ngIf="getImportPermission()">
-        <mat-icon matTooltip="{{'Import' | translate}}">file_upload</mat-icon>
+        [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()" *ngIf="getImportPermission()">
+        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+
       <button appUseractivity="User Click on Export button" [componentName]="'ProductComponent'"
         [actionType]="'ButtonClick'" class="btn" (click)="productListChiild.exportProducts()"
         *ngIf="getExportPermission()">
         <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
       </button>
+
       <button appUseractivity="User Click on Delete button" [componentName]="'ProductComponent'"
         [actionType]="'ButtonClick'" (click)="productListChiild.deleteMultiple()" class="btn"
         *ngIf="getDeletePermission()">
@@ -38,60 +39,41 @@
       </button>
     </div>
   </div>
-</div>
 
-<ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'Category'"
-      (click)="switchTab('Category')">
+  <!-- Redesigned Tabs -->
+  <div class="tab-bar tab-nav">
+    <div class="tab-item" [class.active]="activeTab === 'Category'" (click)="switchTab('Category')">
       {{ 'Category' | translate }}
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'Info'" (click)="switchTab('Info')">
+    </div>
+    <div class="tab-item" [class.active]="activeTab === 'Info'" (click)="switchTab('Info')">
       {{ 'Product' | translate }}
-    </a>
-  </li>
-  <!--<li class="nav-item">
-      <a class="nav-link" style="cursor: pointer;" [class.active]="activeTab === 'Details'"
-        (click)="switchTab('Details')">
-        {{ 'Details' | translate }}
-      </a>
-    </li>-->
-</ul>
-
-<div [ngSwitch]="activeTab">
-  <div *ngSwitchCase="'Category'">
-    <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
-      [columnsDisplayAry]="categoryTableColumnAry" [headerDisplayAry]="categoryTableHeaderAry"
-      [listAry]="categoriesList" [editPermissionId]="'Permissions.Category.Edit'"
-      [deletePermissionId]="'Permissions.Category.Delete'" [currentTab]="activeTab">
-    </app-product-list>
+    </div>
   </div>
 
-  <div *ngSwitchCase="'Info'">
-    <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
-      [columnsDisplayAry]="infoTableColumnAry" [headerDisplayAry]="infoTableHeaderAry" [listAry]="infoList"
-      [currentTab]="activeTab" [categoryList]="categoriesList" [editPermissionId]="'Permissions.Product.Edit'"
-      [deletePermissionId]="'Permissions.Product.Delete'">
-    </app-product-list>
+  <div [ngSwitch]="activeTab">
+    <div *ngSwitchCase="'Category'">
+      <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
+        [columnsDisplayAry]="categoryTableColumnAry" [headerDisplayAry]="categoryTableHeaderAry"
+        [listAry]="categoriesList" [editPermissionId]="'Permissions.Category.Edit'"
+        [deletePermissionId]="'Permissions.Category.Delete'" [currentTab]="activeTab">
+      </app-product-list>
+    </div>
 
+    <div *ngSwitchCase="'Info'">
+      <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
+        [columnsDisplayAry]="infoTableColumnAry" [headerDisplayAry]="infoTableHeaderAry" [listAry]="infoList"
+        [currentTab]="activeTab" [categoryList]="categoriesList" [editPermissionId]="'Permissions.Product.Edit'"
+        [deletePermissionId]="'Permissions.Product.Delete'">
+      </app-product-list>
+    </div>
+
+    <div *ngSwitchCase="'Details'">
+      <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
+        [columnsDisplayAry]="detailsTableColumnAry" [headerDisplayAry]="detailsTableHeaderAry" [listAry]="detailsList"
+        [productList]="infoList" [currentTab]="activeTab" [editPermissionId]="'113'" [deletePermissionId]="'114'">
+      </app-product-list>
+    </div>
   </div>
 
-
-  <div *ngSwitchCase="'Details'">
-    <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
-      [columnsDisplayAry]="detailsTableColumnAry" [headerDisplayAry]="detailsTableHeaderAry" [listAry]="detailsList"
-      [productList]="infoList" [currentTab]="activeTab" [editPermissionId]="'113'" [deletePermissionId]="'114'">
-    </app-product-list>
-    <!--<div *ngIf="!isDataReady" class="loading-container">
-      <p>Loading data, please wait...</p>
-    </div>-->
-
-  </div>
+  <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
 </div>
-
-
-
-<!-- Full-page Loader -->
-<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

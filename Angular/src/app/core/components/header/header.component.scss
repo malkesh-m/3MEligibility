@@ -41,34 +41,189 @@ button mat-icon:last-child {
 }
 
 /* Toolbar Styles */
-.page-title {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: white;
+:host {
+    display: block;
+    height: 58px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .toolbar {
-    display: flex;
-    align-items: center;
-    background-color: #f9fafa;
-    /* Light background */
-    color: #333;
-    /* Text color */
-    padding: 0 16px;
+    height: 58px !important;
+    background: transparent !important;
+    padding: 0 24px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
-/* Search Bar */
-.search-bar {
+.header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+
+    .root {
+        color: var(--text-3);
+    }
+
+    .separator {
+        color: var(--text-3);
+        font-size: 14px;
+        opacity: 0.5;
+    }
+
+    .current {
+        color: var(--text-1);
+        font-weight: 700;
+    }
+}
+
+.spacer {
     flex: 1;
-    /* Pushes icons to the right */
-    margin-top: 20px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.live-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #DCFCE7;
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid #BBF7D0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #166534;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background-color: #22C55E;
+        border-radius: 50%;
+        box-shadow: 0 0 0 rgba(34, 197, 94, 0.4);
+        animation: pulse 2s infinite;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+.lang-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: inherit !important;
+    }
+
+    &:hover {
+        background-color: var(--surface-2);
+        color: var(--text-1);
+    }
+}
+
+.profile-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+
+    &:hover {
+        border-color: var(--primary);
+    }
+
+    .avatar-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary);
+        color: white;
+        font-weight: 700;
+        font-size: 14px;
+    }
+}
+
+::ng-deep .custom-menu {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+    margin-top: 8px !important;
+
+    .mat-mdc-menu-item {
+        color: var(--text-2) !important;
+        font-size: 13px !important;
+
+        &:hover {
+            background-color: var(--bg) !important;
+            color: var(--primary) !important;
+        }
+    }
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-1);
 }
 
 .search-field {
-    width: 320px;
-    /* Search bar width */
-    background-color: white;
+    width: 300px;
+    background-color: var(--bg);
+    border-radius: 8px;
 }
 
 /* User Profile Section */

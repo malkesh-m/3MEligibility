@@ -216,13 +216,13 @@ export class ParameterBindingComponent implements OnInit, AfterViewInit {
       }
     });
   }
-cancelChanges(element: any) {
-  // Revert the selected value to the original
-  element.selectedParamId = element.originalParamId;
+  cancelChanges(element: any) {
+    // Revert the selected value to the original
+    element.selectedParamId = element.originalParamId;
 
-  // Remove from modified set
-  this.modifiedParameters.delete(element.id);
-}
+    // Remove from modified set
+    this.modifiedParameters.delete(element.id);
+  }
   // Optional: Save all modified parameters at once
   saveAllModified() {
     if (this.modifiedParameters.size === 0) {

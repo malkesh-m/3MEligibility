@@ -196,12 +196,23 @@ export class DashboardComponent implements AfterViewInit {
 
   createPassFailTrendChart() {
     const canvas = document.getElementById('passFailTrendChart') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     if (this.passFailTrendChart) this.passFailTrendChart.destroy();
 
+    // Create Gradients
+    const passGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    passGradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+    passGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+    const failGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    failGradient.addColorStop(0, 'rgba(244, 63, 94, 0.2)');
+    failGradient.addColorStop(1, 'rgba(244, 63, 94, 0)');
+
     this.dashboardService.getMonthlySummary(this.selectedYear).subscribe({
       next: (data) => {
-
         const labels = data.map(x => x.month);
         const passData = data.map(x => x.approvedCount);
         const failData = data.map(x => x.rejectedCount);
@@ -211,11 +222,72 @@ export class DashboardComponent implements AfterViewInit {
           data: {
             labels: labels,
             datasets: [
-              { label: '✅ Pass', data: passData, borderColor: '#2E7D32', backgroundColor: 'rgba(46, 125, 50, 0.1)', fill: true, tension: 0.3 },
-              { label: '❌ Fail', data: failData, borderColor: '#e11d48', backgroundColor: 'rgba(225, 29, 72, 0.1)', fill: true, tension: 0.3 }
+              {
+                label: '✅ Pass',
+                data: passData,
+                borderColor: '#10B981',
+                borderWidth: 3,
+                backgroundColor: passGradient,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#FFFFFF',
+                pointBorderColor: '#10B981',
+                pointBorderWidth: 2
+              },
+              {
+                label: '❌ Fail',
+                data: failData,
+                borderColor: '#F43F5E',
+                borderWidth: 3,
+                backgroundColor: failGradient,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#FFFFFF',
+                pointBorderColor: '#F43F5E',
+                pointBorderWidth: 2
+              }
             ]
           },
-          options: { responsive: true }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                align: 'end',
+                labels: {
+                  usePointStyle: true,
+                  boxWidth: 8,
+                  padding: 20,
+                  color: '#64748B',
+                  font: { family: 'Sora', size: 12, weight: 600 }
+                }
+              },
+              tooltip: {
+                backgroundColor: '#1E293B',
+                titleFont: { family: 'Sora', size: 13 },
+                bodyFont: { family: 'Sora', size: 12 },
+                padding: 12,
+                cornerRadius: 8,
+                displayColors: true
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: '#F1F5F9', drawTicks: false },
+                ticks: { color: '#94A3B8', font: { family: 'Sora', size: 11 }, padding: 10 }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: '#94A3B8', font: { family: 'Sora', size: 11 }, padding: 10 }
+              }
+            }
+          }
         });
       },
       error: (err) => {
@@ -225,14 +297,12 @@ export class DashboardComponent implements AfterViewInit {
   }
   createFailureReasonsChart() {
     const canvas = document.getElementById('failureReasonsChart') as HTMLCanvasElement;
+    if (!canvas) return;
 
-    // Destroy previous chart if exists
     if (this.failureReasonsChart) this.failureReasonsChart.destroy();
 
     this.dashboardService.getFailureReasonsSummary().subscribe({
       next: (response) => {
-
-        // Map response to chart labels and data
         const labels = response.map((r: { reason: any; }) => {
           switch (r.reason) {
             case 'Score': return 'Credit Score';
@@ -244,16 +314,6 @@ export class DashboardComponent implements AfterViewInit {
 
         const data = response.map((r: { count: any; }) => r.count);
 
-        const backgroundColors = labels.map((label: any) => {
-          switch (label) {
-            case 'Low Credit Score': return '#e11d48'; // Danger
-            case 'Insufficient Income': return '#d97706'; // Warning
-            case 'Multiple Defaults': return '#1A237E'; // Navy
-            default: return '#0ea5e9'; // Light Blue
-          }
-        });
-
-        // Create the chart
         this.failureReasonsChart = new Chart(canvas, {
           type: 'bar',
           data: {
@@ -261,13 +321,38 @@ export class DashboardComponent implements AfterViewInit {
             datasets: [{
               label: 'Rejection',
               data: data,
-              backgroundColor: backgroundColors,
-              borderRadius: 6
+              backgroundColor: [
+                '#3B82F6', // Blue
+                '#6366F1', // Indigo
+                '#8B5CF6', // Violet
+                '#0EA5E9'  // Cyan
+              ],
+              borderRadius: 8,
+              barThickness: 32
             }]
           },
           options: {
             responsive: true,
-            plugins: { legend: { display: false } }
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#1E293B',
+                padding: 12,
+                cornerRadius: 8
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: '#F1F5F9', drawTicks: false },
+                ticks: { color: '#94A3B8', font: { family: 'Sora' }, padding: 10 }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: '#94A3B8', font: { family: 'Sora' }, padding: 10 }
+              }
+            }
           }
         });
       },
@@ -277,42 +362,6 @@ export class DashboardComponent implements AfterViewInit {
     });
   }
 
-
-  createCustomerSegmentChart() {
-    const canvas = document.getElementById('customerSegmentChart') as HTMLCanvasElement;
-    if (this.customerSegmentChart) this.customerSegmentChart.destroy();
-
-    this.customerSegmentChart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: ['Beginner', 'Intermediate', 'Expert'],
-        datasets: [
-          { label: '✅ Pass', data: [80, 90, 120], backgroundColor: '#2E7D32', borderRadius: 4 },
-          { label: '❌ Fail', data: [20, 30, 10], backgroundColor: '#e11d48', borderRadius: 4 }
-        ]
-      },
-      options: { responsive: true }
-    });
-  }
-
-  // createProcessingTimeChart() {
-  //   const canvas = document.getElementById('processingTimeChart') as HTMLCanvasElement;
-  //   if (this.processingTimeChart) this.processingTimeChart.destroy();
-
-  //   this.processingTimeChart = new Chart(canvas, {
-  //     type: 'bar',
-  //     data: {
-  //       labels: ['0-2s', '2-5s', '5-10s', '10-20s', '20s+'],
-  //       datasets: [{
-  //         label: 'Evaluations',
-  //         data: [60, 100, 200, 150, 40],
-  //         backgroundColor: '#3498db'
-  //       }]
-  //     },
-  //     options: { responsive: true }
-  //   });
-  // }
-
   createProcessingTimeChart(): void {
     this.dashboardService.getProcessingTimeDistribution().subscribe({
       next: (response) => {
@@ -320,6 +369,7 @@ export class DashboardComponent implements AfterViewInit {
         const data = response.map((item: any) => item.count);
 
         const canvas = document.getElementById('processingTimeChart') as HTMLCanvasElement;
+        if (!canvas) return;
         if (this.processingTimeChart) this.processingTimeChart.destroy();
 
         this.processingTimeChart = new Chart(canvas, {
@@ -329,11 +379,35 @@ export class DashboardComponent implements AfterViewInit {
             datasets: [{
               label: 'Evaluations',
               data: data,
-              backgroundColor: '#1A237E', // Midnight Navy
-              borderRadius: 6
+              backgroundColor: 'rgba(79, 70, 229, 0.8)', // Indigo
+              hoverBackgroundColor: '#4F46E5',
+              borderRadius: 6,
+              barThickness: 40
             }]
           },
-          options: { responsive: true }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#1E293B',
+                padding: 12,
+                cornerRadius: 8
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: '#F1F5F9', drawTicks: false },
+                ticks: { color: '#94A3B8', font: { family: 'Sora' }, padding: 10 }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: '#94A3B8', font: { family: 'Sora' }, padding: 10 }
+              }
+            }
+          }
         });
       },
       error: (err) => {
@@ -341,23 +415,60 @@ export class DashboardComponent implements AfterViewInit {
       }
     });
   }
-  fetchApiEvaluationHistory(): void {
-    this.dashboardService.getApiEvaluationHistory(1).subscribe({
-      next: (response) => {
-        this.apiEvaluationHistory =
-          Array.isArray(response.data) ? response.data : [];
-        this._snackBar.open(response.message, 'Okay', {
-          horizontalPosition: 'right',
-          verticalPosition: 'top', duration: 3000
-        });
+  createCustomerSegmentChart() {
+    const canvas = document.getElementById('customerSegmentChart') as HTMLCanvasElement;
+    if (!canvas) return;
+    if (this.customerSegmentChart) this.customerSegmentChart.destroy();
+
+    this.customerSegmentChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: ['Beginner', 'Intermediate', 'Expert'],
+        datasets: [
+          {
+            label: '✅ Pass',
+            data: [80, 95, 120],
+            backgroundColor: '#10B981',
+            borderRadius: 4,
+            barThickness: 20
+          },
+          {
+            label: '❌ Fail',
+            data: [15, 25, 10],
+            backgroundColor: '#F43F5E',
+            borderRadius: 4,
+            barThickness: 20
+          }
+        ]
       },
-      error: (err) => {
-        console.error('Failed to load API Evaluation History:', err);
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: { usePointStyle: true, boxWidth: 6, font: { family: 'Sora', size: 11 } }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#F1F5F9', drawTicks: false },
+            ticks: { color: '#94A3B8', font: { family: 'Sora', size: 10 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#94A3B8', font: { family: 'Sora', size: 10 } }
+          }
+        }
       }
     });
   }
+
   createRiskScoreChart() {
     const canvas = document.getElementById('riskScoreChart') as HTMLCanvasElement;
+    if (!canvas) return;
     if (this.riskScoreChart) this.riskScoreChart.destroy();
 
     this.riskScoreChart = new Chart(canvas, {
@@ -366,42 +477,56 @@ export class DashboardComponent implements AfterViewInit {
         datasets: [
           {
             label: '✅ Pass',
-            data: [
-              { x: 101, y: 750 }, { x: 102, y: 680 }, { x: 103, y: 700 }
-            ],
-            backgroundColor: '#2E7D32'
+            data: [{ x: 101, y: 750 }, { x: 102, y: 680 }, { x: 108, y: 710 }, { x: 115, y: 790 }],
+            backgroundColor: '#10B981'
           },
           {
             label: '❌ Fail',
-            data: [
-              { x: 201, y: 450 }, { x: 202, y: 480 }, { x: 203, y: 460 }
-            ],
-            backgroundColor: '#e11d48'
+            data: [{ x: 201, y: 450 }, { x: 205, y: 480 }, { x: 210, y: 420 }, { x: 220, y: 460 }],
+            backgroundColor: '#F43F5E'
           }
         ]
       },
-      options: { responsive: true }
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: { usePointStyle: true, boxWidth: 6, font: { family: 'Sora', size: 11 } }
+          }
+        },
+        scales: {
+          y: {
+            title: { display: true, text: 'Credit Score', font: { family: 'Sora', size: 11, weight: 600 } },
+            grid: { color: '#F1F5F9' },
+            ticks: { font: { family: 'Sora', size: 10 } }
+          },
+          x: {
+            title: { display: true, text: 'Evaluation ID', font: { family: 'Sora', size: 11, weight: 600 } },
+            grid: { color: '#F1F5F9' },
+            ticks: { font: { family: 'Sora', size: 10 } }
+          }
+        }
+      }
     });
   }
 
   updateCharts() {
-    this.loadPassFailTrend();
+    this.createPassFailTrendChart();
     this.createFailureReasonsChart();
     this.createCustomerSegmentChart();
     this.createProcessingTimeChart();
     this.createRiskScoreChart();
   }
+
   openApiDetails(evaluationHistoryId: number): void {
     const dialogRef = this.dialog.open(ApiDetailsDialogComponent, {
       width: '1500px',
-      maxWidth: '110vw',
-      height: '150vh',
-      panelClass: 'compact-dialog', // Add this
+      maxWidth: '95vw',
+      height: '90vh',
+      panelClass: 'premium-dialog',
       data: { evaluationHistoryId }
     });
   }
-
-  //drillDown(customerId: string) {
-  //  alert(`Opening full evaluation history for: ${customerId}`);
-  //}
 }

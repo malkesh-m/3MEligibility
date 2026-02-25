@@ -1,21 +1,19 @@
-<div class="mb-3">
-  <div>
-    <p class="moduleLabel mb-2">{{ 'Task List' | translate }}</p>
+<div class="filter-bar">
+  <div class="search-box">
+    <mat-icon>search</mat-icon>
+    <input type="text" class="filter-input" (input)="applyFilter($event)" placeholder="{{ 'Search' | translate }}"
+      style="padding-left: 40px !important;" />
   </div>
-  <!-- Search and Actions Section -->
-  <div class="d-flex justify-content-between align-items-center">
-    <!-- Search Input -->
-    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
-      <input type="text" class="form-control" style="width: 100%;" (input)="applyFilter($event)"
-        placeholder="{{ 'Search' | translate }}" />
-    </div>
+
+  <div class="action-group">
+    <!-- (Future top actions could go here) -->
   </div>
 </div>
 
-<div #makercheckerTable class="mat-elevation-z8">
-  <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
+<div #makercheckerTable class="table-wrapper">
+  <table mat-table [dataSource]="dataSource" matSort>
     <!-- <ng-container matColumnDef="select">
-    <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+    <th mat-header-cell *matHeaderCellDef>
       <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
         (change)="toggleSelectAll($event)">
       </mat-checkbox>
@@ -23,25 +21,25 @@
   </ng-container> -->
     <!-- ID Column (Make sure this comes first) -->
     <ng-container matColumnDef="makerCheckerId">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'ID' | translate}}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.makerCheckerId }} </td>
+      <th mat-sort-header mat-header-cell *matHeaderCellDef> {{'ID' | translate}}</th>
+      <td mat-cell *matCellDef="let row"> {{ row.makerCheckerId }} </td>
     </ng-container>
 
     <!-- Table Name Column -->
     <ng-container matColumnDef="tableName">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Object Name' | translate}} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.tableName }} </td>
+      <th mat-sort-header mat-header-cell *matHeaderCellDef> {{'Object Name' | translate}} </th>
+      <td mat-cell *matCellDef="let row"> {{ row.tableName }} </td>
     </ng-container>
 
     <!-- Action Column -->
     <ng-container matColumnDef="actionName">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Action' | translate}} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row"> {{ row.actionName }} </td>
+      <th mat-sort-header mat-header-cell *matHeaderCellDef> {{'Action' | translate}} </th>
+      <td mat-cell *matCellDef="let row"> {{ row.actionName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-sort-header class="cellStyling" mat-header-cell *matHeaderCellDef> {{'Status' | translate}} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <th mat-sort-header mat-header-cell *matHeaderCellDef> {{'Status' | translate}} </th>
+      <td mat-cell *matCellDef="let row">
         <button mat-button [color]="'default'" class="status-button">
           {{ row.statusName | translate }}
 
@@ -51,27 +49,26 @@
 
     <!-- Actions Column -->
     <ng-container matColumnDef="actions">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td mat-cell *matCellDef="let row">
 
         <!-- View Icon -->
         <mat-icon appUseractivity="User Click on View Details  button" [componentName]="'MakerCheckerComponent'"
-          [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
-          (click)="openDetailsDialog(row)" matTooltip="{{ 'View Details' | translate }}"
-          *ngIf="hasPermission('Permissions.MakerChecker.View')">
+          [actionType]="'ButtonClick'" class="clickable-icon primary" (click)="openDetailsDialog(row)"
+          matTooltip="{{ 'View Details' | translate }}" *ngIf="hasPermission('Permissions.MakerChecker.View')">
           visibility
         </mat-icon>
 
         <!-- Approve Icon -->
         <mat-icon appUseractivity="User Click on Approve  button" [componentName]="'MakerCheckerComponent'"
-          [actionType]="'ButtonClick'" class="clickable-icon" color="primary" style="margin-right: 8px"
+          [actionType]="'ButtonClick'" class="clickable-icon edit"
           (click)="updateStatus(row.makerCheckerId, 'Approved', '')" matTooltip="{{ 'Approve' | translate }}"
           *ngIf="hasPermission('Permissions.MakerChecker.Edit')">
           check_circle
         </mat-icon>
         <mat-icon appUseractivity="User Click on Reject  button" [componentName]="'MakerCheckerComponent'"
-          [actionType]="'ButtonClick'" class="clickable-icon" style="margin-right: 8px" color="warn"
-          matTooltip="{{ 'Reject' | translate }}" (click)="updateStatus(row.makerCheckerId, 'Declined', '')"
+          [actionType]="'ButtonClick'" class="clickable-icon delete" matTooltip="{{ 'Reject' | translate }}"
+          (click)="updateStatus(row.makerCheckerId, 'Declined', '')"
           *ngIf="hasPermission('Permissions.MakerChecker.Edit')">
           cancel
         </mat-icon>
@@ -80,7 +77,7 @@
     </ng-container>
 
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
 
   </table>

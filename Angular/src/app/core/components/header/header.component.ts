@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { OidcAuthService } from '../../services/auth/oidc-auth.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { HeaderTitleService } from '../../services/header-title.service';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -17,18 +18,25 @@ import { environment } from '../../../../environments/environment';
 export class HeaderComponent {
   currentLanguage: string;
   userImageUrl: SafeUrl | null = null;
+  pageTitle: string = 'Dashboard';
   @Output() menuToggle = new EventEmitter<void>();
 
   constructor(private router: Router, private authService: AuthService,
     private translate: TranslateService,
     private oidcAuthService: OidcAuthService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private headerTitleService: HeaderTitleService
   ) {
     this.currentLanguage = this.translate.currentLang || 'en';
   }
 
   ngOnInit(): void {
     this.loadUserImage();
+    this.headerTitleService.title$.subscribe(title => {
+      if (title) {
+        this.pageTitle = title;
+      }
+    });
   }
 
   loadUserImage() {
@@ -63,9 +71,9 @@ export class HeaderComponent {
     localStorage.setItem('appLanguage', lang);
   }
 
- goToProfile() {
-  if (environment.identityAccountUrl?.Url) {
-    window.open(environment.identityAccountUrl.Url, '_blank');
+  goToProfile() {
+    if (environment.identityAccountUrl?.Url) {
+      window.open(environment.identityAccountUrl.Url, '_blank');
+    }
   }
-}
 }

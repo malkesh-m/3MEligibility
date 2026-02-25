@@ -1,106 +1,170 @@
-.sidebar-wrap {
-  //width: 275px;
-  width: 290px;
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #0F172A !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    width: 300px;
+    z-index: 100;
 }
 
-.list-wrap {
-    padding: 0;
-    mat-expansion-panel {
-        box-shadow: none;
-        border-bottom: 5px solid white;
-    }
+.sidebar-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #0F172A !important;
 }
 
 .app-brand {
+    height: 72px;
+    padding: 0 24px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    max-width: 15rem;
-    z-index: 9999;
-    height: 100px;
-    //padding-left: 28px;
-
-    &:hover {
-        cursor: pointer;
-    }
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
 
     .app-logo {
-       // width: 50%;
-        height: 65px;
-        // padding-left: 30px;
-        // padding-right: 30px;
-        //margin-right: 8px;
-        background-color: #EEFDF8;
-    }
-
-    .app-logo-text {
-        font-size: 1.7rem;
-        font-weight: normal;
-        padding-left: 30px;
-        color: #182F7C;
-        margin: 10px 0 20px 0px;
+        height: 36px;
+        filter: brightness(0) invert(1) !important;
+        object-fit: contain;
     }
 }
 
-mat-accordion {
-    display: flex;
-    flex-direction: column;
-   // border-radius: 0;
+.list-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0 12px 8px;
 
-    mat-expansion-panel {
-       // border-top: 1px solid #1c1544;
-        //border-radius: 0;
-        margin: 1;
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
 
-        ::ng-deep .mdc-list-item .mdc-list-item__primary-text {
-            color: #158BA0;
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+}
+
+/* 
+ * CRITICAL TEXT OVERRIDES FOR MATERIAL COMPONENTS 
+ * We use deep targeting with !important to bypass Angular Material's theme variables 
+ */
+
+::ng-deep .sidebar-wrap {
+    .mat-expansion-panel {
+        background: transparent !important;
+        box-shadow: none !important;
+
+        &::before {
+            display: none !important;
         }
 
-        // &:first-child {
-        //     //border-top: 0px solid #e0e0e0;
-        //     border-top-left-radius: 0;
-        //     border-top-right-radius: 0;
-        // }
+        .mat-expansion-panel-header {
+            padding: 0 8px 0 16px !important;
+            height: 54px !important;
+            border-radius: 8px !important;
+            padding-left: 10px;
 
-        // &:last-child {
-        //     border-bottom-left-radius: 0;
-        //     border-bottom-right-radius: 0;
-        // }
+            &:hover {
+                background: rgba(255, 255, 255, 0.05) !important;
+            }
 
-        .mat-expansion-panel-header-title {
-            color: #158BA0;
-        }
+            .mat-content {
+                color: #FFFFFF !important;
 
-        &::ng-deep {
-            .mat-expansion-panel-header {
-                color: #fff;
+                .mat-panel-title {
+                    display: flex !important;
+                    color: #FFFFFF !important;
+                    font-size: 15px;
+                    font-weight: 500;
+                    align-items: center !important;
+                    gap: 16px !important;
+                }
+            }
+
+            /* The expansion chevron arrow */
+            .mat-expansion-indicator::after {
+                color: rgba(255, 255, 255, 0.7) !important;
             }
         }
+    }
+}
 
-        &+mat-expansion-panel {
-            margin-top: -1px;
-        }
+/* 
+ * ABSOLUTE FLAT OVERRIDES 
+ * These guarantee that NO Material nesting can overpower our white text rules.
+ */
+::ng-deep .sidebar-wrap .mat-expansion-panel-header .mat-content span,
+::ng-deep .sidebar-wrap .mat-expansion-panel-header .mat-content a,
+::ng-deep .sidebar-wrap .mat-expansion-panel-header .mat-panel-title span,
+::ng-deep .sidebar-wrap .mat-expansion-panel-header .mat-panel-title a,
+::ng-deep .sidebar-wrap .mat-expansion-panel-header-title,
+::ng-deep .sidebar-wrap .mat-expansion-panel-header-title span {
+    color: #FFFFFF !important;
+    text-decoration: none !important;
+    opacity: 1 !important;
+    font-family: 'Roboto', sans-serif !important;
+    padding-left: 10px;
+}
 
-        &.mat-expanded {
-            margin-bottom: 0;
+::ng-deep .sidebar-wrap .mat-nav-list {
+    padding-top: 0 !important;
+}
+
+::ng-deep .sidebar-wrap .mat-mdc-list-item {
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 2px 0;
+    border-radius: 6px;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    &.active-link,
+    &[routerLinkActive="active"] {
+        background: rgba(37, 99, 235, 0.25) !important;
+        border-left: 3px solid #3B82F6;
+        margin-left: -8px;
+        padding-left: 40px !important;
+
+        .mdc-list-item__primary-text {
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
         }
     }
 }
 
-.accordion-icon {
-    margin-right: 10px;
-    color: #158BA0; 
-    font-size: 32px;
-    width: auto;
-    height: auto;
+::ng-deep .sidebar-wrap .mdc-list-item__primary-text {
+    color: #FFFFFF !important;
+    font-size: 13px !important;
+    font-weight: 400;
+    font-family: 'Roboto', sans-serif !important;
+    opacity: 1 !important;
 }
 
-mat-panel-title {
-    display: flex;
-    align-items: center;
+/* 
+ * Prevent a tags from inheriting color 
+ */
+::ng-deep .sidebar-wrap a[mat-list-item],
+::ng-deep .sidebar-wrap a {
+    color: #FFFFFF !important;
 }
-::ng-deep .small-font .mdc-list-item__primary-text {
-  font-size: 13px !important; // adjust as needed
+
+/* 
+ * ICON STYLING 
+ * Explicitly declare font-family to avoid text mangling.
+ */
+.accordion-icon {
+    color: #FFFFFF !important;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    font-family: 'Material Icons' !important;
+    opacity: 1 !important;
+}
+
+::ng-deep .sidebar-wrap .mat-expanded .mat-expansion-panel-header mat-icon {
+    color: #60A5FA !important;
+    /* Blue accent when open */
 }

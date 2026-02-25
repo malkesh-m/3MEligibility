@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { MatSort } from '@angular/material/sort';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { TranslateService } from '@ngx-translate/core';
+import { HeaderTitleService } from '../../../core/services/header-title.service';
 
 @Component({
   selector: 'app-lists',
@@ -82,7 +83,8 @@ export class ListsComponent implements OnInit {
     private location: Location,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private headerTitleService: HeaderTitleService
   ) { }
 
   ngOnInit(): void {
@@ -115,6 +117,7 @@ export class ListsComponent implements OnInit {
 
   updateTitle() {
     this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
+    this.headerTitleService.setTitle(this.activeTabTitle);
   }
 
   getAddPermission(): boolean {

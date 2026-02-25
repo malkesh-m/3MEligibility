@@ -161,105 +161,105 @@
 
 <!-- <div class="container"> -->
 <div #entityTable class="table-wrapper">
-  <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+  <table class="bgColorWhite " mat-table [dataSource]="dataSource" matSort>
     <ng-container matColumnDef="select">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
           (change)="toggleSelectAll($event)">
         </mat-checkbox>
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row">
         <mat-checkbox [checked]="selectedRows.has(row.entityId)" (change)="toggleSelection($event, row.entityId)">
         </mat-checkbox>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="code">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Code' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.code }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Code' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.code }} </td>
     </ng-container>
 
     <ng-container matColumnDef="entityName">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.entityName }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.entityName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="countryId">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Country' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.countryName }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Country' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.countryName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="cityId">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'City' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.cityName }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'City' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.cityName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="entityAddress">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Address' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.entityAddress }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Address' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.entityAddress }} </td>
     </ng-container>
 
     <ng-container matColumnDef="isparent">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Is Child' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.isparent }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Is Child' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.isparent }} </td>
     </ng-container>
 
     <ng-container matColumnDef="parentEnitityId">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Parent Entity Name' | translate }}
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Parent Entity Name' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.parentEnitityName }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.parentEnitityName }} </td>
     </ng-container>
 
     <!-- Created By Column -->
     <ng-container matColumnDef="createdBy">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
+      <th mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
         <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
           matTooltip="{{ 'Show/Hide Created Date' | translate }}">
           {{ displayedColumns.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
         </mat-icon>
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <td mat-cell *matCellDef="let entity">
         {{ entity.createdBy }}
       </td>
     </ng-container>
 
     <!-- Created Date Column (Initially Hidden) -->
     <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'Created Date' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <td mat-cell *matCellDef="let entity">
         {{ entity.createdByDateTime | date:'short' }}
       </td>
     </ng-container>
 
     <!-- Updated By Column -->
     <ng-container matColumnDef="updatedBy">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         {{ 'Updated By' | translate }}
         <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
           matTooltip="{{ 'Show/Hide Updated Date' | translate }}">
           {{ displayedColumns.includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
         </mat-icon>
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <td mat-cell *matCellDef="let entity">
         {{ entity.updatedBy }}
       </td>
     </ng-container>
 
     <!-- Updated Date Column (Initially Hidden) -->
     <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'Updated Date' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <td mat-cell *matCellDef="let entity">
         {{ entity.updatedByDateTime | date:'short' }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td mat-cell *matCellDef="let entity">
         <!-- Edit Icon -->
         <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)" *ngIf="hasPermission('14')"
           matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
@@ -270,7 +270,7 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
 
   </table>

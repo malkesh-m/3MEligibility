@@ -8,6 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Title } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
+import { HeaderTitleService } from '../../../core/services/header-title.service';
 interface Product {
   productId: number;
   productName: string;
@@ -104,7 +105,8 @@ export class ProductComponent {
     private titleService: Title,
     private location: Location,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private headerTitleService: HeaderTitleService
   ) { }
 
   ngOnInit() {
@@ -139,6 +141,7 @@ export class ProductComponent {
 
   updateTitle() {
     this.titleService.setTitle(this.activeTabTitle + ' - 3M Eligibility');
+    this.headerTitleService.setTitle(this.activeTabTitle);
   }
 
   getAddPermission(): boolean {

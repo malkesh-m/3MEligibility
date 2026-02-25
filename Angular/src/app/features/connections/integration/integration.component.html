@@ -470,54 +470,54 @@
   </form>
 </div>
 
-<div *ngIf="activeTab === 'addParameters'">
+<div *ngIf="activeTab === 'addParameters'" class="table-wrapper mt-3">
 
   <!-- API Parameters Table -->
-  <table mat-table [dataSource]="apiParameterDataSource" matSort class="mat-elevation-z8 mt-3">
+  <table class="bgColorWhite " mat-table [dataSource]="apiParameterDataSource" matSort>
     <ng-container matColumnDef="select">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
           (change)="toggleSelectAll($event)">
         </mat-checkbox>
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row">
         <mat-checkbox [checked]="selectedRows.has(row.apiParameterId)"
           (change)="toggleSelection($event, row.apiParameterId)">
         </mat-checkbox>
       </td>
     </ng-container>
-    <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.apiParameterId }}</td>
+    <td mat-cell *matCellDef="let row">{{ row.apiParameterId }}</td>
     <ng-container matColumnDef="apiName">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'API' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.apiName }}</td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'API' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ row.apiName }}</td>
     </ng-container>
     <!-- Direction Column -->
     <ng-container matColumnDef="parameterDirection">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Direction' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterDirection }}</td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Direction' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ row.parameterDirection }}</td>
     </ng-container>
 
     <!-- Name Column -->
     <ng-container matColumnDef="parameterName">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Name' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterName }}</td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Name' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ row.parameterName }}</td>
     </ng-container>
 
     <!-- Type Column -->
     <ng-container matColumnDef="parameterType">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Type' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterType }}</td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Type' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ row.parameterType }}</td>
     </ng-container>
 
     <!-- Required Column -->
     <!--<ng-container matColumnDef="IsRequired">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>Required</th>
-        <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.IsRequired ? 'Yes' : 'No' }}</td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Required</th>
+        <td mat-cell *matCellDef="let row">{{ row.IsRequired ? 'Yes' : 'No' }}</td>
       </ng-container>-->
     <!-- Actions Column -->
     <ng-container matColumnDef="Actions">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
         <mat-icon class="clickable-icon" color="primary" (click)="editApiParameter(row)" matTooltip="Edit"
           *ngIf="hasPermission('Permissions.ApiParameters.Edit')">edit</mat-icon>
 
@@ -527,7 +527,7 @@
     </ng-container>
 
     <!-- Header and Row Definitions -->
-    <tr mat-header-row *matHeaderRowDef="displayedAPIParamsColumns" class="tableHeader"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedAPIParamsColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedAPIParamsColumns;" class="select-row"></tr>
   </table>
 
@@ -663,40 +663,40 @@
           </form>
       </div> -->
 <!-- Node Table -->
-<div *ngIf="activeTab === 'nodes'">
-  <table mat-table [dataSource]="nodeDataSource" matSort #nodeSort="matSort">
+<div *ngIf="activeTab === 'nodes'" class="table-wrapper">
+  <table class="bgColorWhite " mat-table [dataSource]="nodeDataSource" matSort #nodeSort="matSort">
     <ng-container matColumnDef="select">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
           (change)="toggleSelectAll($event)">
         </mat-checkbox>
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row">
         <mat-checkbox [checked]="selectedRows.has(row.nodeId)" (change)="toggleSelection($event, row.nodeId)">
         </mat-checkbox>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="nodeName">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.nodeName }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.nodeName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="code">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Code' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.code }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Code' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.code }} </td>
     </ng-container>
 
     <ng-container matColumnDef="nodeDesc">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'Description' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.nodeDesc }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.nodeDesc }} </td>
     </ng-container>
 
     <ng-container matColumnDef="Actions">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td mat-cell *matCellDef="let entity">
         <mat-icon class="clickable-icon" color="primary" (click)="editRecord(entity)"
           *ngIf="hasPermission('Permissions.Node.Edit')" matTooltip="{{'Edit' | translate}}">edit</mat-icon>
         <mat-icon class="clickable-icon" color="warn" (click)="deleteNode(entity)"
@@ -704,7 +704,7 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedNodeColumns" class="tableHeader"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedNodeColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedNodeColumns;" class="select-row"></tr>
   </table>
   <mat-paginator #nodePaginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]"
@@ -712,56 +712,56 @@
 </div>
 
 <!-- Node API Table -->
-<div *ngIf="activeTab === 'api'">
-  <table mat-table [dataSource]="nodeAPIDataSource" matSort #apiSort="matSort">
+<div *ngIf="activeTab === 'api'" class="table-wrapper">
+  <table class="bgColorWhite " mat-table [dataSource]="nodeAPIDataSource" matSort #apiSort="matSort">
     <ng-container matColumnDef="select">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
           (change)="toggleSelectAll($event)">
         </mat-checkbox>
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row">
         <mat-checkbox [checked]="selectedRows.has(row.apiid)" (change)="toggleSelection($event, row.apiid)">
         </mat-checkbox>
       </td>
     </ng-container>
     <ng-container matColumnDef="nodeName">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Node' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.nodeName }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Node' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.nodeName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="apiname">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.apiname }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.apiname }} </td>
     </ng-container>
     <ng-container matColumnDef="httpMethodType">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Http Method Type' | translate }}
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Http Method Type' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.httpMethodType }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.httpMethodType }} </td>
     </ng-container>
     <ng-container matColumnDef="executionOrder">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Execution Order' | translate }}
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Execution Order' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.executionOrder }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.executionOrder }} </td>
     </ng-container>
     <ng-container matColumnDef="apidesc">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'Description' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.apidesc }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.apidesc }} </td>
     </ng-container>
 
 
     <ng-container matColumnDef="isActive">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'Is Active' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.isActive }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.isActive }} </td>
     </ng-container>
 
     <ng-container matColumnDef="Actions">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td mat-cell *matCellDef="let entity">
         <mat-icon class="clickable-icon" color="primary" (click)="editNodeAPIRecord(entity)"
           *ngIf="hasPermission('Permissions.NodeApi.Edit')" matTooltip="{{'Edit' | translate}}">edit</mat-icon>
         <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeAPI(entity)"
@@ -770,7 +770,7 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedAPIColumns" class="tableHeader"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedAPIColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedAPIColumns;" class="select-row"></tr>
   </table>
   <mat-paginator #apiPaginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]"
@@ -778,15 +778,15 @@
 </div>
 
 <!-- Node API Details Table -->
-<div *ngIf="activeTab === 'apiDetails'&&!showApiParameterSection">
-  <table mat-table [dataSource]="apiDetailsDataSource" matSort>
+<div *ngIf="activeTab === 'apiDetails'&&!showApiParameterSection" class="table-wrapper">
+  <table class="bgColorWhite " mat-table [dataSource]="apiDetailsDataSource" matSort>
     <ng-container matColumnDef="select">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
           (change)="toggleSelectAll($event)">
         </mat-checkbox>
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
+      <td mat-cell *matCellDef="let row">
         <mat-checkbox [checked]="selectedRows.has(row.apidetailsId)"
           (change)="toggleSelection($event, row.apidetailsId)">
         </mat-checkbox>
@@ -794,34 +794,34 @@
     </ng-container>
 
     <ng-container matColumnDef="API">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'API' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.apiname }} </td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'API' | translate }} </th>
+      <td mat-cell *matCellDef="let entity"> {{ entity.apiname }} </td>
     </ng-container>
 
     <ng-container matColumnDef="Parameter">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'Parameter' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.callingParamName }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.callingParamName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="DataType">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'DataType' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.dataTypeName }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.dataTypeName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="From API">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ 'From API' | translate }}
       </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.fromAPIName }} </td>
+      <td mat-cell *matCellDef="let entity"> {{ entity.fromAPIName }} </td>
     </ng-container>
 
     <ng-container matColumnDef="Actions">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
+      <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+      <td mat-cell *matCellDef="let entity">
         <mat-icon class="clickable-icon" color="primary" (click)="editAPIDetailsRecord(entity)"
           *ngIf="hasPermission('27')" matTooltip="{{ 'Edit' | translate }}">edit</mat-icon>
         <mat-icon class="clickable-icon" color="warn" (click)="deleteNodeDetails(entity)" *ngIf="hasPermission('26')"
@@ -830,7 +830,7 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedAPIDetailColumns" class="tableHeader"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedAPIDetailColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedAPIDetailColumns;" class="select-row"></tr>
   </table>
   <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
@@ -966,31 +966,31 @@
       </div>
     </div>
     <div *ngIf="activeTab === 'mapApiParams'">
-      <div *ngIf="!showMappingForm">
+      <div *ngIf="!showMappingForm" class="table-wrapper mt-3">
 
         <!-- API Parameter Mappings Table -->
-        <table mat-table [dataSource]="apiParameterMappingsDataSource" matSort class="mat-elevation-z8 mt-3">
+        <table class="bgColorWhite " mat-table [dataSource]="apiParameterMappingsDataSource" matSort>
 
 
 
           <!-- API Parameter Name -->
           <ng-container matColumnDef="apiParameterName">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'API Parameter' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'API Parameter' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.apiParameterName }}</td>
+            <td mat-cell *matCellDef="let row">{{ row.apiParameterName }}</td>
           </ng-container>
 
           <!-- Internal Parameter Name -->
           <ng-container matColumnDef="parameterName">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Internal Parameter' |
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Internal Parameter' |
               translate }}</th>
-            <td class="cellStyling" mat-cell *matCellDef="let row">{{ row.parameterName }}</td>
+            <td mat-cell *matCellDef="let row">{{ row.parameterName }}</td>
           </ng-container>
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
-            <td class="cellStyling" mat-cell *matCellDef="let row">
+            <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
               <mat-icon class="clickable-icon" color="primary" (click)="editMapping(row)" matTooltip="Edit"
                 *ngIf="hasPermission('Permissions.ApiParameterMaps.Edit')">edit</mat-icon>
               <mat-icon class="clickable-icon" color="warn" (click)="deleteMapping(row.id)" matTooltip="Delete"
@@ -999,7 +999,7 @@
           </ng-container>
 
           <!-- Header & Row Definitions -->
-          <tr mat-header-row *matHeaderRowDef="displayedMappingColumns" class="tableHeader"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedMappingColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedMappingColumns;" class="select-row"></tr>
         </table>
 

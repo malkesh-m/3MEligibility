@@ -18,6 +18,7 @@ import { PermissionsService } from '../../../core/services/setting/permission.se
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UtilityService } from '../../../core/services/utility/utils';
+import { HeaderTitleService } from '../../../core/services/header-title.service';
 export interface NodeRecord {
   nodeId: number | null;
   nodeName: string,
@@ -129,6 +130,7 @@ export class IntegrationComponent implements OnInit {
 
   updateTitle() {
     this.titleService.setTitle(this.activeTabTitle + ' - 3M Eligibility');
+    this.headerTitleService.setTitle(this.activeTabTitle);
   }
 
   nodeformData: NodeRecord = {
@@ -474,7 +476,8 @@ export class IntegrationComponent implements OnInit {
     private location: Location,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private headerTitleService: HeaderTitleService
   ) {
     this.nodeForm = this.fb.group({
       code: ['', [Validators.required]],

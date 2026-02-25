@@ -1,11 +1,10 @@
-
 <div class="row mb-4">
   <div class="col">
     <h5 class="">{{ 'Maximum Amount Per Product' | translate }}</h5>
   </div>
 </div>
 
-<div class="card p-3" *ngIf="!isLoading" >
+<div class="card p-3" *ngIf="!isLoading">
   <form [formGroup]="ProductCapForm">
     <div class="row mb-3">
       <div class="col-4">
@@ -27,7 +26,7 @@
 </div> -->
 
 <!-- Add/Edit Form -->
-<div class="card p-3" *ngIf="formvisible" >
+<div class="card p-3" *ngIf="formvisible">
   <form [formGroup]="ProductCapForm" (ngSubmit)="onSubmit()">
     <div class="row mb-3 align-items-start">
       <input type="number" hidden class="form-control" formControlName="id" />
@@ -53,7 +52,7 @@
               ProductCapForm.get('maxCapPerStream')?.value">
           Max Cap Per Stream must be a number.
         </div>-->
-        <!--<div class="text-danger" *ngIf="ProductCapForm.errors?.['maxLessThanMin'] &&
+      <!--<div class="text-danger" *ngIf="ProductCapForm.errors?.['maxLessThanMin'] &&
       (ProductCapForm.get('maximumScore')?.touched || ProductCapForm.get('maximumScore')?.dirty)">
     Maximum Score must be greater than or equal to Minimum Score.
   </div>-->
@@ -64,10 +63,10 @@
         <label class="inputLabel">{{ 'Age Criteria' | translate }}<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="age" />
         <div class="text-danger"
-             *ngIf="ProductCapForm.get('age')?.touched && ProductCapForm.get('age')?.hasError('required')">
+          *ngIf="ProductCapForm.get('age')?.touched && ProductCapForm.get('age')?.hasError('required')">
           {{ 'Age is required.' | translate }}
         </div>
-     
+
       </div>
 
       <!-- Custom validation message in one line -->
@@ -79,22 +78,21 @@
         <label class="inputLabel">{{ 'Salary Criteria' | translate }}<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="salary" />
         <div class="text-danger"
-             *ngIf="ProductCapForm.get('salary')?.touched && ProductCapForm.get('salary')?.hasError('required')">
+          *ngIf="ProductCapForm.get('salary')?.touched && ProductCapForm.get('salary')?.hasError('required')">
           {{ 'Salary is required.' | translate }}
         </div>
-      
+
       </div>
       <div class="col-md-4">
         <label class="inputLabel">{{ 'Amount' | translate }}<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="amount" />
         <div class="text-danger"
-             *ngIf="ProductCapForm.get('amount')?.touched && ProductCapForm.get('amount')?.hasError('required')">
+          *ngIf="ProductCapForm.get('amount')?.touched && ProductCapForm.get('amount')?.hasError('required')">
           {{ 'Amount is required.' | translate }}
         </div>
-        <div class="text-danger"
-             *ngIf="ProductCapForm.get('amount')?.hasError('pattern') &&
+        <div class="text-danger" *ngIf="ProductCapForm.get('amount')?.hasError('pattern') &&
         ProductCapForm.get('amount')?.value">
-         {{ 'Amount must be a number.' | translate }}
+          {{ 'Amount must be a number.' | translate }}
         </div>
 
       </div>
@@ -106,77 +104,78 @@
     </div> -->
     <!-- Buttons -->
     <div class="text-end">
-      <button class="addBtn btn-primary me-2"  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
-              [componentName]="'ProductCapAmountComponent'"
-              [actionType]="'FormSubmit'" type="submit" [disabled]="ProductCapForm.invalid">
+      <button class="addBtn me-2" [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+        [componentName]="'ProductCapAmountComponent'" [actionType]="'FormSubmit'" type="submit"
+        [disabled]="ProductCapForm.invalid" mat-flat-button>
         {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
       </button>
-      <button class="btn-secondary cancelBtn"appUseractivity="User Click on cancel button"
-              [componentName]="'ProductCapAmountComponent'"
-              [actionType]="'ButtonClick'" type="button" (click)="resetForm()"> {{ 'Cancel' | translate }}</button>
+      <button class="cancelBtn" appUseractivity="User Click on cancel button"
+        [componentName]="'ProductCapAmountComponent'" [actionType]="'ButtonClick'" type="button" (click)="resetForm()"
+        mat-raised-button> {{ 'Cancel' | translate }}</button>
     </div>
   </form>
 </div>
-<div  class="card p-3" *ngIf="ProductCapForm.get('productId')?.value" >
+<div class="card p-3" *ngIf="ProductCapForm.get('productId')?.value">
 
   <div class="mb-3 d-flex justify-content-start">
-    <button mat-raised-button color="primary"appUseractivity="User Click on Add Product Cap Amount button"
-              [componentName]="'ProductCapAmountComponent'"
-              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Product Cap Amount" *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
+    <button mat-raised-button color="primary" appUseractivity="User Click on Add Product Cap Amount button"
+      [componentName]="'ProductCapAmountComponent'" [actionType]="'ButtonClick'" (click)="addProductCap()"
+      matTooltip="Add Product Cap Amount" *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
       <mat-icon>add</mat-icon> {{ 'Add New' | translate }}
     </button>
   </div>
   <div #entityTable class="table-wrapper">
     <!-- Table if data exists -->
-    <table class="bgColorWhite mat-elevation-z8" mat-table
-           [dataSource]="selectedProductData">
+    <table class="bgColorWhite " mat-table [dataSource]="selectedProductData">
 
       <!-- Optional ID column -->
       <!--<ng-container hidden matColumnDef="id">
-    <th class="cellStyling" mat-header-cell *matHeaderCellDef>Id</th>
-    <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.id }}</td>
+    <th mat-header-cell *matHeaderCellDef>Id</th>
+    <td mat-cell *matCellDef="let element">{{ element.id }}</td>
   </ng-container>-->
       <ng-container matColumnDef="productName">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Product Name' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productName }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Product Name' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.productName }}</td>
       </ng-container>
 
       <!--<ng-container matColumnDef="activity">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>Activity</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.activity }}</td>
+        <th mat-header-cell *matHeaderCellDef>Activity</th>
+        <td mat-cell *matCellDef="let element">{{ element.activity }}</td>
       </ng-container>-->
 
       <ng-container matColumnDef="maxCapPerStream">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Max Cap Per Product' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.maxCapPerStream }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Max Cap Per Product' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.maxCapPerStream }}</td>
       </ng-container>
 
       <ng-container matColumnDef="age">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Age Criteria' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.age }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Age Criteria' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.age }}</td>
       </ng-container>
 
       <ng-container matColumnDef="salary">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Salary Criteria' | translate }}
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.salary }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Salary Criteria' | translate }}
+        <td mat-cell *matCellDef="let element">{{ element.salary }}</td>
       </ng-container>
       <ng-container matColumnDef="amount">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Amount' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.amount }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Amount' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.amount }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">
-          <button mat-icon-button color="primary" (click)="editProductCapAmount(element)" matTooltip="Edit" *ngIf="hasPermission('Permissions.ProductCapAmount.Edit')">
+        <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" (click)="editProductCapAmount(element)" matTooltip="Edit"
+            *ngIf="hasPermission('Permissions.ProductCapAmount.Edit')">
             <mat-icon>edit</mat-icon>
-          </button >
-          <button mat-icon-button color="warn" (click)="deleteProductCapAmount(element)" matTooltip="Delete" *ngIf="hasPermission('Permissions.ProductCapAmount.Delete')">
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteProductCapAmount(element)" matTooltip="Delete"
+            *ngIf="hasPermission('Permissions.ProductCapAmount.Delete')">
             <mat-icon>delete</mat-icon>
-          </button >
+          </button>
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns" class="select-row"></tr>
     </table>
   </div>

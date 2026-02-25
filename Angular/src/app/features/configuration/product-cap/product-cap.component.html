@@ -89,16 +89,14 @@
 
     <!-- Buttons -->
     <div class="text-end">
-      <button class="addBtn btn-primary me-2"  [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
-              [componentName]="'ProductCapComponent'"
-              [actionType]="'FormSubmit'"
-              type="submit"
-              [disabled]="ProductCapForm.invalid">
+      <button class="addBtn me-2" [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+        [componentName]="'ProductCapComponent'" [actionType]="'FormSubmit'" type="submit"
+        [disabled]="ProductCapForm.invalid" mat-flat-button>
         {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
       </button>
-      <button appUseractivity="User Click on cancel button"
-              [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'"class="btn-secondary cancelBtn" type="button" (click)="resetForm()">{{ 'Cancel' | translate }}</button>
+      <button appUseractivity="User Click on cancel button" [componentName]="'ProductCapComponent'"
+        [actionType]="'ButtonClick'" class="cancelBtn" type="button" (click)="resetForm()" mat-raised-button>{{ 'Cancel'
+        | translate }}</button>
     </div>
   </form>
 </div>
@@ -110,59 +108,59 @@
   <!-- Add Button -->
   <div class="mb-3 d-flex justify-content-start">
     <button mat-raised-button color="primary" appUseractivity="User Click on Add Product Cap Score button"
-              [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'" (click)="addProductCap()" matTooltip="Add Stream Cap Score" *ngIf="hasPermission('Permissions.ProductCap.Create')">
+      [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="addProductCap()"
+      matTooltip="Add Stream Cap Score" *ngIf="hasPermission('Permissions.ProductCap.Create')">
       <mat-icon>add</mat-icon> {{ 'Add New' | translate }}
-    </button >
+    </button>
   </div>
   <div #entityTable class="table-wrapper">
     <!-- Table if data exists -->
-    <table class="bgColorWhite mat-elevation-z8" *ngIf="selectedProductData.length > 0" mat-table
+    <table class="bgColorWhite " *ngIf="selectedProductData.length > 0" mat-table
       [dataSource]="selectedProductData">
 
       <!-- Optional ID column -->
       <ng-container hidden matColumnDef="id">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Id' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.id }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Id' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
       </ng-container>
 
       <ng-container matColumnDef="ProductName">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Product Name' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productName }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Product Name' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.productName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="ProductCap">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Product Cap(%)' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.productCapPercentage }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Product Cap(%)' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.productCapPercentage }}</td>
       </ng-container>
 
       <ng-container matColumnDef="MinimumScore">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Minimum Score' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.minimumScore }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Minimum Score' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.minimumScore }}</td>
       </ng-container>
 
       <ng-container matColumnDef="MaximumScore">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Maximum Score' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.maximumScore }}</td>
+        <th mat-header-cell *matHeaderCellDef>{{ 'Maximum Score' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.maximumScore }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
-        <td class="cellStyling" mat-cell *matCellDef="let element">
+        <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+        <td mat-cell *matCellDef="let element">
           <button mat-icon-button color="primary" appUseractivity="User Click on edit Stream Cap Score button"
-              [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'" (click)="editProductCap(element)" matTooltip="Edit" *ngIf="hasPermission('Permissions.ProductCap.Edit')">
+            [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="editProductCap(element)"
+            matTooltip="Edit" *ngIf="hasPermission('Permissions.ProductCap.Edit')">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button color="warn"appUseractivity="User Click on delete Stream Cap Score button"
-              [componentName]="'ProductCapComponent'"
-              [actionType]="'ButtonClick'" (click)="deleteProductCap(element)" matTooltip="Delete" *ngIf="hasPermission('Permissions.ProductCap.Delete')">
+          <button mat-icon-button color="warn" appUseractivity="User Click on delete Stream Cap Score button"
+            [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="deleteProductCap(element)"
+            matTooltip="Delete" *ngIf="hasPermission('Permissions.ProductCap.Delete')">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns" class="select-row"></tr>
     </table>
   </div>
@@ -172,4 +170,3 @@
   </div>
 </div>
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
-

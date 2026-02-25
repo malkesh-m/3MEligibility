@@ -10,6 +10,7 @@ import { MatSort } from "@angular/material/sort";
 import { MatPaginator } from "@angular/material/paginator";
 import { PermissionsService } from "../../../core/services/setting/permission.service";
 import { TranslateService } from "@ngx-translate/core";
+import { HeaderTitleService } from "../../../core/services/header-title.service";
 
 export interface RoleRecord {
   roleId: number | null;
@@ -67,7 +68,8 @@ export class PermissionComponent implements OnInit {
     private location: Location,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private headerTitleService: HeaderTitleService
   ) { }
 
   private readonly moduleOrder: string[] = [
@@ -107,6 +109,7 @@ export class PermissionComponent implements OnInit {
 
   updateTitle() {
     this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
+    this.headerTitleService.setTitle(this.activeTabTitle);
   }
   isSuperAdminSelected(): boolean {
     const role = this.records.find(r => r.roleId == this.selectedRoleId);

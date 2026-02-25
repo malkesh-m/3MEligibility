@@ -44,7 +44,7 @@ export class ExceptionParameterFormComponent {
   @ViewChild('logicalOperatorSelect') logicalOperatorSelect: any;
   @ViewChild('closeParenthesisSelect') closeParenthesisSelect: any;
   eRulesListAry: any = [];
-  rulesColumnsAry = ['select', 'Name', 'Description', 'Expression','createdBy','updatedBy', 'Actions']
+  rulesColumnsAry = ['select', 'Name', 'Description', 'Expression', 'createdBy', 'updatedBy', 'Actions']
   deleteKeyForMultiple: string = '';
   formVisible: boolean = false;
   isInsertNewRecord: boolean = false;
@@ -90,7 +90,7 @@ export class ExceptionParameterFormComponent {
   isUploading: boolean = false;
   message: string = "Loading data, please wait...";
   loggedInUser: any = null;
-  createdBy:string = '';
+  createdBy: string = '';
   eruleId: number = 0;
   // exceptions: any[] = [];
   parentRules: any[] = [];
@@ -107,7 +107,7 @@ export class ExceptionParameterFormComponent {
   //  { exceptionID: 31, exceptionName: "Age Exception" }
   //];
 
-  
+
   constructor(
     private fb: FormBuilder,
     private ruleService: RulesService,
@@ -117,10 +117,10 @@ export class ExceptionParameterFormComponent {
     private validationDialogService: ValidationDialogService,
     private dialog: MatDialog,
     private utilityService: UtilityService,
-    private PermissionsService:PermissionsService,
+    private PermissionsService: PermissionsService,
     private exceptionsService: ExceptionManagementService
   ) {
-    
+
   }
 
   ngOnInit(): void {
@@ -133,7 +133,7 @@ export class ExceptionParameterFormComponent {
     // this.fetchAllExceptions();
     this.fetchConditions();
 
-    this.expressionForm = this.fb.group  ({
+    this.expressionForm = this.fb.group({
       name: ['', [Validators.required]],
       factorName: [''],
       description: ['', [Validators.required]],
@@ -203,7 +203,7 @@ export class ExceptionParameterFormComponent {
 
   toggleColumn(column: string, afterColumn: string) {
     const index = this.rulesColumnsAry.indexOf(column);
-    
+
     if (index > -1) {
       // Remove column if already visible
       this.rulesColumnsAry.splice(index, 1);
@@ -216,7 +216,7 @@ export class ExceptionParameterFormComponent {
         this.rulesColumnsAry.push(column); // Default push if not found
       }
     }
-    
+
     this.rulesColumnsAry = [...this.rulesColumnsAry]; // Ensure reactivity
   }
 
@@ -406,12 +406,12 @@ export class ExceptionParameterFormComponent {
   }
 
   fetchAllExceptions() {
-          this.isLoading = true;
+    this.isLoading = true;
 
     this.exceptionsService.getExceptionList().subscribe({
       next: (response) => {
         if (response.isSuccess) {
-        //  this.exceptions = response.data.map((exc: any) => ({...exc, exceptionID: Number(exc.exceptionID)}));
+          //  this.exceptions = response.data.map((exc: any) => ({...exc, exceptionID: Number(exc.exceptionID)}));
           this.isLoading = false;
         }
       }, error: (error) => {
@@ -511,9 +511,9 @@ export class ExceptionParameterFormComponent {
     });
   }
 
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.dataSource.filter = filterValue;
+  applyFilter(event: Event | string): void {
+    const filterValue = typeof event === 'string' ? event : (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -532,7 +532,7 @@ export class ExceptionParameterFormComponent {
       exceptionId: event.exceptionId,
       parentRuleId: event.parentEruleId
     })
-    
+
     this.eruleId = event.eruleId;
     this.createdBy = event.createdBy;
     this.updatedIndexId = event.eruleId;
@@ -1080,7 +1080,7 @@ export class ExceptionParameterFormComponent {
 
   downloadTemplate() {
     this.isDownloading = true;
-      this.message = "Please wait, template is downloading...";
+    this.message = "Please wait, template is downloading...";
     this.ruleService.downloadTemplate().subscribe((response) => {
       this.isDownloading = false;
       const blob = new Blob([response], {
@@ -1117,7 +1117,7 @@ export class ExceptionParameterFormComponent {
   importRules(selectedFile: File) {
     this.authService.currentUser$.subscribe((user) => {
       this.loggedInUser = user;
-  });
+    });
     this.createdBy = this.loggedInUser.user.userName;
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
@@ -1208,23 +1208,23 @@ export class ExceptionParameterFormComponent {
     let expressionWithPIDs = eCardExpression;
 
     this.ruleService.getRulesList().subscribe({
-        next: (response) => {
-            const rules = response.data;
-            
-            rules.forEach((rule: any) => {
-                expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), rule.expShown);
-                expressionWithPIDs = expressionWithPIDs.replaceAll(String(rule.eruleId), rule.expression);
-            });
+      next: (response) => {
+        const rules = response.data;
 
-            return { expressionWithPIDs, expressionWithPNames };
-        },
-        error: (error) => {
-            this._snackBar.open(error, 'Okay', {
-                horizontalPosition: 'right',
-                verticalPosition: 'top',
-                duration: 3000
-            });
-        }
+        rules.forEach((rule: any) => {
+          expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), rule.expShown);
+          expressionWithPIDs = expressionWithPIDs.replaceAll(String(rule.eruleId), rule.expression);
+        });
+
+        return { expressionWithPIDs, expressionWithPNames };
+      },
+      error: (error) => {
+        this._snackBar.open(error, 'Okay', {
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
     });
 
     return { expressionWithPIDs, expressionWithPNames };
@@ -1290,7 +1290,7 @@ export class ExceptionParameterFormComponent {
     });
     const expressionExp = this.sequenceExp.map(item => item.value).join(" ");
 
-    if(!this.isInsertNewRecord){
+    if (!this.isInsertNewRecord) {
       expshown = this.expressionForm.value.expshown;
     }
     this.parameterService.getParameters().subscribe({

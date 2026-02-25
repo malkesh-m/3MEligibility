@@ -1,141 +1,92 @@
-.container {
-    padding: 20px;
-}
-
-.card {
-    background: #f9f9f9;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.clickable-icon {
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-
-    &:hover {
-        transform: scale(1.2);
-    }
-}
-
-.moduleLabel {
-    font-size: 20px;
-    font-weight: 500;
-}
-
-.bgColorWhite {
-    background-color: #f8f8f8;
-}
-
-.cellStyling {
-    border-bottom: 5px solid white !important;
-    padding: 12px 16px !important;
-}
-
-.tableHeader {
-    background-color: #f8f8f8;
-    color: #1CAEC8;
-    font-size: 16px;
-}
-
-table {
-    width: 100%;
-    background-color: #f8f8f8;
-    table-layout: fixed; /* This ensures columns respect width settings */
-}
-
-table tr.select-row {
-    background-color: #f8f8f8 !important;
-    color: #000205;
-    font-size: 15px;
+.parameter-binding-container {
+    padding-bottom: 40px;
 }
 
 .table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
-}
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-top: 24px;
 
-.table-wrapper table {
-    min-width: 1000px;
-    width: 100%;
+    table {
+        width: 100%;
+
+        th {
+            background: var(--surface-2);
+            color: var(--text-2);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 16px;
+            color: var(--text-1);
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover td {
+            background: var(--surface-hover);
+        }
+
+        /* Column Width Settings */
+        .column-parameter-name {
+            width: 40%;
+        }
+
+        .column-input-alias {
+            width: 40%;
+        }
+
+        .column-actions {
+            width: 20%;
+            text-align: right;
+        }
+
+        /* Select in table cell */
+        .form-select {
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-1);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            width: 100%;
+            transition: var(--transition);
+
+            &:focus {
+                border-color: var(--indigo);
+                box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+                outline: none;
+            }
+
+            option {
+                background-color: var(--surface-2);
+                color: var(--text-1);
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+    }
 }
 
 .paginator {
-    background-color: white;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    color: var(--text-2);
 }
 
-table tr.select-row:hover {
-    cursor: pointer;
-}
-
-.table {
-    margin-top: 20px;
-}
-
-/* Column Width Settings */
-.column-parameter-name {
-    width: 30% !important;      /* System Parameter - largest column */
-    max-width: 30%;
-}
-
-.column-input-alias {
-    width: 30% !important;      /* Mapped Internal Parameter - reduced width */
-    max-width: 30%;
-}
-
-.column-actions {
-    width: 25% !important;      /* Actions - fixed width for buttons */
-    max-width: 25%;
-    text-align: center !important;
-}
-
-/* Action Buttons Styling */
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    min-height: 36px;
-    flex-wrap: nowrap;          /* Prevent buttons from wrapping */
-}
-
-.action-buttons button {
-    min-width: 80px;            /* Reduced from 100px for better fit */
-    max-width: 90px;
-    height: 32px;
-    font-size: 13px;
-    padding: 4px 12px;
-    white-space: nowrap;
-    flex-shrink: 0;             /* Prevent buttons from shrinking */
-}
-
-/* Make select dropdown smaller */
-.column-input-alias select.form-select {
-    max-width: 100%;
-    font-size: 15px;
-    padding: 4px 8px;
-    height: 32px;
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 1200px) {
-    .column-parameter-name {
-        width: 40% !important;
-    }
-    
-    .column-input-alias {
-        width: 32% !important;
-    }
-    
-    .column-actions {
-        width: 28% !important;
-    }
-}
-
-@media (max-width: 992px) {
-    .action-buttons button {
-        min-width: 70px;
-        font-size: 12px;
-        padding: 4px 8px;
-    }
+.text-muted {
+    color: var(--text-2) !important;
+    font-size: 12px;
+    margin-top: 4px;
 }

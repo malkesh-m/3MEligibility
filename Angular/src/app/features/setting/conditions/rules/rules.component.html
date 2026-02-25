@@ -1,5 +1,3 @@
-
-
 <div class="mb-3">
   <div>
     <p class="moduleLabel mb-2">{{ 'Eligibility Rules' | translate }}</p>
@@ -11,31 +9,29 @@
     </div>
 
 
-    <div class="d-flex align-items-center ms-3">
-      <button appUseractivity="User Click on Add button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  class="btn me-2" (click)="insertNewRecord()"  *ngIf="hasPermission('Permissions.Rule.Create')" >
-        <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+    <div class="d-flex align-items-center gap-2 ms-3">
+      <button appUseractivity="User Click on Add button" [componentName]="'RulesComponent'" [actionType]="'ButtonClick'"
+        class="btn" (click)="insertNewRecord()" *ngIf="hasPermission('Permissions.Rule.Create')">
+        <mat-icon matTooltip="{{ 'Add Rule' | translate }}">add_circle_outline</mat-icon>
       </button>
-      <button class="btn" appUseractivity="User Click on Download Tamplate button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" (click)="downloadTemplate()" >
+      <button class="btn" appUseractivity="User Click on Download Tamplate button" [componentName]="'RulesComponent'"
+        [actionType]="'ButtonClick'" (click)="downloadTemplate()">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
-      <button appUseractivity="User Click on Import button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  class="btn" (click)="fileInput.click()" *ngIf="hasPermission('Permissions.Rule.Import')">
+      <button appUseractivity="User Click on Import button" [componentName]="'RulesComponent'"
+        [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()"
+        *ngIf="hasPermission('Permissions.Rule.Import')">
         <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
       </button>
-      <button appUseractivity="User Click on Export button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  class="btn" *ngIf="hasPermission('Permissions.Rule.Export')">
-        <mat-icon matTooltip="{{ 'Export' | translate }}" (click)="exportRules()">file_download</mat-icon>
+      <button appUseractivity="User Click on Export button" [componentName]="'RulesComponent'"
+        [actionType]="'ButtonClick'" class="btn" *ngIf="hasPermission('Permissions.Rule.Export')"
+        (click)="exportRules()">
+        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
-      <button appUseractivity="User Click on Delete Multiple button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  (click)="deleteCheckedMultipleRules()" class="btn" *ngIf="hasPermission('Permissions.Rule.Delete')">
+      <button appUseractivity="User Click on Delete Multiple button" [componentName]="'RulesComponent'"
+        [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleRules()" class="btn"
+        *ngIf="hasPermission('Permissions.Rule.Delete')">
         <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
       </button>
     </div>
@@ -51,7 +47,8 @@
       <!-- Rule Name -->
       <div class="col-3">
         <label class="inputLabel">{{ 'Rule Name' | translate }} <span class="text-danger">*</span></label>
-        <input  (input)="sanitizeCode($event)" [readonly]="IfAddNewVersion" type="text" class="form-control" formControlName="name" maxlength="50"/>
+        <input (input)="sanitizeCode($event)" [readonly]="IfAddNewVersion" type="text" class="form-control"
+          formControlName="name" maxlength="50" />
         <div *ngIf="expressionForm.get('name')?.invalid && expressionForm.get('name')?.touched">
           <small class="text-danger">{{ 'Rule Name is required' | translate }}</small>
         </div>
@@ -60,7 +57,8 @@
       <!-- Rule Description -->
       <div class="col-4">
         <label class="inputLabel">{{ 'Rule Description' | translate }} <span class="text-danger"></span></label>
-        <input  (input)="sanitizeCode($event)" type="text" [readonly]="IfAddNewVersion" class="form-control" formControlName="description" />
+        <input (input)="sanitizeCode($event)" type="text" [readonly]="IfAddNewVersion" class="form-control"
+          formControlName="description" />
         <div *ngIf="expressionForm.get('description')?.invalid && expressionForm.get('description')?.touched">
           <small class="text-danger">{{ 'Rule Description is required' | translate }}</small>
         </div>
@@ -78,24 +76,22 @@
 
       <!-- Buttons -->
       <div class="col d-flex justify-content-end align-items-end">
-        <button appUseractivity="User Click on Add button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'FormSubmit'"  class="addBtn btn-primary me-2" type="submit"
+        <button appUseractivity="User Click on Add button" [componentName]="'RulesComponent'"
+          [actionType]="'FormSubmit'" class="addBtn me-2" type="submit" mat-flat-button
           *ngIf="!IEditRuleVersion && !IfAddNewVersion && !EditEruleMaster"
           (click)="AddNewEruleMaster(expressionForm.value)">
           {{ 'Add' | translate }}
         </button>
 
-        <button appUseractivity="User Click on Update button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'FormSubmit'"  class="addBtn btn-primary me-2" type="submit"
+        <button appUseractivity="User Click on Update button" [componentName]="'RulesComponent'"
+          [actionType]="'FormSubmit'" class="addBtn me-2" type="submit" mat-flat-button
           *ngIf="!IEditRuleVersion && !IfAddNewVersion && EditEruleMaster"
           (click)="UpdateEruleMaster(expressionForm.value)">
           {{ 'Update' | translate }}
         </button>
-        <button appUseractivity="User Click on Cancel button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  *ngIf="!IEditRuleVersion && !IfAddNewVersion" class="cancelBtn btn-secondary" type="button" (click)="cancelEvent()">{{ 'Cancel' | translate }}</button>
+        <button appUseractivity="User Click on Cancel button" [componentName]="'RulesComponent'"
+          [actionType]="'ButtonClick'" *ngIf="!IEditRuleVersion && !IfAddNewVersion" class="cancelBtn" mat-raised-button
+          type="button" (click)="cancelEvent()">{{ 'Cancel' | translate }}</button>
 
       </div>
     </div>
@@ -192,35 +188,34 @@
             <small class="text-danger">{{ 'Rule expression is required' | translate }}</small>
           </div>
         </div>
-        <button appUseractivity="User Click on Cancel button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'"  class="cancelBtn btn-outline-secondary me-2" type="button" (click)="resetExpression()">{{ 'Clear' | translate
+        <button appUseractivity="User Click on Cancel button" [componentName]="'RulesComponent'"
+          [actionType]="'ButtonClick'" class="cancelBtn me-2" type="button" mat-raised-button
+          (click)="resetExpression()">{{ 'Clear' | translate
           }}</button>
-        <button appUseractivity="User Click on Remove Last Item button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" class="cancelBtn btn-outline-warning me-2" type="button" (click)="removeLastItem()">{{ 'Remove' | translate
+        <button appUseractivity="User Click on Remove Last Item button" [componentName]="'RulesComponent'"
+          [actionType]="'ButtonClick'" class="cancelBtn me-2" type="button" mat-raised-button
+          (click)="removeLastItem()">{{ 'Remove' | translate
           }}</button>
-        <button appUseractivity="User Click on Validate button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" class="addBtn btn-outline-success me-2" type="button" (click)="openValidatorDialogAdd(expshown)">
+        <button appUseractivity="User Click on Validate button" [componentName]="'RulesComponent'"
+          [actionType]="'ButtonClick'" class="addBtn me-2" type="button" mat-flat-button
+          style="background-color: var(--teal) !important; color: white !important;"
+          (click)="openValidatorDialogAdd(expshown)">
           {{ 'Validate' | translate }}
         </button>
 
-        <button appUseractivity="User Click on Add button"
-                [componentName]="'RulesComponent'"
-                [actionType]="'SubmitForm'"
-                class="addBtn btn-primary me-2"
-                type="submit"
-                [disabled]="expressionForm.invalid || expressionForm.errors?.['invalidDateRange']">
+        <button appUseractivity="User Click on Add button" [componentName]="'RulesComponent'"
+          [actionType]="'SubmitForm'" class="addBtn me-2" type="submit" mat-flat-button
+          [disabled]="expressionForm.invalid || expressionForm.errors?.['invalidDateRange']">
           {{ IEditRuleVersion ? ('Update' | translate) : ('Add' | translate) }}
         </button>
 
-        <!--<button *ngIf="IfAddNewVersion" class="addBtn btn-primary me-2" type="submit">{{  ('Add' | translate)  }}</button>-->
+        <!--<button *ngIf="IfAddNewVersion" class="addBtn me-2" type="submit" mat-flat-button>{{  ('Add' | translate)  }}</button>-->
 
 
-        <button appUseractivity="User Click on Cancel button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" class="btn-secondary cancelBtn" type="button" (click)="cancelEvent()">{{ 'Cancel' | translate }}</button>
+        <button appUseractivity="User Click on Cancel button" [componentName]="'RulesComponent'"
+          [actionType]="'ButtonClick'" class="cancelBtn" type="button" mat-raised-button (click)="cancelEvent()">{{
+          'Cancel'
+          | translate }}</button>
       </div>
     </ng-container>
 
@@ -236,9 +231,8 @@
       <div class="rule-grid">
         <!-- Checkbox -->
         <div class="rule-cell checkbox-cell">
-          <mat-checkbox (click)="$event.stopPropagation()"
-                        (change)="toggleRuleSelection(group)"
-                        [checked]="isRuleSelected(group)">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleRuleSelection(group)"
+            [checked]="isRuleSelected(group)">
           </mat-checkbox>
         </div>
 
@@ -262,11 +256,12 @@
         <!-- Actions -->
         <div class="rule-cell actions-cell">
           <button mat-icon-button matTooltip="Edit" color="primary"
-                  (click)="editRuleMaster(group); $event.stopPropagation()" *ngIf="hasPermission('Permissions.Rule.Edit')">
+            (click)="editRuleMaster(group); $event.stopPropagation()" *ngIf="hasPermission('Permissions.Rule.Edit')">
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button matTooltip="Delete" color="warn"
-                  (click)="deleteEruleMaster(group); $event.stopPropagation()" *ngIf="hasPermission('Permissions.Rule.Delete')">
+            (click)="deleteEruleMaster(group); $event.stopPropagation()"
+            *ngIf="hasPermission('Permissions.Rule.Delete')">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -275,86 +270,82 @@
 
 
 
-    <div class="text-end mb-2" >
+    <div class="text-end mb-2">
       <!-- <button class="btn btn-outline-primary" (click)="addNewVersion(group)">
         <mat-icon class="me-1">post_add</mat-icon> {{ 'Add New Version' | translate }}
       </button> -->
-      <button appUseractivity="User Click on Add New Version button"
-              [componentName]="'RulesComponent'"
-              [actionType]="'ButtonClick'" mat-raised-button color="primary" (click)="addNewVersion(group)" matTooltip="Add New Version" *ngIf="hasPermission('Permissions.Rule.Create')">
+      <button appUseractivity="User Click on Add New Version button" [componentName]="'RulesComponent'"
+        [actionType]="'ButtonClick'" mat-raised-button color="primary" (click)="addNewVersion(group)"
+        matTooltip="Add New Version" *ngIf="hasPermission('Permissions.Rule.Create')">
         <mat-icon>add</mat-icon> {{'Add New Version' |translate}}
       </button>
 
     </div>
-    <div *ngIf="group.versions?.length > 0; else noVersions">
+    <div *ngIf="group.versions?.length > 0; else noVersions" class="table-wrapper mt-3">
 
       <!-- Versions Table -->
-      <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="group.versions">
+      <table class="bgColorWhite " mat-table [dataSource]="group.versions">
         <ng-container matColumnDef="version">
-          <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{'Version' | translate }}</th>
-          <td class="cellStyling" mat-cell *matCellDef="let item">{{ item.version }}</td>
+          <th mat-header-cell *matHeaderCellDef>{{'Version' | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.version }}</td>
         </ng-container>
 
         <ng-container matColumnDef="expression">
-          <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{'Expression' | translate}}</th>
-          <td class="cellStyling" mat-cell *matCellDef="let item">{{ item.expShown }}</td>
+          <th mat-header-cell *matHeaderCellDef>{{'Expression' | translate}}</th>
+          <td mat-cell *matCellDef="let item">{{ item.expShown }}</td>
         </ng-container>
 
         <ng-container matColumnDef="createdByDateTime">
-          <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{'Created Date' | translate}}</th>
-          <td class="cellStyling" mat-cell *matCellDef="let item">
+          <th mat-header-cell *matHeaderCellDef>{{'Created Date' | translate}}</th>
+          <td mat-cell *matCellDef="let item">
             {{
- item.createdByDateTime | date:'yyyy-MM-dd hh:mm
+            item.createdByDateTime | date:'yyyy-MM-dd hh:mm
             a'
             }}
           </td>
         </ng-container>
         <ng-container matColumnDef="createdBy">
-          <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{'Created By'| translate }}</th>
-          <td class="cellStyling" mat-cell *matCellDef="let item">{{ item.createdBy}}</td>
+          <th mat-header-cell *matHeaderCellDef>{{'Created By'| translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.createdBy}}</td>
         </ng-container>
 
         <ng-container matColumnDef="updatedByDateTime">
-          <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{'Updated Date' | translate}}</th>
-          <td class="cellStyling" mat-cell *matCellDef="let item">
+          <th mat-header-cell *matHeaderCellDef>{{'Updated Date' | translate}}</th>
+          <td mat-cell *matCellDef="let item">
             {{
- item.updatedByDateTime | date:'yyyy-MM-dd hh:mm a'
+            item.updatedByDateTime | date:'yyyy-MM-dd hh:mm a'
             }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="updatedBy">
-          <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{'Updated By' | translate}}</th>
-          <td class="cellStyling" mat-cell *matCellDef="let item">{{ item.updatedBy }}</td>
+          <th mat-header-cell *matHeaderCellDef>{{'Updated By' | translate}}</th>
+          <td mat-cell *matCellDef="let item">{{ item.updatedBy }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{'Actions' | translate}}</th>
-          <td class="cellStyling" mat-cell *matCellDef="let item">
-            <mat-icon *ngIf="item === group.versions[0]; else disabledEdit"
-                      color="primary"
-                      class="me-2 clickable-icon"
-                      (click)="editRecord(item)"
-                      matTooltip="Edit">
+          <th mat-header-cell *matHeaderCellDef>{{'Actions' | translate}}</th>
+          <td mat-cell *matCellDef="let item">
+            <mat-icon *ngIf="item === group.versions[0]; else disabledEdit" color="primary" class="me-2 clickable-icon"
+              (click)="editRecord(item)" matTooltip="Edit">
               edit
             </mat-icon>
 
             <ng-template #disabledEdit>
-              <mat-icon class="me-2 text-muted"
-                        matTooltip="Only Latest version can be edited">
+              <mat-icon class="me-2 text-muted" matTooltip="Only Latest version can be edited">
                 lock
               </mat-icon>
             </ng-template>
-            <mat-icon color="warn" class="clickable-icon" *ngIf="hasPermission('Permissions.Rule.Delete')" (click)="deleteRecord(item)"
-                      matTooltip="Delete">delete</mat-icon>
+            <mat-icon color="warn" class="clickable-icon" *ngIf="hasPermission('Permissions.Rule.Delete')"
+              (click)="deleteRecord(item)" matTooltip="Delete">delete</mat-icon>
           </td>
         </ng-container>
 
-        <tr mat-header-row class="tableHeader"
-            *matHeaderRowDef="['version', 'expression','createdByDateTime','createdBy','updatedByDateTime', 'updatedBy', 'actions']">
+        <tr mat-header-row
+          *matHeaderRowDef="['version', 'expression','createdByDateTime','createdBy','updatedByDateTime', 'updatedBy', 'actions']">
         </tr>
         <tr mat-row class="select-row"
-            *matRowDef="let row; columns: ['version', 'expression', 'createdByDateTime','createdBy', 'updatedByDateTime','updatedBy', 'actions']">
+          *matRowDef="let row; columns: ['version', 'expression', 'createdByDateTime','createdBy', 'updatedByDateTime','updatedBy', 'actions']">
         </tr>
       </table>
 
@@ -366,10 +357,7 @@
       </div>
     </ng-template>
   </mat-expansion-panel>
-  <mat-paginator class="paginator"
-                 [pageSizeOptions]="[10, 25, 50, 100]"
-                 showFirstLastButtons
-                 [pageSize]="10">
+  <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons [pageSize]="10">
   </mat-paginator>
 </mat-accordion>
 

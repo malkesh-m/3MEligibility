@@ -4,13 +4,14 @@
     </div>
     <div class="d-flex justify-content-between align-items-center">
         <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
-            <input type="text" class="form-control" style="width: 100%;" 
-                placeholder="{{ 'Search Exception' | translate }}" (input)="applyFilter($event)"  [(ngModel)]="searchTerms[activeTab]" />
+            <input type="text" class="form-control" style="width: 100%;"
+                placeholder="{{ 'Search Exception' | translate }}" (input)="applyFilter($event)"
+                [(ngModel)]="searchTerms[activeTab]" />
         </div>
         <div class="d-flex align-items-center ms-3">
-            <button appUseractivity="User Click on Add button"
-              [componentName]="'ExceptionManagementComponent'"
-              [actionType]="'ButtonClick'" class="btn me-2" (click)="onnewClick()" *ngIf="hasPermission('Permissions.Exception.Create')">
+            <button appUseractivity="User Click on Add button" [componentName]="'ExceptionManagementComponent'"
+                [actionType]="'ButtonClick'" class="btn me-2" (click)="onnewClick()"
+                *ngIf="hasPermission('Permissions.Exception.Create')">
                 <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
             </button>
         </div>
@@ -20,12 +21,13 @@
 <!-- Conditionally show form here -->
 @if (activeTab === 'Exceptions' && formVisible)
 {
-    <app-exception-form  (formClosed)="onFormClose()" (onSubmit)="onSubmit()" [formData]="formData" [isEditMode]="isEditMode"></app-exception-form>
+<app-exception-form (formClosed)="onFormClose()" (onSubmit)="onSubmit()" [formData]="formData"
+    [isEditMode]="isEditMode"></app-exception-form>
 }
 
 @if (activeTab === 'Exception Rule' && formVisible)
 {
-    <app-exception-parameter-form (formClosed)="onFormClose()" (onSubmit)="onSubmit()"></app-exception-parameter-form>
+<app-exception-parameter-form (formClosed)="onFormClose()" (onSubmit)="onSubmit()"></app-exception-parameter-form>
 }
 
 <ul class="nav nav-tabs">
@@ -45,11 +47,12 @@
 
 @if (activeTab === 'Exceptions')
 {
- <app-exception [searchTerm]="this.searchTerm" [tableData]="this.exceptionsTableData" (editForm)="editForm($event)" (deleteException)="deleteException($event)"></app-exception>
+<app-exception [searchTerm]="this.searchTerm" [tableData]="this.exceptionsTableData" (editForm)="editForm($event)"
+    (deleteException)="deleteException($event)"></app-exception>
 }
 
 @if (activeTab === 'Exception Rule')
 {
- <app-exception-parameter-form></app-exception-parameter-form>
+<app-exception-parameter-form></app-exception-parameter-form>
 }
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

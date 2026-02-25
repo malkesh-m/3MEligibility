@@ -28,12 +28,12 @@
 </ul>
 
 <div class="table-wrapper">
-    <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
+    <table class="bgColorWhite " mat-table [dataSource]="dataSource" matSort>
 
         <!-- System Parameter Column -->
         <ng-container matColumnDef="parameterName">
-            <th class="cellStyling column-parameter-name" mat-header-cell *matHeaderCellDef mat-sort-header> 
-                {{ 'System Parameter' | translate }} 
+            <th class="cellStyling column-parameter-name" mat-header-cell *matHeaderCellDef mat-sort-header>
+                {{ 'System Parameter' | translate }}
             </th>
             <td class="cellStyling column-parameter-name" mat-cell *matCellDef="let element">
                 <div>{{element.name}}</div>
@@ -43,11 +43,12 @@
 
         <!-- Mapped Internal Parameter Column -->
         <ng-container matColumnDef="inputAlias">
-            <th class="cellStyling column-input-alias" mat-header-cell *matHeaderCellDef> 
+            <th class="cellStyling column-input-alias" mat-header-cell *matHeaderCellDef>
                 {{ 'Mapped Internal Parameter' | translate }}
             </th>
             <td class="cellStyling column-input-alias" mat-cell *matCellDef="let element">
-                <select class="form-select form-select-sm" [(ngModel)]="element.selectedParamId" (change)="markAsModified(element)">
+                <select class="form-select form-select-sm" [(ngModel)]="element.selectedParamId"
+                    (change)="markAsModified(element)">
                     <option [ngValue]="null">{{ 'None (Unmapped)' | translate }}</option>
                     <option *ngFor="let param of getFilteredParameters()" [value]="param.parameterId">
                         {{ param.parameterName }}
@@ -63,17 +64,19 @@
             </th>
             <td class="cellStyling column-actions" mat-cell *matCellDef="let element">
                 <div class="action-buttons">
-                    <button class="addBtn btn-primary btn-sm " *ngIf="isModified(element)" (click)="saveParameter(element)">
+                    <button class="addBtn btn-primary btn-sm " *ngIf="isModified(element)"
+                        (click)="saveParameter(element)">
                         {{ 'Save' | translate }}
                     </button>
-                    <button class="cancelBtn btn-secondary btn-sm" *ngIf="isModified(element)" (click)="cancelChanges(element)">
+                    <button class="cancelBtn btn-secondary btn-sm" *ngIf="isModified(element)"
+                        (click)="cancelChanges(element)">
                         {{ 'Cancel' | translate }}
                     </button>
                 </div>
             </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
     </table>
     <mat-paginator class="paginator" [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>

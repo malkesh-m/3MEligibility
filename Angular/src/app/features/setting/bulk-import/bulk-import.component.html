@@ -52,45 +52,45 @@
     </div>
 </div>
 
-<div #entityTable class="mat-elevation-z8">
-    <table class="bgColorWhite" mat-table [dataSource]="dataSource" matSort>
+<div #entityTable class="table-wrapper">
+    <table class="bgColorWhite " mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="name">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.name }} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
+            <td mat-cell *matCellDef="let entity"> {{ entity.name }} </td>
         </ng-container>
 
         <ng-container matColumnDef="importTime">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Import Time' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Import Time' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.importTime | date: 'short' }} </td>
+            <td mat-cell *matCellDef="let entity"> {{ entity.importTime | date: 'short' }} </td>
         </ng-container>
 
         <ng-container matColumnDef="endTime">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'End Time' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'End Time' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.endTime | date: 'short' }} </td>
+            <td mat-cell *matCellDef="let entity"> {{ entity.endTime | date: 'short' }} </td>
         </ng-container>
 
         <ng-container matColumnDef="totalRecords">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Total Records' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Total Records' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.totalRecords }} </td>
+            <td mat-cell *matCellDef="let entity"> {{ entity.totalRecords }} </td>
         </ng-container>
 
         <ng-container matColumnDef="successCount">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Success' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.successCount }} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Success' | translate }} </th>
+            <td mat-cell *matCellDef="let entity"> {{ entity.successCount }} </td>
         </ng-container>
 
         <ng-container matColumnDef="failureCount">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Failures' | translate }}
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Failures' | translate }}
             </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity"> {{ entity.failureCount }} </td>
+            <td mat-cell *matCellDef="let entity"> {{ entity.failureCount }} </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-            <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
-            <td class="cellStyling" mat-cell *matCellDef="let entity">
+            <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+            <td mat-cell *matCellDef="let entity">
                 <button mat-icon-button (click)="downloadFile(entity)" matTooltip="{{ 'Download' | translate }}"
                     *ngIf="hasPermission('Permissions.BulkImport.Download')">
                     <mat-icon>cloud_download</mat-icon>
@@ -98,7 +98,7 @@
             </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
 
     </table>

@@ -1,38 +1,38 @@
-<div class="mb-3">
-  <div>
-    <p class="moduleLabel mb-2">{{ 'Factors' | translate }}</p>
-  </div>
+<div class="factors-page">
+  <span class="moduleLabel">{{ 'Factors'| translate }}</span>
 
-  <!-- Search and Actions Section -->
-  <div class="d-flex justify-content-between align-items-center">
-    <!-- Search Input -->
-    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
-      <input type="text" class="form-control" style="width: 100%;" (input)="applyFilter($event)"
-        placeholder="{{ 'Search Factors' | translate }}" />
+  <!-- Search and Actions Top Bar -->
+  <div class="top-bar">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input type="text" (input)="applyFilter($event)" placeholder="{{ 'Search Factors' | translate }}" />
     </div>
 
-    <!-- Actions Buttons -->
-    <div class="d-flex align-items-center ms-3">
+    <div class="action-group">
       <button appUseractivity="User Click on Add button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" class="btn me-2" (click)="openForm()"
+        [actionType]="'ButtonClick'" class="btn" (click)="openForm()"
         *ngIf="hasPermission('Permissions.Factor.Create')">
-        <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
+        <mat-icon matTooltip="{{ 'Add Factor' | translate }}">add_circle_outline</mat-icon>
       </button>
+
       <button appUseractivity="User Click on Download Template button" [componentName]="'FactorComponent'"
         [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
+
       <button appUseractivity="User Click on Import button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" class="btn me-2" (click)="fileInput.click()"
+        [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()"
         *ngIf="hasPermission('Permissions.Factor.Import')">
         <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
+
       <button appUseractivity="User Click on Export button" [componentName]="'FactorComponent'"
         [actionType]="'ButtonClick'" class="btn" (click)="exportFactors()"
         *ngIf="hasPermission('Permissions.Factor.Export')">
         <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
       </button>
+
       <button appUseractivity="User Click on Delete button" [componentName]="'FactorComponent'"
         [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="btn"
         *ngIf="hasPermission('Permissions.Factor.Delete')">
@@ -40,327 +40,258 @@
       </button>
     </div>
   </div>
-</div>
 
-
-<!-- Add/Edit Form -->
-<div *ngIf="formVisible" class="card p-3 mb-3">
-  <form #form="ngForm" (ngSubmit)="addRecord(form)">
-    <div class="row">
-      <div class="col">
-        <label class="inputLabel">{{ 'Parameter' | translate }} <span class="text-danger">*</span></label>
-        <select required class="form-control" [(ngModel)]="formData.parameterId" name="parameterId"
-          (change)="onParameterChange($event)" #parameterId="ngModel">
-          <option value="" disabled selected>{{ 'Select Parameter' | translate }}</option>
-          <option *ngFor="let parameter of parametersList" [value]="parameter.parameterId">
-            {{ parameter.parameterName }}
-          </option>
-        </select>
-
-        <div *ngIf="parameterId.invalid && parameterId.touched" class="text-danger">
-          {{ 'Parameter is required' | translate }}
-        </div>
-      </div>
-      <!--<div class="col mt-4">
-    <input type="checkbox" class="form-check-input" id="isCalculatedParameter" name="isCalculatedParameter" [(ngModel)]="isCalculatedParameter" />
-    <label class="form-check-label ml-4" style="margin-left: 8px;" for="isCalculatedParameter">{{ 'Calculated Parameter' | translate }}</label>
-  </div>-->
-      <div class="col">
-        <label class="inputLabel">{{ 'Condition' | translate }} <span class="text-danger">*</span></label>
-        <select [disabled]="isCalculatedParameter" required class="form-control" [(ngModel)]="formData.conditionId"
-          name="conditionId" (change)="onConditionChange($event)" #conditionId="ngModel">
-          <option value="" disabled selected>{{ 'Select Parameter' | translate }}</option>
-          <option *ngFor="let condition of conditionsList" [value]="condition.conditionId">
-            {{ condition.conditionValue }}
-          </option>
-        </select>
-        <div *ngIf="conditionId.invalid && conditionId.touched" class="text-danger">
-          {{ 'Condition is required' | translate }}
-        </div>
-      </div>
-
-      <div class="col" *ngIf="isCalculatedParameter">
-        <label class="inputLabel">{{ 'Input' | translate }} <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" [(ngModel)]="formData.input" name="input" required #input="ngModel" />
-        <div *ngIf="input.invalid && input.touched" class="text-danger">
-          {{ 'Input is required' | translate }}
-        </div>
-
-      </div>
-
-      <div class="col">
-        <label class="inputLabel">{{ 'Factor Name' | translate }} <span class="text-danger">*</span></label>
-        <input [disabled]="isCalculatedParameter" type="text" class="form-control" [(ngModel)]="formData.factorName"
-          name="factorName" required (input)="sanitizeInput($event)" #factorName="ngModel" maxlength="50" />
-        <div *ngIf="factorName.invalid && factorName.touched" class="text-danger">
-          {{ 'Factor Name is required' | translate }}
-        </div>
-
-        <div *ngIf="showMaxLengthWarning" class="text-danger">
-          {{ 'Factor Name cannot exceed 50 characters' | translate }}
-        </div>
-      </div>
-
-
-      <!-- Value1 In List and Not In Lists -->
-      <!--<div class="col" *ngIf="isVal1Dropdown">
-    <label class="inputLabel">{{ 'Value 1' | translate }} <span class="text-danger">*</span></label>
-    <select required class="form-control" [(ngModel)]="formData.value1" name="value1" #value1="ngModel">
-      <option value="" disabled selected>{{ 'Select Value1' | translate }}</option>
-      <option *ngFor="let list of AllList; trackBy: trackByUserId" [value]="list.listName">
-        {{ list.listName }}
-      </option>
-    </select>
-    <div *ngIf="value1.invalid && value1.touched" class="text-danger">
-      Value 1 is required
-    </div>
-  </div>-->
-      <!--<div class="col" *ngIf="!isVal1Dropdown" [ngSwitch]="selectedDataType">
-  <label class="inputLabel">{{ 'Value 1' | translate }} <span class="text-danger">*</span></label>-->
-      <!-- Numeric, Text, Alphanumeric -->
-      <!--<input *ngIf="['Numeric', 'Text', 'Alphanumeric'].includes(selectedDataType)" type="text" class="form-control"
-  [(ngModel)]="formData.value1" name="value1" required (keypress)="validateValue1Input($event)"
-  (paste)="onPasteValue1($event)" (input)="sanitizeCode($event)" />-->
-      <!-- Boolean -->
-      <!--<select *ngSwitchCase="'Boolean'" class="form-control" [(ngModel)]="formData.value1" name="value1" required>
-      <option [ngValue]="true">True</option>
-      <option [ngValue]="false">False</option>
-  </select>-->
-      <!-- Date -->
-      <!--<input *ngSwitchCase="'Date'" type="date" class="form-control" [(ngModel)]="formData.value1" name="value1" required
-          (input)="sanitizeCode($event)" />
-
-      <div *ngIf="form.controls['value1']?.invalid && form.controls['value1']?.touched" class="text-danger">
-          {{ 'Value 1 is required' | translate }}
-      </div>
-  </div>-->
-      <!-- VALUE 1 (Dropdown for 'In List' / 'Not In List') -->
-      <div class="col" *ngIf="isVal1Dropdown">
-        <label class="inputLabel">{{ 'Value 1' | translate }} <span class="text-danger">*</span></label>
-        <select required class="form-control" [(ngModel)]="formData.value1" name="value1" #value1="ngModel">
-          <option value="" disabled selected>{{ 'Select Value1' | translate }}</option>
-          <option *ngFor="let list of AllList; trackBy: trackByUserId" [value]="list.listName">
-            {{ list.listName }}
-          </option>
-        </select>
-        <div *ngIf="value1.invalid && value1.touched" class="text-danger">
-          {{ 'Value 1 is required' | translate }}
-        </div>
-
-      </div>
-
-      <!-- VALUE 1 (Default based on selected data type) -->
-      <div class="col" *ngIf="!isVal1Dropdown" [ngSwitch]="selectedDataType">
-        <label class="inputLabel">{{ 'Value 1' | translate }} <span class="text-danger">*</span></label>
-
-        <!-- Default (Numeric/Text/Alphanumeric) -->
-        <div *ngSwitchDefault>
-          <input type="text" class="form-control" [pattern]="selectedDataType === 'Numeric' ? '^[AlLa0-9,]+$' : '.*'"
-            [(ngModel)]="formData.value1" name="value1" required #textValue1="ngModel"
-            (keypress)="validateValue1Input($event)" (paste)="onPasteValue1($event)" (input)="sanitizeCode($event)"
-            [placeholder]="SelectMultiple ? ('Enter comma-separated values' | translate) : ('Enter value' | translate)"
-            maxlength="50" />
-          <div *ngIf="textValue1?.invalid && textValue1?.touched" class="text-danger">
-            {{ 'Value 1 is required' | translate }}
-          </div>
-        </div>
-
-        <!-- Boolean -->
-        <div *ngSwitchCase="'Boolean'">
-          <select class="form-control" [(ngModel)]="formData.value1" name="value1" required #boolValue1="ngModel">
-            <option [ngValue]="'ALL'">{{ 'All' | translate }}</option>
-
-            <option [ngValue]="true">True</option>
-            <option [ngValue]="false">False</option>
-
+  <!-- Add/Edit Form -->
+  <div *ngIf="formVisible" class="card p-3 mb-3">
+    <form #form="ngForm" (ngSubmit)="addRecord(form)">
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="inputLabel" for="parameterId">{{ 'Parameter' | translate }} <span
+              class="text-danger">*</span></label>
+          <select class="form-control" [(ngModel)]="formData.parameterId" name="parameterId" required
+            (ngModelChange)="onParameterChange($event)" #parameterId="ngModel" id="parameterId">
+            <option value="" disabled selected>{{ 'Parameter' | translate }}</option>
+            <option *ngFor="let parameter of parametersList" [value]="parameter.parameterId">
+              {{ parameter.parameterName }}
+            </option>
           </select>
-          <div *ngIf="boolValue1?.invalid && boolValue1?.touched" class="text-danger">
-            {{ 'Value 1 is required' | translate }}
+          <div class="text-danger mt-1" *ngIf="parameterId.invalid && parameterId.touched">
+            {{ 'Parameter is required' | translate }}
           </div>
         </div>
-
-        <!-- Date -->
-        <div *ngSwitchCase="'Date'">
-          <input type="date" class="form-control" [(ngModel)]="formData.value1" name="value1" required
-            #dateValue1="ngModel" (input)="sanitizeCode($event)" />
-          <div *ngIf="dateValue1?.invalid && dateValue1?.touched" class="text-danger">
-            {{ 'Value 1 is required' | translate }}
-          </div>
-        </div>
-      </div>
-
-      <div class="col" *ngIf="isVal2Dropdown" [ngSwitch]="selectedDataType">
-        <label class="inputLabel">
-          {{ 'Value 2' | translate }}
-          <span class="text-danger" *ngIf="isRange">*</span>
-        </label>
-
-        <!-- Default -->
-        <div *ngSwitchDefault>
-          <input type="text" class="form-control" [(ngModel)]="formData.value2" name="value2"
-            (input)="sanitizeCode($event)" [pattern]="selectedDataType === 'Numeric' ? '^[0-9,]+$' : '.*'"
-            [required]="isRange" #val2Input="ngModel" maxlength="50" />
-
-          <div class="text-danger" *ngIf="isRange && val2Input?.invalid && val2Input?.touched">
-            {{ 'Value 2 is required for Range' | translate }}
-          </div>
-        </div>
-
-        <!-- Boolean -->
-        <div *ngSwitchCase="'Boolean'">
-          <select class="form-control" [(ngModel)]="formData.value2" name="value2" [required]="isRange"
-            #val2Input="ngModel">
-            <option [value]="true">True</option>
-            <option [value]="false">False</option>
+        <div class="col-md-4">
+          <label class="inputLabel" for="conditionId">{{ 'Condition' | translate }} <span
+              class="text-danger">*</span></label>
+          <select class="form-control" [disabled]="isCalculatedParameter" [(ngModel)]="formData.conditionId"
+            name="conditionId" required (ngModelChange)="onConditionChange($event)" #conditionId="ngModel"
+            id="conditionId">
+            <option value="" disabled selected>{{ 'Condition' | translate }}</option>
+            <option *ngFor="let condition of conditionsList" [value]="condition.conditionId">
+              {{ condition.conditionValue }}
+            </option>
           </select>
-
-          <div class="text-danger" *ngIf="isRange && val2Input?.invalid && val2Input?.touched">
-            {{ 'Value 2 is required for Range' | translate }}
+          <div class="text-danger mt-1" *ngIf="conditionId.invalid && conditionId.touched">
+            {{ 'Condition is required' | translate }}
           </div>
         </div>
-
-        <!-- Date -->
-        <div *ngSwitchCase="'Date'">
-          <input type="date" class="form-control" [(ngModel)]="formData.value2" name="value2" [required]="isRange"
-            #val2Input="ngModel" (input)="sanitizeCode($event)" />
-
-          <div class="text-danger" *ngIf="isRange && val2Input?.invalid && val2Input?.touched">
-            {{ 'Value 2 is required for Range' | translate }}
+        <div class="col-md-4">
+          <label class="inputLabel" for="factorName">{{ 'Factor Name' | translate }} <span
+              class="text-danger">*</span></label>
+          <input class="form-control" [disabled]="isCalculatedParameter" [(ngModel)]="formData.factorName"
+            name="factorName" required (input)="sanitizeInput($event)" #factorName="ngModel" maxlength="50"
+            id="factorName">
+          <div class="text-danger mt-1" *ngIf="factorName.invalid && factorName.touched">
+            {{ 'Factor Name is required' | translate }}
           </div>
         </div>
       </div>
 
-      <div class="form-check mt-2 ms-2" *ngIf="!isEditMode">
-        <input type="checkbox" class="form-check-input" id="selectMultipleCheckbox" [(ngModel)]="SelectMultiple"
-          name="SelectMultiple">
-        <label class="form-check-label" for="selectMultipleCheckbox">
-          {{ 'Allow multiple values' | translate }}
-        </label>
+      <div class="row mb-3">
+        <!-- VALUE 1 -->
+        <div class="col-md-6" *ngIf="isVal1Dropdown">
+          <label class="inputLabel" for="value1Dd">{{ 'Value 1' | translate }} <span
+              class="text-danger">*</span></label>
+          <select class="form-control" [(ngModel)]="formData.value1" name="value1" required #value1="ngModel"
+            id="value1Dd">
+            <option value="" disabled selected>{{ 'Value 1' | translate }}</option>
+            <option *ngFor="let list of AllList" [value]="list.listName">{{ list.listName }}</option>
+          </select>
+          <div class="text-danger mt-1" *ngIf="value1.invalid && value1.touched">
+            {{ 'Value 1 is required' | translate }}
+          </div>
+        </div>
+
+        <div class="col-md-6" *ngIf="!isVal1Dropdown" [ngSwitch]="selectedDataType">
+          <ng-container *ngSwitchDefault>
+            <label class="inputLabel" for="value1Txt">{{ 'Value 1' | translate }} <span
+                class="text-danger">*</span></label>
+            <input class="form-control" [pattern]="selectedDataType === 'Numeric' ? '^[AlLa0-9,]+$' : '.*'"
+              [(ngModel)]="formData.value1" name="value1" required #textValue1="ngModel"
+              (keypress)="validateValue1Input($event)" (paste)="onPasteValue1($event)"
+              [placeholder]="SelectMultiple ? ('Enter comma-separated values' | translate) : ('Enter value' | translate)"
+              maxlength="50" id="value1Txt">
+            <div class="text-danger mt-1" *ngIf="textValue1.invalid && textValue1.touched">
+              {{ 'Value 1 is required' | translate }}
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'Boolean'">
+            <label class="inputLabel" for="value1Bool">{{ 'Value 1' | translate }} <span
+                class="text-danger">*</span></label>
+            <select class="form-control" [(ngModel)]="formData.value1" name="value1" required #boolValue1="ngModel"
+              id="value1Bool">
+              <option [value]="'ALL'">{{ 'All' | translate }}</option>
+              <option [value]="true">True</option>
+              <option [value]="false">False</option>
+            </select>
+            <div class="text-danger mt-1" *ngIf="boolValue1.invalid && boolValue1.touched">
+              {{ 'Value 1 is required' | translate }}
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'Date'">
+            <label class="inputLabel" for="value1Date">{{ 'Value 1' | translate }} <span
+                class="text-danger">*</span></label>
+            <div class="position-relative">
+              <input class="form-control" matInput [matDatepicker]="picker1" [(ngModel)]="formData.value1" name="value1"
+                required #dateValue1="ngModel" id="value1Date">
+              <mat-datepicker-toggle matSuffix [for]="picker1"
+                class="position-absolute end-0 top-50 translate-middle-y"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </div>
+            <div class="text-danger mt-1" *ngIf="dateValue1.invalid && dateValue1.touched">
+              {{ 'Value 1 is required' | translate }}
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- VALUE 2 (Range logic) -->
+        <div class="col-md-6" *ngIf="isVal2Dropdown" [ngSwitch]="selectedDataType">
+          <ng-container *ngSwitchDefault>
+            <label class="inputLabel" for="value2Txt">{{ 'Value 2' | translate }} <span *ngIf="isRange"
+                class="text-danger">*</span></label>
+            <input class="form-control" [(ngModel)]="formData.value2" name="value2" [required]="isRange"
+              [pattern]="selectedDataType === 'Numeric' ? '^[0-9,]+$' : '.*'" #textValue2="ngModel" maxlength="50"
+              id="value2Txt">
+            <div class="text-danger mt-1" *ngIf="isRange && textValue2.invalid && textValue2.touched">
+              {{ 'Value 2 is required for Range' | translate }}
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'Boolean'">
+            <label class="inputLabel" for="value2Bool">{{ 'Value 2' | translate }} <span *ngIf="isRange"
+                class="text-danger">*</span></label>
+            <select class="form-control" [(ngModel)]="formData.value2" name="value2" [required]="isRange"
+              #boolValue2="ngModel" id="value2Bool">
+              <option [value]="true">True</option>
+              <option [value]="false">False</option>
+            </select>
+            <div class="text-danger mt-1" *ngIf="isRange && boolValue2.invalid && boolValue2.touched">
+              {{ 'Value 2 is required for Range' | translate }}
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'Date'">
+            <label class="inputLabel" for="value2Date">{{ 'Value 2' | translate }} <span *ngIf="isRange"
+                class="text-danger">*</span></label>
+            <div class="position-relative">
+              <input class="form-control" matInput [matDatepicker]="picker2" [(ngModel)]="formData.value2" name="value2"
+                [required]="isRange" #dateValue2="ngModel" id="value2Date">
+              <mat-datepicker-toggle matSuffix [for]="picker2"
+                class="position-absolute end-0 top-50 translate-middle-y"></mat-datepicker-toggle>
+              <mat-datepicker #picker2></mat-datepicker>
+            </div>
+            <div class="text-danger mt-1" *ngIf="isRange && dateValue2.invalid && dateValue2.touched">
+              {{ 'Value 2 is required for Range' | translate }}
+            </div>
+          </ng-container>
+        </div>
       </div>
 
-    </div>
+      <div class="row mb-3" *ngIf="!isEditMode">
+        <div class="col-md-12 d-flex align-items-center">
+          <input type="checkbox" class="form-check-input me-2 mt-0" [(ngModel)]="SelectMultiple" name="SelectMultiple"
+            id="SelectMultiple">
+          <label class="form-check-label" for="SelectMultiple">{{ 'Allow multiple values' | translate }}</label>
+        </div>
+      </div>
 
-    <div class="d-flex justify-content-end mt-3">
-      <button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
-        [componentName]="'FactorComponent'" [actionType]="'FormSubmit'" type="submit" class="addBtn btn-primary me-2"
-        style="min-width: 100px" [disabled]="form.invalid||showMaxLengthWarning">
-        {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
-      </button>
-      <button appUseractivity="User Click on Cancel button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" type="button" class="btn btn-secondary cancelBtn" style="min-width: 100px"
-        (click)="closeForm()">
-        {{ 'Cancel' | translate }}
-      </button>
-    </div>
-  </form>
-</div>
-
-
-<!-- <div class="container"> -->
-<div #FactorTable class="table-wrapper">
-  <table class="bgColorWhite mat-elevation-z8" mat-table [dataSource]="dataSource" matSort>
-    <ng-container matColumnDef="select">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
-        <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
-          (change)="toggleSelectAll($event)">
-        </mat-checkbox>
-      </th>
-      <td class="cellStyling" mat-cell *matCellDef="let row">
-        <mat-checkbox [checked]="selectedRows.has(row.factorId)" (change)="toggleSelection($event, row.factorId)">
-        </mat-checkbox>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="parameterName">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Parameter Name' | translate }}
-      </th>
-      <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.parameterName }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="factorName">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Factor Name' | translate }}
-      </th>
-      <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.factorName }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="value1">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Value 1' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.value1 }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="value2">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Value 2' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let element">{{ element.value2 }}</td>
-    </ng-container>
-
-    <!-- Created By Column -->
-    <ng-container matColumnDef="createdBy">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef> {{ 'Created By' | translate }}
-        <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
-          matTooltip="{{ 'Show/Hide Created Date' | translate }}">
-          {{ displayedColumns.includes('createdDate') ? 'arrow_left' : 'arrow_right' }}
-        </mat-icon>
-      </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
-        {{ entity.createdBy }}
-      </td>
-    </ng-container>
-
-    <!-- Created Date Column (Initially Hidden) -->
-    <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ 'Created Date' | translate }}
-      </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
-        {{ entity.createdByDateTime | date:'short' }}
-      </td>
-    </ng-container>
-
-    <!-- Updated By Column -->
-    <ng-container matColumnDef="updatedBy">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>
-        {{ 'Updated By' | translate }}
-        <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
-          matTooltip="{{ 'Show/Hide Updated Date' | translate }}">
-          {{ displayedColumns.includes('updatedDate') ? 'arrow_left' : 'arrow_right' }}
-        </mat-icon>
-      </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
-        {{ entity.updatedBy }}
-      </td>
-    </ng-container>
-
-    <!-- Updated Date Column (Initially Hidden) -->
-    <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ 'Updated Date' | translate }}
-      </th>
-      <td class="cellStyling" mat-cell *matCellDef="let entity">
-        {{ entity.updatedByDateTime | date:'short' }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th class="cellStyling" mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
-      <td class="cellStyling" mat-cell *matCellDef="let element">
-        <button appUseractivity="User Click on Edit button" [componentName]="'FactorComponent'"
-          [actionType]="'ButtonClick'" mat-icon-button color="primary" matTooltip="{{ 'Edit' | translate }}"
-          (click)="editRecord(element)" aria-label="Edit" *ngIf="hasPermission('Permissions.Factor.Edit')">
-          <mat-icon>edit</mat-icon>
+      <div class="d-flex flex-wrap align-items-center justify-content-end">
+        <button [appUseractivity]="!isEditMode ? 'Add button clicked' : 'Update button clicked'"
+          [componentName]="'FactorComponent'" [actionType]="'FormSubmit'" type="submit" class="addBtn me-2"
+          [disabled]="form.invalid || showMaxLengthWarning" mat-flat-button>
+          {{ isEditMode ? ('Update' | translate) : ('Add' | translate) }}
         </button>
-        <button appUseractivity="User Click on Delete button" [componentName]="'FactorComponent'"
-          [actionType]="'ButtonClick'" mat-icon-button color="warn" matTooltip="{{ 'Delete' | translate }}"
-          (click)="deleteFactor(element)" aria-label="Delete" *ngIf="hasPermission('Permissions.Factor.Delete')">
-          <mat-icon>delete</mat-icon>
+        <button appUseractivity="User Click on Cancel button" [componentName]="'FactorComponent'"
+          [actionType]="'ButtonClick'" type="button" class="cancelBtn" (click)="closeForm()" mat-raised-button>
+          {{ 'Cancel' | translate }}
         </button>
-      </td>
-    </ng-container>
+      </div>
+    </form>
+  </div>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="tableHeader"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="select-row"></tr>
-  </table>
-  <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+  <!-- Factors Table -->
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-mdc-table">
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
+            (change)="toggleSelectAll($event)"></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="selectedRows.has(row.factorId)"
+            (change)="toggleSelection($event, row.factorId)"></mat-checkbox>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="parameterName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Parameter Name' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.parameterName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="factorName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Factor Name' | translate }}</th>
+        <td mat-cell *matCellDef="let element" class="mono">{{ element.factorName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="value1">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Value 1' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.value1 }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="value2">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Value 2' | translate }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.value2 }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdBy">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'Created By' | translate }}
+          <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')">
+            {{ displayedColumns.includes('createdDate') ? 'unfold_less' : 'unfold_more' }}
+          </mat-icon>
+        </th>
+        <td mat-cell *matCellDef="let entity">{{ entity.createdBy }}</td>
+      </ng-container>
+
+      <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Created Date' | translate }}</th>
+        <td mat-cell *matCellDef="let entity">{{ entity.createdByDateTime | date:'short' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="updatedBy">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'Updated By' | translate }}
+          <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')">
+            {{ displayedColumns.includes('updatedDate') ? 'unfold_less' : 'unfold_more' }}
+          </mat-icon>
+        </th>
+        <td mat-cell *matCellDef="let entity">{{ entity.updatedBy }}</td>
+      </ng-container>
+
+      <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Updated Date' | translate }}</th>
+        <td mat-cell *matCellDef="let entity">{{ entity.updatedByDateTime | date:'short' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <div class="cell-actions" style="display: flex; justify-content: flex-end;">
+            <mat-icon class="clickable-icon edit" (click)="editRecord(element)" matTooltip="{{ 'Edit' | translate }}"
+              *ngIf="hasPermission('Permissions.Factor.Edit')">edit_note</mat-icon>
+            <mat-icon class="clickable-icon delete" (click)="deleteFactor(element)"
+              matTooltip="{{ 'Delete' | translate }}"
+              *ngIf="hasPermission('Permissions.Factor.Delete')">delete_outline</mat-icon>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+  <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+
+  <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>
 </div>
-
-<!-- Full-page Loader -->
-<app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

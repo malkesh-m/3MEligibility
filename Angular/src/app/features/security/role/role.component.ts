@@ -3,6 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
+import { HeaderTitleService } from '../../../core/services/header-title.service';
 import { RoleService } from '../../../core/services/security/role.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -114,7 +115,8 @@ export class RoleComponent implements OnInit, AfterViewInit {
     private location: Location,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private headerTitleService: HeaderTitleService
   ) { }
 
   ngOnInit(): void {
@@ -142,6 +144,7 @@ export class RoleComponent implements OnInit, AfterViewInit {
 
   updateTitle() {
     this.titleService.setTitle(`${this.activeTabTitle} - 3M Eligibility`);
+    this.headerTitleService.setTitle(this.activeTabTitle);
   }
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;

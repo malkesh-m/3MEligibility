@@ -9,9 +9,9 @@ import { Component, Input } from '@angular/core';
 })
 export class SpinnerComponent {
   @Input() isDownloading: boolean = false;
-  @Input() isLoading: boolean = true; // Show loader on page load
+  @Input() isLoading: boolean = false;
   @Input() isUploading: boolean = false;
-  @Input() message: string = "Loading data, please wait...";
+  @Input() message: string = "Loading...";
   @Input() isLocal: boolean = false;
 
 }
