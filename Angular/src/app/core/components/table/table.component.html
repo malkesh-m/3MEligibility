@@ -26,19 +26,29 @@
         </mat-icon>
       </th>
       <td mat-cell *matCellDef="let entity">
-        <ng-container *ngIf="header === 'Created Date' || header === 'Updated Date'; else normalCell">
+        <ng-container *ngIf="header === 'Created Date' || header === 'Updated Date'; else mandatoryCell">
           {{ entity[header] | date: 'short' }}
         </ng-container>
+        <ng-template #mandatoryCell>
+          <ng-container *ngIf="header === 'Mandatory'; else normalCell">
+            <span class="badge" [ngClass]="entity['IsRequired'] ? 'badge-indigo' : 'badge-ghost'">
+              {{ (entity['IsRequired'] ? 'True' : 'False') | translate }}
+            </span>
+          </ng-container>
+        </ng-template>
         <ng-template #normalCell>
-          <span [class.mono]="header === 'Code' || header === 'Factor Name'">{{ entity[header] }}</span>
+          <span
+            [class.simple-text]="header === 'Code' || header === 'Factor Name' || header === 'Name' || header === 'Product Name' || header === 'Parameter Name'">
+            {{ entity[header] }}
+          </span>
         </ng-template>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="Actions">
-      <th mat-header-cell *matHeaderCellDef></th>
+      <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
       <td mat-cell *matCellDef="let row">
-        <div class="cell-actions" style="display: flex; justify-content: flex-end;">
+        <div class="cell-actions">
           <mat-icon class="clickable-icon edit"
             (click)="$event.stopPropagation(); actionEvent.emit({ action: 'edit', data: row })"
             matTooltip="{{ 'Edit' | translate }}" *ngIf="hasPermission(editPermissionId)">edit_note</mat-icon>

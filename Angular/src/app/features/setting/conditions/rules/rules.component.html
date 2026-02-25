@@ -3,36 +3,37 @@
     <p class="moduleLabel mb-2">{{ 'Eligibility Rules' | translate }}</p>
   </div>
   <div class="d-flex justify-content-between align-items-center">
-    <div class="position-relative" style="flex-grow: 1; max-width: 350px;">
-      <input type="text" class="form-control me-2" style="width: 300px;" placeholder="{{ 'Search' | translate }}"
-        [(ngModel)]="searchTerm" (input)="applyFilter($event)" />
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input type="text" class="filter-input" placeholder="{{ 'Search' | translate }}" [(ngModel)]="searchTerm"
+        (input)="applyFilter($event)" />
     </div>
 
 
     <div class="d-flex align-items-center gap-2 ms-3">
       <button appUseractivity="User Click on Add button" [componentName]="'RulesComponent'" [actionType]="'ButtonClick'"
-        class="btn" (click)="insertNewRecord()" *ngIf="hasPermission('Permissions.Rule.Create')">
+        class="clickable-icon" (click)="insertNewRecord()" *ngIf="hasPermission('Permissions.Rule.Create')">
         <mat-icon matTooltip="{{ 'Add Rule' | translate }}">add_circle_outline</mat-icon>
       </button>
-      <button class="btn" appUseractivity="User Click on Download Tamplate button" [componentName]="'RulesComponent'"
-        [actionType]="'ButtonClick'" (click)="downloadTemplate()">
+      <button class="clickable-icon" appUseractivity="User Click on Download Tamplate button"
+        [componentName]="'RulesComponent'" [actionType]="'ButtonClick'" (click)="downloadTemplate()">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
       <button appUseractivity="User Click on Import button" [componentName]="'RulesComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()"
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="fileInput.click()"
         *ngIf="hasPermission('Permissions.Rule.Import')">
-        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+        <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
       </button>
       <button appUseractivity="User Click on Export button" [componentName]="'RulesComponent'"
-        [actionType]="'ButtonClick'" class="btn" *ngIf="hasPermission('Permissions.Rule.Export')"
+        [actionType]="'ButtonClick'" class="clickable-icon" *ngIf="hasPermission('Permissions.Rule.Export')"
         (click)="exportRules()">
-        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+        <mat-icon matTooltip="{{ 'Export' | translate }}">download</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
       <button appUseractivity="User Click on Delete Multiple button" [componentName]="'RulesComponent'"
-        [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleRules()" class="btn"
+        [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleRules()" class="clickable-icon"
         *ngIf="hasPermission('Permissions.Rule.Delete')">
-        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
       </button>
     </div>
   </div>
@@ -324,20 +325,22 @@
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>{{'Actions' | translate}}</th>
+          <th mat-header-cell *matHeaderCellDef class="text-right">{{'Actions' | translate}}</th>
           <td mat-cell *matCellDef="let item">
-            <mat-icon *ngIf="item === group.versions[0]; else disabledEdit" color="primary" class="me-2 clickable-icon"
-              (click)="editRecord(item)" matTooltip="Edit">
-              edit
-            </mat-icon>
-
-            <ng-template #disabledEdit>
-              <mat-icon class="me-2 text-muted" matTooltip="Only Latest version can be edited">
-                lock
+            <div class="cell-actions">
+              <mat-icon *ngIf="item === group.versions[0]; else disabledEdit" class="clickable-icon edit"
+                (click)="editRecord(item)" matTooltip="Edit">
+                edit_note
               </mat-icon>
-            </ng-template>
-            <mat-icon color="warn" class="clickable-icon" *ngIf="hasPermission('Permissions.Rule.Delete')"
-              (click)="deleteRecord(item)" matTooltip="Delete">delete</mat-icon>
+
+              <ng-template #disabledEdit>
+                <mat-icon class="text-muted" matTooltip="Only Latest version can be edited">
+                  lock
+                </mat-icon>
+              </ng-template>
+              <mat-icon class="clickable-icon delete" *ngIf="hasPermission('Permissions.Rule.Delete')"
+                (click)="deleteRecord(item)" matTooltip="Delete">delete_outline</mat-icon>
+            </div>
           </td>
         </ng-container>
 

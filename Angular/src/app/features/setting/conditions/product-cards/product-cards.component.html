@@ -6,8 +6,9 @@
     <!-- Search and Actions Section -->
     <div class="filter-bar">
         <div class="search-box">
+            <mat-icon>search</mat-icon>
             <input type="text" class="filter-input" (input)="applyFilter()" [(ngModel)]="searchTerm"
-                placeholder="{{ 'Search Product Cards' | translate }}" style="padding-left: 40px !important;" />
+                placeholder="{{ 'Search Product Cards' | translate }}" />
         </div>
 
         <div class="action-group">
@@ -23,18 +24,18 @@
             <button appUseractivity="User Click on Import button" [componentName]="'ProductCardsComponent'"
                 [actionType]="'ButtonClick'" class="clickable-icon" (click)="fileInput.click()"
                 *ngIf="hasPermission('Permissions.PCard.Import')">
-                <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+                <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
             </button>
             <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
             <button appUseractivity="User Click on Export button" [componentName]="'ProductCardsComponent'"
                 [actionType]="'ButtonClick'" class="clickable-icon" (click)="exportPCards()"
                 *ngIf="hasPermission('Permissions.PCard.Export')">
-                <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+                <mat-icon matTooltip="{{ 'Export' | translate }}">download</mat-icon>
             </button>
             <button appUseractivity="User Click on Delete button" [componentName]="'ProductCardsComponent'"
                 [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleCards()" class="clickable-icon"
                 *ngIf="hasPermission('Permissions.PCard.Delete')">
-                <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+                <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
             </button>
         </div>
     </div>
@@ -129,8 +130,11 @@
                 [actionType]="'ButtonClick'" class="removeBtn" type="button" mat-raised-button
                 (click)="removeLastItem()">{{ 'Remove' | translate }}</button>
             <button appUseractivity="User Click on Validate button" [componentName]="'ProductCardsComponent'"
-                [actionType]="'ButtonClick'" class="validateBtn" type="button" mat-raised-button
-                (click)="openValidatorDialog(expshown)">{{ 'Validate' | translate }}</button>
+                [actionType]="'ButtonClick'" class="addBtn me-2" type="button" mat-flat-button
+                style="background-color: var(--teal) !important; color: white !important;"
+                (click)="openValidatorDialog(expshown)">
+                {{ 'Validate' | translate }}
+            </button>
             <button [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
                 [componentName]="'ProductCardsComponent'" [actionType]="'FormSubmit'" class="addBtn" type="submit"
                 mat-flat-button [disabled]="expressionForm.invalid">

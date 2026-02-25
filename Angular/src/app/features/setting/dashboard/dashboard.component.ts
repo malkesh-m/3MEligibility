@@ -53,6 +53,14 @@ export class DashboardComponent implements AfterViewInit {
   processingTimeChart!: Chart;
   riskScoreChart!: Chart;
   evaluationHistory: any = [];
+  userName: string = 'Admin'; // Fallback
+
+  getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
 
   //evaluationHistory = [
   //  {
@@ -82,11 +90,14 @@ export class DashboardComponent implements AfterViewInit {
   //];
   getEvaluationHistory(): void {
     // Include pagination info in the filter
-    this.filter.fromDate ? new Date(this.filter.fromDate).toISOString() : undefined,
-      this.filter.toDate ? new Date(this.filter.toDate).toISOString() : undefined
+    const fromDateIso = this.filter.fromDate ? new Date(this.filter.fromDate).toISOString() : undefined;
+    const toDateIso = this.filter.toDate ? new Date(this.filter.toDate).toISOString() : undefined;
+
     console.log('Fetching Evaluation History with filter:', this.filter);
     const request = {
       ...this.filter,
+      fromDate: fromDateIso,
+      toDate: toDateIso,
       pageNumber: this.pageNumber ?? 1,
       pageSize: this.pageSize ?? 10
     };
@@ -119,7 +130,7 @@ export class DashboardComponent implements AfterViewInit {
     this.getEvaluationHistory();
   }
   applyFilters() {
-
+    this.pageNumber = 1; // Reset to first page on filter change
     this.getEvaluationHistory();
   }
   fetchTileData(): void {
@@ -142,8 +153,7 @@ export class DashboardComponent implements AfterViewInit {
           { name: 'Non-Eligibility Rate', count: (res.rejectionRate ?? 0) + '%', icon: 'cancel', footer: 'Ineligibility Rate' },
           { name: 'Avg. Processing Time', count: (res.avgProcessingTime ?? 0) + ' s', icon: 'timer', footer: 'Evaluation Duration' },
           { name: 'Top Failure Reasons', count: res.topFailureReason, icon: 'error', footer: 'Most Frequent', class: 'small-text wide-tile' },
-          { name: 'Re-evaluations Triggered', count: 52, icon: 'autorenew', footer: 'Auto Triggers' },
-          //{ name: 'Avg. Approved Score', count: res.avgApprovedScore ?? 'N/A', icon: 'insights', footer: 'MOZN Score Avg' },
+          //{ name: 'Avg. Approved ScorTriggerede', count: res.avgApprovedScore ?? 'N/A', icon: 'insights', footer: 'MOZN Score Avg' },
 
           //{ name: 'Avg. Processing Time', count: (res.processingTime ?? 0) + 's', icon: 'timer', footer: 'Evaluation Duration' },
           //{ name: 'Top Failure Reasons', count: res.topFailureReason ?? 'N/A', icon: 'error', footer: 'Most Frequent' },
@@ -225,29 +235,29 @@ export class DashboardComponent implements AfterViewInit {
               {
                 label: '✅ Pass',
                 data: passData,
-                borderColor: '#10B981',
-                borderWidth: 3,
+                borderColor: '#10B981', // Emerald
+                borderWidth: 4,
                 backgroundColor: passGradient,
                 fill: true,
                 tension: 0.4,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#FFFFFF',
-                pointBorderColor: '#10B981',
+                pointRadius: 0,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#10B981',
+                pointBorderColor: '#FFFFFF',
                 pointBorderWidth: 2
               },
               {
                 label: '❌ Fail',
                 data: failData,
-                borderColor: '#F43F5E',
-                borderWidth: 3,
+                borderColor: '#F43F5E', // Rose
+                borderWidth: 4,
                 backgroundColor: failGradient,
                 fill: true,
                 tension: 0.4,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#FFFFFF',
-                pointBorderColor: '#F43F5E',
+                pointRadius: 0,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#F43F5E',
+                pointBorderColor: '#FFFFFF',
                 pointBorderWidth: 2
               }
             ]
@@ -322,13 +332,13 @@ export class DashboardComponent implements AfterViewInit {
               label: 'Rejection',
               data: data,
               backgroundColor: [
-                '#3B82F6', // Blue
                 '#6366F1', // Indigo
                 '#8B5CF6', // Violet
-                '#0EA5E9'  // Cyan
+                '#EC4899', // Pink
+                '#F59E0B'  // Amber
               ],
-              borderRadius: 8,
-              barThickness: 32
+              borderRadius: 12,
+              barThickness: 48
             }]
           },
           options: {
@@ -379,10 +389,12 @@ export class DashboardComponent implements AfterViewInit {
             datasets: [{
               label: 'Evaluations',
               data: data,
-              backgroundColor: 'rgba(79, 70, 229, 0.8)', // Indigo
-              hoverBackgroundColor: '#4F46E5',
-              borderRadius: 6,
-              barThickness: 40
+              backgroundColor: 'rgba(99, 102, 241, 0.2)', // Indigo dim
+              borderColor: '#6366F1',
+              borderWidth: 2,
+              hoverBackgroundColor: '#6366F1',
+              borderRadius: 8,
+              barThickness: 50
             }]
           },
           options: {

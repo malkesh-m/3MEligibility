@@ -35,6 +35,9 @@
   --slate: #475569;
   --slate-rgb: 71, 85, 105;
 
+  --teal: #0D9488;
+  --teal-rgb: 13, 148, 136;
+
   --text-1: #0F172A;
   --text-2: #334155;
   --text-3: #64748B;
@@ -140,6 +143,11 @@ h6 {
     justify-content: flex-end;
     gap: 12px;
   }
+}
+
+.moduleLabel {
+  font-size: 20px;
+  font-weight: 500;
 }
 
 /* Material Toggle Override */
@@ -275,7 +283,7 @@ h6 {
   background-color: var(--surface) !important;
   border: 1px solid var(--border) !important;
   border-radius: 12px !important;
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: none !important;
   margin-bottom: 24px;
 }
@@ -339,16 +347,19 @@ h6 {
 .filter-input,
 .filter-select {
   height: 40px !important;
-  border-radius: 10px !important;
+  border-radius: 20px !important;
+  /* Pill shape */
   border: 1px solid #E2E8F0 !important;
-  padding: 8px 12px !important;
+  padding: 8px 16px !important;
   font-size: 13px !important;
   color: #1E293B !important;
-  background-color: white !important;
+  background-color: #F8FAFC !important;
+  /* Slightly grayer background as per screenshot */
   transition: all 0.2s ease;
   min-width: 180px;
 
   &:focus {
+    background-color: white !important;
     border-color: #2563EB !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
     outline: none !important;
@@ -359,15 +370,40 @@ h6 {
   }
 }
 
+/* Standardized Search Box Container */
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  display: flex !important;
+  align-items: center;
+
+  mat-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 20px;
+    z-index: 1;
+  }
+
+  .filter-input {
+    width: 100% !important;
+    padding-left: 44px !important;
+    /* Room for icon */
+  }
+}
+
 /* Standardized Action Icons */
 .clickable-icon {
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
   transition: all 0.2s ease;
-  font-size: 20px !important;
-  height: 32px !important;
-  width: 32px !important;
+  font-size: 24px !important;
+  height: 36px !important;
+  width: 36px !important;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -401,12 +437,36 @@ h6 {
 
   &.success,
   &.validate {
-    color: #16A34A !important;
+    color: var(--teal) !important;
 
     &:hover {
-      background-color: rgba(22, 163, 74, 0.08) !important;
+      background-color: rgba(var(--teal-rgb), 0.08) !important;
     }
   }
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.cell-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+  margin-right: -6px;
+  /* Offset the padding of .clickable-icon to align perfectly with right-aligned header text */
+}
+
+/* Ensure Actions column has standardized padding and alignment */
+.mat-mdc-header-cell.mat-column-actions,
+.mat-mdc-header-cell.mat-column-Actions,
+.mat-mdc-cell.mat-column-actions,
+.mat-mdc-cell.mat-column-Actions {
+  text-align: right !important;
+  padding-right: 16px !important;
+  /* Standard gutter */
+  justify-content: flex-end !important;
 }
 
 .action-group {

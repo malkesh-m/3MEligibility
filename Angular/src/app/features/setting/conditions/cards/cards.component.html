@@ -6,8 +6,9 @@
   <!-- Search and Actions Section -->
   <div class="filter-bar">
     <div class="search-box">
+      <mat-icon>search</mat-icon>
       <input type="text" class="filter-input" placeholder="{{ 'Search Cards' | translate }}" [(ngModel)]="searchTerm"
-        (input)="applyFilter()" style="padding-left: 40px !important;" />
+        (input)="applyFilter()" />
     </div>
 
     <div class="action-group">
@@ -23,17 +24,17 @@
       <button appUseractivity="User Click on Import button" [componentName]="'EligibilityCardsComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon" (click)="fileInput.click()"
         *ngIf="hasPermission('Permissions.ECard.Import')">
-        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+        <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
       </button>
       <button appUseractivity="User Click on Export button" [componentName]="'EligibilityCardsComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon" *ngIf="hasPermission('Permissions.ECard.Export')">
-        <mat-icon matTooltip="{{ 'Export' | translate }}" (click)="exportCards()">file_download</mat-icon>
+        <mat-icon matTooltip="{{ 'Export' | translate }}" (click)="exportCards()">download</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
       <button appUseractivity="User Click on Delete Multiple button" [componentName]="'EligibilityCardsComponent'"
         [actionType]="'ButtonClick'" (click)="deleteCheckedMultipleCards()" class="clickable-icon"
         *ngIf="hasPermission('Permissions.ECard.Delete')">
-        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
       </button>
     </div>
   </div>
@@ -113,9 +114,11 @@
         'Remove' | translate
         }}</button>
       <button appUseractivity="User Click on Validate button" [componentName]="'EligibilityCardsComponent'"
-        [actionType]="'ButtonClick'" class="validateBtn" type="button" mat-raised-button
-        (click)="openValidatorDialog(expshown)">{{ 'Validate'
-        | translate }}</button>
+        [actionType]="'ButtonClick'" class="addBtn me-2" type="button" mat-flat-button
+        style="background-color: var(--teal) !important; color: white !important;"
+        (click)="openValidatorDialog(expshown)">
+        {{ 'Validate' | translate }}
+      </button>
       <button [appUseractivity]="isInsertNewRecord ? 'Add button clicked' : 'Update button clicked'"
         [componentName]="'EligibilityCardsComponent'" [actionType]="'ButtonClick'" class="addBtn" type="submit"
         mat-flat-button [disabled]="expressionForm.invalid">

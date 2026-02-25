@@ -3,10 +3,10 @@
 
   <!-- Search and Actions Top Bar -->
   <div class="filter-bar">
-    <div class="search-box mb-0">
+    <div class="search-box">
       <mat-icon>search</mat-icon>
       <input type="text" class="filter-input" [(ngModel)]="searchTerms[activeTab]" (input)="applyFilter()"
-        placeholder="{{ 'Search Parameters' | translate }}" style="padding-left: 40px !important;" />
+        placeholder="{{ 'Search Parameters' | translate }}" />
     </div>
 
     <div class="action-group d-flex gap-2">
@@ -24,20 +24,20 @@
       <button appUseractivity="User Click on Import button" [componentName]="'ParametersComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon" (click)="fileInput.click()"
         *ngIf="hasPermission('Permissions.Parameter.Import')">
-        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+        <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
 
       <button appUseractivity="User Click on Export button" [componentName]="'ParametersComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon" (click)="exportParameters()"
         *ngIf="hasPermission('Permissions.Parameter.Export')">
-        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+        <mat-icon matTooltip="{{ 'Export' | translate }}">download</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Delete Selected button" [componentName]="'ParametersComponent'"
         [actionType]="'ButtonClick'" (click)="deleteSelectedParameters()" class="clickable-icon"
         *ngIf="hasPermission('Permissions.Parameter.Delete')">
-        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
       </button>
     </div>
   </div>
@@ -142,14 +142,14 @@
 
       <ng-container matColumnDef="parameterName">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Parameter Name' | translate }}</th>
-        <td mat-cell *matCellDef="let parameter" class="mono">{{ parameter.parameterName }}</td>
+        <td mat-cell *matCellDef="let parameter" class="simple-text">{{ parameter.parameterName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="isMandatory">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Mandatory' | translate }}</th>
         <td mat-cell *matCellDef="let parameter">
           <span class="badge" [ngClass]="parameter.isMandatory ? 'badge-indigo' : 'badge-ghost'">
-            {{ (parameter.isMandatory ? 'Yes' : 'No') | translate }}
+            {{ (parameter.isMandatory ? 'True' : 'False') | translate }}
           </span>
         </td>
       </ng-container>
@@ -185,9 +185,9 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
+        <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
         <td mat-cell *matCellDef="let parameter">
-          <div class="action-group" style="justify-content: flex-end;">
+          <div class="cell-actions">
             <mat-icon class="clickable-icon edit" (click)="editParameter(parameter)"
               matTooltip="{{ 'Edit' | translate }}"
               *ngIf="hasPermission('Permissions.Parameter.Edit')">edit_note</mat-icon>

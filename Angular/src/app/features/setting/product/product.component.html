@@ -5,37 +5,37 @@
   <div class="top-bar">
     <div class="search-box">
       <mat-icon>search</mat-icon>
-      <input type="text" placeholder="{{ 'Search' | translate }}" [(ngModel)]="searchTerms[activeTab]"
-        (input)="applyFilter()" />
+      <input type="text" class="filter-input" placeholder="{{ 'Search' | translate }}"
+        [(ngModel)]="searchTerms[activeTab]" (input)="applyFilter()" />
     </div>
 
     <div class="action-group">
       <button appUseractivity="User Click on Add button" [componentName]="'ProductComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="insertNewRecord()" *ngIf="getAddPermission()">
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="insertNewRecord()" *ngIf="getAddPermission()">
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Download Template button" [componentName]="'ProductComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()" *ngIf="getImportPermission()">
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="downloadTemplate()" *ngIf="getImportPermission()">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Import button" [componentName]="'ProductComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()" *ngIf="getImportPermission()">
-        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="fileInput.click()" *ngIf="getImportPermission()">
+        <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
 
       <button appUseractivity="User Click on Export button" [componentName]="'ProductComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="productListChiild.exportProducts()"
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="productListChiild.exportProducts()"
         *ngIf="getExportPermission()">
-        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+        <mat-icon matTooltip="{{ 'Export' | translate }}">download</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Delete button" [componentName]="'ProductComponent'"
-        [actionType]="'ButtonClick'" (click)="productListChiild.deleteMultiple()" class="btn"
+        [actionType]="'ButtonClick'" (click)="productListChiild.deleteMultiple()" class="clickable-icon"
         *ngIf="getDeletePermission()">
-        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
       </button>
     </div>
   </div>

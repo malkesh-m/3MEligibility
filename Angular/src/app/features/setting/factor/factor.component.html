@@ -5,38 +5,39 @@
   <div class="top-bar">
     <div class="search-box">
       <mat-icon>search</mat-icon>
-      <input type="text" (input)="applyFilter($event)" placeholder="{{ 'Search Factors' | translate }}" />
+      <input type="text" class="filter-input" (input)="applyFilter($event)"
+        placeholder="{{ 'Search Factors' | translate }}" />
     </div>
 
     <div class="action-group">
       <button appUseractivity="User Click on Add button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="openForm()"
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="openForm()"
         *ngIf="hasPermission('Permissions.Factor.Create')">
         <mat-icon matTooltip="{{ 'Add Factor' | translate }}">add_circle_outline</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Download Template button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="downloadTemplate()">
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="downloadTemplate()">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Import button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="fileInput.click()"
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="fileInput.click()"
         *ngIf="hasPermission('Permissions.Factor.Import')">
-        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+        <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
 
       <button appUseractivity="User Click on Export button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" class="btn" (click)="exportFactors()"
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="exportFactors()"
         *ngIf="hasPermission('Permissions.Factor.Export')">
-        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+        <mat-icon matTooltip="{{ 'Export' | translate }}">download</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Delete button" [componentName]="'FactorComponent'"
-        [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="btn"
+        [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="clickable-icon"
         *ngIf="hasPermission('Permissions.Factor.Delete')">
-        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
       </button>
     </div>
   </div>
@@ -231,8 +232,17 @@
 
       <ng-container matColumnDef="factorName">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Factor Name' | translate }}</th>
-        <td mat-cell *matCellDef="let element" class="mono">{{ element.factorName }}</td>
+        <td mat-cell *matCellDef="let element" class="simple-text">{{ element.factorName }}</td>
       </ng-container>
+<!-- 
+      <ng-container matColumnDef="isMandatory">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Mandatory' | translate }}</th>
+        <td mat-cell *matCellDef="let parameter">
+          <span class="badge" [ngClass]="parameter.isMandatory ? 'badge-indigo' : 'badge-ghost'">
+            {{ (parameter.isMandatory ? 'True' : 'False') | translate }}
+          </span>
+        </td>
+      </ng-container> -->
 
       <ng-container matColumnDef="value1">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Value 1' | translate }}</th>
@@ -275,9 +285,9 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
+        <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
         <td mat-cell *matCellDef="let element">
-          <div class="cell-actions" style="display: flex; justify-content: flex-end;">
+          <div class="cell-actions">
             <mat-icon class="clickable-icon edit" (click)="editRecord(element)" matTooltip="{{ 'Edit' | translate }}"
               *ngIf="hasPermission('Permissions.Factor.Edit')">edit_note</mat-icon>
             <mat-icon class="clickable-icon delete" (click)="deleteFactor(element)"

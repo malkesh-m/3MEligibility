@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductCapService } from '../../../core/services/setting/product-cap.service';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
-// import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 // import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,7 +21,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class ProductCapComponent implements OnInit {
   isDataReady: boolean = false;
 
-  selectedProductData: any[] = [];
+  selectedProductData = new MatTableDataSource<any>([]);
   isEditMode = false;
   formvisible = false;
   ProductCapForm !: FormGroup;
@@ -81,7 +81,7 @@ export class ProductCapComponent implements OnInit {
       next: (response) => {
 
         if (response.isSuccess && Array.isArray(response.data)) {
-          this.selectedProductData = response.data.map((item: {
+          const data = response.data.map((item: {
             productName: any;
             productCapPercentage: any; minimumScore: any; maximumScore: any; id: any
           }) => ({
@@ -91,9 +91,9 @@ export class ProductCapComponent implements OnInit {
             minimumScore: item.minimumScore || 0,
             maximumScore: item.maximumScore || 0
           }));
-
+          this.selectedProductData.data = data;
         } else {
-          this.selectedProductData = [];
+          this.selectedProductData.data = [];
         }
       },
       error: (error) => {
@@ -102,7 +102,7 @@ export class ProductCapComponent implements OnInit {
           verticalPosition: 'top', duration: 3000
         });
         console.error("Error fetching product cap data", error);
-        this.selectedProductData = [];
+        this.selectedProductData.data = [];
       }
     });
   }
@@ -293,6 +293,11 @@ export class ProductCapComponent implements OnInit {
   resetForm() {
     this.isEditMode = false;
     this.formvisible = false;
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.selectedProductData.filter = filterValue.trim().toLowerCase();
   }
 }
 

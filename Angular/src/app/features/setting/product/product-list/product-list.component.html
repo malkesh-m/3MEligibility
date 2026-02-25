@@ -227,13 +227,14 @@
                 </form>
             </div>
         </div>
-
-        <!-- Table Section -->
-        <div class="table-container">
-            <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple"
-                [displayedColumns]="columnsDisplayAry" [header]="headerDisplayAry" [rows]="rows"
-                (actionEvent)="tableRowAction($event)" [editPermissionId]="editPermissionId"
-                [deletePermissionId]="deletePermissionId">
-            </app-table>
-        </div>
     </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+        <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple"
+            [displayedColumns]="columnsDisplayAry" [header]="headerDisplayAry" [rows]="rows"
+            (actionEvent)="tableRowAction($event)" [editPermissionId]="editPermissionId"
+            [deletePermissionId]="deletePermissionId">
+        </app-table>
+    </div>
+</div>

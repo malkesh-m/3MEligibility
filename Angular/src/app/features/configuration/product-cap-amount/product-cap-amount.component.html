@@ -1,6 +1,20 @@
-<div class="row mb-4">
-  <div class="col">
-    <h5 class="">{{ 'Maximum Amount Per Product' | translate }}</h5>
+<div class="mb-3">
+  <div>
+    <p class="moduleLabel mb-2">{{ 'Maximum Amount Per Product' | translate }}</p>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-box">
+      <!-- Added for consistency if needed later -->
+    </div>
+    <div class="action-group" *ngIf="ProductCapForm.get('productId')?.value">
+      <button appUseractivity="User Click on Add Product Cap Amount button"
+        [componentName]="'ProductCapAmountComponent'" [actionType]="'ButtonClick'" class="clickable-icon"
+        (click)="addProductCap()" matTooltip="{{ 'Add New' | translate }}"
+        *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
+        <mat-icon>add_circle_outline</mat-icon>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -117,13 +131,6 @@
 </div>
 <div class="card p-3" *ngIf="ProductCapForm.get('productId')?.value">
 
-  <div class="mb-3 d-flex justify-content-start">
-    <button mat-raised-button color="primary" appUseractivity="User Click on Add Product Cap Amount button"
-      [componentName]="'ProductCapAmountComponent'" [actionType]="'ButtonClick'" (click)="addProductCap()"
-      matTooltip="Add Product Cap Amount" *ngIf="hasPermission('Permissions.ProductCapAmount.Create')">
-      <mat-icon>add</mat-icon> {{ 'Add New' | translate }}
-    </button>
-  </div>
   <div #entityTable class="table-wrapper">
     <!-- Table if data exists -->
     <table class="bgColorWhite " mat-table [dataSource]="selectedProductData">
@@ -162,16 +169,20 @@
         <td mat-cell *matCellDef="let element">{{ element.amount }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button color="primary" (click)="editProductCapAmount(element)" matTooltip="Edit"
-            *ngIf="hasPermission('Permissions.ProductCapAmount.Edit')">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="deleteProductCapAmount(element)" matTooltip="Delete"
-            *ngIf="hasPermission('Permissions.ProductCapAmount.Delete')">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <div class="cell-actions" style="display: flex; justify-content: flex-end; gap: 8px;">
+            <mat-icon class="clickable-icon edit" appUseractivity="User Click on Edit Product Cap Amount button"
+              [componentName]="'ProductCapAmountComponent'" [actionType]="'ButtonClick'"
+              (click)="editProductCapAmount(element)" *ngIf="hasPermission('Permissions.ProductCapAmount.Edit')">
+              edit_note
+            </mat-icon>
+            <mat-icon class="clickable-icon delete" appUseractivity="User Click on Delete Product Cap Amount button"
+              [componentName]="'ProductCapAmountComponent'" [actionType]="'ButtonClick'"
+              (click)="deleteProductCapAmount(element)" *ngIf="hasPermission('Permissions.ProductCapAmount.Delete')">
+              delete_outline
+            </mat-icon>
+          </div>
         </td>
       </ng-container>
 

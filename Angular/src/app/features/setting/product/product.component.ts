@@ -70,10 +70,10 @@ export class ProductComponent {
   isTableDataUpdated: boolean = false;
   categoryTableColumnAry = ['Select', 'Name', 'Description', 'Created By', 'Updated By', 'Actions'];
   infoTableColumnAry = ['Select', 'Code', 'Category Name', 'Product Name', 'Created By', 'Updated By', 'Actions'];
-  detailsTableColumnAry = ['Select', 'Product', 'Parameter', 'Parameter value', 'Display order', 'Created By', 'Updated By', 'Actions'];
+  detailsTableColumnAry = ['Select', 'Product', 'Parameter', 'Mandatory', 'Parameter value', 'Display order', 'Created By', 'Updated By', 'Actions'];
   categoryTableHeaderAry = ['Name', 'Description', 'Created By', 'Updated By'];
   infoTableHeaderAry = ['Code', 'Product Name', 'Category Name', 'Created By', 'Updated By'];
-  detailsTableHeaderAry = ['Product', 'Parameter', 'Parameter value', 'Display order', 'Created By', 'Updated By'];
+  detailsTableHeaderAry = ['Product', 'Parameter', 'Mandatory', 'Parameter value', 'Display order', 'Created By', 'Updated By'];
 
   filteredCategoriesList = [];
   filteredInfoList = [];
@@ -112,13 +112,26 @@ export class ProductComponent {
   ngOnInit() {
     this.setActiveTabFromUrl();
 
-    if (this.activeTab === 'Category') {
-      this.fetchCategoriesList();
-    } else if (this.activeTab === 'Info') {
-      this.fetchInfoList();
-    } else {
-      this.fetchDetailsList();
-    }
+    // Fetch categories first as it's a dependency for Info and Details
+    this.productService.getCategoriesList().subscribe({
+      next: (response) => {
+        this.categoriesList = response.data;
+        if (this.activeTab === 'Category') {
+          this.applyFilter();
+        } else if (this.activeTab === 'Info') {
+          this.fetchInfoList();
+        } else {
+          this.fetchDetailsList();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching categories:', err);
+        // Still try to fetch other lists even if categories fail
+        if (this.activeTab === 'Info') this.fetchInfoList();
+        else if (this.activeTab === 'Details') this.fetchDetailsList();
+      }
+    });
+
     this.updateTitle();
   }
 

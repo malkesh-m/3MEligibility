@@ -1,12 +1,25 @@
-<!-- Product Cap Title -->
-<div class="row mb-4">
-  <div class="col">
-    <h5 class="">{{ 'Maximum Percentage Per Product' | translate }}</h5>
+<div class="mb-3">
+  <div>
+    <p class="moduleLabel mb-2">{{ 'Maximum Percentage Per Product' | translate }}</p>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input type="text" class="filter-input" placeholder="{{ 'Search' | translate }}" (input)="applyFilter($event)" />
+    </div>
+    <div class="action-group">
+      <button appUseractivity="User Click on Add Product Cap Score button" [componentName]="'ProductCapComponent'"
+        [actionType]="'ButtonClick'" class="clickable-icon" (click)="addProductCap()"
+        matTooltip="{{ 'Add New' | translate }}" *ngIf="hasPermission('Permissions.ProductCap.Create')">
+        <mat-icon>add_circle_outline</mat-icon>
+      </button>
+    </div>
   </div>
 </div>
 
 <!-- Product Selector -->
-<div class="card p-3" *ngIf="isDataReady">
+<div class="card p-3 mb-3" *ngIf="isDataReady">
   <form [formGroup]="ProductCapForm">
     <div class="row mb-3">
       <div class="col-4">
@@ -106,16 +119,9 @@
 <div *ngIf="ProductCapForm.get('productID')?.value" class="card p-3">
 
   <!-- Add Button -->
-  <div class="mb-3 d-flex justify-content-start">
-    <button mat-raised-button color="primary" appUseractivity="User Click on Add Product Cap Score button"
-      [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="addProductCap()"
-      matTooltip="Add Stream Cap Score" *ngIf="hasPermission('Permissions.ProductCap.Create')">
-      <mat-icon>add</mat-icon> {{ 'Add New' | translate }}
-    </button>
-  </div>
   <div #entityTable class="table-wrapper">
     <!-- Table if data exists -->
-    <table class="bgColorWhite " *ngIf="selectedProductData.length > 0" mat-table
+    <table class="bgColorWhite " *ngIf="selectedProductData.data.length > 0" mat-table
       [dataSource]="selectedProductData">
 
       <!-- Optional ID column -->
@@ -145,18 +151,20 @@
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button color="primary" appUseractivity="User Click on edit Stream Cap Score button"
-            [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="editProductCap(element)"
-            matTooltip="Edit" *ngIf="hasPermission('Permissions.ProductCap.Edit')">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" appUseractivity="User Click on delete Stream Cap Score button"
-            [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="deleteProductCap(element)"
-            matTooltip="Delete" *ngIf="hasPermission('Permissions.ProductCap.Delete')">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <div class="cell-actions">
+            <mat-icon class="clickable-icon edit" appUseractivity="User Click on edit Stream Cap Score button"
+              [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="editProductCap(element)"
+              matTooltip="{{ 'Edit' | translate }}" *ngIf="hasPermission('Permissions.ProductCap.Edit')">
+              edit_note
+            </mat-icon>
+            <mat-icon class="clickable-icon delete" appUseractivity="User Click on delete Stream Cap Score button"
+              [componentName]="'ProductCapComponent'" [actionType]="'ButtonClick'" (click)="deleteProductCap(element)"
+              matTooltip="{{ 'Delete' | translate }}" *ngIf="hasPermission('Permissions.ProductCap.Delete')">
+              delete_outline
+            </mat-icon>
+          </div>
         </td>
       </ng-container>
 
@@ -165,7 +173,7 @@
     </table>
   </div>
   <!-- Message when no data -->
-  <div *ngIf="selectedProductData.length === 0" class="text-center text-muted mt-3">
+  <div *ngIf="selectedProductData.data.length === 0" class="text-center text-muted mt-3">
     <p>{{ 'No Stream Cap Score available for the selected Stream.' | translate }}</p>
   </div>
 </div>

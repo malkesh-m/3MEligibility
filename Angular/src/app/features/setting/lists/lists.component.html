@@ -3,10 +3,10 @@
 
   <!-- Search and Actions Top Bar -->
   <div class="filter-bar">
-    <div class="search-box mb-0">
+    <div class="search-box">
       <mat-icon>search</mat-icon>
       <input type="text" class="filter-input" [(ngModel)]="searchTerms[activeTab]" (input)="applyFilter($event)"
-        placeholder="{{ 'Search Lists' | translate }}" style="padding-left: 40px !important;" />
+        placeholder="{{ 'Search Lists' | translate }}" />
     </div>
 
     <div class="action-group d-flex gap-2">
@@ -22,19 +22,19 @@
 
       <button appUseractivity="User Click on Import button" [componentName]="'ListComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon" (click)="fileInput.click()" *ngIf="getImportPermission()">
-        <mat-icon matTooltip="{{ 'Import' | translate }}">file_upload</mat-icon>
+        <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
 
       <button appUseractivity="User Click on Export button" [componentName]="'ListComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon" (click)="ExportLists()" *ngIf="getExportPermission()">
-        <mat-icon matTooltip="{{ 'Export' | translate }}">file_download</mat-icon>
+        <mat-icon matTooltip="{{ 'Export' | translate }}">download</mat-icon>
       </button>
 
       <button appUseractivity="User Click on Delete Multiple button" [componentName]="'ListComponent'"
         [actionType]="'ButtonClick'" (click)="deleteSelectedLists()" class="clickable-icon"
         *ngIf="getDeletePermission()">
-        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete</mat-icon>
+        <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
       </button>
     </div>
   </div>
@@ -95,7 +95,7 @@
 
         <ng-container matColumnDef="listName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'List Name' | translate }}</th>
-          <td mat-cell *matCellDef="let list" class="mono">{{ list.listName }}</td>
+          <td mat-cell *matCellDef="let list" class="simple-text">{{ list.listName }}</td>
         </ng-container>
 
         <ng-container matColumnDef="createdBy">
@@ -129,9 +129,9 @@
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef></th>
+          <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
           <td mat-cell *matCellDef="let list">
-            <div class="action-group" style="justify-content: flex-end;">
+            <div class="cell-actions">
               <mat-icon class="clickable-icon edit" appUseractivity="User Click on Edit button"
                 [componentName]="'ListComponent'" [actionType]="'ButtonClick'" (click)="editList(list)"
                 matTooltip="{{ 'Edit' | translate }}"
@@ -219,7 +219,7 @@
 
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Code' | translate }}</th>
-          <td mat-cell *matCellDef="let list" class="mono">{{ list.code }}</td>
+          <td mat-cell *matCellDef="let list" class="simple-text">{{ list.code }}</td>
         </ng-container>
 
         <ng-container matColumnDef="listName">
@@ -263,9 +263,9 @@
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef></th>
+          <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
           <td mat-cell *matCellDef="let list">
-            <div class="action-group" style="display: flex; justify-content: flex-end;">
+            <div class="cell-actions">
               <mat-icon class="clickable-icon edit" appUseractivity="User Click on Edit button"
                 [componentName]="'ListComponent'" [actionType]="'ButtonClick'" (click)="editList(list)"
                 matTooltip="{{ 'Edit' | translate }}"

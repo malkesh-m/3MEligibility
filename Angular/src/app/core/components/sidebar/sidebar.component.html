@@ -1,6 +1,7 @@
 <div class="sidebar-wrap">
-  <div class="app-brand" [routerLink]="['/setting/entity']">
-    <img src="assets/images/3m-eligibility-logo.png" alt="app-logo" class="app-logo">
+  <div class="app-brand">
+    <img [src]="tenantLogoUrl ? tenantLogoUrl : 'assets/images/3m-eligibility-logo.png'" alt="app-logo"
+      class="app-logo">
   </div>
   <div class="list-wrap">
     <mat-accordion multi>
@@ -9,7 +10,7 @@
         <mat-expansion-panel-header>
           <!-- <mat-panel-title>Setup</mat-panel-title> -->
           <mat-panel-title>
-            <mat-icon class="accordion-icon">dashboard</mat-icon>
+            <mat-icon class="accordion-icon">grid_view</mat-icon>
             <a routerLink="setting/dashboard">{{ 'Dashboard' | translate }}</a>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -24,7 +25,7 @@
         <mat-expansion-panel-header>
           <!-- <mat-panel-title>Setup</mat-panel-title> -->
           <mat-panel-title>
-            <mat-icon class="accordion-icon">settings</mat-icon>
+            <mat-icon class="accordion-icon">storage</mat-icon>
             <span>{{ 'Setup' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -47,7 +48,7 @@
         (opened)="setStep(1)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="accordion-icon">rule</mat-icon>
+            <mat-icon class="accordion-icon">mediation</mat-icon>
             <span>{{ 'Conditions' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -73,7 +74,7 @@
         (opened)="setStep(2)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="accordion-icon">link</mat-icon>
+            <mat-icon class="accordion-icon">hub</mat-icon>
             <span>{{ 'Connections' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -90,7 +91,7 @@
         (opened)="setStep(3)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="accordion-icon">security</mat-icon>
+            <mat-icon class="accordion-icon">admin_panel_settings</mat-icon>
             <span>{{ 'Security' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -109,7 +110,7 @@
         (opened)="setStep(4)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="accordion-icon">check_circle</mat-icon>
+            <mat-icon class="accordion-icon">fact_check</mat-icon>
             <span>{{ 'Maker Checker' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -126,7 +127,7 @@
         (opened)="setStep(5)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="accordion-icon">history</mat-icon>
+            <mat-icon class="accordion-icon">receipt_long</mat-icon>
             <span>{{ 'Logs' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -143,7 +144,7 @@
         (opened)="setStep(6)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="accordion-icon">settings</mat-icon>
+            <mat-icon class="accordion-icon">settings_applications</mat-icon>
             <span>{{ 'Configuration' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -167,7 +168,7 @@
         (opened)="setStep(7)" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="accordion-icon">file_upload</mat-icon>
+            <mat-icon class="accordion-icon">cloud_upload</mat-icon>
             <span>{{ 'Bulk Import' | translate }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>

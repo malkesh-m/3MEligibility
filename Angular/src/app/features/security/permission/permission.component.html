@@ -21,7 +21,7 @@
         <div class="search-box" *ngIf="activeTab === 'AvailablePermissions'">
             <mat-icon>search</mat-icon>
             <input type="text" class="filter-input" placeholder="{{ 'Search' | translate }}"
-                (input)="applyFilter($event)" [(ngModel)]="searchTerm" style="padding-left: 40px !important;" />
+                (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
         </div>
     </div>
 

@@ -187,6 +187,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
             return {
               ...factor,
               parameterName: parameter ? parameter.parameterName : this.translate.instant('Unknown Parameter'),
+              isMandatory: parameter ? parameter.isRequired : false,
               selected: false,
             };
 
@@ -726,7 +727,9 @@ export class FactorsComponent implements OnInit, AfterViewInit {
       } else if (dropdownConditions.conditionValue === 'Range') {
         this.isVal1Dropdown = false;
         this.isVal2Dropdown = true;
+        this.isRange = true;
       } else {
+        this.isRange = false;
         this.isVal1Dropdown = false;
         this.isVal2Dropdown = false;
       }
@@ -747,8 +750,8 @@ export class FactorsComponent implements OnInit, AfterViewInit {
   }
   isRange: boolean = false;   // Add this property at top of component
 
-  onConditionChange(event: any): void {
-    const conditionId = Number(event.target.value);
+  onConditionChange(conditionId: any): void {
+    conditionId = Number(conditionId);
     const selectedCondition = this.conditionsList.find(c => c.conditionId === conditionId);
 
     this.formData.value1 = '';
@@ -777,8 +780,8 @@ export class FactorsComponent implements OnInit, AfterViewInit {
   }
 
 
-  onParameterChange(event: any): void {
-    const parameterId = Number(event.target.value);
+  onParameterChange(parameterId: any): void {
+    parameterId = Number(parameterId);
     const selectedParameter = this.parametersList.find(param => param.parameterId === parameterId);
 
     this.formData.value1 = '';

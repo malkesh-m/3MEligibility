@@ -8,7 +8,7 @@
         <div class="search-box">
             <mat-icon>search</mat-icon>
             <input type="text" class="filter-input" placeholder="{{ 'Search' | translate }}"
-                (input)="applyFilter($event)" [(ngModel)]="searchTerm" style="padding-left: 40px !important;" />
+                (input)="applyFilter($event)" [(ngModel)]="searchTerm" />
         </div>
 
         <div class="action-group">
@@ -84,16 +84,18 @@
             </ng-container>
 
             <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'Actions' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef class="text-right">{{ 'Actions' | translate }}</th>
                 <td mat-cell *matCellDef="let list">
-                    <mat-icon appUseractivity="User Click on Edit button" [componentName]="'RoleComponent'"
-                        [actionType]="'ButtonClick'" class="clickable-icon edit" (click)="editRecord(list)"
-                        [matTooltip]="list.roleName === 'Super Admin' ? ('You cannot edit Super Admin role' | translate) : ('Edit' | translate)"
-                        *ngIf="hasPermission('Permissions.Role.Edit') && list.roleName !== 'Super Admin'">edit_note</mat-icon>
-                    <mat-icon appUseractivity="User Click on Delete button" [componentName]="'RoleComponent'"
-                        [actionType]="'ButtonClick'" class="clickable-icon delete" (click)="deleteRecord(list)"
-                        [matTooltip]="list.roleName === 'Super Admin' ? ('You cannot delete Super Admin role' | translate) : ('Delete' | translate)"
-                        *ngIf="hasPermission('Permissions.Role.Delete') && list.roleName !== 'Super Admin'">delete_outline</mat-icon>
+                    <div class="cell-actions">
+                        <mat-icon appUseractivity="User Click on Edit button" [componentName]="'RoleComponent'"
+                            [actionType]="'ButtonClick'" class="clickable-icon edit" (click)="editRecord(list)"
+                            [matTooltip]="list.roleName === 'Super Admin' ? ('You cannot edit Super Admin role' | translate) : ('Edit' | translate)"
+                            *ngIf="hasPermission('Permissions.Role.Edit') && list.roleName !== 'Super Admin'">edit_note</mat-icon>
+                        <mat-icon appUseractivity="User Click on Delete button" [componentName]="'RoleComponent'"
+                            [actionType]="'ButtonClick'" class="clickable-icon delete" (click)="deleteRecord(list)"
+                            [matTooltip]="list.roleName === 'Super Admin' ? ('You cannot delete Super Admin role' | translate) : ('Delete' | translate)"
+                            *ngIf="hasPermission('Permissions.Role.Delete') && list.roleName !== 'Super Admin'">delete_outline</mat-icon>
+                    </div>
                 </td>
             </ng-container>
 
@@ -185,12 +187,14 @@
         </ng-container>
 
         <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef> {{ 'Actions' | translate }} </th>
+            <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'Actions' | translate }} </th>
             <td mat-cell *matCellDef="let entity">
-                <mat-icon appUseractivity="User Click on Delete button" [componentName]="'RoleComponent'"
-                    [actionType]="'ButtonClick'" class="clickable-icon delete"
-                    (click)="deleteAssignedUserRecord(entity)" [matTooltip]="getAssignedUserDeleteTooltip()"
-                    *ngIf="canDeleteAssignedUser()">delete_outline</mat-icon>
+                <div class="cell-actions">
+                    <mat-icon appUseractivity="User Click on Delete button" [componentName]="'RoleComponent'"
+                        [actionType]="'ButtonClick'" class="clickable-icon delete"
+                        (click)="deleteAssignedUserRecord(entity)" [matTooltip]="getAssignedUserDeleteTooltip()"
+                        *ngIf="canDeleteAssignedUser()">delete_outline</mat-icon>
+                </div>
             </td>
         </ng-container>
 

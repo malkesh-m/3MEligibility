@@ -59,11 +59,11 @@
 
         <!-- Actions Column -->
         <ng-container matColumnDef="actions">
-            <th class="cellStyling column-actions" mat-header-cell *matHeaderCellDef>
+            <th class="cellStyling column-actions text-right" mat-header-cell *matHeaderCellDef>
                 {{ 'Actions' | translate }}
             </th>
             <td class="cellStyling column-actions" mat-cell *matCellDef="let element">
-                <div class="action-buttons">
+                <div class="cell-actions">
                     <button class="addBtn btn-primary btn-sm " *ngIf="isModified(element)"
                         (click)="saveParameter(element)">
                         {{ 'Save' | translate }}
