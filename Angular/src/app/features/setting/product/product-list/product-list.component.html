@@ -1,12 +1,12 @@
 <div class="product-list-container">
     <!-- Add/Edit Form (Edit Panel) -->
     <div *ngIf="formVisible" class="card p-3 mb-3">
-        <h5 class="mb-3">
+        <!-- <h5 class="mb-3">
             <span *ngIf="isInsertNewRecord">{{ 'Add New' | translate }} </span>
             <span *ngIf="!isInsertNewRecord">{{ 'Edit' | translate }} </span>
             {{ (currentTab === 'Category' ? 'Category' : (currentTab === 'Info' ? 'Product' : 'Details')) |
             translate }}
-        </h5>
+        </h5> -->
 
         <app-spinner [isLoading]="isLoading" [isLocal]="true" [message]="'Processing...'"></app-spinner>
 

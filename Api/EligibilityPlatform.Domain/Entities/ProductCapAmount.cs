@@ -9,7 +9,7 @@ namespace MEligibilityPlatform.Domain.Entities
     public partial class ProductCapAmount : ITenantEntity
     {
         public int Id { get; set; }
-        public int? ProductId { get; set; }
+        public int ProductId { get; set; }
         //public string? Activity {  get; set; }
         public decimal? MaxCapPerStream { get; set; }
         public string? Age { get; set; }

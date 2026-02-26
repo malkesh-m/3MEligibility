@@ -1180,7 +1180,7 @@ namespace MEligibilityPlatform.Application.Services
                     var Description = worksheet.Cells[row, 9].Text;
 
                     // Check for missing or invalid data
-                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out _) || string.IsNullOrWhiteSpace(ProductName))
+                    if (string.IsNullOrWhiteSpace(Code) || !int.TryParse(CategoryId, out int parsedCategoryId) || parsedCategoryId <= 0 || string.IsNullOrWhiteSpace(ProductName))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1195,8 +1195,8 @@ namespace MEligibilityPlatform.Application.Services
                         Code = Code,
                         // Sets product name from Excel data
                         ProductName = ProductName,
-                        // Parses and sets category ID, defaults to 0 if invalid
-                        CategoryId = int.TryParse(CategoryId, out int categoryId) ? categoryId : 0,
+                        // Sets parsed category ID
+                        CategoryId = parsedCategoryId,
                         // Parses and sets entity ID, defaults to 0 if invalid
                         TenantId = tenantId,
                         // Sets narrative from Excel data
@@ -1225,8 +1225,6 @@ namespace MEligibilityPlatform.Application.Services
                     model.CreatedByDateTime = DateTime.UtcNow;
                     // Sets first update timestamp to current UTC time
                     model.UpdatedByDateTime = DateTime.UtcNow;
-                    // Sets category ID to null if it's 0, otherwise keeps the value
-                    model.CategoryId = model.CategoryId == 0 ? null : model.CategoryId;
                     // Maps and adds model to repository for insertion
                     _uow.ProductRepository.Add(_mapper.Map<Product>(model));
                     // Increments inserted records counter
@@ -2752,7 +2750,7 @@ namespace MEligibilityPlatform.Application.Services
             // Populates the hidden Factor value reference columns with data.
             PopulateColumn(sheet9, [.. factors.Select(e => e.Value1 ?? "".ToString())], 24);
             PopulateColumn(sheet9, [.. factors.Select(e => e.Value2 ?? "".ToString())], 25);
-            PopulateColumn(sheet9, [.. factors.Select(e => e.ParameterId?.ToString() ?? "")], 26);
+            PopulateColumn(sheet9, [.. factors.Select(e => e.ParameterId.ToString() ?? "")], 26);
 
             // Applies dropdown validation to the ProductName column.
             ApplyDropdown(sheet9, "ProductNameRange", "A", 13, 100);

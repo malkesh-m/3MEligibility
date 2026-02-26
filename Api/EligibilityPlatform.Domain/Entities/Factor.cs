@@ -6,7 +6,7 @@ public partial class Factor : ITenantEntity
 {
     public int FactorId { get; set; }
 
-    public string? FactorName { get; set; }
+    public string FactorName { get; set; } = string.Empty;
 
     public string? Note { get; set; }
 
@@ -14,7 +14,7 @@ public partial class Factor : ITenantEntity
 
     public string? Value2 { get; set; }
 
-    public int? ParameterId { get; set; }
+    public int ParameterId { get; set; }
 
     public int? ConditionId { get; set; }
 

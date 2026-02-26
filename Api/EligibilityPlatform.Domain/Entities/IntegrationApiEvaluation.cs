@@ -10,7 +10,7 @@ namespace MEligibilityPlatform.Domain.Entities
     {
         public int Id { get; set; }
 
-        public int? EvaluationHistoryId { get; set; }
+        public int EvaluationHistoryId { get; set; }
 
         public int NodeApiId { get; set; }
         public string? ApiRequest { get; set; }

@@ -6,11 +6,11 @@ public partial class Product : ITenantEntity
 
     public string ProductName { get; set; } = null!;
 
-    public int? CategoryId { get; set; }
+    public int CategoryId { get; set; }
 
     public int TenantId { get; set; }
 
-    public string? Code { get; set; }
+    public string Code { get; set; } = string.Empty;
 
     public string? ProductImagePath { get; set; }
 

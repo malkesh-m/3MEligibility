@@ -12,7 +12,7 @@ public partial class Pcard : ITenantEntity
 
     public int TenantId { get; set; }
 
-    public int? ProductId { get; set; }
+    public int ProductId { get; set; }
 
     public string? Expshown { get; set; }
 

@@ -526,13 +526,13 @@ namespace MEligibilityPlatform.Application.Services
             foreach (var pCardId in pCardIdDetails)
             {
                 // Validates eligibility for the product
-                ValidationResult result = await ValidAsync(userId, pCardId.ProductId ?? 0, keyValues);
+                ValidationResult result = await ValidAsync(userId, pCardId.ProductId , keyValues);
 
                 // If validation passed, adds product to best fit list
                 if (result.IsValidationPassed)
                 {
                     // Retrieves product details
-                    var productDetails = _uow.ProductRepository.GetById(pCardId.ProductId ?? 0);
+                    var productDetails = _uow.ProductRepository.GetById(pCardId.ProductId);
                     // Creates best fit product model
                     var bestFitProduct = new BestFitProductModel
                     {

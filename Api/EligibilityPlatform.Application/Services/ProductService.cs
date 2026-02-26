@@ -57,6 +57,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(ProductAddUpdateModel model,string token)
         {
+            EnsureValidCategoryId(model.CategoryId);
             // Checks if a product with the same code already exists for the entity.
             var results = _uow.ProductRepository.Query()
                 .Any(f => f.TenantId == model.TenantId && f.Code == model.Code);
@@ -92,7 +93,7 @@ namespace MEligibilityPlatform.Application.Services
             var productEntities = _mapper.Map<Product>(model);
 
             // Sets CategoryId to null if it's 0, otherwise uses the provided value.
-            productEntities.CategoryId = model.CategoryId == 0 ? (int?)null : model.CategoryId;
+            productEntities.CategoryId =  model.CategoryId;
 
             // Sets the creation and update timestamps to current UTC time.
             productEntities.CreatedByDateTime = DateTime.UtcNow;
@@ -103,6 +104,12 @@ namespace MEligibilityPlatform.Application.Services
 
             // Commits the changes to the database.
             await _uow.CompleteAsync();
+        }
+
+        private static void EnsureValidCategoryId(int categoryId)
+        {
+            if (categoryId <= 0)
+                throw new InvalidOperationException("CategoryId must be greater than zero.");
         }
 
         /// <param name="tenantId">The entity ID.</param>
@@ -245,6 +252,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Update(ProductAddUpdateModel model, string token)
         {
+            EnsureValidCategoryId(model.CategoryId);
             var existingProduct = _uow.ProductRepository.Query()
              .FirstOrDefault(w => w.ProductId == model.ProductId && w.TenantId == model.TenantId)
              ?? throw new InvalidOperationException("Product does not exist");
@@ -259,7 +267,7 @@ namespace MEligibilityPlatform.Application.Services
             if (duplicate?.ProductName == model.ProductName)
                 throw new InvalidOperationException("Product Name already exists");
 
-            model.CategoryId = model.CategoryId == 0 ? (int?)null : model.CategoryId;
+            model.CategoryId =  model.CategoryId;
 
       // Handle file upload only if it hasn't been pre-uploaded (optimization)
             if (model.ProductImageFile != null && model.ProductImageId == null)
@@ -535,7 +543,7 @@ namespace MEligibilityPlatform.Application.Services
                     //model.UpdatedByDateTime = DateTime.UtcNow;
 
                     // Sets CategoryId to null if it's 0, otherwise uses the provided value.
-                    model.CategoryId = model.CategoryId == 0 ? (int?)null : model.CategoryId;
+                    model.CategoryId =  model.CategoryId;
 
                     // Adds the mapped product entity to the repository.
                     _uow.ProductRepository.Add(_mapper.Map<Product>(model));

@@ -7,11 +7,11 @@ public partial class NodeApi : ITenantEntity
     [Key]
     public int Apiid { get; set; }
 
-    public string? Apiname { get; set; }
+    public string Apiname { get; set; } = string.Empty;
 
     public string? Apidesc { get; set; }
 
-    public int? NodeId { get; set; }
+    public int NodeId { get; set; }
 
     public string? BinaryXml { get; set; }
 
@@ -23,7 +23,7 @@ public partial class NodeApi : ITenantEntity
 
     public DateTime UpdatedByDateTime { get; set; }
 
-    public string? CreatedBy { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
 
     public DateTime CreatedByDateTime { get; set; }
 

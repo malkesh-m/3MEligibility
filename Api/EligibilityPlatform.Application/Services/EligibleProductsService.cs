@@ -221,7 +221,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="tenantId">The ID of the entity for which to process rules.</param>
         /// <param name="keyValues">A dictionary of parameter IDs and their corresponding values.</param>
         /// <returns>A tuple containing valid product IDs and rule validation results.</returns>
-        private (List<int?> validProductIds, List<RuleResult> ruleResults) ProcessRulesAndCards(int tenantId, Dictionary<int, object> keyValues)
+        private (List<int> validProductIds, List<RuleResult> ruleResults) ProcessRulesAndCards(int tenantId, Dictionary<int, object> keyValues)
         {
             // Retrieves rules that match the provided key values
             var matchedRules = GetMatchRules(tenantId, keyValues);
@@ -293,7 +293,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A list of <see cref="ProductEligibilityResult"/> objects for products that failed PCARD validation.</returns>
         private List<ProductEligibilityResult> GetFailedPCardProducts(
             List<Product> allProducts,
-            List<int?> validProductIds,
+            List<int> validProductIds,
             List<RuleResult> ruleResults,
             int tenantId)
         {
@@ -306,14 +306,12 @@ namespace MEligibilityPlatform.Application.Services
 
             // Filters and converts valid product IDs to a list of integers
             var validIds = (validProductIds ?? [])
-                .Where(x => x.HasValue)
-                .Select(x => x!.Value)
+                .Select(x => x)
                 .ToList();
 
             // Converts PCARD product IDs to a list of integers
             var pcardIds = productIdsWithPcard
-                .Where(x => x.HasValue)
-                .Select(x => x!.Value)
+                .Select(x => x)
                 .ToList();
 
             // Identifies product IDs that have PCARDs but failed validation
@@ -323,7 +321,7 @@ namespace MEligibilityPlatform.Application.Services
 
             // Retrieves all PCARDs for the entity
             var allPcards = _uow.PcardRepository.Query()
-                .Where(p => p.ProductId != null && p.Product!.TenantId == tenantId)
+                .Where(p=> p.Product!.TenantId == tenantId)
                 .ToList();
 
             // Retrieves all ECARDs for the entity
@@ -367,7 +365,7 @@ namespace MEligibilityPlatform.Application.Services
             int tenantId,
             List<Product> allProducts,
             List<ProductCap> productCap,
-            List<int?> validProductIds,
+            List<int> validProductIds,
             //List<ProductEligibilityResult> exceptionHandledProducts,
             List<ProductEligibilityResult> nonPCardEligibilityResults,
             List<ProductEligibilityResult> pcardFailProducts,
@@ -1638,8 +1636,9 @@ namespace MEligibilityPlatform.Application.Services
                                     continue;
 
 
-                                var parameter = _uow.ParameterRepository.GetById(factor.ParameterId!.Value);
-                                var datatype = _uow.DataTypeRepository.GetById(parameter.DataTypeId!.Value);
+                                var parameter = _uow.ParameterRepository.GetById(factor.ParameterId
+                                    );
+                                var datatype = _uow.DataTypeRepository.GetById(parameter.DataTypeId??0);
 
                                 //string? codeValue = null;
                                 //string? nameValue = null;
@@ -1672,7 +1671,7 @@ namespace MEligibilityPlatform.Application.Services
                                 //}
                                 //else
                                 //{
-                                    keyValues.TryGetValue(factor.ParameterId!.Value, out var rawValue);
+                                    keyValues.TryGetValue(factor.ParameterId, out var rawValue);
                                     valueToValidate = rawValue!;
                                 //}
 
@@ -1985,12 +1984,10 @@ namespace MEligibilityPlatform.Application.Services
                 foreach (var factor in factors)
                 {
                     if (!string.IsNullOrWhiteSpace(factor.FactorName) &&
-                        cond.StartsWith(factor.ParameterId?.ToString() ?? "", StringComparison.OrdinalIgnoreCase))
+                        cond.StartsWith(factor.ParameterId.ToString() ?? "", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (factor.ParameterId.HasValue)
-                            keys.Add(factor.ParameterId.Value);
-                    }
-                }
+                        keys.Add(factor.ParameterId);
+                    }                }
             }
 
             return [.. keys.Distinct()];
@@ -2020,7 +2017,7 @@ namespace MEligibilityPlatform.Application.Services
             /// Retrieves all factors for the entity to resolve FactorName to ParameterId.
             /// </summary>
             var factors = _uow.FactorRepository.Query()
-                .Where(f => f.TenantId == tenantId && f.ParameterId.HasValue)
+                .Where(f => f.TenantId == tenantId )
                 .ToList();
 
             var matchRules = new List<Erule>();
@@ -2595,7 +2592,7 @@ namespace MEligibilityPlatform.Application.Services
             // Pre-fetch all data needed for parameter resolution
             var apiIds = activeApis.Select(a => a.Apiid).ToList();
             var allApiParameters = _uow.ApiParametersRepository.GetAll()
-                .Where(p => p.ApiId.HasValue && apiIds.Contains(p.ApiId.Value))
+                .Where(p => apiIds.Contains(p.ApiId))
                 .ToList();
             
             var allMappings = _uow.ApiParameterMapsRepository.Query()

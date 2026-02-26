@@ -7,7 +7,7 @@ public partial class SecurityRole : ITenantEntity
 {
     public int RoleId { get; set; }
 
-    public string? RoleName { get; set; }
+    public string RoleName { get; set; } = string.Empty;
 
     public string? RoleDesc { get; set; }
 

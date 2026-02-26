@@ -4,13 +4,13 @@ public partial class Node : ITenantEntity
 {
     public int NodeId { get; set; }
 
-    public string? NodeName { get; set; }
+    public string? NodeName { get; set; } = string.Empty;
 
     public string? Code { get; set; }
 
     public string? NodeDesc { get; set; }
 
-    public string? NodeUrl { get; set; }
+    public string NodeUrl { get; set; } = string.Empty;
 
     public string? ApiuserName { get; set; }
 

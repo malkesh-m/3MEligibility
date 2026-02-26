@@ -17,7 +17,7 @@ namespace MEligibilityPlatform.Domain.Models
         public string? ProductName { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "CategoryId must be greater than 0.")]
-        public int? CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         // CategoryName: optional string, max length 50 characters
         [StringLength(50, ErrorMessage = "CategoryName cannot exceed 50 characters.")]

@@ -6,7 +6,7 @@ public partial class Parameter : ITenantEntity
 {
     public int ParameterId { get; set; }
 
-    public string? ParameterName { get; set; }
+    public string ParameterName { get; set; } = string.Empty;
 
     public bool HasFactors { get; set; }
 

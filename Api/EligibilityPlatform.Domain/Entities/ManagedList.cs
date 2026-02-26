@@ -7,7 +7,7 @@ public partial class ManagedList : ITenantEntity
     [Key]
     public int ListId { get; set; }
 
-    public string? ListName { get; set; }
+    public string ListName { get; set; } = string.Empty;
 
     public int TenantId { get; set; }
 

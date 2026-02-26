@@ -25,7 +25,7 @@ namespace MEligibilityPlatform.Domain.Models
         public string? Value2 { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "ParameterId must be greater than 0.")]
-        public int? ParameterId { get; set; }
+        public int ParameterId { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "ConditionId must be greater than 0.")]
         public int? ConditionId { get; set; }
 

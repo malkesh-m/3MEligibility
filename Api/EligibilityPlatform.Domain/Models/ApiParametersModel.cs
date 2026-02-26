@@ -25,7 +25,7 @@ namespace MEligibilityPlatform.Domain.Models
         public string? DefaultValue { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "ApiId must be greater than 0")]
-        public int? ApiId { get; set; }
+        public int ApiId { get; set; }
         public int TenantId { get; set; }
     }
 

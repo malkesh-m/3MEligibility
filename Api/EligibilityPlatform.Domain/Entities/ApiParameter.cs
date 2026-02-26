@@ -15,7 +15,7 @@ public partial class ApiParameter: ITenantEntity
 
     public string? DefaultValue { get; set; }
 
-    public int? ApiId { get; set; }
+    public int ApiId { get; set; }
     public int TenantId { get; set; }
 
     public DateTime CreatedByDateTime { get; set; }

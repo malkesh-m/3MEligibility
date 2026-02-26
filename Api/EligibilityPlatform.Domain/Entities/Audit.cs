@@ -22,7 +22,7 @@ public partial class Audit : ITenantEntity
     public string FieldName { get; set; } = null!;
     public string? IPAddress { get; set; }
     public string? Comments { get; set; }
-    public string? UserName { get; set; }
+    public string UserName { get; set; }=string.Empty;
     public int TenantId { get; set; }
 
     public DateTime UpdatedByDateTime { get; set; }
