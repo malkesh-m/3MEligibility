@@ -43,21 +43,19 @@ button mat-icon:last-child {
 /* Toolbar Styles */
 :host {
     display: block;
-    height: 58px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
 .toolbar {
-    height: 58px !important;
-    background: transparent !important;
+    height: 50px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px);
     padding: 0 24px !important;
     display: flex !important;
     align-items: center !important;
+    border-bottom: none;
 }
 
 .header-content {
@@ -67,11 +65,54 @@ button mat-icon:last-child {
     height: 100%;
 }
 
+/* Tenant Brand - Left Side of Title Bar */
+.tenant-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .tenant-logo {
+        height: 34px;
+        width: auto;
+        object-fit: contain;
+        border-radius: 6px;
+    }
+
+    .tenant-logo-fallback {
+        height: 34px;
+        width: 34px;
+        border-radius: 6px;
+        background: var(--primary);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+        text-transform: uppercase;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .tenant-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-1);
+        letter-spacing: -0.01em;
+    }
+}
+
+/* Breadcrumb Strip - Below Title Bar */
+.breadcrumb-strip {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 24px 2px 24px;
+}
+
 .breadcrumb {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 12px;
 
     .root {
         color: var(--text-3);
@@ -79,7 +120,7 @@ button mat-icon:last-child {
 
     .separator {
         color: var(--text-3);
-        font-size: 14px;
+        font-size: 13px;
         opacity: 0.5;
     }
 

@@ -1,17 +1,21 @@
+<!-- Title Bar: Tenant Logo+Name on LEFT, Language+Profile on RIGHT -->
 <mat-toolbar color="primary" class="toolbar">
     <div class="header-content">
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
-            <span class="root">Platform</span>
-            <span class="separator">›</span>
-            <span class="current">{{ pageTitle | translate }}</span>
+        <!-- LEFT: Dynamic Tenant Logo & Name -->
+        <div class="tenant-brand" style="display: flex; align-items: center; gap: 12px;">
+            <img *ngIf="tenantLogoUrl" [src]="tenantLogoUrl" alt="Tenant Logo" class="tenant-logo" style="max-height: 50px; width: 150px; object-fit: contain; border-radius: 6px;">
+            <div *ngIf="!tenantLogoUrl" class="tenant-logo-fallback" style="height: 47px; width: 70px; border-radius: 6px; background: #2563EB; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                {{ tenantInitials || 'T' }}
+            </div>
+            <span class="tenant-name" style="font-size: 16px; font-weight: 700; color: #0F172A;">
+                {{ tenantName || 'Default Tenant' }}
+            </span>
         </div>
 
         <span class="spacer"></span>
 
+        <!-- RIGHT: Language + User Profile (unchanged) -->
         <div class="header-actions">
-
-
             <!-- Language Selector -->
             <button class="lang-btn" [matMenuTriggerFor]="languageMenu">
                 <mat-icon>language</mat-icon>
@@ -40,3 +44,12 @@
         </div>
     </div>
 </mat-toolbar>
+
+<!-- Breadcrumb Strip (moved from title bar) -->
+<div class="breadcrumb-strip">
+    <div class="breadcrumb">
+        <span class="root">Platform</span>
+        <span class="separator">›</span>
+        <span class="current">{{ pageTitle | translate }}</span>
+    </div>
+</div>

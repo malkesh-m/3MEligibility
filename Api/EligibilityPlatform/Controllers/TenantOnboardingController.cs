@@ -45,5 +45,17 @@ namespace MEligibilityPlatform.Controllers
             var isValid = await _onboardingService.ValidateTenantSetupAsync(tenantId);
             return Ok(isValid);
         }
+
+        /// <summary>
+        /// Gets tenant details by ID.
+        /// </summary>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>The tenant details.</returns>
+        [HttpGet("{tenantId}")]
+        public async Task<ActionResult<ApiResponse<TenantModel>>> GetTenantById(int tenantId)
+        {
+            var result = await _onboardingService.GetById(tenantId);
+            return Ok(result);
+        }
     }
 }

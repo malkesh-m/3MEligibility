@@ -129,6 +129,10 @@ export class AuthService {
     );
   }
 
+  getTenantInfo(tenantId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/tenantonboarding/${tenantId}`, { headers: this.getHeaders() });
+  }
+
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }

@@ -3,11 +3,7 @@
     <!-- Display the original expression -->
     <div class="mb-3">
         <label class="inputLabel">{{ 'Expression' | translate }}</label>
-        <textarea
-            class="form-control expression-box"
-            [(ngModel)]="expshown"
-            disabled
-        ></textarea>
+        <textarea class="form-control expression-box" [(ngModel)]="expshown" disabled></textarea>
     </div>
 
     <!-- Scrollable section for parameters -->
@@ -19,15 +15,9 @@
             </div>
             <!-- Factor Selection -->
             <div class="factor-dropdown">
-                <select
-                    class="form-control factor-select"
-                    (change)="onFactorChange(param.parameterName, $event)"
-                >
+                <select class="form-control factor-select" (change)="onFactorChange(param.parameterName, $event)">
                     <option value="" disabled selected>{{ 'Select Factor' | translate }}</option>
-                    <option
-                        *ngFor="let factor of factorsByParameter[param.parameterName]"
-                        [value]="factor.value1"
-                    >
+                    <option *ngFor="let factor of factorsByParameter[param.parameterName]" [value]="factor.value1">
                         {{ factor.value1 }}
                     </option>
                 </select>
@@ -38,11 +28,7 @@
     <!-- Display the dynamically evaluated expression -->
     <div class="mb-3">
         <label class="inputLabel">{{ 'Evaluate Expression' | translate }}</label>
-        <textarea
-            class="form-control expression-box"
-            [(ngModel)]="evaluateExpression"
-            readonly
-        ></textarea>
+        <textarea class="form-control expression-box" [(ngModel)]="evaluateExpression" readonly></textarea>
     </div>
 
     <!-- Validation Result Message -->
@@ -53,8 +39,8 @@
 
 <!-- Dialog actions -->
 <mat-dialog-actions align="end">
-    <button mat-raised-button color="primary" (click)="validateExpression()">
+    <button class="clearBtn" mat-raised-button (click)="validateExpression()">
         {{ 'Validate' | translate }}
     </button>
-    <button mat-button mat-dialog-close>{{ 'Cancel' | translate }}</button>
+    <button class="cancelBtn" mat-raised-button mat-dialog-close>{{ 'Cancel' | translate }}</button>
 </mat-dialog-actions>

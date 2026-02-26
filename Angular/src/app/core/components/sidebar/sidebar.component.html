@@ -1,6 +1,6 @@
 <div class="sidebar-wrap">
   <div class="app-brand">
-    <img [src]="tenantLogoUrl ? tenantLogoUrl : 'assets/images/3m-eligibility-logo.png'" alt="app-logo"
+    <img src="assets/images/3m-eligibility-logo.png" alt="app-logo"
       class="app-logo">
   </div>
   <div class="list-wrap">
@@ -32,15 +32,20 @@
         <mat-nav-list>
           <!--<a *ngIf="hasPermission(9)" mat-list-item routerLink="setting/dashboard">{{ 'Dashboard' | translate }}</a>-->
           <!-- <a *ngIf="hasPermission('9')" mat-list-item routerLink="setting/entity">{{ 'Entity' | translate }}</a> -->
-          <a *ngIf="hasPermission('Permissions.ManagedList.View')" mat-list-item routerLink="setting/lists">{{ 'Lists' |
+          <a *ngIf="hasPermission('Permissions.ManagedList.View')" mat-list-item routerLink="setting/lists"
+            matTooltip="{{ 'Lists' | translate }}">{{ 'Lists' |
             translate }}</a>
-          <a *ngIf="hasPermission('Permissions.Parameter.View')" mat-list-item routerLink="setting/parameters">{{
+          <a *ngIf="hasPermission('Permissions.Parameter.View')" mat-list-item routerLink="setting/parameters"
+            matTooltip="{{ 'Parameters' | translate }}">{{
             'Parameters' | translate }}</a>
           <a *ngIf="hasPermission('Permissions.ParameterBinding.View')" mat-list-item
-            routerLink="setting/parameter-binding">{{ 'Parameter Binding' | translate }}</a>
-          <a *ngIf="hasPermission('Permissions.Factor.View')" mat-list-item routerLink="setting/factors">{{ 'Factors' |
+            routerLink="setting/parameter-binding" matTooltip="{{ 'Parameter Binding' | translate }}">{{ 'Parameter
+            Binding' | translate }}</a>
+          <a *ngIf="hasPermission('Permissions.Factor.View')" mat-list-item routerLink="setting/factors"
+            matTooltip="{{ 'Factors' | translate }}">{{ 'Factors' |
             translate }}</a>
-          <a *ngIf="hasPermission('Permissions.Product.View')" mat-list-item routerLink="setting/products">{{ 'Products'
+          <a *ngIf="hasPermission('Permissions.Product.View')" mat-list-item routerLink="setting/products"
+            matTooltip="{{ 'Products' | translate }}">{{ 'Products'
             | translate }}</a>
 
         </mat-nav-list>
@@ -56,11 +61,14 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission('Permissions.Rule.View')" mat-list-item routerLink="setting/rules">{{ 'Rules' |
+          <a *ngIf="hasPermission('Permissions.Rule.View')" mat-list-item routerLink="setting/rules"
+            matTooltip="{{ 'Rules' | translate }}">{{ 'Rules' |
             translate }}</a>
-          <a *ngIf="hasPermission('Permissions.ECard.View')" mat-list-item routerLink="setting/cards">{{ 'Cards' |
+          <a *ngIf="hasPermission('Permissions.ECard.View')" mat-list-item routerLink="setting/cards"
+            matTooltip="{{ 'Cards' | translate }}">{{ 'Cards' |
             translate }}</a>
-          <a *ngIf="hasPermission('Permissions.PCard.View')" mat-list-item routerLink="setting/product-cards">{{
+          <a *ngIf="hasPermission('Permissions.PCard.View')" mat-list-item routerLink="setting/product-cards"
+            matTooltip="{{ 'Product Cards' | translate }}">{{
             'Product
             Cards' | translate
             }}</a>
@@ -81,7 +89,8 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission('Permissions.Integration.View')" mat-list-item routerLink="connections/integration">{{
+          <a *ngIf="hasPermission('Permissions.Integration.View')" mat-list-item routerLink="connections/integration"
+            matTooltip="{{ 'Integration' | translate }}">{{
             'Integration' | translate
             }}</a>
           <!--<a *ngIf="hasPermission(6)" mat-list-item routerLink="connections/mapping">{{ 'Mapping' | translate }}</a>-->
@@ -100,9 +109,11 @@
         <mat-nav-list>
           <!-- <a *ngIf="hasPermission('Permissions.User.View')" mat-list-item routerLink="security/user">{{ 'Users' |
             translate }}</a> -->
-          <a *ngIf="hasPermission('Permissions.Role.View')" mat-list-item routerLink="security/role">{{ 'Roles' |
+          <a *ngIf="hasPermission('Permissions.Role.View')" mat-list-item routerLink="security/role"
+            matTooltip="{{ 'Roles' | translate }}">{{ 'Roles' |
             translate }}</a>
-          <a *ngIf="hasPermission('Permissions.Permission.View')" mat-list-item routerLink="security/permission">{{
+          <a *ngIf="hasPermission('Permissions.Permission.View')" mat-list-item routerLink="security/permission"
+            matTooltip="{{ 'Permissions' | translate }}">{{
             'Permissions' |
             translate }}</a>
         </mat-nav-list>
@@ -117,11 +128,13 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission('Permissions.MakerChecker.View')" mat-list-item routerLink="setting/checker">{{
+          <a *ngIf="hasPermission('Permissions.MakerChecker.View')" mat-list-item routerLink="setting/checker"
+            matTooltip="{{ 'Checker' | translate }}">{{
             'Checker' | translate }}</a>
         </mat-nav-list>
         <mat-nav-list>
-          <a *ngIf="hasPermission('Permissions.MakerChecker.View')" mat-list-item routerLink="setting/history">{{
+          <a *ngIf="hasPermission('Permissions.MakerChecker.View')" mat-list-item routerLink="setting/history"
+            matTooltip="{{ 'History' | translate }}">{{
             'History' | translate }}</a>
         </mat-nav-list>
       </mat-expansion-panel>
@@ -134,7 +147,8 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission('Permissions.Audit.View')" mat-list-item routerLink="setting/audit-log">{{ 'Audit Log'
+          <a *ngIf="hasPermission('Permissions.Audit.View')" mat-list-item routerLink="setting/audit-log"
+            matTooltip="{{ 'Audit Log' | translate }}">{{ 'Audit Log'
             | translate }}</a>
           <!-- <a *ngIf="hasPermission('Permissions.Log.View')" mat-list-item routerLink="setting/log">{{ 'Log' | translate
             }}</a> -->
@@ -152,14 +166,15 @@
         </mat-expansion-panel-header>
         <mat-nav-list>
           <a *ngIf="hasPermission('Permissions.MakerCheckerConfig.View')" mat-list-item
-            routerLink="setting/maker-checker-config" class="small-font">{{
-            'Maker Checker Config' | translate }}</a>
+            routerLink="setting/maker-checker-config" class="small-font"
+            matTooltip="{{ 'Maker Checker Config' | translate }}">{{ 'Maker Checker Config' | translate }}</a>
           <!-- <a mat-list-item routerLink="configuration/exception">{{ 'Exception Config' | translate }}</a> -->
           <a *ngIf="hasPermission('Permissions.ProductCap.View')" mat-list-item routerLink="configuration/Product-Cap"
-            class="small-font">{{
-            'Maximum Percentage Per Product' | translate }}</a>
+            class="small-font" matTooltip="{{ 'Maximum Percentage Per Product' | translate }}">{{ 'Maximum Percentage
+            Per Product' | translate }}</a>
           <a *ngIf="hasPermission('Permissions.ProductCapAmount.View')" mat-list-item
-            routerLink="configuration/Product-Cap-Amount" class="small-font">{{ 'Maximum Amount Per Product' | translate
+            routerLink="configuration/Product-Cap-Amount" class="small-font"
+            matTooltip="{{ 'Maximum Amount Per Product' | translate }}">{{ 'Maximum Amount Per Product' | translate
             }}</a>
 
 
@@ -175,7 +190,8 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a *ngIf="hasPermission('Permissions.BulkImport.View')" mat-list-item routerLink="setting/bulk-import">{{
+          <a *ngIf="hasPermission('Permissions.BulkImport.View')" mat-list-item routerLink="setting/bulk-import"
+            matTooltip="{{ 'Bulk Import' | translate }}">{{
             'Bulk Import' | translate
             }}</a>
         </mat-nav-list>

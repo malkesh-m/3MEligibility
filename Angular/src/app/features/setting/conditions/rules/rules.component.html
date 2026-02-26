@@ -190,11 +190,11 @@
           </div>
         </div>
         <button appUseractivity="User Click on Cancel button" [componentName]="'RulesComponent'"
-          [actionType]="'ButtonClick'" class="cancelBtn me-2" type="button" mat-raised-button
+          [actionType]="'ButtonClick'" class="clearBtn me-2" type="button" mat-raised-button
           (click)="resetExpression()">{{ 'Clear' | translate
           }}</button>
         <button appUseractivity="User Click on Remove Last Item button" [componentName]="'RulesComponent'"
-          [actionType]="'ButtonClick'" class="cancelBtn me-2" type="button" mat-raised-button
+          [actionType]="'ButtonClick'" class="removeBtn me-2" type="button" mat-raised-button
           (click)="removeLastItem()">{{ 'Remove' | translate
           }}</button>
         <button appUseractivity="User Click on Validate button" [componentName]="'RulesComponent'"

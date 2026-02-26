@@ -1,63 +1,47 @@
 .container {
-    padding: 20px;
+  padding: 20px;
+}
+
+
+
+.table {
+  margin-top: 20px;
+}
+
+.dropdown-menu {
+  display: block;
+  position: absolute;
+}
+
+
+
+
+
+
+
+.moduleLabel {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.card {
+  background: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.button-spacing button {
+  margin-right: 15px;
+
+  &:last-child {
+    margin-right: 0;
+    /* Remove margin for the last button */
   }
-  
-  table {
-    width: 100%;
-    background-color: #f8f8f8;
-  }
-  
-  table tr.select-row {
-    background-color: #f8f8f8 !important;
-    color: #17355A;
-    font-size: 14px;
-  }
-  
-  .paginator {
-    background-color: white;
-  }
-  
-  table tr.select-row:hover {
-    cursor: pointer;
-    /* Change the cursor to pointer on hover */
-  }
-  
-  .table {
-    margin-top: 20px;
-  }
-  
-  .dropdown-menu {
-    display: block;
-    position: absolute;
-  }
-  
-  
-  
-  
-  
-  
-  
-  .moduleLabel {
-    font-size: 20px;
-    font-weight: 500;
-  }
-  
-  .card {
-    background: #f9f9f9;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .button-spacing button {
-    margin-right: 15px;
-  
-    &:last-child {
-      margin-right: 0;
-      /* Remove margin for the last button */
-    }
-  }
+}
+
 .status-button {
-  margin-left: -7px; /* shifts button to the left */
+  margin-left: -7px;
+  /* shifts button to the left */
   line-height: 1;
   padding: 2px 8px;
   min-width: unset;
@@ -65,4 +49,3 @@
   font-size: 14px;
   vertical-align: middle;
 }
-

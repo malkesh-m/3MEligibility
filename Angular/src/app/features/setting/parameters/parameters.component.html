@@ -119,12 +119,6 @@
     </form>
   </div>
 
-  <!-- Redesigned Tabs -->
-  <div class="tab-bar tab-nav">
-    <div class="tab-item" [class.active]="activeTab === 'product'" (click)="switchTab('product')">
-      {{ 'Product' | translate }}
-    </div>
-  </div>
 
   <!-- Parameters Table -->
   <div class="table-wrapper">
@@ -142,7 +136,7 @@
 
       <ng-container matColumnDef="parameterName">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Parameter Name' | translate }}</th>
-        <td mat-cell *matCellDef="let parameter" class="simple-text">{{ parameter.parameterName }}</td>
+        <td mat-cell *matCellDef="let parameter">{{ parameter.parameterName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="isMandatory">
