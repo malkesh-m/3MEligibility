@@ -1,7 +1,7 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { ParameterService } from '../../../core/services/setting/parameter.service';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EntityService } from '../../../core/services/setting/entity.service';
@@ -32,6 +32,8 @@ export interface Parameter {
   conditionValue?: string;
   createdBy: string;
   updatedBy: string;
+  createdByDateTime?: string | Date | null;
+  updatedByDateTime?: string | Date | null;
   isMandatory: boolean;
   computedValues?: ComputedValueModel[] | null;
   rejectionReason: string | null;
@@ -49,6 +51,8 @@ export class ParametersComponent {
   private _snackBar = inject(MatSnackBar);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  private readonly defaultSortColumn: string = 'createdDate';
+  private readonly defaultSortDirection: SortDirection = 'desc';
   parameters: Parameter[] = [];
   dataSource: MatTableDataSource<Parameter> = new MatTableDataSource<Parameter>([]);
   // displayedColumns: string[] = ['select', 'parameterName', 'dataTypeId', 'hasFactors', 'conditionId', 'isKyc', 'actions'];
@@ -56,8 +60,8 @@ export class ParametersComponent {
   // Define a union type for valid keys
 
   displayedColumns: Record<TabKeys, string[]> = {
-    customer: ['select', 'parameterName', 'isMandatory', 'createdBy', 'updatedBy', 'actions'],
-    product: ['select', 'parameterName', 'isMandatory', 'createdBy', 'updatedBy', 'actions']
+    customer: ['select', 'parameterName', 'isMandatory', 'createdBy', 'createdDate', 'updatedBy', 'updatedDate', 'actions'],
+    product: ['select', 'parameterName', 'isMandatory', 'createdBy', 'createdDate', 'updatedBy', 'updatedDate', 'actions']
   };
   activeTab: TabKeys = 'product'; // Ensure activeTab is of type 'customer' or 'product'
 
@@ -134,6 +138,18 @@ export class ParametersComponent {
     this.fetchAllParameters();
     this.fetchConditions();
     this.fetchDataTypes();
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      if (property === 'createdDate') {
+        return this.parseDateValue(item.createdByDateTime);
+      }
+      if (property === 'updatedDate') {
+        return this.parseDateValue(item.updatedByDateTime);
+      }
+      if (property?.toLowerCase().includes('date')) {
+        return this.parseDateValue((item as any)[property]);
+      }
+      return (item as any)[property];
+    };
     this.dataSource.filterPredicate = (data: Parameter, filter: string) => {
       return data.parameterName.toLocaleLowerCase().includes(filter)
         || data.hasFactors.toString().toLocaleLowerCase().includes(filter)
@@ -152,27 +168,6 @@ export class ParametersComponent {
     return this.PermissionsService.hasPermission(permissionId);
   }
 
-  toggleColumn(column: string, afterColumn: string): void {
-    const tabColumns = this.displayedColumns[this.activeTab];
-
-    if (tabColumns.includes(column)) {
-      // Remove column if already shown
-      this.displayedColumns[this.activeTab] = tabColumns.filter(c => c !== column);
-    } else {
-      // Find index of the reference column
-      const index = tabColumns.indexOf(afterColumn);
-      if (index !== -1) {
-        this.displayedColumns[this.activeTab] = [
-          ...tabColumns.slice(0, index + 1), // Columns before the reference column
-          column, // Insert the new column
-          ...tabColumns.slice(index + 1) // Columns after the reference column
-        ];
-      } else {
-        this.displayedColumns[this.activeTab].push(column); // Fallback: add to end
-      }
-    }
-  }
-
   fetchAllParameters(): void {
     this.isLoading = true;
     this.parameterService.getParameters().subscribe({
@@ -189,6 +184,7 @@ export class ParametersComponent {
         this.dataSource.data = this.parameters.filter((param) => param.identifier === tabIdentifier); // Default to customers
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        this.applyDefaultSort();
         this.isLoading = false;
 
 
@@ -200,6 +196,16 @@ export class ParametersComponent {
         });
         this.isLoading = false;
       },
+    });
+  }
+
+  private applyDefaultSort() {
+    if (!this.sort) return;
+
+    queueMicrotask(() => {
+      this.sort.active = this.defaultSortColumn;
+      this.sort.direction = this.defaultSortDirection;
+      this.sort.sortChange.emit({ active: this.defaultSortColumn, direction: this.defaultSortDirection });
     });
   }
 
@@ -260,6 +266,7 @@ export class ParametersComponent {
 
     this.dataSource.data = filteredData;
     this.dataSource.filter = this.searchTerm;
+    this.applyDefaultSort();
   }
 
   trackByUserId(index: number, group: any): number {
@@ -662,6 +669,27 @@ export class ParametersComponent {
 
     // Force validation update to disable the Add button if invalid
     this.expressionForm.updateValueAndValidity();
+  }
+
+  private parseDateValue(value: any): number {
+    if (value instanceof Date) {
+      return value.getTime();
+    }
+    if (value == null) {
+      return 0;
+    }
+
+    const asString = typeof value === 'string' ? value : String(value);
+    const normalized = asString
+      .replace(/,\s*/g, ' ')
+      .replace(/(\d{1,2})\/(\d{1,2})\/(\d{2})(?!\d)/, (_, month, day, year) => {
+        const yearNum = Number(year);
+        const expandedYear = yearNum < 100 ? 2000 + yearNum : yearNum;
+        return `${month}/${day}/${expandedYear}`;
+      });
+
+    const parsed = new Date(normalized);
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
   }
 
   // handleHasFactorsChange(): void {

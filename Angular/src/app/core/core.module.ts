@@ -29,6 +29,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ValidatorDialogComponent } from './components/validator-dialog/validator-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import { AutoSortDirective } from './directives/auto-sort.directive';
 
 
 
@@ -64,7 +65,8 @@ import { FormsModule } from '@angular/forms';
     MatTooltip,
     MatProgressSpinnerModule,
     MatDialogModule,
-    FormsModule
+    FormsModule,
+    AutoSortDirective
   ],
   exports: [
     TabinationComponent,
@@ -73,7 +75,8 @@ import { FormsModule } from '@angular/forms';
     SidebarComponent,
     HeaderComponent,
     MatExpansionModule,
-    SpinnerComponent
+    SpinnerComponent,
+    AutoSortDirective
   ]
 })
 export class CoreModule { }

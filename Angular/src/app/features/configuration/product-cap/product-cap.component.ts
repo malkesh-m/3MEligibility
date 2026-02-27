@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ProductsService } from '../../../core/services/setting/products.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -6,7 +6,7 @@ import { ProductCapService } from '../../../core/services/setting/product-cap.se
 import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
 import { MatTableDataSource } from '@angular/material/table';
-// import { MatSort } from '@angular/material/sort';
+import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -18,16 +18,29 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './product-cap.component.scss'
 })
 
-export class ProductCapComponent implements OnInit {
+export class ProductCapComponent implements OnInit, AfterViewInit {
   isDataReady: boolean = false;
 
+  @ViewChild(MatSort) private set matSort(sort: MatSort) {
+    if (sort) {
+      this.sort = sort;
+      this.selectedProductData.sort = sort;
+    }
+  }
+  private sort!: MatSort;
+
+  ngAfterViewInit(): void {
+    if (this.sort) {
+      this.selectedProductData.sort = this.sort;
+    }
+  }
   selectedProductData = new MatTableDataSource<any>([]);
   isEditMode = false;
   formvisible = false;
   ProductCapForm !: FormGroup;
   private _snackBar = inject(MatSnackBar);
   productsList: any[] = [];
-  displayedColumns: string[] = ['ProductName', 'ProductCap', 'MinimumScore', 'MaximumScore', 'actions'];
+  displayedColumns: string[] = ['productName', 'productCapPercentage', 'minimumScore', 'maximumScore', 'actions'];
   showMinMaxError = false;
   isLoading: boolean = false;
   message: string = "Loading data, please wait...";

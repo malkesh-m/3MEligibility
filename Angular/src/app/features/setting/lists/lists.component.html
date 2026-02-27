@@ -80,8 +80,9 @@
     </div>
 
     <!-- Lists Table -->
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="dataSource" matSort #listsSort="matSort" class="mat-mdc-table">
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="dataSource" matSort #listsSort="matSort" appAutoSort
+          appAutoSortColumn="createdDate" appAutoSortDirection="desc" class="mat-mdc-table">
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef>
             <mat-checkbox [checked]="isAllSelected()" [indeterminate]="selectedRows.size > 0 && !isAllSelected()"
@@ -101,9 +102,6 @@
         <ng-container matColumnDef="createdBy">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ 'Created By' | translate }}
-            <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')">
-              {{ displayedColumns.includes('createdDate') ? 'unfold_less' : 'unfold_more' }}
-            </mat-icon>
           </th>
           <td mat-cell *matCellDef="let entity">{{ entity.createdBy }}</td>
         </ng-container>
@@ -116,9 +114,6 @@
         <ng-container matColumnDef="updatedBy">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ 'Updated By' | translate }}
-            <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')">
-              {{ displayedColumns.includes('updatedDate') ? 'unfold_less' : 'unfold_more' }}
-            </mat-icon>
           </th>
           <td mat-cell *matCellDef="let entity">{{ entity.updatedBy }}</td>
         </ng-container>
@@ -204,8 +199,9 @@
     </div>
 
     <!-- Items Table -->
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="listItemDataSource" matSort #listItemsSort="matSort" class="mat-mdc-table">
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="listItemDataSource" matSort #listItemsSort="matSort"
+          appAutoSort appAutoSortColumn="createdDate" appAutoSortDirection="desc" class="mat-mdc-table">
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef>
             <mat-checkbox [checked]="isAllSelected()" [indeterminate]="selectedRows.size > 0 && !isAllSelected()"
@@ -235,9 +231,6 @@
         <ng-container matColumnDef="createdBy">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ 'Created By' | translate }}
-            <mat-icon class="info-icon" (click)="toggleColumnlistItem('createdDate','createdBy')">
-              {{ listItemdisplayedColumns.includes('createdDate') ? 'unfold_less' : 'unfold_more' }}
-            </mat-icon>
           </th>
           <td mat-cell *matCellDef="let entity">{{ entity.createdBy }}</td>
         </ng-container>
@@ -250,9 +243,6 @@
         <ng-container matColumnDef="updatedBy">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             {{ 'Updated By' | translate }}
-            <mat-icon class="info-icon" (click)="toggleColumnlistItem('updatedDate','updatedBy')">
-              {{ listItemdisplayedColumns.includes('updatedDate') ? 'unfold_less' : 'unfold_more' }}
-            </mat-icon>
           </th>
           <td mat-cell *matCellDef="let entity">{{ entity.updatedBy }}</td>
         </ng-container>

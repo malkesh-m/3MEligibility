@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductsService } from '../../../core/services/setting/products.service';
 import { ProductCapAmountService } from '../../../core/services/setting/product-cap-amount.service';
@@ -7,6 +7,8 @@ import { PermissionsService } from '../../../core/services/setting/permission.se
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-product-cap-amount',
@@ -15,12 +17,25 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: './product-cap-amount.component.html',
   styleUrl: './product-cap-amount.component.scss'
 })
-export class ProductCapAmountComponent {
+export class ProductCapAmountComponent implements AfterViewInit {
   ProductCapForm !: FormGroup;
   isEditMode: boolean = false;
   productsList: any[] = [];
   displayedColumns: string[] = ['productName', 'age', 'salary', 'amount', 'actions'];
-  selectedProductData: any[] = [];
+  @ViewChild(MatSort) private set matSort(sort: MatSort) {
+    if (sort) {
+      this.sort = sort;
+      this.selectedProductData.sort = sort;
+    }
+  }
+  private sort!: MatSort;
+
+  ngAfterViewInit(): void {
+    if (this.sort) {
+      this.selectedProductData.sort = this.sort;
+    }
+  }
+  selectedProductData = new MatTableDataSource<any>([]);
   private _snackBar = inject(MatSnackBar);
   formvisible: boolean = false;
   isLoading: boolean = false;
@@ -107,7 +122,7 @@ export class ProductCapAmountComponent {
             this.onProductSelected(selectedProductId);
             this.ProductCapForm.patchValue({
               productID: selectedProductId
-            })
+            });
           }
           this._snackBar.open(Response.message, 'Close', {
             duration: 3000,
@@ -123,8 +138,7 @@ export class ProductCapAmountComponent {
           });
           console.log("", error);
         }
-      }
-      );
+      });
 
     }
   }
@@ -160,25 +174,21 @@ export class ProductCapAmountComponent {
       next: (response) => {
 
         if (response.isSuccess && Array.isArray(response.data)) {
-          this.selectedProductData = response.data.map((item: {
+          const transformed = response.data.map((item: {
             productName: any;
             activity: any; maxCapPerStream: any; age: any; id: any; salary: any; amount: any;
           }) => ({
             id: item.id,
             productName: productName,
-            //activity: item.activity ||'',
             maxCapPerStream: item.maxCapPerStream || null,
             age: item.age || 0,
             salary: item.salary || 0,
             amount: item.amount || 0
-
           }));
-
+          this.selectedProductData.data = transformed;
 
         } else {
-          this.selectedProductData = [];
-
-
+          this.selectedProductData.data = [];
         }
       },
       error: (error) => {
@@ -187,7 +197,7 @@ export class ProductCapAmountComponent {
           verticalPosition: 'top', duration: 3000
         });
         console.error("Error fetching product cap data", error);
-        this.selectedProductData = [];
+        this.selectedProductData.data = [];
 
 
       }

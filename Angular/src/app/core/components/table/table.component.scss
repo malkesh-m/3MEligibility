@@ -24,7 +24,7 @@ table {
     font-weight: 500 !important;
     letter-spacing: 0.02em !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-    padding: 0 16px !important;
+    padding: 0 10px !important;
   }
 
   .mat-mdc-row {
@@ -45,7 +45,7 @@ table {
     font-size: 14px !important;
     font-family: 'Roboto', sans-serif !important;
     border-bottom: 1px solid #F1F5F9 !important;
-    padding: 0 16px !important;
+    padding: 0 10px !important;
   }
 }
 
@@ -79,6 +79,16 @@ table {
   font-size: 12px;
   font-weight: 500;
   display: inline-block;
+}
+
+.cell-content {
+  display: block;
+}
+
+.cell-value {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .badge-indigo {

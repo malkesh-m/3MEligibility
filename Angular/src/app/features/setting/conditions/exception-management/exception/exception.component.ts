@@ -34,7 +34,7 @@ export interface ExceptionRecord {
 })
 
 export class ExceptionComponent {
-  displayedColumns: string[] = ['ExceptionName', 'TemporaryException', 'Scope', 'Description', 'Status', 'CreatedDate', 'UpdatedDate','FixedPercentage','VariationPercentage','ExpShown', 'Actions'];
+  displayedColumns: string[] = ['ExceptionName', 'Description', 'TemporaryException', 'exceptionStartDate', 'exceptionEndDate', 'Scope', 'Status', 'ExpShown', 'FixedPercentage', 'VariationPercentage', 'Actions'];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @Input({required: true}) tableData: any;
@@ -72,28 +72,6 @@ export class ExceptionComponent {
     }
   }
 
-  toggleColumn(column1: string, column2: string) {
-    const index1 = this.displayedColumns.indexOf(column1);
-    const index2 = this.displayedColumns.indexOf(column2);
-    const temporaryExceptionIndex = this.displayedColumns.indexOf('TemporaryException');
-    
-    if (index1 > -1 && index2 > -1) {
-      // Remove both columns if they are currently visible
-      this.displayedColumns.splice(index1, 1);
-      this.displayedColumns.splice(index1, 1);
-    } else {
-      // Add columns after TemporaryException if they are not visible
-      if (index1 === -1) {
-        this.displayedColumns.splice(temporaryExceptionIndex + 1, 0, column1);
-      }
-      if (index2 === -1) {
-        this.displayedColumns.splice(temporaryExceptionIndex + 2, 0, column2);
-      }
-    }
-  
-    this.displayedColumns = [...this.displayedColumns]; // Ensure reactivity
-  }
-  
   sanitizeCode(event: any) {
     event.target.value = this.utilityService.sanitizeCode(event.target.value);
   }

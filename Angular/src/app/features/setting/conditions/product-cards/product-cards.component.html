@@ -184,7 +184,8 @@
 <app-table *ngIf="!loading" #tableChild [cols]="productCardsColumnsAry" [checkedSelectedId]="deleteKeyForMultiple"
     [displayedColumns]="productCardsColumnsAry" [rows]="filteredProductCardsList" [header]="cardsHeaderAry"
     (actionEvent)="tableRowAction($event)" [hasValidationAction]="true" [editPermissionId]="'Permissions.PCard.Edit'"
-    [deletePermissionId]="'Permissions.PCard.Delete'" [validatePermissionId]="'120'">
+    [deletePermissionId]="'Permissions.PCard.Delete'" [validatePermissionId]="'120'"
+    [defaultSortColumn]="'Created Date'" [defaultSortDirection]="'desc'">
 </app-table>
 
 <!-- Full-page Loader -->

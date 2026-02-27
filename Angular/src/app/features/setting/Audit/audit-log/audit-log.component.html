@@ -11,7 +11,7 @@
 </div>
 
 <div #auditLogTable class="table-wrapper">
-  <table mat-table [dataSource]="dataSource" matSort>
+  <table mat-table [dataSource]="dataSource" matSort matSortActive="actionDate" matSortDirection="desc" matSortDisableClear>
 
     <ng-container matColumnDef="recordId">
       <th mat-sort-header mat-header-cell *matHeaderCellDef> {{'Record Id' | translate}} </th>

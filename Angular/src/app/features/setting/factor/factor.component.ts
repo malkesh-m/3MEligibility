@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener, ViewChild, AfterViewInit, inject, Injectable, QueryList, ViewChildren } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
@@ -25,6 +25,8 @@ export interface FactorRecord {
   factorId?: number | null;
   createdBy: string;
   updatedBy: string;
+  createdByDateTime?: string | Date | null;
+  updatedByDateTime?: string | Date | null;
   input: string;
 }
 
@@ -58,10 +60,12 @@ export interface Parameters {
 })
 
 export class FactorsComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['select', 'parameterName', 'factorName', 'value1', 'value2', 'createdBy', 'updatedBy', 'actions'];
+  displayedColumns: string[] = ['select', 'parameterName', 'factorName', 'value1', 'value2', 'createdBy', 'createdDate', 'updatedBy', 'updatedDate', 'actions'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  private readonly defaultSortColumn: string = 'createdDate';
+  private readonly defaultSortDirection: SortDirection = 'desc';
   private _snackBar = inject(MatSnackBar);
   records: FactorRecord[] = [];
 
@@ -137,29 +141,23 @@ export class FactorsComponent implements OnInit, AfterViewInit {
       this.formData.factorName = value;
     }
   }
-  toggleColumn(column: string, afterColumn: string) {
-    const index = this.displayedColumns.indexOf(column);
-
-    if (index > -1) {
-      // Remove column if already visible
-      this.displayedColumns.splice(index, 1);
-    } else {
-      // Find the index of the afterColumn and insert right after it
-      const afterIndex = this.displayedColumns.indexOf(afterColumn);
-      if (afterIndex !== -1) {
-        this.displayedColumns.splice(afterIndex + 1, 0, column);
-      } else {
-        this.displayedColumns.push(column); // Default push if not found
-      }
-    }
-
-    this.displayedColumns = [...this.displayedColumns]; // Ensure reactivity
-  }
-
   ngAfterViewInit() {
     // Bind paginator and sort after the view is initialized
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      if (property === 'createdDate') {
+        return this.parseDateValue(item.createdByDateTime);
+      }
+      if (property === 'updatedDate') {
+        return this.parseDateValue(item.updatedByDateTime);
+      }
+      if (property?.toLowerCase().includes('date')) {
+        return this.parseDateValue((item as any)[property]);
+      }
+      return (item as any)[property];
+    };
+    this.applyDefaultSort();
   }
 
   toggleMenu() {
@@ -193,6 +191,7 @@ export class FactorsComponent implements OnInit, AfterViewInit {
 
 
           });
+          this.applyDefaultSort();
         }
         this.isLoading = false;
       },
@@ -254,6 +253,37 @@ export class FactorsComponent implements OnInit, AfterViewInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  private applyDefaultSort() {
+    if (!this.sort) return;
+
+    queueMicrotask(() => {
+      this.sort.active = this.defaultSortColumn;
+      this.sort.direction = this.defaultSortDirection;
+      this.sort.sortChange.emit({ active: this.defaultSortColumn, direction: this.defaultSortDirection });
+    });
+  }
+
+  private parseDateValue(value: any): number {
+    if (value instanceof Date) {
+      return value.getTime();
+    }
+    if (value == null) {
+      return 0;
+    }
+
+    const asString = typeof value === 'string' ? value : String(value);
+    const normalized = asString
+      .replace(/,\s*/g, ' ')
+      .replace(/(\d{1,2})\/(\d{1,2})\/(\d{2})(?!\d)/, (_, month, day, year) => {
+        const yearNum = Number(year);
+        const expandedYear = yearNum < 100 ? 2000 + yearNum : yearNum;
+        return `${month}/${day}/${expandedYear}`;
+      });
+
+    const parsed = new Date(normalized);
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
   }
 
   //addRecord(form: NgForm): void {

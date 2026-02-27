@@ -1,7 +1,7 @@
 import { Component, EventEmitter, input, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogComponent } from '../../../core/components/delete-dialog/delete-dialog.component';
@@ -23,6 +23,7 @@ export class TableComponent {
   @Output() actionEvent = new EventEmitter<{ action: string; data: any }>();
   dataSource = new MatTableDataSource<any>();
   headers: string[] = [];
+  readonly wideColumnHeaders = new Set(['Exp shown', 'Product Card Name', 'Product Name', 'CardName']);
   selectedRows: Set<number> = new Set();
   selectedRowsItem: Set<number> = new Set();
   productselectedRowsItem: Set<number> = new Set();
@@ -32,9 +33,12 @@ export class TableComponent {
   pageSize: number = 10;
   currentPage: number = 0;
   @Input() displayedColumns: string[] = [];
+  @Input() defaultSortColumn: string = '';
+  @Input() defaultSortDirection: SortDirection = 'desc';
   @Input() editPermissionId: string = '';
   @Input() deletePermissionId: string = '';
   @Input() validatePermissionId: string = '';
+  private defaultSortApplied = false;
 
   constructor(
     private dialog: MatDialog,
@@ -46,12 +50,15 @@ export class TableComponent {
     this.dataSource.sort = this.sort;
 
     this.dataSource.sortingDataAccessor = (item, property) => {
-      // Dates
-      if (property === 'Created Date' || property === 'Updated Date') {
-        return item[property] ? new Date(item[property]) : null;
+      const value = item[property];
+
+      if (this.isDateColumn(property) || this.isDateValue(value)) {
+        return this.parseDateValue(value);
       }
-      return item[property];
+
+      return value;
     };
+    this.applyDefaultSort();
   }
 
   ngOnInit() {
@@ -70,25 +77,92 @@ export class TableComponent {
     return ['Select', ...this.displayedColumns, 'Actions'];
   }
 
-  toggleColumn(column: string) {
-    const index = this.displayedColumns.indexOf(column);
+  getColumnMinWidth(header: string): number | null {
+    if (!this.wideColumnHeaders.has(header)) return null;
+    if (header === 'Exp shown') return 140;
+    return 140;
+  }
 
-    if (index > -1) {
-      // Remove column if it's already visible
-      this.displayedColumns.splice(index, 1);
-    } else {
-      // Ensure it appears after its respective main column
-      const referenceColumn = column === 'Created Date' ? 'Created By' : 'Updated By';
-      const referenceIndex = this.displayedColumns.indexOf(referenceColumn);
+  getColumnMaxWidth(header: string): number | null {
+    if (!this.wideColumnHeaders.has(header)) return null;
+    if (header === 'Exp shown') return 210;
+    return 230;
+  }
 
-      if (referenceIndex !== -1) {
-        this.displayedColumns.splice(referenceIndex + 1, 0, column);
-      } else {
-        this.displayedColumns.push(column);
-      }
+  shouldPreventHeaderWrap(header: string): boolean {
+    return this.wideColumnHeaders.has(header);
+  }
+
+  private readonly dateColumnPattern = /date|datetime/i;
+
+  private isDateColumn(column: string): boolean {
+    return this.dateColumnPattern.test(column);
+  }
+
+  private isDateValue(value: any): boolean {
+    if (value instanceof Date) {
+      return true;
+    }
+    if (typeof value !== 'string') {
+      return false;
+    }
+    const normalized = value.trim();
+    return /\d{4}-\d{2}-\d{2}/.test(normalized) || /\d{1,2}\/\d{1,2}\/\d{2,4}/.test(normalized);
+  }
+
+  private parseDateValue(value: any): Date | null {
+    if (value instanceof Date) {
+      return value;
+    }
+    if (value == null) {
+      return null;
     }
 
-    this.displayedColumns = [...this.displayedColumns]; // Ensure reactivity
+    const asString = typeof value === 'string' ? value : String(value);
+    const normalized = asString
+      .replace(/,\s*/g, ' ')
+      .replace(/(\d{1,2})\/(\d{1,2})\/(\d{2})(?!\d)/, (_, month, day, year) => {
+        const yearNum = Number(year);
+        const expandedYear = yearNum < 100 ? 2000 + yearNum : yearNum;
+        return `${month}/${day}/${expandedYear}`;
+      });
+
+    const parsed = new Date(normalized);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  private applyDefaultSort() {
+    if (!this.sort || !this.displayedColumns?.length) {
+      this.defaultSortApplied = false;
+      return;
+    }
+
+    const preferredDateColumn = this.displayedColumns.find(column =>
+      column.toLowerCase().includes('date') && column !== 'Select' && column !== 'Actions'
+    );
+
+    const explicitColumn = this.defaultSortColumn?.trim();
+    const column = explicitColumn && !['Select', 'Actions'].includes(explicitColumn)
+      ? explicitColumn
+      : preferredDateColumn ?? this.displayedColumns.find(column => column !== 'Select' && column !== 'Actions') ?? '';
+
+    if (!column) {
+      this.defaultSortApplied = false;
+      return;
+    }
+
+    const direction = this.defaultSortDirection || 'desc';
+
+    if (this.defaultSortApplied && this.sort.active === column && this.sort.direction === direction) {
+      return;
+    }
+
+    queueMicrotask(() => {
+      this.sort.active = column;
+      this.sort.direction = direction;
+      this.sort.sortChange.emit({ active: column, direction });
+      this.defaultSortApplied = true;
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -101,6 +175,7 @@ export class TableComponent {
       this.headers = this.header;
       this.displayedColumns = [...this.headers];
     }
+    this.applyDefaultSort();
   }
 
   applyFilter(filter: string) {

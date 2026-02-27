@@ -69,3 +69,8 @@
     color: var(--rose);
   }
 }
+.mat-column-value2 {
+  padding-left: 8px !important;
+  padding-right: 10x !important;
+  white-space: nowrap;   /* prevent wrapping */
+}

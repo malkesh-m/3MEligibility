@@ -213,7 +213,8 @@
 
   <!-- Factors Table -->
   <div class="table-wrapper">
-    <table mat-table [dataSource]="dataSource" matSort class="mat-mdc-table">
+    <table mat-table [dataSource]="dataSource" matSort appAutoSort appAutoSortColumn="createdDate" appAutoSortDirection="desc"
+      class="mat-mdc-table">
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
           <mat-checkbox [checked]="isAllPageSelected()" [indeterminate]="isSomePageSelected()"
@@ -255,31 +256,25 @@
       </ng-container>
 
       <ng-container matColumnDef="createdBy">
-        <th mat-header-cell *matHeaderCellDef>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
           {{ 'Created By' | translate }}
-          <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')">
-            {{ displayedColumns.includes('createdDate') ? 'unfold_less' : 'unfold_more' }}
-          </mat-icon>
         </th>
         <td mat-cell *matCellDef="let entity">{{ entity.createdBy }}</td>
       </ng-container>
 
-      <ng-container *ngIf="displayedColumns.includes('createdDate')" matColumnDef="createdDate">
+      <ng-container matColumnDef="createdDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Created Date' | translate }}</th>
         <td mat-cell *matCellDef="let entity">{{ entity.createdByDateTime | date:'short' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="updatedBy">
-        <th mat-header-cell *matHeaderCellDef>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
           {{ 'Updated By' | translate }}
-          <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')">
-            {{ displayedColumns.includes('updatedDate') ? 'unfold_less' : 'unfold_more' }}
-          </mat-icon>
         </th>
         <td mat-cell *matCellDef="let entity">{{ entity.updatedBy }}</td>
       </ng-container>
 
-      <ng-container *ngIf="displayedColumns.includes('updatedDate')" matColumnDef="updatedDate">
+      <ng-container matColumnDef="updatedDate">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Updated Date' | translate }}</th>
         <td mat-cell *matCellDef="let entity">{{ entity.updatedByDateTime | date:'short' }}</td>
       </ng-container>

@@ -80,7 +80,7 @@ button mat-icon:last-child {
 
     .tenant-logo-fallback {
         height: 34px;
-        width: 34px;
+        width: 32px;
         border-radius: 6px;
         background: var(--primary);
         color: #fff;
@@ -104,8 +104,10 @@ button mat-icon:last-child {
 /* Breadcrumb Strip - Below Title Bar */
 .breadcrumb-strip {
     background: var(--bg);
+    border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 6px 24px 2px 24px;
+    padding: 6px 24px 0px 24px;   
+    line-height: 1;  
 }
 
 .breadcrumb {

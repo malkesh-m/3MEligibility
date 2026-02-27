@@ -24,8 +24,25 @@ export class CardsComponent {
   @ViewChild('tableChild') tableChild: any;
   @ViewChild('paginator') paginator!: MatPaginator;
   // Table Columns and Data
-  cardsColumnsAry: string[] = ['Select', 'CardName', 'Description', 'Exp shown', 'Created By', 'Updated By'];
-  cardsHeaderAry = ['CardName', 'Description', 'Exp shown', 'Created By', 'Updated By'];
+  cardsColumnsAry: string[] = [
+    'Select',
+    'CardName',
+    'Description',
+    'Exp shown',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date'
+  ];
+  cardsHeaderAry = [
+    'CardName',
+    'Description',
+    'Exp shown',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date'
+  ];
   eCardsListAry: any[] = [];
   rules: any[] = [];
   parameters: any[] = [];

@@ -56,7 +56,6 @@ import { ApiDetailsDialogComponent } from './dashboard/api-details-dialog/api-de
 import { ParameterBindingComponent } from './parameter-binding/parameter-binding.component';
 
 
-
 @NgModule({
   declarations: [
     SettingComponent,

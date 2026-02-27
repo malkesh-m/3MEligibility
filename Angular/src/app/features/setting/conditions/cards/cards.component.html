@@ -166,7 +166,8 @@
 <app-table #tableChild [cols]="cardsColumnsAry" [checkedSelectedId]="deleteKeyForMultiple" [rows]="filteredCards"
   [displayedColumns]="cardsColumnsAry" [header]="cardsHeaderAry" (actionEvent)="tableRowAction($event)"
   [hasValidationAction]="true" [editPermissionId]="'Permissions.ECard.Edit'"
-  [deletePermissionId]="'Permissions.ECard.Delete'" [validatePermissionId]="'65'">
+  [deletePermissionId]="'Permissions.ECard.Delete'" [validatePermissionId]="'65'"
+  [defaultSortColumn]="'Created Date'" [defaultSortDirection]="'desc'">
 </app-table>
 
 <!-- Full-page Loader -->

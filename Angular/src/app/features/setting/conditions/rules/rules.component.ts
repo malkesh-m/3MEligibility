@@ -254,24 +254,6 @@ export class RulesComponent {
     return matchedIds;
   }
 
-  toggleColumn(column: string, afterColumn: string) {
-    const index = this.rulesColumnsAry.indexOf(column);
-
-    if (index > -1) {
-      // Remove column if already visible
-      this.rulesColumnsAry.splice(index, 1);
-    } else {
-      // Find the index of the afterColumn and insert right after it
-      const afterIndex = this.rulesColumnsAry.indexOf(afterColumn);
-      if (afterIndex !== -1) {
-        this.rulesColumnsAry.splice(afterIndex + 1, 0, column);
-      } else {
-        this.rulesColumnsAry.push(column); // Default push if not found
-      }
-    }
-
-    this.rulesColumnsAry = [...this.rulesColumnsAry]; // Ensure reactivity
-  }
   addNewVersion(rule: any) {
     this.IfAddNewVersion = true;
     this.IEditRuleVersion = false;

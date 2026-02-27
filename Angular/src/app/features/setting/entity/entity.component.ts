@@ -63,7 +63,7 @@ export interface EntityOption {
 })
 
 export class EntityComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['select', 'code', 'entityName', 'countryId', 'cityId', 'entityAddress', 'isparent', 'parentEnitityId', 'createdBy', 'updatedBy', 'actions'];
+  displayedColumns: string[] = ['select', 'code', 'entityName', 'countryId', 'cityId', 'entityAddress', 'isparent', 'parentEnitityId', 'createdBy', 'createdDate', 'updatedBy', 'updatedDate', 'actions'];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   private _snackBar = inject(MatSnackBar);
@@ -154,25 +154,6 @@ export class EntityComponent implements OnInit, AfterViewInit {
       this.showMaxLengthEntityCode = false;
       this.formData.code = value;
     }
-  }
-
-  toggleColumn(column: string, afterColumn: string) {
-    const index = this.displayedColumns.indexOf(column);
-
-    if (index > -1) {
-      // Remove column if already visible
-      this.displayedColumns.splice(index, 1);
-    } else {
-      // Find the index of the afterColumn and insert right after it
-      const afterIndex = this.displayedColumns.indexOf(afterColumn);
-      if (afterIndex !== -1) {
-        this.displayedColumns.splice(afterIndex + 1, 0, column);
-      } else {
-        this.displayedColumns.push(column); // Default push if not found
-      }
-    }
-
-    this.displayedColumns = [...this.displayedColumns]; // Ensure reactivity
   }
 
   ngAfterViewInit() {

@@ -244,50 +244,30 @@
             <!-- Created By -->
             <ng-container matColumnDef="createdBy">
                 <th mat-header-cell *matHeaderCellDef>
-                    <span>{{ 'Created By' | translate }}</span>
-                    <mat-icon class="info-icon" (click)="toggleColumn('createdDate','createdBy')"
-                        matTooltip="{{ 'Show/Hide Date' | translate }}">
-                        @if (rulesColumnsAry.includes('createdDate')) {
-                        unfold_less
-                        } @else {
-                        unfold_more
-                        }
-                    </mat-icon>
+                    {{ 'Created By' | translate }}
                 </th>
                 <td mat-cell *matCellDef="let entity">{{ entity.createdBy }}</td>
             </ng-container>
 
-            @if (rulesColumnsAry.includes('createdDate')) {
             <ng-container matColumnDef="createdDate">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Created Date' | translate }}</th>
                 <td mat-cell *matCellDef="let entity" class="mono text-xs">{{ entity.createdByDateTime | date:'short' }}
                 </td>
             </ng-container>
-            }
 
             <!-- Updated By -->
             <ng-container matColumnDef="updatedBy">
                 <th mat-header-cell *matHeaderCellDef>
-                    <span>{{ 'Updated By' | translate }}</span>
-                    <mat-icon class="info-icon" (click)="toggleColumn('updatedDate','updatedBy')"
-                        matTooltip="{{ 'Show/Hide Date' | translate }}">
-                        @if (rulesColumnsAry.includes('updatedDate')) {
-                        unfold_less
-                        } @else {
-                        unfold_more
-                        }
-                    </mat-icon>
+                    {{ 'Updated By' | translate }}
                 </th>
                 <td mat-cell *matCellDef="let entity">{{ entity.updatedBy }}</td>
             </ng-container>
 
-            @if (rulesColumnsAry.includes('updatedDate')) {
             <ng-container matColumnDef="updatedDate">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Updated Date' | translate }}</th>
                 <td mat-cell *matCellDef="let entity" class="mono text-xs">{{ entity.updatedByDateTime | date:'short' }}
                 </td>
             </ng-container>
-            }
 
             <!-- Actions Column -->
             <ng-container matColumnDef="Actions">

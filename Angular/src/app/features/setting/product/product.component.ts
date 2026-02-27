@@ -68,12 +68,53 @@ export class ProductComponent {
   activeTab: string = 'Category'
   menuVisible: boolean = false;
   isTableDataUpdated: boolean = false;
-  categoryTableColumnAry = ['Select', 'Name', 'Description', 'Created By', 'Updated By', 'Actions'];
-  infoTableColumnAry = ['Select', 'Code', 'Category Name', 'Product Name', 'Created By', 'Updated By', 'Actions'];
-  detailsTableColumnAry = ['Select', 'Product', 'Parameter', 'Mandatory', 'Parameter value', 'Display order', 'Created By', 'Updated By', 'Actions'];
-  categoryTableHeaderAry = ['Name', 'Description', 'Created By', 'Updated By'];
-  infoTableHeaderAry = ['Code', 'Product Name', 'Category Name', 'Created By', 'Updated By'];
-  detailsTableHeaderAry = ['Product', 'Parameter', 'Mandatory', 'Parameter value', 'Display order', 'Created By', 'Updated By'];
+  categoryTableColumnAry = [
+    'Select',
+    'Name',
+    'Description',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date',
+    'Actions'
+  ];
+  infoTableColumnAry = [
+    'Select',
+    'Code',
+    'Category Name',
+    'Product Name',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date',
+    'Actions'
+  ];
+  detailsTableColumnAry = [
+    'Select',
+    'Product',
+    'Parameter',
+    'Mandatory',
+    'Parameter value',
+    'Display order',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date',
+    'Actions'
+  ];
+  categoryTableHeaderAry = ['Name', 'Description', 'Created By', 'Created Date', 'Updated By', 'Updated Date'];
+  infoTableHeaderAry = ['Code', 'Product Name', 'Category Name', 'Created By', 'Created Date', 'Updated By', 'Updated Date'];
+  detailsTableHeaderAry = [
+    'Product',
+    'Parameter',
+    'Mandatory',
+    'Parameter value',
+    'Display order',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date'
+  ];
 
   filteredCategoriesList = [];
   filteredInfoList = [];

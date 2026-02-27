@@ -133,7 +133,8 @@
 
   <div #entityTable class="table-wrapper">
     <!-- Table if data exists -->
-    <table class="bgColorWhite " mat-table [dataSource]="selectedProductData">
+    <table class="bgColorWhite " mat-table [dataSource]="selectedProductData" matSort
+      appAutoSort appAutoSortColumn="productName" appAutoSortDirection="asc">
 
       <!-- Optional ID column -->
       <!--<ng-container hidden matColumnDef="id">
@@ -141,7 +142,7 @@
     <td mat-cell *matCellDef="let element">{{ element.id }}</td>
   </ng-container>-->
       <ng-container matColumnDef="productName">
-        <th mat-header-cell *matHeaderCellDef>{{ 'Product Name' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Product Name' | translate }}</th>
         <td mat-cell *matCellDef="let element">{{ element.productName }}</td>
       </ng-container>
 
@@ -156,16 +157,16 @@
       </ng-container>
 
       <ng-container matColumnDef="age">
-        <th mat-header-cell *matHeaderCellDef>{{ 'Age Criteria' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Age Criteria' | translate }}</th>
         <td mat-cell *matCellDef="let element">{{ element.age }}</td>
       </ng-container>
 
       <ng-container matColumnDef="salary">
-        <th mat-header-cell *matHeaderCellDef>{{ 'Salary Criteria' | translate }}
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Salary Criteria' | translate }}
         <td mat-cell *matCellDef="let element">{{ element.salary }}</td>
       </ng-container>
       <ng-container matColumnDef="amount">
-        <th mat-header-cell *matHeaderCellDef>{{ 'Amount' | translate }}</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Amount' | translate }}</th>
         <td mat-cell *matCellDef="let element">{{ element.amount }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
@@ -191,7 +192,7 @@
     </table>
   </div>
   <!-- Message when no data -->
-  <div *ngIf="selectedProductData.length === 0" class="text-center text-muted mt-3">
+  <div *ngIf="selectedProductData.data.length === 0" class="text-center text-muted mt-3">
     <p>{{ 'No Product Cap Amount available for the selected Product.' | translate }}</p>
   </div>
 </div>

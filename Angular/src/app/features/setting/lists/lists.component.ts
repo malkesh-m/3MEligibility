@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, OnInit } from '@angular/core';
+import { Component, inject, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NgForm } from '@angular/forms';
 import { UtilityService } from '../../../core/services/utility/utils';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 import { PermissionsService } from '../../../core/services/setting/permission.service';
 import { TranslateService } from '@ngx-translate/core';
 import { HeaderTitleService } from '../../../core/services/header-title.service';
@@ -25,15 +25,17 @@ import { HeaderTitleService } from '../../../core/services/header-title.service'
   templateUrl: './lists.component.html',
   styleUrl: './lists.component.scss'
 })
-export class ListsComponent implements OnInit {
+export class ListsComponent implements OnInit, AfterViewInit {
   private _snackBar = inject(MatSnackBar);
   @ViewChild('listsPaginator') listsPaginator!: MatPaginator;
   @ViewChild('listItemsPaginator') listItemsPaginator!: MatPaginator;
   @ViewChild('listsSort') listsSort!: MatSort;
   @ViewChild('listItemsSort') listItemsSort!: MatSort;
+  private readonly defaultSortColumn: string = 'createdDate';
+  private readonly defaultSortDirection: SortDirection = 'desc';
   parameters: any[] = [];
-  displayedColumns: string[] = ['select', 'listName', 'createdBy', 'updatedBy', 'actions'];
-  listItemdisplayedColumns: string[] = ['select', 'code', 'listName', 'itemName', 'createdBy', 'updatedBy', 'actions'];
+  displayedColumns: string[] = ['select', 'listName', 'createdBy', 'createdDate', 'updatedBy', 'updatedDate', 'actions'];
+  listItemdisplayedColumns: string[] = ['select', 'code', 'listName', 'itemName', 'createdBy', 'createdDate', 'updatedBy', 'updatedDate', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
   listItemDataSource = new MatTableDataSource<any>([]);
   searchTerm: string = '';
@@ -104,6 +106,41 @@ export class ListsComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.listsPaginator;
+    this.dataSource.sort = this.listsSort;
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      if (property === 'createdDate') {
+        return this.parseDateValue(item.createdByDateTime);
+      }
+      if (property === 'updatedDate') {
+        return this.parseDateValue(item.updatedByDateTime);
+      }
+      if (property?.toLowerCase().includes('date')) {
+        return this.parseDateValue(item[property]);
+      }
+      return item[property];
+    };
+
+    this.listItemDataSource.paginator = this.listItemsPaginator;
+    this.listItemDataSource.sort = this.listItemsSort;
+    this.listItemDataSource.sortingDataAccessor = (item, property) => {
+      if (property === 'createdDate') {
+        return this.parseDateValue(item.createdByDateTime);
+      }
+      if (property === 'updatedDate') {
+        return this.parseDateValue(item.updatedByDateTime);
+      }
+      if (property?.toLowerCase().includes('date')) {
+        return this.parseDateValue(item[property]);
+      }
+      return item[property];
+    };
+
+    this.applyDefaultSort(this.dataSource, this.listsSort);
+    this.applyDefaultSort(this.listItemDataSource, this.listItemsSort);
+  }
+
   get activeTabTitle(): string {
     switch (this.activeTab?.toLowerCase()) {
       case 'lists':
@@ -142,44 +179,6 @@ export class ListsComponent implements OnInit {
 
   hasPermission(permissionId: string): boolean {
     return this.PermissionsService.hasPermission(permissionId);
-  }
-
-  toggleColumn(column: string, afterColumn: string) {
-    const index = this.displayedColumns.indexOf(column);
-
-    if (index > -1) {
-      // Remove column if already visible
-      this.displayedColumns.splice(index, 1);
-    } else {
-      // Find the index of the afterColumn and insert right after it
-      const afterIndex = this.displayedColumns.indexOf(afterColumn);
-      if (afterIndex !== -1) {
-        this.displayedColumns.splice(afterIndex + 1, 0, column);
-      } else {
-        this.displayedColumns.push(column); // Default push if not found
-      }
-    }
-
-    this.displayedColumns = [...this.displayedColumns]; // Ensure reactivity
-  }
-
-  toggleColumnlistItem(column: string, afterColumn: string) {
-    const index = this.listItemdisplayedColumns.indexOf(column);
-
-    if (index > -1) {
-      // Remove column if already visible
-      this.listItemdisplayedColumns.splice(index, 1);
-    } else {
-      // Find the index of the afterColumn and insert right after it
-      const afterIndex = this.listItemdisplayedColumns.indexOf(afterColumn);
-      if (afterIndex !== -1) {
-        this.listItemdisplayedColumns.splice(afterIndex + 1, 0, column);
-      } else {
-        this.listItemdisplayedColumns.push(column); // Default push if not found
-      }
-    }
-
-    this.listItemdisplayedColumns = [...this.listItemdisplayedColumns]; // Ensure reactivity
   }
 
   switchTab(tab: string): void {
@@ -231,6 +230,7 @@ export class ListsComponent implements OnInit {
         }));
         this.listItemDataSource.paginator = this.listItemsPaginator;
         this.listItemDataSource.sort = this.listItemsSort;
+        this.applyDefaultSort(this.listItemDataSource, this.listItemsSort);
         this.isLoading = false;
       },
       error: (error) => {
@@ -264,6 +264,7 @@ export class ListsComponent implements OnInit {
         this.dataSource.data = this.listItems = response.data;
         this.dataSource.paginator = this.listsPaginator;
         this.dataSource.sort = this.listsSort;
+        this.applyDefaultSort(this.dataSource, this.listsSort);
         this.isLoading = false;
       },
       error: (error) => {
@@ -284,6 +285,38 @@ export class ListsComponent implements OnInit {
     } else if (this.activeTab?.toLowerCase() === 'listitems') {
       this.listItemDataSource.filter = filterValue;
     }
+  }
+
+  private applyDefaultSort(dataSource: MatTableDataSource<any>, sort: MatSort | undefined): void {
+    if (!sort) return;
+
+    queueMicrotask(() => {
+      sort.active = this.defaultSortColumn;
+      sort.direction = this.defaultSortDirection;
+      sort.sortChange.emit({ active: this.defaultSortColumn, direction: this.defaultSortDirection });
+      dataSource.sort = sort;
+    });
+  }
+
+  private parseDateValue(value: any): number {
+    if (value instanceof Date) {
+      return value.getTime();
+    }
+    if (value == null) {
+      return 0;
+    }
+
+    const asString = typeof value === 'string' ? value : String(value);
+    const normalized = asString
+      .replace(/,\s*/g, ' ')
+      .replace(/(\d{1,2})\/(\d{1,2})\/(\d{2})(?!\d)/, (_, month, day, year) => {
+        const yearNum = Number(year);
+        const expandedYear = yearNum < 100 ? 2000 + yearNum : yearNum;
+        return `${month}/${day}/${expandedYear}`;
+      });
+
+    const parsed = new Date(normalized);
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
   }
 
   toggleMenu(): void {

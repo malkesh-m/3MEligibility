@@ -26,41 +26,43 @@
       row-item-outline-color: #F1F5F9,
       row-item-container-height: 48px,
     ));
-  --bg: #F8FAFC;
-  --surface: #FFFFFF;
-  --surface-2: #F1F5F9;
-  --surface-3: #E2E8F0;
-  --border: #E2E8F0;
-  --border-strong: #CBD5E1;
+  & {
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --surface-2: #F1F5F9;
+    --surface-3: #E2E8F0;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
 
-  --primary: #2563EB;
-  --primary-rgb: 37, 99, 235;
-  --primary-hover: #1D4ED8;
-  --primary-dim: rgba(37, 99, 235, 0.05);
+    --primary: #2563EB;
+    --primary-rgb: 37, 99, 235;
+    --primary-hover: #1D4ED8;
+    --primary-dim: rgba(37, 99, 235, 0.05);
 
-  --indigo: #4F46E5;
-  --indigo-rgb: 79, 70, 229;
-  --cyan: #0891B2;
-  --cyan-rgb: 8, 145, 178;
-  --emerald: #059669;
-  --emerald-rgb: 5, 150, 105;
-  --rose: #E11D48;
-  --rose-rgb: 225, 29, 72;
-  --amber: #D97706;
-  --amber-rgb: 217, 119, 6;
-  --slate: #475569;
-  --slate-rgb: 71, 85, 105;
+    --indigo: #4F46E5;
+    --indigo-rgb: 79, 70, 229;
+    --cyan: #0891B2;
+    --cyan-rgb: 8, 145, 178;
+    --emerald: #059669;
+    --emerald-rgb: 5, 150, 105;
+    --rose: #E11D48;
+    --rose-rgb: 225, 29, 72;
+    --amber: #D97706;
+    --amber-rgb: 217, 119, 6;
+    --slate: #475569;
+    --slate-rgb: 71, 85, 105;
 
-  --teal: #0D9488;
-  --teal-rgb: 13, 148, 136;
+    --teal: #0D9488;
+    --teal-rgb: 13, 148, 136;
 
-  --text-1: #0F172A;
-  --text-2: #334155;
-  --text-3: #64748B;
+    --text-1: #0F172A;
+    --text-2: #334155;
+    --text-3: #64748B;
 
-  --font-ui: 'Roboto', 'Inter', sans-serif;
-  --font-data: 'JetBrains Mono', monospace;
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-ui: 'Roboto', 'Inter', sans-serif;
+    --font-data: 'JetBrains Mono', monospace;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 @import 'quill/dist/quill.snow.css';

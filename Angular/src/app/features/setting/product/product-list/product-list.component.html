@@ -237,7 +237,8 @@
         <app-table #tableChild [cols]="columnsDisplayAry" [checkedSelectedId]="deleteKeyForMultiple"
             [displayedColumns]="columnsDisplayAry" [header]="headerDisplayAry" [rows]="rows"
             (actionEvent)="tableRowAction($event)" [editPermissionId]="editPermissionId"
-            [deletePermissionId]="deletePermissionId">
+            [deletePermissionId]="deletePermissionId" [defaultSortColumn]="'Created Date'"
+            [defaultSortDirection]="'desc'">
         </app-table>
     </div>
 </div>

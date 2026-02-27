@@ -24,8 +24,28 @@ import { TranslateService } from '@ngx-translate/core';
 export class ProductCardsComponent implements OnInit {
   @ViewChild('tableChild') tableChild!: TableComponent;
   eProductCardsListAry: any = [];
-  productCardsColumnsAry = ['Select', 'Product Card Name', 'Description', 'Exp shown', 'Product', 'Created By', 'Updated By', 'Actions'];
-  cardsHeaderAry = ['Product Card Name', 'Description', 'Exp shown', 'Product', 'Created By', 'Updated By'];
+  productCardsColumnsAry = [
+    'Select',
+    'Product Card Name',
+    'Description',
+    'Exp shown',
+    'Product',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date',
+    'Actions'
+  ];
+  cardsHeaderAry = [
+    'Product Card Name',
+    'Description',
+    'Exp shown',
+    'Product',
+    'Created By',
+    'Created Date',
+    'Updated By',
+    'Updated Date'
+  ];
   deleteKeyForMultiple: string = 'eproductCardId';
   formVisible: boolean = false;
   isInsertNewRecord: boolean = false;
