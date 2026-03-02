@@ -67,7 +67,7 @@ export class HeaderComponent {
     const currentUserJson = localStorage.getItem('currentUser');
     if (!tenantId && currentUserJson) {
       const currentUser = JSON.parse(currentUserJson);
-      tenantId = currentUser?.user?.tenantId || currentUser?.user?.entityId;
+      tenantId = currentUser?.user?.tenantId ;
       if (!localTenantName) {
         localTenantName = currentUser?.user?.tenantName || '';
       }

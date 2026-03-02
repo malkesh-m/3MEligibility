@@ -1,7 +1,7 @@
 import { Component, inject, Inject, Input, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FactorsService } from '../../services/setting/factors.service';
-import { ValidationType,ValidationDialogData } from './validation-dialog.model';
+import { ValidationType, ValidationDialogData } from './validation-dialog.model';
 import { RulesService } from '../../services/setting/rules.service';
 import { CardsService } from '../../services/setting/cards.service';
 import { ProductCardsService } from '../../services/setting/product-cards.service';
@@ -135,11 +135,10 @@ export class ValidatorDialogComponent {
 
     if (this.validationType == 'ERule') {
       if (this.actionType === 'form') {
-        console.log("validateFormErule called")
+        // Use evaluateExpression: the backend now handles both
+        // Range (via literal regex) and In List (via new Case 2b literal handler).
+        // Factor names have been substituted with user-selected values.
         this.expression = this.evaluateExpression;
-
-        console.log(this.expression)
-
         this.eRulesService.validateFormErule(this.expression, expressionData).subscribe({
           next: (response) => {
             const validationPassed = response.isValidationPassed;
@@ -148,10 +147,10 @@ export class ValidatorDialogComponent {
               setTimeout(() => {
                 this.dialogRef.close(true);
               }, 100000);
-             // ✅ ADD THIS
+              // ✅ ADD THIS
             }
           },
-  
+
           error: (error) => {
             this._snackBar.open(error, 'Okay', {
               horizontalPosition: 'right',
@@ -159,13 +158,13 @@ export class ValidatorDialogComponent {
             });
           }
         })
-      }else{
+      } else {
         this.eRulesService.validateRule(this.valideeId, expressionData).subscribe({
           next: (response) => {
             const validationPassed = response.isValidationPassed;
             this.validationMessage = validationPassed ? '✅ Expression is valid!' : '❌ Expression is invalid!';
           },
-  
+
           error: (error) => {
             this._snackBar.open(error, 'Okay', {
               horizontalPosition: 'right',
@@ -178,7 +177,9 @@ export class ValidatorDialogComponent {
 
     if (this.validationType == 'ECard') {
       if (this.actionType === 'form') {
-        console.log()
+        // Use evaluateExpression: the backend handles both Range and In List via literal matching.
+        this.expression = this.evaluateExpression;
+        console.log('ECard form expression:', this.expression);
         this.eCardsService.validateFormECard(this.expression, expressionData).subscribe({
           next: (response) => {
             const validationPassed = response.isValidationPassed;
@@ -211,12 +212,15 @@ export class ValidatorDialogComponent {
 
     if (this.validationType == 'PCard') {
       if (this.actionType === 'form') {
+        // Use evaluateExpression: the backend handles both Range and In List via literal matching.
+        this.expression = this.evaluateExpression;
+        console.log('PCard form expression:', this.expression);
         this.pCardsService.validateFormPCard(this.expression, expressionData).subscribe({
           next: (response) => {
             const validationPassed = response.isValidationPassed;
             this.validationMessage = validationPassed ? '✅ Expression is valid!' : '❌ Expression is invalid!';
           },
-  
+
           error: (error) => {
             this._snackBar.open(error, 'Okay', {
               horizontalPosition: 'right',
@@ -224,13 +228,13 @@ export class ValidatorDialogComponent {
             });
           }
         })
-      }else{
+      } else {
         this.pCardsService.validatePCard(this.valideeId, expressionData).subscribe({
           next: (response) => {
             const validationPassed = response.isValidationPassed;
             this.validationMessage = validationPassed ? '✅ Expression is valid!' : '❌ Expression is invalid!';
           },
-  
+
           error: (error) => {
             this._snackBar.open(error, 'Okay', {
               horizontalPosition: 'right',

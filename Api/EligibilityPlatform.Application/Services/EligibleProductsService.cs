@@ -208,7 +208,7 @@ namespace MEligibilityPlatform.Application.Services
                     ProbabilityOfDefault = p.ProbabilityOfDefault,
                     MaximumProductCapPercentage = p.EligibilityPercent,
                     Message = p.ErrorMessage,
-                    Iseligible = p.IsEligible,
+                    IsEligible = p.IsEligible,
                     ProductCode=p.ProductCode
 
                 })]
@@ -491,8 +491,7 @@ namespace MEligibilityPlatform.Application.Services
                 return "No Rule Match";
 
             // Returns error message if no rule IDs found
-            if (ruleIds.Count == 0)
-                return $"No Rule IDs found in ECARD expressions for Product ID{productId}";
+       
 
             // Creates a comma-separated list of rule IDs for error reporting
             var ruleIdList = string.Join(", ", ruleIds);
@@ -650,6 +649,7 @@ namespace MEligibilityPlatform.Application.Services
                         EligibleAmount = (eligibilityPercentage / 100m) * item.EligibleAmount,
                         EligibilityPercent = eligibilityPercentage,
                         MaxEligibleAmount = item.EligibleAmount,
+                        IsEligible=true,
                         Score = score,
                         ProductCapScore = productCapScore,
                         ProbabilityOfDefault = ProbabilityOfDefault,
@@ -740,7 +740,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="expression">The expression to evaluate against.</param>
         /// <param name="input">The input value to test.</param>
         /// <returns>True if the input matches the expression condition, false otherwise.</returns>
-        private static bool MatchCondition(string expression, string input)
+        public static bool MatchCondition(string expression, string input)
         {
             // Returns false if either expression or input is null or whitespace
             if (string.IsNullOrWhiteSpace(expression) || string.IsNullOrWhiteSpace(input))
@@ -751,17 +751,22 @@ namespace MEligibilityPlatform.Application.Services
             // Trims whitespace from expression
             expression = expression.Trim();
 
-            // Handles range expressions (e.g., "1000-2000")
-            if (expression.Contains('-') && isInputDecimal)
+            // Handles range expressions (e.g., "1000-2000" or "-100--50")
+    if (expression.Contains('-') && isInputDecimal)
+    {
+        // Regex to capture two numbers separated by a dash
+        // Handles: 10-20, -10--5, 10--5, -5-10
+        // Group 1: Min, Group 2: Max
+        var match = System.Text.RegularExpressions.Regex.Match(expression, @"^(-?\d+(?:\.\d+)?)-(-?\d+(?:\.\d+)?)$");
+        if (match.Success)
+        {
+            if (decimal.TryParse(match.Groups[1].Value, out decimal minVal) &&
+                decimal.TryParse(match.Groups[2].Value, out decimal maxVal))
             {
-                var parts = expression.Split('-');
-                if (parts.Length == 2 &&
-                    decimal.TryParse(parts[0], out decimal minVal) &&
-                    decimal.TryParse(parts[1], out decimal maxVal))
-                {
-                    return inputValue >= minVal && inputValue <= maxVal;
-                }
+                return inputValue >= minVal && inputValue <= maxVal;
             }
+        }
+    }
 
             // Handles less than or equal to expressions (e.g., "<=1000")
             if (expression.StartsWith("<=") && isInputDecimal)
@@ -2328,7 +2333,8 @@ namespace MEligibilityPlatform.Application.Services
                     ProductCode = p.ProductCode,
                     ProductName = p.ProductName,
                     MaxFinancingPercentage = p.MaxFinancingPercentage,
-                    ProductCapAmount = p.ProductCapAmount
+                    ProductCapAmount = p.ProductCapAmount,
+            EligibleAmount = p.EligibleAmount
 
                 })],
 
@@ -3324,7 +3330,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 foreach (var product in eligibilityResult.Products)
                 {
-                    if (product.Iseligible)
+                    if (product.IsEligible)
                     {
                         eligibleProducts.Add(new EligibleProduct
                         {
@@ -3332,7 +3338,8 @@ namespace MEligibilityPlatform.Application.Services
                             ProductName = product.ProductName,
                             MaxFinancingPercentage = product.MaximumProductCapPercentage,
                             EligibleAmount = product.EligibleAmount,
-                            ProductCapAmount = product.ProductCapAmount
+                            ProductCapAmount = product.ProductCapAmount,
+                            IsEligible = true
                         });
                     }
                     else

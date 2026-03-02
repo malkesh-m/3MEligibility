@@ -96,7 +96,7 @@
         public string? ProductCode { get; set; }
         public int ProductId { get; set; }
         public required string ProductName { get; set; }
-        public bool Iseligible { get; set; }
+        public bool IsEligible { get; set; }
 
         //public ValidationResult ValidationResult { get; set; } = new ValidationResult();
         //public List<int> ProductIdsWithException { get; set; }

@@ -104,27 +104,11 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation, with a ValidationResult.</returns>
         public async Task<ValidationResult> ValidateFormPCard(string expression, Dictionary<int, object> keyValues)
         {
-            // Retrieves all ECards from repository.
-            var eCards = _uow.EcardRepository.GetAll();
-
-            // Processes the expression asynchronously.
-            var result = await Task.Run(() => ProcessExpression(expression, eCards, keyValues, "ECard"));
-
-            // Removes duplicate validation details.
-            result.ValidationDetails = [.. result.ValidationDetails
-                // Groups by multiple properties.
-                .GroupBy(detail => new { detail.IsValid, detail.FactorName, detail.Condition, detail.FactorValue, detail.ProvidedValue, detail.ErrorMessage, detail.ParameterId })
-                // Selects first from each group.
-                .Select(group => group.First())];
-
-            // Returns the validation result.
-            return new ValidationResult
-            {
-                // Sets overall validation result.
-                IsValidationPassed = result.IsValidationPassed,
-                // Sets validation details.
-                ValidationDetails = result.ValidationDetails
-            };
+            // The expression coming in from the form validator is the fully expanded expression
+            // with user-provided factor values substituted in (e.g. "( 20 Range 18-25 )").
+            // These are NOT ECard/PCard IDs -- they are actual values to evaluate as a Rule expression.
+            // Delegate to ValidateFormErule which correctly handles factor-based expressions.
+            return await Task.FromResult(ValidateFormErule(expression, keyValues));
         }
 
         /// <summary>
@@ -135,19 +119,21 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="keyValues">The key-value pairs for validation.</param>
         /// <param name="type">The type of validation.</param>
         /// <returns>The ValidationResult of the processed expression.</returns>
-        private ValidationResult ProcessExpression(string expression, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
+        public ValidationResult ProcessExpression(string? expression, IEnumerable<object>? entities, Dictionary<int, object> keyValues, string type)
         {
+            if (string.IsNullOrWhiteSpace(expression))
+            {
+                return new ValidationResult { IsValidationPassed = true, ValidationDetails = new List<ValidationDetail>() };
+            }
             // Initializes list for validation details.
             var validationDetails = new List<ValidationDetail>();
 
-            // Removes spaces from the expression.
-            expression = RemoveSpaces(expression);
-
             // Processes all nested expressions (within parentheses) first.
-            while (expression.Contains('('))
+            while (expression.Contains('(') && expression.Contains(')'))
             {
                 // Gets the innermost expression within parentheses.
                 var innerMostExpression = GetInnerMostExpression(expression);
+                if (innerMostExpression == null) break;
                 // Recursively processes the inner expression.
                 var innerResult = ProcessExpression(innerMostExpression, entities, keyValues, type);
 
@@ -177,12 +163,13 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="expression">The expression to search.</param>
         /// <returns>The innermost expression as a string.</returns>
-        private static string GetInnerMostExpression(string expression)
+        private static string? GetInnerMostExpression(string expression)
         {
             // Finds the last opening parenthesis.
             var start = expression.LastIndexOf('(');
             // Finds the corresponding closing parenthesis.
             var end = expression.IndexOf(')', start);
+            if (end == -1) return null;
             // Extracts the substring between parentheses.
             return expression.Substring(start + 1, end - start - 1);
         }
@@ -195,24 +182,38 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="keyValues">The key-value pairs for validation.</param>
         /// <param name="type">The type of validation.</param>
         /// <returns>The ValidationResult of the evaluated expression.</returns>
-        private ValidationResult EvaluateExpression(string expression, IEnumerable<object> entities,
+        private ValidationResult EvaluateExpression(string? expression, IEnumerable<object>? entities,
        Dictionary<int, object> keyValues, string type)
         {
+            if (string.IsNullOrWhiteSpace(expression))
+            {
+                return new ValidationResult { IsValidationPassed = true, ValidationDetails = new List<ValidationDetail>() };
+            }
             var validationDetails = new List<ValidationDetail>();
 
-            expression = RemoveSpaces(expression);
+            if (entities == null && type == "Rule")
+            {
+                entities = _uow.FactorRepository.GetAll();
+            }
+
+            // Standardize spaces around operators to ensure splitting works
+            expression = Regex.Replace(expression.Trim(), @"\b(and|ands)\b", " AND ", RegexOptions.IgnoreCase);
+            expression = Regex.Replace(expression, @"\b(or|ors)\b", " OR ", RegexOptions.IgnoreCase);
+            expression = Regex.Replace(expression, @"\b(range)\b", " Range ", RegexOptions.IgnoreCase);
 
             var orList = new List<bool>();
-            var orParts = expression.ToLower().Split(["or"], StringSplitOptions.None);
+            // Split by " OR " (standardized case and spacing)
+            var orParts = Regex.Split(expression.Trim(), @"\s+OR\s+", RegexOptions.None);
 
             foreach (var orPart in orParts)
             {
                 var andList = new List<bool>();
-                var andParts = orPart.ToLower().Split(["and"], StringSplitOptions.None);
+                var andParts = Regex.Split(orPart.Trim(), @"\s+AND\s+", RegexOptions.None);
 
                 foreach (var rawPart in andParts)
                 {
                     var part = rawPart.Trim();
+                    if (string.IsNullOrEmpty(part)) continue;
 
                     // Case 1: Literal boolean
                     if (part.Equals("true", StringComparison.OrdinalIgnoreCase) ||
@@ -222,8 +223,8 @@ namespace MEligibilityPlatform.Application.Services
                         continue;
                     }
 
-                    // Case 2: Literal boolean/number comparison
-                    var literalRegex = @"^(true|false|\d+\.?\d*)\s*(=|!=|<|>|<=|>=)\s*(true|false|\d+\.?\d*)$";
+                    // Case 2: Literal boolean/number comparison or Range
+                    var literalRegex = @"^(true|false|\d+\.?\d*)\s*(=|!=|<|>|<=|>=|Range)\s*(true|false|\d+\.?\d*|-?\d+\.?\d*-(-?\d+\.?\d*))$";
                     if (Regex.IsMatch(part, literalRegex, RegexOptions.IgnoreCase))
                     {
                         var match = Regex.Match(part, literalRegex, RegexOptions.IgnoreCase);
@@ -235,19 +236,84 @@ namespace MEligibilityPlatform.Application.Services
                         continue;
                     }
 
+                    // Case 2b: Literal In List / Not In List evaluation
+                    // Handles expressions like "BDC In List WorkEntity" or "BDC Not In List WorkEntity"
+                    // (where the parameter name has been substituted with the user-provided value).
+                    var notInListLiteralMatch = Regex.Match(part,
+                        @"^(.+?)\s+Not In List\s+(\S+)$", RegexOptions.IgnoreCase);
+                    if (notInListLiteralMatch.Success)
+                    {
+                        var providedValue = notInListLiteralMatch.Groups[1].Value.Trim();
+                        var listName = notInListLiteralMatch.Groups[2].Value.Trim();
+                        var listEntity = _uow.ManagedListRepository.Query()
+                            .Where(x => x.ListName == listName).FirstOrDefault();
+                        if (listEntity != null)
+                        {
+                            var listItems = _uow.ListItemRepository.GetAll()
+                                .Where(x => x.ListId == listEntity.ListId)
+                                .Select(x => x.ItemName).ToList();
+                            var isInList = listItems.Any(item =>
+                                string.Equals(item!.Trim(), providedValue, StringComparison.OrdinalIgnoreCase));
+                            andList.Add(!isInList);
+                        }
+                        else
+                        {
+                            andList.Add(false);
+                        }
+                        continue;
+                    }
+
+                    var inListLiteralMatch = Regex.Match(part,
+                        @"^(.+?)\s+In List\s+(\S+)$", RegexOptions.IgnoreCase);
+                    if (inListLiteralMatch.Success)
+                    {
+                        var providedValue = inListLiteralMatch.Groups[1].Value.Trim();
+                        var listName = inListLiteralMatch.Groups[2].Value.Trim();
+                        var listEntity = _uow.ManagedListRepository.Query()
+                            .Where(x => x.ListName == listName).FirstOrDefault();
+                        if (listEntity != null)
+                        {
+                            var listItems = _uow.ListItemRepository.GetAll()
+                                .Where(x => x.ListId == listEntity.ListId)
+                                .Select(x => x.ItemName).ToList();
+                            var isInList = listItems.Any(item =>
+                                string.Equals(item!.Trim(), providedValue, StringComparison.OrdinalIgnoreCase));
+                            andList.Add(isInList);
+                        }
+                        else
+                        {
+                            andList.Add(false);
+                        }
+                        continue;
+                    }
+
                     // Case 3: Factor/entity-based expression
-                    var entityResult = ValidateEntity(part, entities, keyValues, type);
-                    andList.Add(entityResult.IsValidationPassed);
-                    validationDetails.AddRange(entityResult.ValidationDetails);
+                    if (entities != null)
+                    {
+                        var entityResult = ValidateEntity(part, entities, keyValues, type);
+                        andList.Add(entityResult.IsValidationPassed);
+                        if (entityResult.ValidationDetails != null)
+                        {
+                            validationDetails.AddRange(entityResult.ValidationDetails);
+                        }
+                    }
+                    else
+                    {
+                        andList.Add(false);
+                    }
                 }
 
-                // AND evaluation
-                orList.Add(andList.All(x => x));
+                // AND evaluation (true if all parts are true)
+                if (andList.Count > 0)
+                {
+                    orList.Add(andList.All(x => x));
+                }
             }
 
+            // OR evaluation (true if any part is true)
             return new ValidationResult
             {
-                IsValidationPassed = orList.Any(x => x),   // OR evaluation
+                IsValidationPassed = orList.Any(x => x),
                 ValidationDetails = validationDetails
             };
         }
@@ -265,19 +331,36 @@ namespace MEligibilityPlatform.Application.Services
                 };
             }
 
-            // numeric comparison
-            if (double.TryParse(left, out var ln) && double.TryParse(right, out var rn))
+            // numeric comparison or Range
+            if (double.TryParse(left, out var ln))
             {
-                return op switch
+                if (op.Equals("Range", StringComparison.OrdinalIgnoreCase))
                 {
-                    "=" => ln == rn,
-                    "!=" => ln != rn,
-                    "<" => ln < rn,
-                    ">" => ln > rn,
-                    "<=" => ln <= rn,
-                    ">=" => ln >= rn,
-                    _ => false
-                };
+                    var rangeMatch = Regex.Match(right, @"^(-?\d+(?:\.\d+)?)-(-?\d+(?:\.\d+)?)$");
+                    if (rangeMatch.Success)
+                    {
+                        if (double.TryParse(rangeMatch.Groups[1].Value, out var min) &&
+                            double.TryParse(rangeMatch.Groups[2].Value, out var max))
+                        {
+                            return ln >= min && ln <= max;
+                        }
+                    }
+                    return false;
+                }
+
+                if (double.TryParse(right, out var rn))
+                {
+                    return op switch
+                    {
+                        "=" => ln == rn,
+                        "!=" => ln != rn,
+                        "<" => ln < rn,
+                        ">" => ln > rn,
+                        "<=" => ln <= rn,
+                        ">=" => ln >= rn,
+                        _ => false
+                    };
+                }
             }
 
             return false;
@@ -302,8 +385,9 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="keyValues">The key-value pairs for validation.</param>
         /// <param name="type">The type of validation.</param>
         /// <returns>The ValidationResult of the entity validation.</returns>
-        private ValidationResult ValidateEntity(string tenantIdStr, IEnumerable<object> entities, Dictionary<int, object> keyValues, string type)
+        private ValidationResult ValidateEntity(string tenantIdStr, IEnumerable<object>? entities, Dictionary<int, object> keyValues, string type)
         {
+            if (entities == null && type != "Rule") return new ValidationResult { IsValidationPassed = false, ErrorMessage = ["Entities not found"] };
             // Initializes list for validation details.
             var validationDetails = new List<ValidationDetail>();
             // Initializes validation result flag.
@@ -314,8 +398,10 @@ namespace MEligibilityPlatform.Application.Services
                 case "ECard":
                     // Casts entities to Ecard list.
                     var list = (IEnumerable<Ecard>)entities;
+                    // Skip the token if it's not a valid integer (e.g. if it's a boolean literal like "true").
+                    if (!int.TryParse(tenantIdStr, out var ecardIdParsed)) break;
                     // Finds the ECard by ID.
-                    var eCard = list.FirstOrDefault(x => x.EcardId == int.Parse(tenantIdStr));
+                    var eCard = list.FirstOrDefault(x => x.EcardId == ecardIdParsed);
                     // If ECard found, validates it.
                     if (eCard != null)
                     {
@@ -335,7 +421,10 @@ namespace MEligibilityPlatform.Application.Services
                     // Sets validation result.
                     isValidationPassed = cardResult.IsValidationPassed;
                     // Adds validation details.
-                    validationDetails.AddRange(cardResult.ValidationDetails);
+                    if (cardResult.ValidationDetails != null)
+                    {
+                        validationDetails.AddRange(cardResult.ValidationDetails);
+                    }
                     // Breaks out of switch.
                     break;
 
@@ -345,12 +434,12 @@ namespace MEligibilityPlatform.Application.Services
                     // Processes conditions in descending order of value length.
                     foreach (var condition in conditions.OrderByDescending(c => c.ConditionValue?.Length))
                     {
-                        // Splits entity string by condition value (spaces removed).
-                        var conditionValue = (condition.ConditionValue ?? "").Replace(" ", "").ToLower();
-                        var entityStr = tenantIdStr.Replace(" ", "").ToLower();
+                        // Splits entity string by condition value.
+                        var conditionValue = (condition.ConditionValue ?? "").ToLower();
+                        var entityStr = tenantIdStr.ToLower();
 
                         // Split entity string by condition value
-                        var facts = entityStr.Split([conditionValue], StringSplitOptions.None);
+                        var facts = Regex.Split(entityStr, @"\s*" + Regex.Escape(conditionValue) + @"\s*", RegexOptions.IgnoreCase);
                         // Checks if split produced exactly 2 parts.
                         if (facts.Length == 2)
                         {
@@ -359,10 +448,12 @@ namespace MEligibilityPlatform.Application.Services
 
                             //var factor = factors.FirstOrDefault(x => x.Value1 == (facts[1]));
 
-                            // Finds factor that matches the second part and has a corresponding key value.
+                            // Finds factor that matches both the name and the value.
                             var factor = factors.FirstOrDefault(x =>
-    string.Equals(x.Value1?.Replace(" ", "").ToString(), facts[1]?.ToString(), StringComparison.OrdinalIgnoreCase) && keyValues.Any(y => y.Key == x.ParameterId)
-);
+                                string.Equals(x.FactorName?.Replace(" ", ""), facts[0]?.Replace(" ", ""), StringComparison.OrdinalIgnoreCase) &&
+                                string.Equals(x.Value1?.Replace(" ", ""), facts[1]?.Replace(" ", ""), StringComparison.OrdinalIgnoreCase) &&
+                                keyValues.Any(y => y.Key == x.ParameterId)
+                            );
                             // If factor found, validates it.
                             if (factor != null)
                             {
@@ -443,57 +534,11 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A task representing the asynchronous operation, with a ValidationResult.</returns>
         public ValidationResult ValidateFormECard(string expression, Dictionary<int, object> keyValues)
         {
-            // Retrieves all ECards from repository.
-            var eCards = _uow.EcardRepository.GetAll();
-
-            // Extracts all numbers (digits) from the expression using regex.
-            var numberMatches = MyRegex().Matches(expression)
-                                     // Casts matches to enumerable.
-                                     .Cast<Match>()
-                                     // Wraps each number in parentheses.
-                                     .Select(m => $"({m.Value})")
-                                     // Converts to list.
-                                     .ToList();
-
-            // Initializes validation result with default values.
-            var Results = new Domain.Models.ValidationResult
-            {
-                // Sets default validation result to true.
-                IsValidationPassed = true,
-                // Initializes empty validation details list.
-                ValidationDetails = [] // Make sure it's initialized
-            };
-
-            // Processes each extracted number expression.
-            foreach (var exp in numberMatches)
-            {
-                // Processes the expression.
-                var result = ProcessExpression(exp, eCards, keyValues, "Card");
-                // If any expression fails, sets overall result to false.
-                if (!result.IsValidationPassed)
-                {
-                    // Sets validation failed.
-                    Results.IsValidationPassed = false;
-                    // Sets error message from result.
-                    Results.ErrorMessage = result.ErrorMessage;
-                    // Sets validation details from result.
-                    Results.ValidationDetails = result.ValidationDetails;
-                    // Sets eligibility percentage from result.
-                    Results.EligibilityPercentage = result.EligibilityPercentage;
-                    // Returns early with failure result.
-                    return Results;
-                }
-
-                // If validation details exist, adds them to results.
-                if (result.ValidationDetails != null && result.ValidationDetails.Count != 0)
-                {
-                    // Adds all validation details to results.
-                    Results.ValidationDetails.AddRange(result.ValidationDetails);
-                }
-            }
-
-            // Returns successful validation result.
-            return Results;
+            // The expression coming in from the form validator is the fully expanded expression
+            // with user-provided factor values substituted in (e.g. "( 20 Range 18-25 )").
+            // These are NOT ECard IDs -- they are actual values to evaluate as a Rule expression.
+            // Delegate to ValidateFormErule which correctly handles factor-based expressions.
+            return ValidateFormErule(expression, keyValues);
         }
 
         /// <summary>
@@ -505,7 +550,7 @@ namespace MEligibilityPlatform.Application.Services
         public ValidationResult ValidateRule(int ruleId, Dictionary<int, object> keyValues)
         {
             // Gets the rule by ID.
-            var rule = _uow.EruleRepository.GetById(ruleId);
+            var rule = _uow.EruleRepository.GetById(ruleId) ?? throw new Exception($"Rule {ruleId} not found");
             // Gets all factors from repository.
             var factors = _uow.FactorRepository.GetAll();
             // Processes the rule expression.
@@ -546,7 +591,8 @@ namespace MEligibilityPlatform.Application.Services
                 // Sets provided value.
                 ProvidedValue = value?.ToString(),
                 // Sets parameter ID.
-                ParameterId = factor?.ParameterId  // Include ParameterId in the result
+                ParameterId = factor?.ParameterId,  // Include ParameterId in the result
+                ErrorMessage = []
             };
 
             // Checks for null arguments.
@@ -599,7 +645,7 @@ namespace MEligibilityPlatform.Application.Services
                     // Breaks out of case.
                     break;
                 case "Range":
-                    // Checks if value is within range (requires Value2).
+                    // Checks if value is within range (requires Value2 or hyphenated Value1).
                     if (factor.Value2 != null)
                     {
                         // Handles date range validation.
@@ -623,6 +669,20 @@ namespace MEligibilityPlatform.Application.Services
                             validationResult.IsValid = lowerBound <= provided && provided <= upperBound;
                         }
                     }
+                    else if (factor.Value1 != null && factor.Value1.Contains('-'))
+                    {
+                        // Supports hyphenated range string in Value1 (e.g., "18-25")
+                        var match = Regex.Match(factor.Value1.Trim(), @"^(-?\d+(?:\.\d+)?)-(-?\d+(?:\.\d+)?)$");
+                        if (match.Success)
+                        {
+                            if (double.TryParse(match.Groups[1].Value, out var min) &&
+                                double.TryParse(match.Groups[2].Value, out var max) &&
+                                double.TryParse(validationResult.ProvidedValue, out var provided))
+                            {
+                                validationResult.IsValid = provided >= min && provided <= max;
+                            }
+                        }
+                    }
                     // Breaks out of case.
                     break;
                 case "In List":
@@ -634,7 +694,8 @@ namespace MEligibilityPlatform.Application.Services
 
                     // Checks if provided value is in the list (case insensitive).
                     var valid = listValue.Any(item => string.Equals(item!.Trim(), validationResult.ProvidedValue, StringComparison.OrdinalIgnoreCase));
-                    validationResult.IsValid = true;
+                    // Use the actual membership check result (was previously hardcoded to true - bug fix)
+                    validationResult.IsValid = valid;
                     // Breaks out of case.
                     break;
                 case "Not In List":

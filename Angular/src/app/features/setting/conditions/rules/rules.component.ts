@@ -2277,14 +2277,25 @@ export class RulesComponent {
       next: (response) => {
         const rules = response.data;
 
+        // Create lookup maps for Rule IDs
+        const ruleNameMap: { [id: string]: string } = {};
+        const ruleExpMap: { [id: string]: string } = {};
+
         rules.forEach((rule: any) => {
-          expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), rule.expShown);
-          expressionWithPIDs = expressionWithPIDs.replaceAll(String(rule.eruleId), rule.expression);
+          if (rule.eruleId) {
+            ruleNameMap[rule.eruleId.toString()] = rule.expShown || '';
+            ruleExpMap[rule.eruleId.toString()] = rule.expression || '';
+          }
         });
+
+        // Use boundary-safe replacement
+        const boundaryRegex = /\b(\d+)\b/g;
+        expressionWithPNames = expressionWithPNames.replace(boundaryRegex, (match: string) => ruleNameMap[match] || match);
+        expressionWithPIDs = expressionWithPIDs.replace(boundaryRegex, (match: string) => ruleExpMap[match] || match);
 
         return { expressionWithPIDs, expressionWithPNames };
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top',
@@ -2298,23 +2309,32 @@ export class RulesComponent {
 
   openValidatorDialog(entity: any) {
     this.parameterService.getParameters().subscribe({
-      next: (resp) => {
+      next: (resp: any) => {
+        const allParameters = resp.data;
+        const expressionToValidate = entity.Expshown || '';
+
+        // Filter parameters to only show those that appear in the expression
+        const filteredParameters = allParameters.filter((param: any) => {
+          const paramNameRegex = new RegExp(`\\b${param.parameterName}\\b`, 'i');
+          return paramNameRegex.test(expressionToValidate);
+        });
+
         this.validationDialogService.openValidationDialog({
           actionType: 'exits',
-          expshown: entity.Expshown,
-          parameters: resp.data,
+          expshown: expressionToValidate,
+          parameters: filteredParameters,
           expression: entity.expression,
           validationType: 'ERule',
           valideeId: entity.eruleId
-        })
+        });
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 10000
         });
       }
-    })
+    });
   }
 
   openValidatorDialogAdd(expshown: any) {
@@ -2360,23 +2380,32 @@ export class RulesComponent {
       expshown = this.expressionForm.value.expshown;
     }
     this.parameterService.getParameters().subscribe({
-      next: (resp) => {
+      next: (resp: any) => {
+        const allParameters = resp.data;
+        const expressionToValidate = expshown || '';
+
+        // Filter parameters to only show those that appear in the expression
+        const filteredParameters = allParameters.filter((param: any) => {
+          const paramNameRegex = new RegExp(`\\b${param.parameterName}\\b`, 'i');
+          return paramNameRegex.test(expressionToValidate);
+        });
+
         this.validationDialogService.openValidationDialog({
           actionType: 'form',
-          expshown: expshown,
-          parameters: resp.data,
+          expshown: expressionToValidate,
+          parameters: filteredParameters,
           expression: expressionExp,
           validationType: 'ERule',
           valideeId: this.eruleId
-        })
+        });
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
         });
       }
-    })
+    });
   }
   paginatedRules: any[] = [];
   loadParentRules() {

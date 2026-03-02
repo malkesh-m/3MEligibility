@@ -138,7 +138,7 @@ export class ProductCardsComponent implements OnInit {
   fetchAllProductCards() {
     this.isLoading = true;
     this.productsCardService.getProductCardsList().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.isSuccess) {
           console.log(response.data);
 
@@ -194,7 +194,7 @@ export class ProductCardsComponent implements OnInit {
 
   fetchCards(): void {
     this.cardsService.getCardsList().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.isSuccess) {
           this.cards = response.data.map((card: { ecardId: number; ecardName: string; expshown: string }) => ({
             id: card.ecardId,
@@ -219,15 +219,26 @@ export class ProductCardsComponent implements OnInit {
         console.log(rules)
 
 
+        // Create lookup maps for Rule IDs
+        const ruleNameMap: { [id: string]: string } = {};
+        const ruleExpMap: { [id: string]: string } = {};
+
         rules.forEach((rule: any) => {
-          expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), rule.expShown);
-          expressionWithPIDs = expressionWithPIDs.replaceAll(String(rule.eruleId), rule.expression);
+          if (rule.eruleId) {
+            ruleNameMap[rule.eruleId.toString()] = rule.expShown || '';
+            ruleExpMap[rule.eruleId.toString()] = rule.expression || '';
+          }
         });
+
+        // Use boundary-safe replacement
+        const boundaryRegex = /\b(\d+)\b/g;
+        expressionWithPNames = expressionWithPNames.replace(boundaryRegex, (match: string) => ruleNameMap[match] || match);
+        expressionWithPIDs = expressionWithPIDs.replace(boundaryRegex, (match: string) => ruleExpMap[match] || match);
 
         return { expressionWithPIDs, expressionWithPNames };
       },
-      error: (error) => {
-        this._snackBar.open(error, 'Okay', {
+      error: (error: any) => {
+        this._snackBar!.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000
@@ -374,28 +385,43 @@ export class ProductCardsComponent implements OnInit {
 
           let selectedPCardExpression = event.data.expression;
 
-          eCards.forEach((eCard: any) => {
-            let eCardExpressionWithPNames = eCard.expression;
-
-            rules.forEach((rule: any) => {
-              const ruleWithoutParentheses = rule.expShown.replace(/^\(|\)$/g, '');
-              eCardExpressionWithPNames = eCardExpressionWithPNames.replaceAll(String(rule.eruleId), ruleWithoutParentheses);
-            });
-
-            selectedPCardExpression = selectedPCardExpression.replaceAll(eCard.ecardId, eCardExpressionWithPNames);
+          // Create lookup maps
+          const ruleMap: { [id: string]: string } = {};
+          rules.forEach((rule: any) => {
+            if (rule.eruleId && rule.expShown) {
+              ruleMap[rule.eruleId.toString()] = rule.expShown.replace(/^\(|\)$/g, '');
+            }
           });
 
-          this.validationDialogService.openValidationDialog({
+          const cardMap: { [id: string]: string } = {};
+          eCards.forEach((eCard: any) => {
+            if (eCard.ecardId && eCard.expression) {
+              // First expand rules inside the card expression itself
+              let expandedECard = eCard.expression.replace(/\b(\d+)\b/g, (match: string) => ruleMap[match] || match);
+              cardMap[eCard.ecardId.toString()] = expandedECard;
+            }
+          });
+
+          // Finally expand card IDs in the PCard expression
+          selectedPCardExpression = selectedPCardExpression.replace(/\b(\d+)\b/g, (match: string) => cardMap[match] || match);
+
+          // Filter parameters to only show those that appear in the expanded expression
+          const filteredParameters = parameters.filter((param: any) => {
+            const paramNameRegex = new RegExp(`\\b${param.parameterName}\\b`, 'i');
+            return paramNameRegex.test(selectedPCardExpression);
+          });
+
+          this.validationDialogService!.openValidationDialog({
             actionType: 'exits',
             expshown: selectedPCardExpression,
             expression: '',
-            parameters: parameters,
+            parameters: filteredParameters,
             validationType: 'PCard',
             valideeId: event.data.eproductCardId
           });
 
         } catch (error: any) {
-          this._snackBar.open(error, 'Okay', {
+          this._snackBar!.open(error, 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
@@ -792,7 +818,7 @@ export class ProductCardsComponent implements OnInit {
           this.formVisible = false;
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -815,9 +841,9 @@ export class ProductCardsComponent implements OnInit {
       if (!result?.delete) return;
 
       this.productsCardService.deleteProductCard(productCardId).subscribe({
-        next: (response) => {
+        next: (response: any) => {
 
-          this._snackBar.open(response.message, 'Okay', {
+          this._snackBar!.open(response.message, 'Okay', {
             horizontalPosition: 'right',
             verticalPosition: 'top',
             duration: 3000
@@ -829,7 +855,7 @@ export class ProductCardsComponent implements OnInit {
           }
 
         },
-        error: (error) => {
+        error: (error: any) => {
           this._snackBar.open(
             error?.error?.message || error.message || 'Something went wrong.',
             'Okay',
@@ -856,14 +882,14 @@ export class ProductCardsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.delete) {
         this.productsCardService.deleteMultipleProductCard([...listOfSelectedIds]).subscribe({
-          next: (response) => {
+          next: (response: any) => {
             this._snackBar.open(response.message, 'Okay', {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
             this.fetchAllProductCards();
           },
-          error: (error) => {
+          error: (error: any) => {
             this._snackBar.open(error, 'Okay', {
               horizontalPosition: 'right',
               verticalPosition: 'top',
@@ -891,7 +917,7 @@ export class ProductCardsComponent implements OnInit {
         document.body.removeChild(anchor);
         window.URL.revokeObjectURL(url);
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top',
@@ -982,7 +1008,7 @@ export class ProductCardsComponent implements OnInit {
           verticalPosition: 'top',
         });
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isUploading = false;
         this._snackBar.open(error.message, 'Okay', {
           duration: 4000,
@@ -1008,27 +1034,27 @@ export class ProductCardsComponent implements OnInit {
 
     const getCardsList = () => {
       return new Promise((resolve, reject) => {
-        this.cardsService.getCardsList().subscribe({
-          next: (response) => resolve(response.data),
-          error: (error) => reject(error)
+        this.cardsService!.getCardsList().subscribe({
+          next: (response: any) => resolve(response.data),
+          error: (error: any) => reject(error)
         });
       });
     };
 
     const getRulesList = () => {
       return new Promise((resolve, reject) => {
-        this.ruleService.getRulesList().subscribe({
-          next: (response) => resolve(response.data),
-          error: (error) => reject(error)
+        this.ruleService!.getRulesList().subscribe({
+          next: (response: any) => resolve(response.data),
+          error: (error: any) => reject(error)
         });
       });
     };
 
     const getParameters = () => {
       return new Promise((resolve, reject) => {
-        this.parameterService.getParameters().subscribe({
-          next: (response) => resolve(response.data),
-          error: (error) => reject(error)
+        this.parameterService!.getParameters().subscribe({
+          next: (response: any) => resolve(response.data),
+          error: (error: any) => reject(error)
         });
       });
     };
@@ -1041,29 +1067,43 @@ export class ProductCardsComponent implements OnInit {
 
         let selectedPCardExpression = expressionExp;
 
-        eCards.forEach((eCard: any) => {
-          let eCardExpressionWithPNames = eCard.expression;
-          rules.forEach((rule: any) => {
-            if (rule.expShown != null) {
-              const ruleWithoutParentheses = rule.expShown.replace(/^\(|\)$/g, '');
-              eCardExpressionWithPNames = eCardExpressionWithPNames.replaceAll(String(rule.eruleId), ruleWithoutParentheses);
-            }
-          });
-
-          selectedPCardExpression = selectedPCardExpression.replaceAll(eCard.ecardId, eCardExpressionWithPNames);
+        // Create lookup maps
+        const ruleMap: { [id: string]: string } = {};
+        rules.forEach((rule: any) => {
+          if (rule.eruleId && rule.expShown) {
+            ruleMap[rule.eruleId.toString()] = rule.expShown.replace(/^\(|\)$/g, '');
+          }
         });
 
-        this.validationDialogService.openValidationDialog({
+        const cardMap: { [id: string]: string } = {};
+        eCards.forEach((eCard: any) => {
+          if (eCard.ecardId && eCard.expression) {
+            // First expand rules inside the card expression itself
+            let expandedECard = eCard.expression.replace(/\b(\d+)\b/g, (match: string) => ruleMap[match] || match);
+            cardMap[eCard.ecardId.toString()] = expandedECard;
+          }
+        });
+
+        // Finally expand card IDs in the PCard expression
+        selectedPCardExpression = selectedPCardExpression.replace(/\b(\d+)\b/g, (match: string) => cardMap[match] || match);
+
+        // Filter parameters to only show those that appear in the expanded expression
+        const filteredParameters = parameters.filter((param: any) => {
+          const paramNameRegex = new RegExp(`\\b${param.parameterName}\\b`, 'i');
+          return paramNameRegex.test(selectedPCardExpression);
+        });
+
+        this.validationDialogService!.openValidationDialog({
           actionType: 'form',
           expshown: selectedPCardExpression,
           expression: expressionExp,
-          parameters: parameters,
+          parameters: filteredParameters,
           validationType: 'PCard',
           valideeId: 0
         });
 
       } catch (error: any) {
-        this._snackBar.open(error, 'Okay', {
+        this._snackBar!.open(error, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top',
           duration: 3000

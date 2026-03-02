@@ -71,9 +71,11 @@ namespace MEligibilityPlatform.Application.Services
             try
             {
                 // Checks if the Ecard is being used in any PCard
+                // Uses a word-boundary regex so ECard ID "1" does not match "10" or "11"
+                var ecardIdPattern = $@"\b{id}\b";
                 foreach (var card in pCards)
                 {
-                    var exits = card.Expression.Contains(id.ToString());
+                    var exits = Regex.IsMatch(card.Expression ?? "", ecardIdPattern);
                     if (exits)
                     {
                         return resultMessage += $" The Ecard cannot be deleted because it is currently being used in one or more Stream Cards.";
@@ -178,7 +180,9 @@ namespace MEligibilityPlatform.Application.Services
                     // Retrieves the Ecard entity by ID
                     var item = _uow.EcardRepository.GetById(id);
                     // Checks if the Ecard is being used in any PCard
-                    var isInUse = pCards.Any(card => card.Expression.Contains(id.ToString()));
+                    // Uses a word-boundary regex so ECard ID "1" does not match "10" or "11"
+                    var ecardIdPattern = $@"\b{id}\b";
+                    var isInUse = pCards.Any(card => Regex.IsMatch(card.Expression ?? "", ecardIdPattern));
                     if (isInUse)
                     {
                         if (item != null)

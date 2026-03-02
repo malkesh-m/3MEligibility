@@ -129,7 +129,7 @@ export class CardsComponent {
 
     this.eCardsListAry = [];
     this.cardService.getCardsList().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response?.data) {
           // Sorting the response data based on lastModifiedDateTime in descending order
           const sortedData = response.data.sort((a: any, b: any) =>
@@ -150,7 +150,7 @@ export class CardsComponent {
         }
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error fetching cards:', error);
         this.isLoading = false;
       }
@@ -182,14 +182,14 @@ export class CardsComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.delete) {
         this.cardService.deleteMultipleCards([...this.tableChild.selectedRowsItem]).subscribe({
-          next: (response) => {
+          next: (response: any) => {
             this._snackBar.open(response.message, 'Okay', {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
             });
             this.fetchCards();
           },
-          error: (error) => {
+          error: (error: any) => {
             this._snackBar.open(error, 'Okay', {
               horizontalPosition: 'right',
               verticalPosition: 'top', duration: 3000
@@ -201,7 +201,7 @@ export class CardsComponent {
   }
   fetchRuleList(): void {
     this.ruleService.getRulesList().subscribe({
-      next: (response) => {
+      next: (response: any) => {
 
         if (!response?.data?.length) return;
 
@@ -277,7 +277,7 @@ export class CardsComponent {
     // payload.updatedBy = this.loggedInUser.user.userName;
     payload.ecardName = payload.ecardName.trim();
     this.cardService.addCard(payload).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this._snackBar.open(response.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -286,7 +286,7 @@ export class CardsComponent {
         this.fetchRuleList();
         this.closeForm();
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -300,7 +300,7 @@ export class CardsComponent {
 
     // payload.updatedBy = this.loggedInUser.user.userName;
     this.cardService.updateCard(payload).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this._snackBar.open(response.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -309,7 +309,7 @@ export class CardsComponent {
         this.fetchRuleList();
         this.closeForm();
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000
@@ -464,14 +464,18 @@ export class CardsComponent {
       try {
         const rules = await getRulesList();
         const parameters = await getParameters();
-        rules.forEach((rule) => {
-          if (rule.expShown) {
-            const ruleWithoutParentheses = rule.expShown.replace(/^\(|\)$/g, '');
-            expressionWithPNames = expressionWithPNames.replaceAll(
-              String(rule.eruleId),
-              ruleWithoutParentheses
-            );
+        // Create a map of Rule ID -> Expression for efficient lookup
+        const ruleMap: { [id: string]: string } = {};
+        rules.forEach((rule: any) => {
+          if (rule.eruleId && rule.expShown) {
+            ruleMap[rule.eruleId.toString()] = rule.expShown.replace(/^\(|\)$/g, '');
           }
+        });
+
+        // Use a regex with word boundaries to replace ONLY whole IDs.
+        // This prevents Rule ID "5" from matching the "5" in "18-25".
+        expressionWithPNames = expressionWithPNames.replace(/\b(\d+)\b/g, (match: string) => {
+          return ruleMap[match] || match;
         });
 
         this.validationDialogService.openValidationDialog({
@@ -679,7 +683,7 @@ export class CardsComponent {
       if (!result?.delete) return;
 
       this.cardService.deleteCard(id).subscribe({
-        next: (response) => {
+        next: (response: any) => {
 
           this._snackBar.open(response.message, 'Okay', {
             horizontalPosition: 'right',
@@ -694,7 +698,7 @@ export class CardsComponent {
           }
 
         },
-        error: (error) => {
+        error: (error: any) => {
           this._snackBar.open(
             error?.error?.message || error.message || 'Something went wrong.',
             'Okay',
@@ -846,7 +850,7 @@ export class CardsComponent {
     this.isUploading = true;
     this.message = "Uploading file, please wait...";
     this.cardService.importCard(selectedFile,).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.isUploading = false;
         this.fetchCards();
         this.fetchRuleList();
@@ -855,7 +859,7 @@ export class CardsComponent {
           verticalPosition: 'top',
         });
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isUploading = false;
         this._snackBar.open(error.message, 'Okay', {
           horizontalPosition: 'right',
@@ -913,7 +917,7 @@ export class CardsComponent {
           verticalPosition: 'top',
         });
       },
-      error: (error) => {
+      error: (error: any) => {
         this._snackBar.open(error.message, 'Okay', {
           duration: 2000,
           horizontalPosition: 'right',
@@ -978,23 +982,32 @@ export class CardsComponent {
       try {
         const rules = await getRulesList();
 
-        //rules.forEach((rule) => {
-        //  const ruleWithoutParentheses = rule.expShown.replace(/^\(|\)$/g, '');
-        //  expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), ruleWithoutParentheses);
-        //});
-        rules.forEach((rule) => {
-          if (rule.expShown) {
-            const ruleWithoutParentheses = rule.expShown.replace(/^\(|\)$/g, '');
-            expressionWithPNames = expressionWithPNames.replaceAll(String(rule.eruleId), ruleWithoutParentheses);
+        // Create a map of Rule ID -> Expression for efficient lookup
+        const ruleMap: { [id: string]: string } = {};
+        rules.forEach((rule: any) => {
+          if (rule.eruleId && rule.expShown) {
+            ruleMap[rule.eruleId.toString()] = rule.expShown.replace(/^\(|\)$/g, '');
           }
         });
 
-        const parameters = await getParameters();
+        // Use boundary-safe replacement to expand IDs
+        expressionWithPNames = expressionWithPNames.replace(/\b(\d+)\b/g, (match: string) => {
+          return ruleMap[match] || match;
+        });
+
+        const allParameters = await getParameters();
+
+        // Filter parameters to only show those that appear in the expanded expression
+        const filteredParameters = allParameters.filter((param: any) => {
+          // Check if parameter name exists in the expression as a whole word/token
+          const paramNameRegex = new RegExp(`\\b${param.parameterName}\\b`, 'i');
+          return paramNameRegex.test(expressionWithPNames);
+        });
 
         this.validationDialogService.openValidationDialog({
           actionType: 'form',
           expshown: expressionWithPNames,
-          parameters: parameters,
+          parameters: filteredParameters,
           expression: expressionExp,
           validationType: 'ECard',
           valideeId: 0

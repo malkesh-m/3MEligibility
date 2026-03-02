@@ -25,7 +25,7 @@
 ::ng-deep .mat-expansion-panel-header {
   padding: 0 !important;
   height: auto !important;
-  min-height: 64px !important;
+  min-height: 45px !important;
 
   .mat-content {
     flex: 1;
@@ -180,4 +180,12 @@
   font-family: var(--font-data);
   font-weight: 600;
   color: var(--indigo);
+}
+
+:host ::ng-deep .mat-mdc-paginator-page-size .mat-mdc-select-arrow-wrapper {
+  transform: translateX(-4px);
+}
+
+:host ::ng-deep .mat-expansion-panel-header .mat-expansion-indicator {
+  margin-right: 8px;
 }

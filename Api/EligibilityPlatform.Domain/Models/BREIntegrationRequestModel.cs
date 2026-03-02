@@ -93,9 +93,8 @@ namespace MEligibilityPlatform.Domain.Models
         public decimal ProductCapAmount { get; set; }
         //public int ProbabilityOfDefault { get; set; }
         //public decimal MaximumProductCapPercentage { get; set; }
-        //public decimal EligibleAmount { get; set; }
-        //public decimal? LimitAmount { get; set; } = 0;
-
+        public decimal EligibleAmount { get; set; }
+        public bool IsEligible { get; set; } = true;
     }
 
     public class EligibleProduct
@@ -109,7 +108,7 @@ namespace MEligibilityPlatform.Domain.Models
         //public decimal MaximumProductCapPercentage { get; set; }
         public decimal EligibleAmount { get; set; }
         public decimal? LimitAmount { get; set; } = 0;
-
+        public bool IsEligible { get; set; } = true;
     }
 
     public class NonEligibleProduct

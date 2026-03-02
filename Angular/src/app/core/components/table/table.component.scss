@@ -47,6 +47,10 @@ table {
     border-bottom: 1px solid #F1F5F9 !important;
     padding: 0 10px !important;
   }
+
+  .mat-mdc-paginator-page-size .mat-mdc-select-arrow-wrapper {
+    transform: translateX(-4px);
+  }
 }
 
 .clickable-icon {
