@@ -526,7 +526,7 @@ namespace MEligibilityPlatform.Application.Services
             foreach (var pCardId in pCardIdDetails)
             {
                 // Validates eligibility for the product
-                ValidationResult result = await ValidAsync(userId, pCardId.ProductId , keyValues);
+                ValidationResult result = await ValidAsync(userId, pCardId.ProductId, keyValues);
 
                 // If validation passed, adds product to best fit list
                 if (result.IsValidationPassed)

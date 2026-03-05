@@ -49,7 +49,7 @@ namespace MEligibilityPlatform.Controllers
         {
             var tenantId = User.GetTenantId();
             // Retrieves a product cap record by ID
-            var result = _productCapService.GetById(id,tenantId);
+            var result = _productCapService.GetById(id, tenantId);
             // Checks if the record was found
             if (result != null)
             {
@@ -77,7 +77,7 @@ namespace MEligibilityPlatform.Controllers
             var tenantId = User.GetTenantId();
 
             // Retrieves product cap records by product ID
-            var result = await _productCapService.GetByProductId(id,tenantId);
+            var result = await _productCapService.GetByProductId(id, tenantId);
             // Checks if records were found
             if (result != null)
             {

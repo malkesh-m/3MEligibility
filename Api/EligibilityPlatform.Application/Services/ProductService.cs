@@ -55,7 +55,7 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="model">The ProductAddUpdateModel containing the data to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task Add(ProductAddUpdateModel model,string token)
+        public async Task Add(ProductAddUpdateModel model, string token)
         {
             EnsureValidCategoryId(model.CategoryId);
             // Checks if a product with the same code already exists for the entity.
@@ -85,15 +85,15 @@ namespace MEligibilityPlatform.Application.Services
                 if (!uploadResult.Succeeded || uploadResult.Data == null)
                     throw new Exception("Image upload failed");
 
-                model.ProductImageId = uploadResult.Data.Id;   
-                model.ProductImagePath = uploadResult.Data.Path; 
+                model.ProductImageId = uploadResult.Data.Id;
+                model.ProductImagePath = uploadResult.Data.Path;
             }
 
             // Maps the model to a Product entity.
             var productEntities = _mapper.Map<Product>(model);
 
             // Sets CategoryId to null if it's 0, otherwise uses the provided value.
-            productEntities.CategoryId =  model.CategoryId;
+            productEntities.CategoryId = model.CategoryId;
 
             // Sets the creation and update timestamps to current UTC time.
             productEntities.CreatedByDateTime = DateTime.UtcNow;
@@ -139,10 +139,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="tenantId">The entity ID.</param>
         /// <returns>A list of ProductListModel representing all products for the entity.</returns>
-        public async Task< List<ProductListModel>> GetAll(int tenantId)
+        public async Task<List<ProductListModel>> GetAll(int tenantId)
         {
             // Retrieves products filtered by entity ID and includes category information.
-            var products = await  _uow.ProductRepository.Query().AsNoTracking()
+            var products = await _uow.ProductRepository.Query().AsNoTracking()
                 .Where(f => f.TenantId == tenantId)
                 .Select(s => new ProductListModel
                 {
@@ -158,7 +158,7 @@ namespace MEligibilityPlatform.Application.Services
                     ProductId = s.ProductId,
                     ProductImagePath = s.ProductImagePath,
                     ProductImageId = s.ProductImageId,
-                    ProductName = s.ProductName,   
+                    ProductName = s.ProductName,
                     UpdatedBy = s.UpdatedBy,
                     UpdatedByDateTime = s.UpdatedByDateTime,
                     MaxEligibleAmount = (int?)s.MaxEligibleAmount
@@ -239,7 +239,7 @@ namespace MEligibilityPlatform.Application.Services
             // Retrieves products filtered by entity ID and product ID.
             var product = _uow.ProductRepository.Query()
                 .Where(w => w.ProductId == id && w.TenantId == tenantId)
-                .FirstOrDefault()?? throw new Exception("Product not found");
+                .FirstOrDefault() ?? throw new Exception("Product not found");
 
             // Maps the product entity to a list model and returns.
             return _mapper.Map<ProductListModel>(product);
@@ -267,9 +267,9 @@ namespace MEligibilityPlatform.Application.Services
             if (duplicate?.ProductName == model.ProductName)
                 throw new InvalidOperationException("Product Name already exists");
 
-            model.CategoryId =  model.CategoryId;
+            model.CategoryId = model.CategoryId;
 
-      // Handle file upload only if it hasn't been pre-uploaded (optimization)
+            // Handle file upload only if it hasn't been pre-uploaded (optimization)
             if (model.ProductImageFile != null && model.ProductImageId == null)
             {
                 var uploadResult = await _driveService.UploadAsync(model.ProductImageFile, token);
@@ -351,7 +351,7 @@ namespace MEligibilityPlatform.Application.Services
 
 
         // ... elsewhere in the file, update ExportInfo
-        
+
         /// <summary>
         /// Exports product information to an Excel file based on standardized rules.
         /// </summary>
@@ -384,7 +384,7 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                query = query.Where(p => 
+                query = query.Where(p =>
                     (p.ProductName != null && p.ProductName.Contains(search)) ||
                     (p.Code != null && p.Code.Contains(search)) ||
                     (p.CategoryName != null && p.CategoryName.Contains(search)) ||
@@ -543,7 +543,7 @@ namespace MEligibilityPlatform.Application.Services
                     //model.UpdatedByDateTime = DateTime.UtcNow;
 
                     // Sets CategoryId to null if it's 0, otherwise uses the provided value.
-                    model.CategoryId =  model.CategoryId;
+                    model.CategoryId = model.CategoryId;
 
                     // Adds the mapped product entity to the repository.
                     _uow.ProductRepository.Add(_mapper.Map<Product>(model));

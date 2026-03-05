@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MEligibilityPlatform.Domain.Entities
 {
-    public partial class EvaluationHistory 
+    public partial class EvaluationHistory
     {
         [Key]
         public int EvaluationHistoryId { get; set; }

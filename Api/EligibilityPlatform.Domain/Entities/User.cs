@@ -45,5 +45,5 @@ public partial class User : ITenantEntity
     [NotMapped]
     public virtual SecurityRole? SecurityRole { get; set; }
 
-   
+
 }

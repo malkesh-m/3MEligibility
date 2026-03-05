@@ -2,7 +2,7 @@
 
 namespace MEligibilityPlatform.Domain.Entities;
 
-public partial class ApiParameter: ITenantEntity
+public partial class ApiParameter : ITenantEntity
 {
     [Key]
     public int ApiParamterId { get; set; }

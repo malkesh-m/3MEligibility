@@ -333,7 +333,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<double> GetAverageProcessingTimeAsync(int tenantId)
         {
             // Gets all processing times
-            var times = await _uow.EvaluationHistoryRepository.Query().Where(e=>e.TenantId==tenantId)
+            var times = await _uow.EvaluationHistoryRepository.Query().Where(e => e.TenantId == tenantId)
                           .Select(x => x.ProcessingTime)
                           .ToListAsync();
 

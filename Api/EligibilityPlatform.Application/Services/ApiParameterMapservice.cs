@@ -60,10 +60,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The unique identifier of the API parameter mapping.</param>
         /// <returns>The API parameter mapping if found, otherwise null.</returns>
-        public ApiParameterListMapModel GetById(int id,int tenantId)
+        public ApiParameterListMapModel GetById(int id, int tenantId)
         {
             // Retrieves entity by ID from the repository
-            var result = _uow.ApiParameterMapsRepository.Query().Where(a=>a.Id==id && a.TenantId==tenantId);
+            var result = _uow.ApiParameterMapsRepository.Query().Where(a => a.Id == id && a.TenantId == tenantId);
             // Maps entity to list model using AutoMapper
             return _mapper.Map<ApiParameterListMapModel>(result);
         }

@@ -15,10 +15,10 @@ namespace MEligibilityPlatform.Authorization
             PermissionRequirement requirement)
         {
             if (context.User.Identity?.IsAuthenticated != true)
-                return; 
+                return;
             var userIdClaim = context.User.GetUserId(); ;
             var tenantId = context.User.GetTenantId();
-            var permissions = await _userService.GetUserPermissionsAsync(userIdClaim,tenantId);
+            var permissions = await _userService.GetUserPermissionsAsync(userIdClaim, tenantId);
 
             if (permissions.Contains(requirement.Permission))
             {

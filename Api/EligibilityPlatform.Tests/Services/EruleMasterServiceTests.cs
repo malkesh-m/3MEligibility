@@ -29,7 +29,7 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task Add_ExistingName_ShouldThrowException()
         {
-            var data = new List<EruleMaster> { new EruleMaster { TenantId = 1, EruleName = "R1" } }.BuildMock();
+            var data = new List<EruleMaster> { new() { TenantId = 1, EruleName = "R1" } }.BuildMock();
             _mockUow.Setup(u => u.EruleMasterRepository.Query()).Returns(data);
 
             var model = new EruleMasterCreateUpodateModel { TenantId = 1, EruleName = "R1" };
@@ -56,7 +56,7 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task Edit_ExistingNameDifferentId_ShouldThrowException()
         {
-            var data = new List<EruleMaster> { new EruleMaster { TenantId = 1, EruleName = "R1", Id = 2 } }.BuildMock();
+            var data = new List<EruleMaster> { new() { TenantId = 1, EruleName = "R1", Id = 2 } }.BuildMock();
             _mockUow.Setup(u => u.EruleMasterRepository.Query()).Returns(data);
 
             var model = new EruleMasterCreateUpodateModel { EruleId = 1, EruleName = "R1" };
@@ -67,10 +67,10 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task GetAll_ShouldReturnModels()
         {
-            var data = new List<EruleMaster> { new EruleMaster { TenantId = 1, Id = 1, EruleName = "Test" } }.BuildMock();
+            var data = new List<EruleMaster> { new() { TenantId = 1, Id = 1, EruleName = "Test" } }.BuildMock();
             _mockUow.Setup(u => u.EruleMasterRepository.Query()).Returns(data);
 
-            var expected = new List<EruleMasterListModel> { new EruleMasterListModel { EruleId = 1 } };
+            var expected = new List<EruleMasterListModel> { new() { EruleId = 1 } };
             _mockMapper.Setup(m => m.Map<List<EruleMasterListModel>>(It.IsAny<List<EruleMaster>>())).Returns(expected);
 
             var result = await _service.GetAll(1);
@@ -82,7 +82,7 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task Delete_ExistingId_ShouldDeleteAndComplete()
         {
-            var data = new List<EruleMaster> { new EruleMaster { Id = 1, EruleName = "Test" } }.BuildMock();
+            var data = new List<EruleMaster> { new() { Id = 1, EruleName = "Test" } }.BuildMock();
             _mockUow.Setup(u => u.EruleMasterRepository.Query()).Returns(data);
 
             var result = await _service.Delete(1);

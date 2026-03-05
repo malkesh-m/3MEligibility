@@ -21,17 +21,17 @@ namespace MEligibilityPlatform.Domain.Models
         public int? MappedParameterId { get; set; }
         public string? SystemParameterName { get; set; }
     }
-     public class ParameterBindingAddModel
-        {
+    public class ParameterBindingAddModel
+    {
 
-            public int Id { get; set; }
+        public int Id { get; set; }
 
-            public int TenantId { get; set; }
+        public int TenantId { get; set; }
 
-            public int SystemParameterId { get; set; }
+        public int SystemParameterId { get; set; }
 
-            public int? MappedParameterId { get; set; }
+        public int? MappedParameterId { get; set; }
 
-        }
     }
+}
 

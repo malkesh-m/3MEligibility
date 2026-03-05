@@ -169,7 +169,7 @@ namespace MEligibilityPlatform.Application.Services
             // Initializes a collection for rules that cannot be deleted
             var notDeletedRules = new HashSet<string>();
             // Initializes a collection for successfully deleted rules
-            var deletedRules = new List<int>();
+            List<int> deletedRules = [];
             // Retrieves all PCards for the specified entity
             var pCards = _uow.PcardRepository.Query().Where(f => f.TenantId == tenantId);
             try
@@ -324,7 +324,7 @@ namespace MEligibilityPlatform.Application.Services
             var worksheet = package.Workbook.Worksheets[0];
 
             int rowCount = GetRowCount(worksheet);
-            var models = new List<EcardListModel>();
+            List<EcardListModel> models = [];
 
             int skippedRecordsCount = 0;
             int insertedRecordsCount = 0;
@@ -401,7 +401,7 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
 
                 // Final message
-                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                resultMessage += $"{insertedRecordsCount} {GlobalcConstants.Created} " +
                                $"{dublicatedRecordsCount} duplicates skipped, " +
                                $"{skippedRecordsCount} invalid rows skipped.";
             }
@@ -420,6 +420,9 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of non-empty rows.</returns>
         static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet == null || worksheet.Dimension == null)
+                return 0;
+
             // Gets the last row in the worksheet
             int lastRow = worksheet.Dimension.End.Row;
             //int rowCount = 0;
@@ -594,15 +597,15 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<Stream> ExportECard(int tenantId, ExportRequestModel request)
         {
             var query = from ecard in _uow.EcardRepository.Query()
-                         where ecard.TenantId == tenantId
-                         select new EcardModelDescription
-                         {
-                             EcardId = ecard.EcardId,
-                             EcardName = ecard.EcardName,
-                             EcardDesc = ecard.EcardDesc,
-                             Expshown = ecard.Expshown,
-                             Expression = ecard.Expression
-                         };
+                        where ecard.TenantId == tenantId
+                        select new EcardModelDescription
+                        {
+                            EcardId = ecard.EcardId,
+                            EcardName = ecard.EcardName,
+                            EcardDesc = ecard.EcardDesc,
+                            Expshown = ecard.Expshown,
+                            Expression = ecard.Expression
+                        };
 
             // Apply standardized Export logic: Selected -> Filtered -> All
             if (request.HasSelection)
@@ -612,15 +615,15 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                query = query.Where(q => 
-                    (q.EcardName != null && q.EcardName.Contains(search)) ||
-                    (q.EcardDesc != null && q.EcardDesc.Contains(search))
+                query = query.Where(q =>
+                    (q.EcardName != null && q.EcardName.ToLower().Contains(search)) ||
+                    (q.EcardDesc != null && q.EcardDesc.ToLower().Contains(search))
                 );
             }
 
             var EcardList = await query.ToListAsync();
-            var data = _mapper.Map<List<EcardModelDescription>>(EcardList);
-            
+            var data = EcardList;
+
             return await _exportService.ExportToExcel(data, "Ecards", ["EntityName", "TenantId"]);
         }
 

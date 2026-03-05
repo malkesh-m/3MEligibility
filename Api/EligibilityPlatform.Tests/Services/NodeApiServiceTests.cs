@@ -48,8 +48,8 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task AddRange_ShouldAddMultipleEntitiesAndComplete()
         {
-            var models = new List<NodeApiCreateOrUpdateModel> { new NodeApiCreateOrUpdateModel { Apiid = 1 } };
-            var entities = new List<NodeApi> { new NodeApi { Apiid = 1 } };
+            var models = new List<NodeApiCreateOrUpdateModel> { new() { Apiid = 1 } };
+            var entities = new List<NodeApi> { new() { Apiid = 1 } };
 
             // Setup mock mapper to return a valid list of entities
             _mockMapper.Setup(m => m.Map<List<NodeApi>>(models)).Returns(entities);
@@ -75,9 +75,9 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public void GetAll_ShouldReturnMappedModels()
         {
-            var entities = new List<NodeApi> { new NodeApi { Apiid = 1 } }.AsQueryable();
+            var entities = new List<NodeApi> { new() { Apiid = 1 } }.AsQueryable();
             _mockUow.Setup(u => u.NodeApiRepository.GetAllByTenantId(1, false)).Returns(entities);
-            _mockMapper.Setup(m => m.Map<List<NodeApiListModel>>(It.IsAny<List<NodeApi>>())).Returns(new List<NodeApiListModel> { new NodeApiListModel { Apiid = 1 } });
+            _mockMapper.Setup(m => m.Map<List<NodeApiListModel>>(It.IsAny<List<NodeApi>>())).Returns([new NodeApiListModel { Apiid = 1 }]);
 
             var result = _service.GetAll(1);
 
@@ -130,11 +130,11 @@ namespace EligibilityPlatform.Tests.Services
         public async Task MultipleDelete_ShouldRemoveEntitiesAndComplete()
         {
             var entity1 = new NodeApi { Apiid = 1 };
-            
+
             _mockUow.Setup(u => u.NodeApiRepository.Query()).Returns(new List<NodeApi> { entity1 }.AsQueryable().BuildMock());
             _mockUow.Setup(u => u.NodeApiRepository.GetById(1)).Returns(entity1);
 
-            await _service.MultipleDelete(new List<int> { 1 });
+            await _service.MultipleDelete([1]);
 
             _mockUow.Verify(u => u.NodeApiRepository.Remove(entity1), Times.Once);
             _mockUow.Verify(u => u.CompleteAsync(), Times.Once);
@@ -150,6 +150,72 @@ namespace EligibilityPlatform.Tests.Services
             var result = _service.GetBinaryXmlById(1, 1);
 
             Assert.Equal(xml, result);
+        }
+        [Fact]
+        public void GetByNodeId_ShouldReturnMappedModels()
+        {
+            var entities = new List<NodeApi> { new() { NodeId = 1, Apiid = 1 } }.BuildMock();
+            _mockUow.Setup(u => u.NodeApiRepository.Query()).Returns(entities);
+            _mockMapper.Setup(m => m.Map<List<NodeApiListModel>>(It.IsAny<List<NodeApi>>())).Returns([new NodeApiListModel { Apiid = 1 }]);
+
+            var result = _service.GetByNodeId(1);
+
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public void GetByNodeIdSingle_ShouldReturnMappedModel()
+        {
+            var entity = new NodeApi { NodeId = 1, Apiid = 1 };
+            _mockUow.Setup(u => u.NodeApiRepository.Query()).Returns(new List<NodeApi> { entity }.BuildMock());
+            _mockMapper.Setup(m => m.Map<NodeApiListModel>(entity)).Returns(new NodeApiListModel { Apiid = 1 });
+
+            var result = _service.GetByNodeIdSingle(1);
+
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Apiid);
+        }
+
+        [Fact]
+        public void GetByNodeIdSingle_WhenNotFound_ShouldThrowException()
+        {
+            _mockUow.Setup(u => u.NodeApiRepository.Query()).Returns(new List<NodeApi>().BuildMock());
+
+            Assert.Throws<Exception>(() => _service.GetByNodeIdSingle(1));
+        }
+
+        [Fact]
+        public void GetApiByNodeId_ShouldReturnMappedModels()
+        {
+            var entities = new List<NodeApi> { new() { NodeId = 1, Apiid = 1 } }.BuildMock();
+            _mockUow.Setup(u => u.NodeApiRepository.Query()).Returns(entities);
+            _mockMapper.Setup(m => m.Map<List<NodeApiListModel>>(It.IsAny<List<NodeApi>>())).Returns([new NodeApiListModel { Apiid = 1 }]);
+
+            var result = _service.GetApiByNodeId(1);
+
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public async Task MultipleDelete_WhenIdNotFound_ShouldThrowException()
+        {
+            _mockUow.Setup(u => u.NodeApiRepository.Query()).Returns(new List<NodeApi>().BuildMock());
+
+            await Assert.ThrowsAsync<Exception>(() => _service.MultipleDelete([1]));
+        }
+
+        [Fact]
+        public async Task Update_WithNodeIdZero_ShouldSetToNull()
+        {
+            var model = new NodeApiCreateOrUpdateModel { Apiid = 1, NodeId = 0 };
+            var entity = new NodeApi { Apiid = 1, NodeId = 10 };
+
+            _mockUow.Setup(u => u.NodeApiRepository.GetById(1)).Returns(entity);
+            _mockMapper.Setup(m => m.Map<NodeApiCreateOrUpdateModel, NodeApi>(model, entity)).Returns(entity);
+
+            await _service.Update(model);
+
+            Assert.Null(model.NodeId);
         }
     }
 }

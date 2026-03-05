@@ -16,7 +16,7 @@ namespace MEligibilityPlatform.Controllers
     /// <param name="productService">The product service.</param>
     [Route("api/product")]
     [ApiController]
-    public class ProductController(IProductService productService,IDriveService driveService) : ControllerBase
+    public class ProductController(IProductService productService, IDriveService driveService) : ControllerBase
     {
         private readonly IProductService _productService = productService;
         private readonly IDriveService _driveService = driveService;
@@ -28,7 +28,7 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.Product.View)]
 
         [HttpGet("getall")]
-        public async Task< IActionResult> Get()
+        public async Task<IActionResult> Get()
         {
             // Retrieves the entity ID from the current user context
             int tenantId = Convert.ToInt32(User.GetTenantId());
@@ -152,7 +152,7 @@ namespace MEligibilityPlatform.Controllers
             //    .Parse(authHeader)
             //    .Parameter;
             // Adds the new product record
-            await _productService.Add(product, token??"");
+            await _productService.Add(product, token ?? "");
             // Returns success response for created operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Created });
         }
@@ -182,7 +182,7 @@ namespace MEligibilityPlatform.Controllers
             var token = Request.Headers.Authorization.ToString();
 
             // Updates the existing product record
-            await _productService.Update(product,token);
+            await _productService.Update(product, token);
             // Returns success response for updated operation
             return Ok(new ResponseModel { IsSuccess = true, Message = GlobalcConstants.Updated });
         }
@@ -240,7 +240,7 @@ namespace MEligibilityPlatform.Controllers
         {
             // Exports product records for the current entity based on selection or filters
             var stream = await _productService.ExportInfo(User.GetTenantId(), request);
-            
+
             if (stream == null || stream.Length == 0)
                 return Ok(new ResponseModel { IsSuccess = false, Message = GlobalcConstants.NoRecordsToExport });
 
@@ -305,16 +305,16 @@ namespace MEligibilityPlatform.Controllers
         {
             // Constructs the relative file path
             var relativePath = $"files/{tenantId}/{filename}";
-            
+
             // Gets the full file path
             var filePath = _productService.GetImagePath(relativePath);
-            
+
             // Checks if file exists
             if (!System.IO.File.Exists(filePath))
             {
                 return NotFound(new ResponseModel { IsSuccess = false, Message = "Image not found." });
             }
-            
+
             // Determines content type based on file extension
             var extension = Path.GetExtension(filename).ToLowerInvariant();
             var contentType = extension switch
@@ -326,7 +326,7 @@ namespace MEligibilityPlatform.Controllers
                 ".webp" => "image/webp",
                 _ => "application/octet-stream"
             };
-            
+
             // Returns the image file
             return PhysicalFile(filePath, contentType);
         }
@@ -346,14 +346,15 @@ namespace MEligibilityPlatform.Controllers
                     return NotFound(new ResponseModel { IsSuccess = false, Message = "Image not found in drive." });
                 }
 
-                return File(Bytes, ContentType); 
+                return File(Bytes, ContentType);
             }
             catch (Exception ex)
             {
                 // Returning full exception message to help the user identify if MDrive is rejecting the token or URL
-                return BadRequest(new ResponseModel { 
-                    IsSuccess = false, 
-                    Message = $"Error fetching image from drive: {ex.Message}" 
+                return BadRequest(new ResponseModel
+                {
+                    IsSuccess = false,
+                    Message = $"Error fetching image from drive: {ex.Message}"
                 });
             }
         }
@@ -382,7 +383,7 @@ namespace MEligibilityPlatform.Controllers
             var token = Request.Headers.Authorization.ToString();
             try
             {
-                 await _driveService.DeleteAsync(fileId, token);
+                await _driveService.DeleteAsync(fileId, token);
                 return Ok(new ResponseModel { IsSuccess = true, Message = "Image deleted from drive." });
             }
             catch (Exception ex)

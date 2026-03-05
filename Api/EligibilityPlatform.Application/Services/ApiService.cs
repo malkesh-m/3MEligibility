@@ -63,7 +63,7 @@ namespace MEligibilityPlatform.Application.Services
                 response.EnsureSuccessStatusCode();
 
                 // Reads the response content as a string
-                string wsdlContent = await response.Content.ReadAsStringAsync();
+                string wsdlContent = await response.Content.ReadAsStringAsync(ct);
 
                 // Parses the WSDL content and returns the extracted API details
                 return ParseWsdl(wsdlContent);
@@ -229,7 +229,7 @@ namespace MEligibilityPlatform.Application.Services
                 response.EnsureSuccessStatusCode();
 
                 // Reads the response content as a string
-                string responseContent = await response.Content.ReadAsStringAsync();
+                string responseContent = await response.Content.ReadAsStringAsync(ct);
                 // Returns the response content
                 return responseContent;
 
@@ -482,7 +482,7 @@ namespace MEligibilityPlatform.Application.Services
             if (response.IsSuccessStatusCode)
             {
                 // Returns a success response model with the response data
-                return new ResponseModel { IsSuccess = true, Data = await response.Content.ReadAsStringAsync() };
+                return new ResponseModel { IsSuccess = true, Data = await response.Content.ReadAsStringAsync(ct) };
             }
 
             // Returns a failure response model with an error message
@@ -567,7 +567,7 @@ namespace MEligibilityPlatform.Application.Services
             if (response.IsSuccessStatusCode)
             {
                 // Reads the response content as a string
-                var responseBody = await response.Content.ReadAsStringAsync();
+                var responseBody = await response.Content.ReadAsStringAsync(ct);
                 // Parses the response content as JSON
                 var jsonDocument = JsonDocument.Parse(responseBody);
 

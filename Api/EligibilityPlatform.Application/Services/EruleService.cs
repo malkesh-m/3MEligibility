@@ -232,10 +232,10 @@ namespace MEligibilityPlatform.Application.Services
         {
             // Performs a join between EruleMaster and Erule repositories
             var rules = (await (from master in _uow.EruleMasterRepository.Query().Where(f => f.TenantId == tenantId)
-                         join rule in _uow.EruleRepository.Query().Where(f => f.TenantId == tenantId)
-                             on master.Id equals rule.EruleMasterId into gj
-                         from rule in gj.DefaultIfEmpty()
-                         select new { master, rule })
+                                join rule in _uow.EruleRepository.Query().Where(f => f.TenantId == tenantId)
+                                    on master.Id equals rule.EruleMasterId into gj
+                                from rule in gj.DefaultIfEmpty()
+                                select new { master, rule })
             .ToListAsync()) // Materializes the query asynchronously
             .Select(x => new EruleListModel
             {
@@ -1123,7 +1123,7 @@ namespace MEligibilityPlatform.Application.Services
                     excelDuplicateCheck.Add(excelKey);
 
                     // Required field validation
-                    if (string.IsNullOrEmpty(ruleName)  || string.IsNullOrEmpty(isActiveStr))
+                    if (string.IsNullOrEmpty(ruleName) || string.IsNullOrEmpty(isActiveStr))
                     {
                         skipped++;
                         continue;
@@ -1207,7 +1207,7 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                query = query.Where(q => 
+                query = query.Where(q =>
                     (q.EruleName != null && q.EruleName.Contains(search)) ||
                     (q.EruleDesc != null && q.EruleDesc.Contains(search))
                 );
@@ -1225,10 +1225,10 @@ namespace MEligibilityPlatform.Application.Services
                 UpdatedBy = m.UpdatedBy,
                 UpdatedByDateTime = m.UpdatedByDateTime
             }).ToList();
-            
+
             return await _exportService.ExportToExcel(data, "Rules");
         }
 
-       
+
     }
 }

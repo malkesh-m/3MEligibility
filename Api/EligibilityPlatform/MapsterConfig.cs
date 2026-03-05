@@ -64,7 +64,7 @@ namespace MEligibilityPlatform
             TypeAdapterConfig<RolePermission, RolePermissionModel>.NewConfig().TwoWays();
             TypeAdapterConfig<Screen, ScreenModel>.NewConfig().TwoWays();
 
-      
+
 
             TypeAdapterConfig<MakerChecker, MakerCheckerModel>
                 .NewConfig()

@@ -45,9 +45,8 @@ namespace EligibilityPlatform.Tests.Services
         public void GetAll_ShouldReturnMappedModels()
         {
             int tenantId = 1;
-            int apiId = 1; // Assuming apiId is 1 for this test
-            var entities = new List<ApiParameterMap> { new ApiParameterMap { Id = 1 } };
-            var models = new List<ApiParameterListMapModel> { new ApiParameterListMapModel { Id = 1 } };
+            var entities = new List<ApiParameterMap> { new() { Id = 1 } };
+            var models = new List<ApiParameterListMapModel> { new() { Id = 1 } };
 
             _mockUow.Setup(u => u.ApiParameterMapsRepository.GetAllByTenantId(tenantId, false)).Returns(entities.AsQueryable());
             _mockMapper.Setup(m => m.Map<List<ApiParameterListMapModel>>(entities)).Returns(models);
@@ -61,7 +60,7 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public void GetById_ShouldReturnMappedModel()
         {
-            var data = new List<ApiParameterMap> { new ApiParameterMap { Id = 1, TenantId = 1 } }.BuildMock();
+            var data = new List<ApiParameterMap> { new() { Id = 1, TenantId = 1 } }.BuildMock();
 
             _mockUow.Setup(u => u.ApiParameterMapsRepository.Query()).Returns(data);
             var expectedModel = new ApiParameterListMapModel { Id = 1 };
@@ -90,8 +89,7 @@ namespace EligibilityPlatform.Tests.Services
         {
             var data = new List<ApiParameterMap>
             {
-                new ApiParameterMap 
-                { 
+                new() {
                     Id = 1, ApiId = 1, ApiParameterId = 10, ParameterId = 20,
                     ApiParameter = new ApiParameter { ParameterName = "ApiP1" },
                     Parameter = new MEligibilityPlatform.Domain.Entities.Parameter { ParameterName = "SysP1" }

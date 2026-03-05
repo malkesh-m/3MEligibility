@@ -221,7 +221,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="draftEruleId">The draft erule ID.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        
+
         [HttpPut("publish-draft")]
         public async Task<IActionResult> UpdateDraft(int draftEruleId)
         {

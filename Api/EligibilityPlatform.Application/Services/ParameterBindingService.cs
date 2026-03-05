@@ -7,7 +7,7 @@ using MEligibilityPlatform.Application.Services.Interface;
 
 namespace MEligibilityPlatform.Application.Services
 {
-    public class ParameterBindingService(IUnitOfWork uow,IMapper mapper) : IParameterBindingService
+    public class ParameterBindingService(IUnitOfWork uow, IMapper mapper) : IParameterBindingService
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IMapper _mapper = mapper;
@@ -34,7 +34,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 var data = _mapper.Map<ParameterBinding>(model);
                 data.TenantId = tenantId;
-           
+
                 _uow.ParameterBindingRepository.Add(data);
             }
 

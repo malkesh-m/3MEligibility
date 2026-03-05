@@ -184,24 +184,24 @@ namespace MEligibilityPlatform.Application.Services
         {
             // Creates a query joining Factor, Parameter, Condition, and Entity tables
             var factorsQuery = from factor in _uow.FactorRepository.Query()
-                          join parameter in _uow.ParameterRepository.Query()
-                          on factor.ParameterId equals parameter.ParameterId
-                          join condition in _uow.ConditionRepository.Query()
-                          on factor.ConditionId equals condition.ConditionId
-                          where factor.TenantId == tenantId && parameter.TenantId == tenantId
-                          select new FactorModelDescription
-                          {
-                              FactorId = factor.FactorId,
-                              FactorName = factor.FactorName,
-                              Note = factor.Note,
-                              Value1 = factor.Value1,
-                              Value2 = factor.Value2,
-                              ConditionId = factor.ConditionId,
-                              TenantId = factor.TenantId,
-                              ParameterId = factor.ParameterId,
-                              ParameterName = parameter.ParameterName,
-                              ConditionValue = condition.ConditionValue
-                          };
+                               join parameter in _uow.ParameterRepository.Query()
+                               on factor.ParameterId equals parameter.ParameterId
+                               join condition in _uow.ConditionRepository.Query()
+                               on factor.ConditionId equals condition.ConditionId
+                               where factor.TenantId == tenantId && parameter.TenantId == tenantId
+                               select new FactorModelDescription
+                               {
+                                   FactorId = factor.FactorId,
+                                   FactorName = factor.FactorName,
+                                   Note = factor.Note,
+                                   Value1 = factor.Value1,
+                                   Value2 = factor.Value2,
+                                   ConditionId = factor.ConditionId,
+                                   TenantId = factor.TenantId,
+                                   ParameterId = factor.ParameterId,
+                                   ParameterName = parameter.ParameterName,
+                                   ConditionValue = condition.ConditionValue
+                               };
 
             // Apply standardized Export logic: Selected -> Filtered -> All
             if (request.HasSelection)
@@ -211,7 +211,7 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                factorsQuery = factorsQuery.Where(q => 
+                factorsQuery = factorsQuery.Where(q =>
                     (q.FactorName != null && q.FactorName.Contains(search)) ||
                     (q.ParameterName != null && q.ParameterName.Contains(search)) ||
                     (q.ConditionValue != null && q.ConditionValue.Contains(search)) ||

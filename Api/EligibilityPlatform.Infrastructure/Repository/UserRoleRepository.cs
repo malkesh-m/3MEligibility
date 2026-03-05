@@ -51,15 +51,16 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         {
             // Creates a LINQ query to join user roles with users and entities
             var userRoles = _context.UserRoles.Where(x => x.RoleId == roleId).ToList();
-            var query = from ur in userRoles join u in users.Data on ur.UserId equals u.Id
-        select new UserInfo
-        {
-            UserId = u.Id,
-            RoleId = roleId,
-            UserName = u.DisplayName ?? string.Empty,
-            Email = u.Email ?? string.Empty,
-            MobileNo=u.MobileNo
-        };
+            var query = from ur in userRoles
+                        join u in users.Data on ur.UserId equals u.Id
+                        select new UserInfo
+                        {
+                            UserId = u.Id,
+                            RoleId = roleId,
+                            UserName = u.DisplayName ?? string.Empty,
+                            Email = u.Email ?? string.Empty,
+                            MobileNo = u.MobileNo
+                        };
             // Returns the list of UserInfo objects
             return [.. query];
         }

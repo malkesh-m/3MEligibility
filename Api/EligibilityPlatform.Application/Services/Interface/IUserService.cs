@@ -151,8 +151,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         //UserGetModel Logout(int id);
         void RemoveUserPermissionsCache(int userId);
 
-        Task<List<string>> GetUserPermissionsAsync(int userId,int tenantId);
+        Task<List<string>> GetUserPermissionsAsync(int userId, int tenantId);
 
     }
 }
-

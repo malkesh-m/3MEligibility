@@ -123,7 +123,22 @@ namespace MEligibilityPlatform.Application.Services
         {
             if (string.IsNullOrWhiteSpace(expression))
             {
-                return new ValidationResult { IsValidationPassed = true, ValidationDetails = new List<ValidationDetail>() };
+                return new ValidationResult { IsValidationPassed = true, ValidationDetails = [] };
+            }
+            if (!AreParenthesesBalanced(expression))
+            {
+                return new()
+                {
+                    IsValidationPassed = false,
+                    ValidationDetails =
+                    [
+                        new()
+                        {
+                            IsValid = false,
+                            ErrorMessage = ["Invalid expression: unbalanced parentheses"]
+                        }
+                    ]
+                };
             }
             // Initializes list for validation details.
             var validationDetails = new List<ValidationDetail>();
@@ -174,6 +189,21 @@ namespace MEligibilityPlatform.Application.Services
             return expression.Substring(start + 1, end - start - 1);
         }
 
+        private static bool AreParenthesesBalanced(string expression)
+        {
+            var depth = 0;
+            foreach (var ch in expression)
+            {
+                if (ch == '(') depth++;
+                else if (ch == ')')
+                {
+                    depth--;
+                    if (depth < 0) return false;
+                }
+            }
+            return depth == 0;
+        }
+
         /// <summary>
         /// Evaluates a validation expression.
         /// </summary>
@@ -187,7 +217,7 @@ namespace MEligibilityPlatform.Application.Services
         {
             if (string.IsNullOrWhiteSpace(expression))
             {
-                return new ValidationResult { IsValidationPassed = true, ValidationDetails = new List<ValidationDetail>() };
+                return new ValidationResult { IsValidationPassed = true, ValidationDetails = [] };
             }
             var validationDetails = new List<ValidationDetail>();
 
@@ -197,18 +227,18 @@ namespace MEligibilityPlatform.Application.Services
             }
 
             // Standardize spaces around operators to ensure splitting works
-            expression = Regex.Replace(expression.Trim(), @"\b(and|ands)\b", " AND ", RegexOptions.IgnoreCase);
-            expression = Regex.Replace(expression, @"\b(or|ors)\b", " OR ", RegexOptions.IgnoreCase);
-            expression = Regex.Replace(expression, @"\b(range)\b", " Range ", RegexOptions.IgnoreCase);
+            expression = MyRegex1().Replace(expression.Trim(), " AND ");
+            expression = MyRegex2().Replace(expression, " OR ");
+            expression = MyRegex3().Replace(expression, " Range ");
 
             var orList = new List<bool>();
             // Split by " OR " (standardized case and spacing)
-            var orParts = Regex.Split(expression.Trim(), @"\s+OR\s+", RegexOptions.None);
+            var orParts = MyRegex4().Split(expression.Trim());
 
             foreach (var orPart in orParts)
             {
                 var andList = new List<bool>();
-                var andParts = Regex.Split(orPart.Trim(), @"\s+AND\s+", RegexOptions.None);
+                var andParts = MyRegex5().Split(orPart.Trim());
 
                 foreach (var rawPart in andParts)
                 {
@@ -239,28 +269,40 @@ namespace MEligibilityPlatform.Application.Services
                     // Case 2b: Literal In List / Not In List evaluation
                     // Handles expressions like "BDC In List WorkEntity" or "BDC Not In List WorkEntity"
                     // (where the parameter name has been substituted with the user-provided value).
-                    var notInListLiteralMatch = Regex.Match(part,
-                        @"^(.+?)\s+Not In List\s+(\S+)$", RegexOptions.IgnoreCase);
+                    var notInListLiteralMatch = MyRegex6().Match(part);
                     if (notInListLiteralMatch.Success)
                     {
                         var providedValue = notInListLiteralMatch.Groups[1].Value.Trim();
-                        var listName = notInListLiteralMatch.Groups[2].Value.Trim();
-                        var listEntity = _uow.ManagedListRepository.Query()
-                            .Where(x => x.ListName == listName).FirstOrDefault();
-                        if (listEntity != null)
+                        if (IsFactorName(providedValue, entities, type))
                         {
-                            var listItems = _uow.ListItemRepository.GetAll()
-                                .Where(x => x.ListId == listEntity.ListId)
-                                .Select(x => x.ItemName).ToList();
-                            var isInList = listItems.Any(item =>
-                                string.Equals(item!.Trim(), providedValue, StringComparison.OrdinalIgnoreCase));
-                            andList.Add(!isInList);
+                            var entityResult = ValidateEntity(part, entities, keyValues, type);
+                            andList.Add(entityResult.IsValidationPassed);
+                            if (entityResult.ValidationDetails != null)
+                            {
+                                validationDetails.AddRange(entityResult.ValidationDetails);
+                            }
+                            continue;
                         }
                         else
                         {
-                            andList.Add(false);
+                            var listName = notInListLiteralMatch.Groups[2].Value.Trim();
+                            var listEntity = _uow.ManagedListRepository.Query()
+                                .Where(x => x.ListName == listName).FirstOrDefault();
+                            if (listEntity != null)
+                            {
+                                var listItems = _uow.ListItemRepository.GetAll()
+                                    .Where(x => x.ListId == listEntity.ListId)
+                                    .Select(x => x.ItemName).ToList();
+                                var isInList = listItems.Any(item =>
+                                    string.Equals(item!.Trim(), providedValue, StringComparison.OrdinalIgnoreCase));
+                                andList.Add(!isInList);
+                            }
+                            else
+                            {
+                                andList.Add(false);
+                            }
+                            continue;
                         }
-                        continue;
                     }
 
                     var inListLiteralMatch = Regex.Match(part,
@@ -268,23 +310,36 @@ namespace MEligibilityPlatform.Application.Services
                     if (inListLiteralMatch.Success)
                     {
                         var providedValue = inListLiteralMatch.Groups[1].Value.Trim();
-                        var listName = inListLiteralMatch.Groups[2].Value.Trim();
-                        var listEntity = _uow.ManagedListRepository.Query()
-                            .Where(x => x.ListName == listName).FirstOrDefault();
-                        if (listEntity != null)
+                        if (IsFactorName(providedValue, entities, type))
                         {
-                            var listItems = _uow.ListItemRepository.GetAll()
-                                .Where(x => x.ListId == listEntity.ListId)
-                                .Select(x => x.ItemName).ToList();
-                            var isInList = listItems.Any(item =>
-                                string.Equals(item!.Trim(), providedValue, StringComparison.OrdinalIgnoreCase));
-                            andList.Add(isInList);
+                            var entityResult = ValidateEntity(part, entities, keyValues, type);
+                            andList.Add(entityResult.IsValidationPassed);
+                            if (entityResult.ValidationDetails != null)
+                            {
+                                validationDetails.AddRange(entityResult.ValidationDetails);
+                            }
+                            continue;
                         }
                         else
                         {
-                            andList.Add(false);
+                            var listName = inListLiteralMatch.Groups[2].Value.Trim();
+                            var listEntity = _uow.ManagedListRepository.Query()
+                                .Where(x => x.ListName == listName).FirstOrDefault();
+                            if (listEntity != null)
+                            {
+                                var listItems = _uow.ListItemRepository.GetAll()
+                                    .Where(x => x.ListId == listEntity.ListId)
+                                    .Select(x => x.ItemName).ToList();
+                                var isInList = listItems.Any(item =>
+                                    string.Equals(item!.Trim(), providedValue, StringComparison.OrdinalIgnoreCase));
+                                andList.Add(isInList);
+                            }
+                            else
+                            {
+                                andList.Add(false);
+                            }
+                            continue;
                         }
-                        continue;
                     }
 
                     // Case 3: Factor/entity-based expression
@@ -316,6 +371,16 @@ namespace MEligibilityPlatform.Application.Services
                 IsValidationPassed = orList.Any(x => x),
                 ValidationDetails = validationDetails
             };
+        }
+
+        private static bool IsFactorName(string candidate, IEnumerable<object>? entities, string type)
+        {
+            if (type != "Rule" || entities == null) return false;
+            if (entities is not IEnumerable<Factor> factors) return false;
+
+            var normalizedCandidate = candidate.Replace(" ", "");
+            return factors.Any(f =>
+                string.Equals(f.FactorName?.Replace(" ", ""), normalizedCandidate, StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool EvaluateLiteral(string left, string op, string right)
@@ -397,7 +462,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 case "ECard":
                     // Casts entities to Ecard list.
-                    var list = (IEnumerable<Ecard>)entities;
+                    var list = (IEnumerable<Ecard>)entities!;
                     // Skip the token if it's not a valid integer (e.g. if it's a boolean literal like "true").
                     if (!int.TryParse(tenantIdStr, out var ecardIdParsed)) break;
                     // Finds the ECard by ID.
@@ -444,7 +509,7 @@ namespace MEligibilityPlatform.Application.Services
                         if (facts.Length == 2)
                         {
                             // Casts entities to Factor list.
-                            var factors = (IEnumerable<Factor>)entities;
+                            var factors = (IEnumerable<Factor>)entities!;
 
                             //var factor = factors.FirstOrDefault(x => x.Value1 == (facts[1]));
 
@@ -768,5 +833,17 @@ namespace MEligibilityPlatform.Application.Services
 
         [GeneratedRegex(@"\d+")]
         private static partial Regex MyRegex();
+        [GeneratedRegex(@"\b(and|ands)\b", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex MyRegex1();
+        [GeneratedRegex(@"\b(or|ors)\b", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex MyRegex2();
+        [GeneratedRegex(@"\b(range)\b", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex MyRegex3();
+        [GeneratedRegex(@"\s+OR\s+", RegexOptions.None)]
+        private static partial Regex MyRegex4();
+        [GeneratedRegex(@"\s+AND\s+", RegexOptions.None)]
+        private static partial Regex MyRegex5();
+        [GeneratedRegex(@"^(.+?)\s+Not In List\s+(\S+)$", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex MyRegex6();
     }
 }

@@ -128,7 +128,7 @@ namespace MEligibilityPlatform.Application.Services
 
         public async Task<List<ApiListModel>> GetAllApiDetailsWithNode(int tenantId)
         {
-            return await _nodeApiRepository.Query().Where(n=>n.TenantId==tenantId)
+            return await _nodeApiRepository.Query().Where(n => n.TenantId == tenantId)
      .Join(_nodeModelRepository.Query(),
            api => api.NodeId,
            node => node.NodeId,

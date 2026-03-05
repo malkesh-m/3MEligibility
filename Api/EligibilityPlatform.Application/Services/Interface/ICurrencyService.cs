@@ -50,4 +50,3 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task MultipleDelete(List<int> ids);
     }
 }
-

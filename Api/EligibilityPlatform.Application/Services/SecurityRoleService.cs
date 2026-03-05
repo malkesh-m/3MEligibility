@@ -45,7 +45,7 @@ namespace MEligibilityPlatform.Application.Services
             var exists = await _uow.SecurityRoleRepository.Query()
                 .AnyAsync(sg => sg.TenantId == securityRoleModel.TenantId
                                 && sg.RoleName != null
-                                && sg.RoleName.ToLower() == normalizedName);
+                                && sg.RoleName.Equals(normalizedName, StringComparison.CurrentCultureIgnoreCase));
             if (exists)
             {
                 throw new InvalidOperationException("This role already exists.");
@@ -66,12 +66,12 @@ namespace MEligibilityPlatform.Application.Services
             try
             {
                 var securityRoles = _uow.SecurityRoleRepository.GetAllByTenantId(tenantId);
-                
+
                 if (securityRoles == null || !securityRoles.Any())
                 {
                     return [];
                 }
-                
+
                 return _mapper.Map<List<SecurityRoleModel>>(securityRoles.ToList());
             }
             catch (Exception ex)

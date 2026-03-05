@@ -1,6 +1,7 @@
 ﻿using MEligibilityPlatform.Domain.Entities;
 
 namespace MEligibilityPlatform.Domain.Models;
+
 public class ParameterComputedValueModel
 {
     public int ComputedValueId { get; set; }

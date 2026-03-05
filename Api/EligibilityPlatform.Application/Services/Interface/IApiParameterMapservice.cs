@@ -19,7 +19,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="id">The unique identifier of the parameter mapping to retrieve.</param>
         /// <returns>The <see cref="ApiParameterListMapModel"/> with the specified ID.</returns>
-        ApiParameterListMapModel GetById(int id,int tenantId);
+        ApiParameterListMapModel GetById(int id, int tenantId);
 
         /// <summary>
         /// Adds a new API parameter mapping.

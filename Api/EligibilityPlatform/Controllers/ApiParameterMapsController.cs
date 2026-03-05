@@ -54,7 +54,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves a specific API parameter map by ID from the service.
             /// </summary>
-            var result = _ApiParameterMaps.GetById(id,tenantId);
+            var result = _ApiParameterMaps.GetById(id, tenantId);
 
             /// <summary>
             /// Checks if the API parameter map was found.

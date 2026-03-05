@@ -63,7 +63,7 @@ builder.Services.AddDbContext<EligibilityDbContext>((sp, options) =>
         sqlServerVersion,
         mySqlOptions =>
         {
-            mySqlOptions.CommandTimeout(30); 
+            mySqlOptions.CommandTimeout(30);
         });
 
     if (builder.Environment.IsDevelopment())
@@ -372,7 +372,7 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = 429;
     options.OnRejected = async (context, token) =>
     {
-       context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.ContentType = "application/json";
 
         await context.HttpContext.Response.WriteAsJsonAsync(new
         {

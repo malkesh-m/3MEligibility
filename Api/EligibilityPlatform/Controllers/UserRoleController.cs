@@ -17,7 +17,7 @@ namespace MEligibilityPlatform.Controllers
     /// <param name="userRoleService">The user role service.</param>
     [Route("api/userrole")]
     [ApiController]
-    public class UserRoleController(IUserRoleService userRoleService,IUserService userService,IMemoryCache cache) : ControllerBase
+    public class UserRoleController(IUserRoleService userRoleService, IUserService userService, IMemoryCache cache) : ControllerBase
     {
 
         private readonly IUserRoleService _userRoleService = userRoleService;
@@ -52,7 +52,7 @@ namespace MEligibilityPlatform.Controllers
             var tenantId = User.GetTenantId();
             var users = await _userService.GetAll(tenantId, ct);
             // Retrieves users belonging to a specific role by its ID
-            var result = _userRoleService.GetUserByRoleId(id,users);
+            var result = _userRoleService.GetUserByRoleId(id, users);
             // Checks if the user role was found
             if (result != null)
             {
@@ -100,7 +100,7 @@ namespace MEligibilityPlatform.Controllers
                 return Ok(new ResponseModel
                 {
                     IsSuccess = false,
-                    Message = ErrorMessage??""
+                    Message = ErrorMessage ?? ""
                 });
             }
             // Adds the new user role
@@ -153,7 +153,7 @@ namespace MEligibilityPlatform.Controllers
                 return Ok(new ResponseModel
                 {
                     IsSuccess = false,
-                    Message = ErrorMessage??""
+                    Message = ErrorMessage ?? ""
                 });
             }
 

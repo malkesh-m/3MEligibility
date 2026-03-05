@@ -25,7 +25,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <param name="entityService">The entity service instance.</param>
     public partial class ParameterService(IUnitOfWork uow, IMapper mapper, IDataTypeService dataTypeService, IConditionService conditionService, IExportService exportService) : IParameterService
     {
-      
+
         /// <summary>
         /// The unit of work instance for database operations.
         /// </summary>
@@ -251,7 +251,7 @@ namespace MEligibilityPlatform.Application.Services
                 .Include(x => x.ComputedValues)
                 .FirstOrDefaultAsync(f => f.ParameterId == model.ParameterId
                                           && f.TenantId == model.TenantId)
-                ?? throw new Exception("Parameter does not exist in this tenant");
+                ?? throw new InvalidOperationException("Parameter not found.");
 
             var createdBy = parameter.CreatedBy;
             var createdDate = parameter.CreatedByDateTime;
@@ -291,7 +291,7 @@ namespace MEligibilityPlatform.Application.Services
                             IsMandatory = parameter.IsMandatory,
                             DataTypeId = parameter.DataTypeId,
                             DataTypeName = datatype != null ? datatype.DataTypeName : null,
-                       
+
                         };
 
             if (request.HasSelection)
@@ -301,15 +301,15 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                query = query.Where(p => 
+                query = query.Where(p =>
                     (p.ParameterName != null && p.ParameterName.Contains(search)) ||
-                    (p.DataTypeName != null && p.DataTypeName.Contains(search)) 
+                    (p.DataTypeName != null && p.DataTypeName.Contains(search))
                 );
             }
 
             var data = await query.ToListAsync();
             string sheetName = Identifier == 1 ? "Customer-Parameters" : "Product-Parameters";
-            
+
             return await _exportService.ExportToExcel(
                 data,
                 sheetName,
@@ -487,6 +487,10 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of rows with data.</returns>
         static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet.Dimension == null)
+            {
+                return 0;
+            }
             // Gets the last row number from worksheet dimensions
             int lastRow = worksheet.Dimension.End.Row;
             int lastNonEmptyRow = 0;

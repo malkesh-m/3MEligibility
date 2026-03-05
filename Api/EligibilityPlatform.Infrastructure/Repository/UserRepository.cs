@@ -17,7 +17,7 @@ namespace MEligibilityPlatform.Infrastructure.Repository
     public class UserRepository(EligibilityDbContext context, IUserContextService userContext) : Repository<User>(context, userContext), IUserRepository
     {
 
-        
+
 
         /// <summary>
         /// Retrieves a user by their email address.

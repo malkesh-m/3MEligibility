@@ -8,7 +8,7 @@ using MEligibilityPlatform.Domain.Entities;
 namespace MEligibilityPlatform.Domain.Models
 {
 
-   
+
     public class BREIntegrationAlignmentRequest
     {
         public Dictionary<int, object>? KeyValues { get; set; }

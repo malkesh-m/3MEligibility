@@ -30,7 +30,7 @@ namespace MEligibilityPlatform.Application.Services
             using var content = new MultipartFormDataContent();
             using var stream = file.OpenReadStream();
             var fileContent = new StreamContent(stream);
-            
+
             // Critical: Set the specific content type for the file part
             fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType ?? "application/octet-stream");
             content.Add(fileContent, "file", file.FileName);
@@ -38,7 +38,7 @@ namespace MEligibilityPlatform.Application.Services
             var version = _configuration["MDrive:Version"] ?? "1";
 
             var response = await client.PostAsync($"api/v{version}/Files/Upload", content, ct);
-            
+
             // Check status code first
             if (!response.IsSuccessStatusCode)
             {
@@ -47,7 +47,7 @@ namespace MEligibilityPlatform.Application.Services
             }
 
             var result = await response.Content.ReadFromJsonAsync<ApiResponse<FileUploadResponse>>(cancellationToken: ct);
-            
+
             // Check internal success flag
             if (result == null || !result.Succeeded)
             {
@@ -69,7 +69,7 @@ namespace MEligibilityPlatform.Application.Services
             var version = _configuration["MDrive:Version"] ?? "1";
 
             var response = await client.DeleteAsync($"api/v{version}/Files/{fileId}", ct);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync(ct);
@@ -80,7 +80,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<(byte[] Bytes, string ContentType)> DownloadAsync(int fileId, string token, CancellationToken ct = default)
         {
             var client = _httpClientFactory.CreateClient("MDrive");
-            
+
             client.DefaultRequestHeaders.Remove("Authorization");
             if (!string.IsNullOrWhiteSpace(token))
             {
@@ -90,12 +90,12 @@ namespace MEligibilityPlatform.Application.Services
             var version = _configuration["MDrive:Version"] ?? "1";
 
             var response = await client.GetAsync($"api/v{version}/Files/Download/{fileId}", ct);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 // Try to parse the error message if it's an ApiResponse JSON
                 string errorMsg;
-                try 
+                try
                 {
                     var errorObj = await response.Content.ReadFromJsonAsync<ApiResponse<object>>(cancellationToken: ct);
                     errorMsg = errorObj?.Messages != null ? string.Join(", ", errorObj.Messages) : "Unknown error";

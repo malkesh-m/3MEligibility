@@ -49,7 +49,7 @@ namespace MEligibilityPlatform.Controllers
         [HttpGet("getall")]
         public IActionResult GetAll()
         {
-            var tenantId=User.GetTenantId();
+            var tenantId = User.GetTenantId();
             // Retrieves all product cap amount records
             var result = _productCapAmountService.GetAll(tenantId);
             // Returns success response with the retrieved data

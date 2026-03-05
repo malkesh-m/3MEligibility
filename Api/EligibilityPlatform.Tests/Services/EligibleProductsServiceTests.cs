@@ -29,11 +29,11 @@ namespace EligibilityPlatform.Tests.Services
 
         public EligibleProductsServiceTests()
         {
-            _mockUow = new Mock<IUnitOfWork>();
-            _mockLogger = new Mock<ILogger<EligibleProductsService>>();
-            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            _mockIntegrationApiEvalRepo = new Mock<IIntegrationApiEvaluationRepository>();
-            _service = new EligibleProductsService(_mockUow.Object, _mockLogger.Object, _mockHttpClientFactory.Object);
+            _mockUow = new();
+            _mockLogger = new();
+            _mockHttpClientFactory = new();
+            _mockIntegrationApiEvalRepo = new();
+            _service = new(_mockUow.Object, _mockLogger.Object, _mockHttpClientFactory.Object);
         }
 
         private void SetupDefaultMocks(int tenantId)
@@ -88,7 +88,7 @@ namespace EligibilityPlatform.Tests.Services
             mockProductCapAmountRepo.Setup(u => u.Query()).Returns(new List<ProductCapAmount>().BuildMock());
             mockSettingRepo.Setup(u => u.Query()).Returns(new List<Setting>().BuildMock());
             mockPcardRepo.Setup(u => u.Query()).Returns(new List<Pcard>().BuildMock());
-            mockPcardRepo.Setup(u => u.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard>()); 
+            mockPcardRepo.Setup(u => u.GetByIds(It.IsAny<List<int>>())).Returns([]);
             mockEcardRepo.Setup(u => u.Query()).Returns(new List<Ecard>().BuildMock());
             mockEruleRepo.Setup(u => u.Query()).Returns(new List<Erule>().BuildMock());
             mockEruleMasterRepo.Setup(u => u.Query()).Returns(new List<EruleMaster>().BuildMock());
@@ -134,7 +134,7 @@ namespace EligibilityPlatform.Tests.Services
             int tenantId = 1;
             var keyValues = new Dictionary<int, object>();
             SetupDefaultMocks(tenantId);
-            
+
             var product = new Product { ProductId = 1, TenantId = tenantId, ProductName = "No Card Plan", Code = "NP1" };
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
 
@@ -145,7 +145,7 @@ namespace EligibilityPlatform.Tests.Services
             Assert.NotNull(result);
             Assert.Single(result.Products);
             Assert.False(result.Products[0].IsEligible);
-            Assert.Contains("Product does not have any Product CARD.", result.Products[0].Message);
+            Assert.Contains("No PCARDs found", result.Products[0].Message);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace EligibilityPlatform.Tests.Services
             // Arrange
             var url = "https://api.example.com/test";
             var expectedResponse = "{\"status\":\"success\"}";
-            
+
             var handlerMock = new Mock<HttpMessageHandler>();
             handlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -212,33 +212,33 @@ namespace EligibilityPlatform.Tests.Services
         {
             int tenantId = 1;
             // Parameters: 1=Age, 2=Salary, 3=score
-            var keyValues = new Dictionary<int, object> 
-            { 
-                { 1, "30" }, 
-                { 2, "5000" }, 
-                { 3, "80" } 
-            }; 
+            Dictionary<int, object> keyValues = new()
+            {
+                { 1, "30" },
+                { 2, "5000" },
+                { 3, "80" }
+            };
 
             // 1. Setup Data
             var product = new Product { ProductId = 10, TenantId = tenantId, ProductName = "Gold Plan", Code = "GP1", MaxEligibleAmount = 10000 };
             var masterRule = new EruleMaster { Id = 100, EruleName = "AgeRule", IsActive = true, TenantId = tenantId };
-            var rule = new Erule { EruleId = 1, EruleMasterId = 100, TenantId = tenantId, Expression = "1>25", Version = 1, EruleMaster = masterRule }; 
-            var ecard = new Ecard { EcardId = 200, TenantId = tenantId, EcardName = "AgeECard", Expression = "1" }; 
+            var rule = new Erule { EruleId = 1, EruleMasterId = 100, TenantId = tenantId, Expression = "1>25", Version = 1, EruleMaster = masterRule };
+            var ecard = new Ecard { EcardId = 200, TenantId = tenantId, EcardName = "AgeECard", Expression = "1" };
             var pcard = new Pcard { PcardId = 300, TenantId = tenantId, ProductId = 10, PcardName = "GoldPCard", Expression = "200", Product = product };
-            
-            var factor = new Factor { FactorId = 1, FactorName = "Age", ParameterId = 1, TenantId = tenantId };
-            var conditions = new List<Condition>
-            {
-                new Condition { ConditionId = 1, ConditionValue = ">" },
-                new Condition { ConditionId = 2, ConditionValue = "=" }
-            };
 
-            var parameters = new List<Parameter>
-            {
-                new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId },
-                new Parameter { ParameterId = 2, ParameterName = "Salary", TenantId = tenantId },
-                new Parameter { ParameterId = 3, ParameterName = "score", TenantId = tenantId }
-            };
+            var factor = new Factor { FactorId = 1, FactorName = "Age", ParameterId = 1, TenantId = tenantId };
+            List<Condition> conditions =
+            [
+                new() { ConditionId = 1, ConditionValue = ">" },
+                new() { ConditionId = 2, ConditionValue = "=" }
+            ];
+
+            List<Parameter> parameters =
+            [
+                new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId },
+                new() { ParameterId = 2, ParameterName = "Salary", TenantId = tenantId },
+                new() { ParameterId = 3, ParameterName = "score", TenantId = tenantId }
+            ];
 
             // ProductCapAmount for initial amount
             var capAmount = new ProductCapAmount { ProductId = 10, TenantId = tenantId, Age = "All", Salary = "All", Amount = 10000 };
@@ -252,7 +252,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(conditions);
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(parameters.BuildMock());
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmount }.BuildMock());
@@ -281,7 +281,7 @@ namespace EligibilityPlatform.Tests.Services
             var ecard = new Ecard { EcardId = 200, TenantId = tenantId, Expression = "1" };
             var pcard = new Pcard { PcardId = 300, TenantId = tenantId, ProductId = 10, Expression = "200", Product = product };
             var factor = new Factor { FactorId = 1, FactorName = "Age", ParameterId = 1, TenantId = tenantId };
-            
+
             SetupDefaultMocks(tenantId);
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
             _mockUow.Setup(u => u.EruleRepository.Query()).Returns(new List<Erule> { rule }.BuildMock());
@@ -289,8 +289,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             // Act
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
@@ -300,18 +300,18 @@ namespace EligibilityPlatform.Tests.Services
             Assert.NotNull(failedProd);
             Assert.False(failedProd.IsEligible);
             // It could be "No Rule Match" or the specific rule error
-            Assert.True(!string.IsNullOrEmpty(failedProd.Message), "Error message should not be empty");
+            Assert.False(string.IsNullOrEmpty(failedProd.Message));
         }
 
         [Fact]
         public void GetAllEligibleProducts_WithProductCap_ShouldLimitEligibleAmount()
         {
             int tenantId = 1;
-            var keyValues = new Dictionary<int, object> 
-            { 
-                { 1, "30" }, 
-                { 2, "5000" }, 
-                { 3, "100" } 
+            var keyValues = new Dictionary<int, object>
+            {
+                { 1, "30" },
+                { 2, "5000" },
+                { 3, "100" }
             };
 
             var product = new Product { ProductId = 10, TenantId = tenantId, ProductName = "Gold Plan", Code = "GP1", MaxEligibleAmount = 10000 };
@@ -319,7 +319,7 @@ namespace EligibilityPlatform.Tests.Services
             var rule = new Erule { EruleId = 1, EruleMasterId = 100, TenantId = tenantId, Expression = "1>25", Version = 1, EruleMaster = masterRule };
             var ecard = new Ecard { EcardId = 200, TenantId = tenantId, Expression = "1" };
             var pcard = new Pcard { PcardId = 300, TenantId = tenantId, ProductId = 10, Expression = "200", Product = product };
-            
+
             // Setup a Cap Amount of 2000 for Age > 25
             var capAmount = new ProductCapAmount { ProductId = 10, TenantId = tenantId, Age = "All", Salary = "All", Amount = 2000 };
             var productCap = new ProductCap { ProductId = 10, TenantId = tenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
@@ -328,15 +328,15 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
             _mockUow.Setup(u => u.EruleRepository.Query()).Returns(new List<Erule> { rule }.BuildMock());
             _mockUow.Setup(u => u.EruleMasterRepository.Query()).Returns(new List<EruleMaster> { masterRule }.BuildMock());
-            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { new Factor { ParameterId = 1 } }.BuildMock());
+            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { new() { ParameterId = 1 } }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> 
-            { 
-                new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId },
-                new Parameter { ParameterId = 2, ParameterName = "Salary", TenantId = tenantId },
-                new Parameter { ParameterId = 3, ParameterName = "score", TenantId = tenantId }
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter>
+            {
+                new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId },
+                new() { ParameterId = 2, ParameterName = "Salary", TenantId = tenantId },
+                new() { ParameterId = 3, ParameterName = "score", TenantId = tenantId }
             }.BuildMock());
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmount }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { productCap }.BuildMock());
@@ -348,7 +348,7 @@ namespace EligibilityPlatform.Tests.Services
             var eligibleProd = result.Products.FirstOrDefault(p => p.ProductId == 10);
             Assert.NotNull(eligibleProd);
             Assert.True(eligibleProd.IsEligible);
-            Assert.Equal(2000, eligibleProd.EligibleAmount); 
+            Assert.Equal(2000, eligibleProd.EligibleAmount);
         }
 
         [Fact]
@@ -359,14 +359,14 @@ namespace EligibilityPlatform.Tests.Services
             int nodeId = 1;
             int apiId = 100;
             SetupDefaultMocks(tenantId);
-            
+
             var node = new Node { NodeId = nodeId, TenantId = tenantId, NodeUrl = "https://api.example.com" };
-            var nodeApi = new NodeApi 
-            { 
-                Apiid = apiId, 
-                NodeId = nodeId, 
-                Apiname = "test-api", 
-                IsActive = true, 
+            var nodeApi = new NodeApi
+            {
+                Apiid = apiId,
+                NodeId = nodeId,
+                Apiname = "test-api",
+                IsActive = true,
                 HttpMethodType = "POST",
                 EndpointPath = "/test",
                 RequestBody = "{}",
@@ -375,7 +375,7 @@ namespace EligibilityPlatform.Tests.Services
                 TargetTable = "",
                 Node = node
             };
-            
+
             _mockUow.Setup(u => u.NodeApiRepository.GetAll()).Returns(new List<NodeApi> { nodeApi });
             _mockUow.Setup(u => u.NodeModelRepository.GetAll()).Returns(new List<Node> { node });
 
@@ -410,11 +410,11 @@ namespace EligibilityPlatform.Tests.Services
             var keyValues = new Dictionary<string, object> { { "NationalId", "12345" } }; // Missing LoanNo
             SetupDefaultMocks(tenantId);
 
-            var mandatoryParams = new List<Parameter>
-            {
-                new Parameter { ParameterId = 1, ParameterName = "NationalId", IsMandatory = true, TenantId = tenantId },
-                new Parameter { ParameterId = 2, ParameterName = "LoanNo", IsMandatory = true, TenantId = tenantId }
-            };
+            List<Parameter> mandatoryParams =
+            [
+                new() { ParameterId = 1, ParameterName = "NationalId", IsMandatory = true, TenantId = tenantId },
+                new() { ParameterId = 2, ParameterName = "LoanNo", IsMandatory = true, TenantId = tenantId }
+            ];
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(mandatoryParams.BuildMock());
 
@@ -443,43 +443,43 @@ namespace EligibilityPlatform.Tests.Services
             SetupDefaultMocks(tenantId);
 
             // Mock Parameters
-            var parameters = new List<Parameter>
-            {
-                new Parameter { ParameterId = 1, ParameterName = "NationalId", IsMandatory = true, TenantId = tenantId },
-                new Parameter { ParameterId = 2, ParameterName = "LoanNo", IsMandatory = true, TenantId = tenantId },
-                new Parameter { ParameterId = 3, ParameterName = "Age", TenantId = tenantId }, // From API
-                new Parameter { ParameterId = 4, ParameterName = "Salary", TenantId = tenantId }, // From API
-                new Parameter { ParameterId = 5, ParameterName = "score", TenantId = tenantId },
-                new Parameter { ParameterId = 6, ParameterName = "probabilityofdefault", TenantId = tenantId }
-            };
+            List<Parameter> parameters =
+            [
+                new() { ParameterId = 1, ParameterName = "NationalId", IsMandatory = true, TenantId = tenantId },
+                new() { ParameterId = 2, ParameterName = "LoanNo", IsMandatory = true, TenantId = tenantId },
+                new() { ParameterId = 3, ParameterName = "Age", TenantId = tenantId }, // From API
+                new() { ParameterId = 4, ParameterName = "Salary", TenantId = tenantId }, // From API
+                new() { ParameterId = 5, ParameterName = "score", TenantId = tenantId },
+                new() { ParameterId = 6, ParameterName = "probabilityofdefault", TenantId = tenantId }
+            ];
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(parameters.BuildMock());
 
             // Rules: Rule 10 (Age > 25), Rule 11 (Salary > 30000)
             var masterRule1 = new EruleMaster { Id = 100, EruleName = "AgeRule", IsActive = true, TenantId = tenantId };
             var masterRule2 = new EruleMaster { Id = 101, EruleName = "SalaryRule", IsActive = true, TenantId = tenantId };
-            var rules = new List<Erule>
-            {
-                new Erule { EruleId = 10, EruleMasterId = 100, Expression = "3>25", TenantId = tenantId, EruleMaster = masterRule1 }, // 3 is Age
-                new Erule { EruleId = 11, EruleMasterId = 101, Expression = "4>30000", TenantId = tenantId, EruleMaster = masterRule2 } // 4 is Salary
-            };
+            List<Erule> rules =
+            [
+                new() { EruleId = 10, EruleMasterId = 100, Expression = "3>25", TenantId = tenantId, EruleMaster = masterRule1 }, // 3 is Age
+                new() { EruleId = 11, EruleMasterId = 101, Expression = "4>30000", TenantId = tenantId, EruleMaster = masterRule2 } // 4 is Salary
+            ];
             _mockUow.Setup(u => u.EruleRepository.Query()).Returns(rules.BuildMock());
             _mockUow.Setup(u => u.EruleMasterRepository.Query()).Returns(new List<EruleMaster> { masterRule1, masterRule2 }.BuildMock());
 
             // ECards: ECard 200 (Rule 10 AND Rule 11)
-            var ecards = new List<Ecard>
-            {
-                new Ecard { EcardId = 200, EcardName = "ComplexECard", Expression = "10 AND 11", TenantId = tenantId }
-            };
+            List<Ecard> ecards =
+            [
+                new() { EcardId = 200, EcardName = "ComplexECard", Expression = "10 AND 11", TenantId = tenantId }
+            ];
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(ecards.BuildMock());
 
             // PCards: PCard 300 (ECard 200)
             var goldProduct = new Product { ProductId = 77, ProductName = "Gold Plan", Code = "GOLD", TenantId = tenantId, MaxEligibleAmount = 100000 };
-            var pcards = new List<Pcard>
-            {
-                new Pcard { PcardId = 300, PcardName = "GoldPCard", Expression = "200", ProductId = 77, Product = goldProduct, TenantId = tenantId }
-            };
+            List<Pcard> pcards =
+            [
+                new() { PcardId = 300, PcardName = "GoldPCard", Expression = "200", ProductId = 77, Product = goldProduct, TenantId = tenantId }
+            ];
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(pcards.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcards[0] });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcards[0]]);
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { goldProduct }.BuildMock());
 
             // External API Setup (Returns Age: 30, Salary: 50000)
@@ -491,13 +491,13 @@ namespace EligibilityPlatform.Tests.Services
             // API Parameter Mappings (Map API "age" to internal Param 3, "salary" to internal Param 4)
             var apiParams = new List<ApiParameter>
             {
-                new ApiParameter { ApiParamterId = 501, ApiId = 50, ParameterName = "age", ParameterDirection = "Output", TenantId = tenantId },
-                new ApiParameter { ApiParamterId = 502, ApiId = 50, ParameterName = "salary", ParameterDirection = "Output", TenantId = tenantId }
+                new() { ApiParamterId = 501, ApiId = 50, ParameterName = "age", ParameterDirection = "Output", TenantId = tenantId },
+                new() { ApiParamterId = 502, ApiId = 50, ParameterName = "salary", ParameterDirection = "Output", TenantId = tenantId }
             };
             var apiMaps = new List<ApiParameterMap>
             {
-                new ApiParameterMap { ApiParameterId = 501, ParameterId = 3, ApiId = 50, TenantId = tenantId },
-                new ApiParameterMap { ApiParameterId = 502, ParameterId = 4, ApiId = 50, TenantId = tenantId }
+                new() { ApiParameterId = 501, ParameterId = 3, ApiId = 50, TenantId = tenantId },
+                new() { ApiParameterId = 502, ParameterId = 4, ApiId = 50, TenantId = tenantId }
             };
             _mockUow.Setup(u => u.ApiParametersRepository.GetAll()).Returns(apiParams);
             _mockUow.Setup(u => u.ApiParameterMapsRepository.Query()).Returns(apiMaps.BuildMock());
@@ -505,16 +505,16 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.ApiParameterMapsRepository.GetAll()).Returns(apiMaps);
 
             // Other necessary mocks for Eligibility pipeline
-            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { 
-                new Factor { FactorId = 1, FactorName = "AgeFactor", ParameterId = 3, TenantId = tenantId },
-                new Factor { FactorId = 2, FactorName = "SalaryFactor", ParameterId = 4, TenantId = tenantId }
+            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> {
+                new() { FactorId = 1, FactorName = "AgeFactor", ParameterId = 3, TenantId = tenantId },
+                new() { FactorId = 2, FactorName = "SalaryFactor", ParameterId = 4, TenantId = tenantId }
             }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
-            _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { 
-                new ProductCap { ProductId = 77, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100, TenantId = tenantId }
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> {
+                new() { ProductId = 77, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100, TenantId = tenantId }
             }.BuildMock());
-            _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { 
-                new ProductCapAmount { ProductId = 77, Age = "All", Salary = "All", Amount = 100000, TenantId = tenantId }
+            _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> {
+                new() { ProductId = 77, Age = "All", Salary = "All", Amount = 100000, TenantId = tenantId }
             }.BuildMock());
 
             // HttpClient Mock
@@ -552,11 +552,11 @@ namespace EligibilityPlatform.Tests.Services
             // Mock Parameters
             var parameters = new List<Parameter>
             {
-                new Parameter { ParameterId = 1, ParameterName = "NationalId", IsMandatory = true, TenantId = tenantId },
-                new Parameter { ParameterId = 2, ParameterName = "LoanNo", IsMandatory = true, TenantId = tenantId },
-                new Parameter { ParameterId = 3, ParameterName = "Age", TenantId = tenantId },
-                new Parameter { ParameterId = 4, ParameterName = "Salary", TenantId = tenantId }, // From API
-                new Parameter { ParameterId = 5, ParameterName = "score", TenantId = tenantId }
+                new() { ParameterId = 1, ParameterName = "NationalId", IsMandatory = true, TenantId = tenantId },
+                new() { ParameterId = 2, ParameterName = "LoanNo", IsMandatory = true, TenantId = tenantId },
+                new() { ParameterId = 3, ParameterName = "Age", TenantId = tenantId },
+                new() { ParameterId = 4, ParameterName = "Salary", TenantId = tenantId }, // From API
+                new() { ParameterId = 5, ParameterName = "score", TenantId = tenantId }
             };
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(parameters.BuildMock());
 
@@ -569,10 +569,10 @@ namespace EligibilityPlatform.Tests.Services
             var ecard = new Ecard { EcardId = 200, Expression = "10", TenantId = tenantId };
             var product = new Product { ProductId = 88, ProductName = "Capped Plan", Code = "CAP", TenantId = tenantId, MaxEligibleAmount = 50000 };
             var pcard = new Pcard { PcardId = 300, Expression = "200", ProductId = 88, Product = product, TenantId = tenantId };
-            
+
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
 
             // External API Setup (Returns Salary: 45000)
@@ -583,40 +583,40 @@ namespace EligibilityPlatform.Tests.Services
 
             var apiParams = new List<ApiParameter>
             {
-                new ApiParameter { ApiParamterId = 601, ApiId = 51, ParameterName = "salary", ParameterDirection = "Output", TenantId = tenantId }
+                new() { ApiParamterId = 601, ApiId = 51, ParameterName = "salary", ParameterDirection = "Output", TenantId = tenantId }
             };
             var apiMaps = new List<ApiParameterMap>
             {
-                new ApiParameterMap { ApiParameterId = 601, ParameterId = 4, ApiId = 51, TenantId = tenantId }
+                new() { ApiParameterId = 601, ParameterId = 4, ApiId = 51, TenantId = tenantId }
             };
             _mockUow.Setup(u => u.ApiParametersRepository.Query()).Returns(apiParams.BuildMock());
             _mockUow.Setup(u => u.ApiParameterMapsRepository.Query()).Returns(apiMaps.BuildMock());
 
             // ProductCapAmount: Limit to 20000 if Salary > 40000
-            var capAmount = new ProductCapAmount 
-            { 
-                ProductId = 88, 
-                TenantId = tenantId, 
-                Age = "All", 
-                Salary = ">40000", 
-                Amount = 20000 
+            var capAmount = new ProductCapAmount
+            {
+                ProductId = 88,
+                TenantId = tenantId,
+                Age = "All",
+                Salary = ">40000",
+                Amount = 20000
             };
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmount }.BuildMock());
 
             // ProductCap (Scoring): 50% multiplier for score 70-90
-            var productCap = new ProductCap 
-            { 
-                ProductId = 88, 
-                TenantId = tenantId, 
-                MinimumScore = 70, 
-                MaximumScore = 90, 
-                ProductCapPercentage = 50 
+            var productCap = new ProductCap
+            {
+                ProductId = 88,
+                TenantId = tenantId,
+                MinimumScore = 70,
+                MaximumScore = 90,
+                ProductCapPercentage = 50
             };
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { productCap }.BuildMock());
 
             // Mock other helpers
-            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { new Factor { ParameterId = 3 } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { new() { ParameterId = 3 } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             // HttpClient Mock
             var jsonResponse = "{\"salary\": 45000}";
@@ -737,7 +737,7 @@ namespace EligibilityPlatform.Tests.Services
                 .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent("Critical system error") });
             _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(new HttpClient(handlerMock.Object));
 
-            var input = new Dictionary<string, object> { 
+            var input = new Dictionary<string, object> {
                 { "LoanNo", "456" },
                 { "NationalId", "NAT-002" }
             };
@@ -782,7 +782,7 @@ namespace EligibilityPlatform.Tests.Services
                 .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent("{}") });
             _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(new HttpClient(handlerMock.Object));
 
-            var input = new Dictionary<string, object> { 
+            var input = new Dictionary<string, object> {
                 { "LoanNo", "789" },
                 { "NationalId", "NAT-003" }
             };
@@ -827,7 +827,7 @@ namespace EligibilityPlatform.Tests.Services
                 .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent("INVALID JSON {") });
             _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(new HttpClient(handlerMock.Object));
 
-            var input = new Dictionary<string, object> { 
+            var input = new Dictionary<string, object> {
                 { "LoanNo", "101" },
                 { "NationalId", "NAT-004" }
             };
@@ -875,8 +875,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 2, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 2, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             // Act
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
@@ -911,8 +911,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             // Act
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
@@ -953,8 +953,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             // Act
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
@@ -1238,11 +1238,11 @@ namespace EligibilityPlatform.Tests.Services
             SetupDefaultMocks(tenantId);
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
             _mockUow.Setup(u => u.EruleRepository.Query()).Returns(new List<Erule> { rule }.BuildMock());
-            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { new Factor { ParameterId = 1 } }.BuildMock());
+            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { new() { ParameterId = 1 } }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             // Act
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
@@ -1368,8 +1368,12 @@ namespace EligibilityPlatform.Tests.Services
             var masterRule = new EruleMaster { Id = 100, EruleName = "Rule", IsActive = true, TenantId = tenantId };
             var rule = new Erule
             {
-                EruleId = 1, EruleMasterId = 100, TenantId = tenantId,
-                Expression = "1>25", Version = 1, EruleMaster = masterRule,
+                EruleId = 1,
+                EruleMasterId = 100,
+                TenantId = tenantId,
+                Expression = "1>25",
+                Version = 1,
+                EruleMaster = masterRule,
                 ValidFrom = DateTime.Now.AddDays(-1)
             };
             var factor = new Factor { FactorId = 1, ParameterId = 1, TenantId = tenantId };
@@ -1383,8 +1387,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard>().BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
 
@@ -1392,7 +1396,7 @@ namespace EligibilityPlatform.Tests.Services
             Assert.NotNull(failedProd);
             Assert.False(failedProd.IsEligible);
             // The product has no PCard → will get the NonPCard message
-            Assert.Contains("Product does not have any Product CARD", failedProd.Message ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("No PCARDs found", failedProd.Message ?? string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
@@ -1415,8 +1419,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
 
@@ -1447,8 +1451,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard>().BuildMock()); // No ECards
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
 
@@ -1626,8 +1630,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
 
@@ -1704,8 +1708,8 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard200, ecard201, ecard202 }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new Parameter { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             // The test verifies the product is found and an error message is generated (meaning all 3 ECard IDs were parsed)
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
@@ -1748,14 +1752,14 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor1, factor2 }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter>
             {
                 new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId },
                 new() { ParameterId = 2, ParameterName = "Salary", TenantId = tenantId },
                 new() { ParameterId = 3, ParameterName = "score", TenantId = tenantId }
             }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmount }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { productCap }.BuildMock());
 
@@ -1800,7 +1804,7 @@ namespace EligibilityPlatform.Tests.Services
                 new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId },
                 new() { ParameterId = 2, ParameterName = "Salary", TenantId = tenantId }
             }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
 
             var result = _service.GetAllEligibleProducts(tenantId, keyValues);
 
@@ -1821,7 +1825,7 @@ namespace EligibilityPlatform.Tests.Services
             var keyValues = new Dictionary<int, object> { { 1, "30" }, { 2, "5000" }, { 3, "80" } };
 
             // Product 10 → linked through PCard → eligible
-            // Product 20 → no PCard → not eligible with "Product does not have any Product CARD."
+            // Product 20 → no PCard → not eligible with "No PCARDs found"
             var product10 = new Product { ProductId = 10, TenantId = tenantId, ProductName = "Gold", Code = "G1", MaxEligibleAmount = 10000 };
             var product20 = new Product { ProductId = 20, TenantId = tenantId, ProductName = "Silver", Code = "S1" };
             var masterRule = new EruleMaster { Id = 100, EruleName = "AgeRule", IsActive = true, TenantId = tenantId };
@@ -1839,14 +1843,14 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter>
             {
                 new() { ParameterId = 1, ParameterName = "Age", TenantId = tenantId },
                 new() { ParameterId = 2, ParameterName = "Salary", TenantId = tenantId },
                 new() { ParameterId = 3, ParameterName = "score", TenantId = tenantId }
             }.BuildMock());
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = ">" } });
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" } });
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmount }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { productCap }.BuildMock());
 
@@ -1861,7 +1865,7 @@ namespace EligibilityPlatform.Tests.Services
             var silver = result.Products.FirstOrDefault(p => p.ProductId == 20);
             Assert.NotNull(silver);
             Assert.False(silver.IsEligible);
-            Assert.Contains("Product does not have any Product CARD", silver.Message ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("No PCARDs found", silver.Message ?? string.Empty, StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -1880,15 +1884,15 @@ namespace EligibilityPlatform.Tests.Services
 
         // Parameter IDs
         private const int PIdNationalId = 1;
-        private const int PIdLoanNo     = 2;
-        private const int PIdAge        = 3;
-        private const int PIdSalary     = 4;
-        private const int PIdScore      = 5;
+        private const int PIdLoanNo = 2;
+        private const int PIdAge = 3;
+        private const int PIdSalary = 4;
+        private const int PIdScore = 5;
 
         public EndToEndBREIntegrationTests()
         {
-            _mockUow             = new Mock<IUnitOfWork>();
-            _mockLogger          = new Mock<ILogger<EligibleProductsService>>();
+            _mockUow = new Mock<IUnitOfWork>();
+            _mockLogger = new Mock<ILogger<EligibleProductsService>>();
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _service = new EligibleProductsService(_mockUow.Object, _mockLogger.Object, _mockHttpClientFactory.Object);
             BootstrapInfrastructure();
@@ -1899,9 +1903,9 @@ namespace EligibilityPlatform.Tests.Services
         /// </summary>
         private void BootstrapInfrastructure()
         {
-            var evalRepo   = new Mock<IEvaluationHistoryRepository>();
-            var integRepo  = new Mock<IIntegrationApiEvaluationRepository>();
-            var rejRepo    = new Mock<IRejectionReasonRepository>();
+            var evalRepo = new Mock<IEvaluationHistoryRepository>();
+            var integRepo = new Mock<IIntegrationApiEvaluationRepository>();
+            var rejRepo = new Mock<IRejectionReasonRepository>();
 
             evalRepo.Setup(r => r.Add(It.IsAny<EvaluationHistory>(), It.IsAny<bool>()));
             evalRepo.Setup(r => r.Update(It.IsAny<EvaluationHistory>()));
@@ -1912,25 +1916,25 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.IntegrationApiEvaluationRepository).Returns(integRepo.Object);
             _mockUow.Setup(u => u.RejectionReasonRepository).Returns(rejRepo.Object);
 
-            SetRepo<IProductRepository,         Product>(         u => u.ProductRepository);
-            SetRepo<IProductCapRepository,      ProductCap>(      u => u.ProductCapRepository);
+            SetRepo<IProductRepository, Product>(u => u.ProductRepository);
+            SetRepo<IProductCapRepository, ProductCap>(u => u.ProductCapRepository);
             SetRepo<IProductCapAmountRepository, ProductCapAmount>(u => u.ProductCapAmountRepository);
-            SetRepo<IEcardRepository,            Ecard>(          u => u.EcardRepository);
-            SetRepo<IPcardRepository,            Pcard>(          u => u.PcardRepository, pcardExtra: true);
-            SetRepo<IEruleRepository,            Erule>(          u => u.EruleRepository);
-            SetRepo<IEruleMasterRepository,      EruleMaster>(    u => u.EruleMasterRepository);
-            SetRepo<IFactorRepository,           Factor>(         u => u.FactorRepository);
-            SetRepo<IParameterRepository,        Parameter>(      u => u.ParameterRepository);
+            SetRepo<IEcardRepository, Ecard>(u => u.EcardRepository);
+            SetRepo<IPcardRepository, Pcard>(u => u.PcardRepository, pcardExtra: true);
+            SetRepo<IEruleRepository, Erule>(u => u.EruleRepository);
+            SetRepo<IEruleMasterRepository, EruleMaster>(u => u.EruleMasterRepository);
+            SetRepo<IFactorRepository, Factor>(u => u.FactorRepository);
+            SetRepo<IParameterRepository, Parameter>(u => u.ParameterRepository);
             SetRepo<IParameterBindingRepository, ParameterBinding>(u => u.ParameterBindingRepository);
-            SetRepo<ISettingRepository,          Setting>(        u => u.SettingRepository);
-            SetRepo<ICategoryRepository,         Category>(       u => u.CategoryRepository);
+            SetRepo<ISettingRepository, Setting>(u => u.SettingRepository);
+            SetRepo<ICategoryRepository, Category>(u => u.CategoryRepository);
 
             var condRepo = new Mock<IConditionRepository>();
             condRepo.Setup(r => r.GetAll()).Returns(new List<Condition> { new() { ConditionValue = ">" }, new() { ConditionValue = ">=" }, new() { ConditionValue = "<" }, new() { ConditionValue = "<=" }, new() { ConditionValue = "=" } });
             _mockUow.Setup(u => u.ConditionRepository).Returns(condRepo.Object);
 
-            var nodeRepo   = new Mock<INodeModelRepository>();
-            var nodeApiRepo= new Mock<INodeApiRepository>();
+            var nodeRepo = new Mock<INodeModelRepository>();
+            var nodeApiRepo = new Mock<INodeApiRepository>();
             var apiParRepo = new Mock<IApiParametersRepository>();
             var apiMapRepo = new Mock<IApiParameterMapsRepository>();
 
@@ -1962,21 +1966,21 @@ namespace EligibilityPlatform.Tests.Services
             var mock = new Mock<TRepo>();
             mock.Setup(r => r.Query()).Returns(new List<TEntity>().BuildMock());
             if (pcardExtra && mock is Mock<IPcardRepository> pm)
-                pm.Setup(r => r.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard>());
+                pm.Setup(r => r.GetByIds(It.IsAny<List<int>>())).Returns([]);
             _mockUow.Setup(selector).Returns(mock.Object);
         }
 
         // -----------------------------------------------------------------------
         // Helper: build a standard set of parameters
         // -----------------------------------------------------------------------
-        private List<Parameter> StandardParams() => new()
-        {
+        private static List<Parameter> StandardParams() =>
+        [
             new() { ParameterId = PIdNationalId, ParameterName = "NationalId", IsMandatory = true, TenantId = TenantId },
             new() { ParameterId = PIdLoanNo,     ParameterName = "LoanNo",     IsMandatory = true, TenantId = TenantId },
             new() { ParameterId = PIdAge,        ParameterName = "Age",                            TenantId = TenantId },
             new() { ParameterId = PIdSalary,     ParameterName = "Salary",                         TenantId = TenantId },
             new() { ParameterId = PIdScore,      ParameterName = "score",                          TenantId = TenantId },
-        };
+        ];
 
         // -----------------------------------------------------------------------
         // 1. Missing mandatory parameter → early return with message
@@ -2024,14 +2028,14 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task BRE_SingleRulePasses_ProductShouldBeEligible()
         {
-            var product  = new Product  { ProductId = 10, ProductName = "Gold", Code = "GOLD", TenantId = TenantId, MaxEligibleAmount = 50000 };
-            var master   = new EruleMaster { Id = 1,  EruleName = "AgeRule",  IsActive = true,  TenantId = TenantId };
-            var rule     = new Erule     { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var factor   = new Factor   { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
-            var ecard    = new Ecard    { EcardId = 1,  Expression = "1",   TenantId = TenantId };
-            var pcard    = new Pcard   { PcardId = 1,  Expression = "1",   ProductId = 10, Product = product, TenantId = TenantId };
-            var capAmt   = new ProductCapAmount { ProductId = 10, TenantId = TenantId, Age = "All", Salary = "All", Amount = 50000 };
-            var cap      = new ProductCap { ProductId = 10, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
+            var product = new Product { ProductId = 10, ProductName = "Gold", Code = "GOLD", TenantId = TenantId, MaxEligibleAmount = 50000 };
+            var master = new EruleMaster { Id = 1, EruleName = "AgeRule", IsActive = true, TenantId = TenantId };
+            var rule = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var factor = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
+            var ecard = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
+            var pcard = new Pcard { PcardId = 1, Expression = "1", ProductId = 10, Product = product, TenantId = TenantId };
+            var capAmt = new ProductCapAmount { ProductId = 10, TenantId = TenantId, Age = "All", Salary = "All", Amount = 50000 };
+            var cap = new ProductCap { ProductId = 10, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2040,7 +2044,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2065,12 +2069,12 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task BRE_SingleRuleFails_ProductShouldBeNotEligible()
         {
-            var product = new Product  { ProductId = 10, ProductName = "Gold", Code = "GOLD", TenantId = TenantId };
-            var master  = new EruleMaster { Id = 1, EruleName = "AgeRule", IsActive = true, TenantId = TenantId };
-            var rule    = new Erule    { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var factor  = new Factor  { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
-            var ecard   = new Ecard   { EcardId = 1, Expression = "1", TenantId = TenantId };
-            var pcard   = new Pcard  { PcardId = 1, Expression = "1", ProductId = 10, Product = product, TenantId = TenantId };
+            var product = new Product { ProductId = 10, ProductName = "Gold", Code = "GOLD", TenantId = TenantId };
+            var master = new EruleMaster { Id = 1, EruleName = "AgeRule", IsActive = true, TenantId = TenantId };
+            var rule = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var factor = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
+            var ecard = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
+            var pcard = new Pcard { PcardId = 1, Expression = "1", ProductId = 10, Product = product, TenantId = TenantId };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2105,9 +2109,9 @@ namespace EligibilityPlatform.Tests.Services
             var m1 = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
             var m2 = new EruleMaster { Id = 2, EruleName = "R2", IsActive = true, TenantId = TenantId };
             // Rule1: Age>25 (passes with Age=30), Rule2: Salary>50000 (fails with Salary=40000)
-            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25",    Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25", Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
             var rule2 = new Erule { EruleId = 2, EruleMasterId = 2, Expression = $"{PIdSalary}>50000", Version = 1, EruleMaster = m2, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge,    TenantId = TenantId };
+            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
             var f2 = new Factor { FactorId = 2, ParameterId = PIdSalary, TenantId = TenantId };
             // ECard requires BOTH rules: "1 AND 2"
             var ecard = new Ecard { EcardId = 10, Expression = "1 AND 2", TenantId = TenantId };
@@ -2146,14 +2150,14 @@ namespace EligibilityPlatform.Tests.Services
             var m1 = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
             var m2 = new EruleMaster { Id = 2, EruleName = "R2", IsActive = true, TenantId = TenantId };
             // Rule1: Age>40 FAILS (Age=30), Rule2: Salary>30000 PASSES (Salary=40000)
-            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>40",       Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>40", Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
             var rule2 = new Erule { EruleId = 2, EruleMasterId = 2, Expression = $"{PIdSalary}>30000", Version = 1, EruleMaster = m2, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge,    TenantId = TenantId };
+            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
             var f2 = new Factor { FactorId = 2, ParameterId = PIdSalary, TenantId = TenantId };
             var ecard = new Ecard { EcardId = 20, Expression = "1 OR 2", TenantId = TenantId };
             var pcard = new Pcard { PcardId = 20, Expression = "20", ProductId = 30, Product = product, TenantId = TenantId };
             var capAmt = new ProductCapAmount { ProductId = 30, TenantId = TenantId, Age = "All", Salary = "All", Amount = 20000 };
-            var cap    = new ProductCap { ProductId = 30, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
+            var cap = new ProductCap { ProductId = 30, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2162,7 +2166,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { f1, f2 }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2190,16 +2194,16 @@ namespace EligibilityPlatform.Tests.Services
             var product = new Product { ProductId = 40, ProductName = "Premium", Code = "PREM", TenantId = TenantId, MaxEligibleAmount = 100000 };
             var m1 = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
             var m2 = new EruleMaster { Id = 2, EruleName = "R2", IsActive = true, TenantId = TenantId };
-            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25",       Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>25", Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
             var rule2 = new Erule { EruleId = 2, EruleMasterId = 2, Expression = $"{PIdSalary}>20000", Version = 1, EruleMaster = m2, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge,    TenantId = TenantId };
+            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
             var f2 = new Factor { FactorId = 2, ParameterId = PIdSalary, TenantId = TenantId };
             var ecard1 = new Ecard { EcardId = 100, Expression = "1", TenantId = TenantId }; // Rule1
             var ecard2 = new Ecard { EcardId = 101, Expression = "2", TenantId = TenantId }; // Rule2
             // PCard requires BOTH ECARDs
             var pcard = new Pcard { PcardId = 50, Expression = "100 AND 101", ProductId = 40, Product = product, TenantId = TenantId };
             var capAmt = new ProductCapAmount { ProductId = 40, TenantId = TenantId, Age = "All", Salary = "All", Amount = 100000 };
-            var cap    = new ProductCap { ProductId = 40, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 80 };
+            var cap = new ProductCap { ProductId = 40, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 80 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2208,7 +2212,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { f1, f2 }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard1, ecard2 }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2239,16 +2243,16 @@ namespace EligibilityPlatform.Tests.Services
             var m1 = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
             var m2 = new EruleMaster { Id = 2, EruleName = "R2", IsActive = true, TenantId = TenantId };
             // Rule1: Age>40 FAILS (Age=25), Rule2: Salary>10000 PASSES (Salary=20000)
-            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>40",       Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>40", Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
             var rule2 = new Erule { EruleId = 2, EruleMasterId = 2, Expression = $"{PIdSalary}>10000", Version = 1, EruleMaster = m2, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge,    TenantId = TenantId };
+            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
             var f2 = new Factor { FactorId = 2, ParameterId = PIdSalary, TenantId = TenantId };
             var ecard1 = new Ecard { EcardId = 200, Expression = "1", TenantId = TenantId };
             var ecard2 = new Ecard { EcardId = 201, Expression = "2", TenantId = TenantId };
             // PCard OR: either ECard passes is enough
             var pcard = new Pcard { PcardId = 60, Expression = "200 OR 201", ProductId = 50, Product = product, TenantId = TenantId };
             var capAmt = new ProductCapAmount { ProductId = 50, TenantId = TenantId, Age = "All", Salary = "All", Amount = 30000 };
-            var cap    = new ProductCap { ProductId = 50, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
+            var cap = new ProductCap { ProductId = 50, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2257,7 +2261,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { f1, f2 }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard1, ecard2 }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2283,14 +2287,14 @@ namespace EligibilityPlatform.Tests.Services
         public async Task BRE_ScoreOutOfRange_ShouldReturnZeroAmountWithMessage()
         {
             var product = new Product { ProductId = 60, ProductName = "Bronze", Code = "BRZ", TenantId = TenantId, MaxEligibleAmount = 15000 };
-            var master  = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
-            var rule    = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>18", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var factor  = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
-            var ecard   = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
-            var pcard   = new Pcard { PcardId = 1, Expression = "1", ProductId = 60, Product = product, TenantId = TenantId };
-            var capAmt  = new ProductCapAmount { ProductId = 60, TenantId = TenantId, Age = "All", Salary = "All", Amount = 15000 };
+            var master = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
+            var rule = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>18", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var factor = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
+            var ecard = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
+            var pcard = new Pcard { PcardId = 1, Expression = "1", ProductId = 60, Product = product, TenantId = TenantId };
+            var capAmt = new ProductCapAmount { ProductId = 60, TenantId = TenantId, Age = "All", Salary = "All", Amount = 15000 };
             // ProductCap only covers score 70-90; customer score=50 → no match
-            var cap     = new ProductCap { ProductId = 60, TenantId = TenantId, MinimumScore = 70, MaximumScore = 90, ProductCapPercentage = 100 };
+            var cap = new ProductCap { ProductId = 60, TenantId = TenantId, MinimumScore = 70, MaximumScore = 90, ProductCapPercentage = 100 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2299,7 +2303,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2334,15 +2338,15 @@ namespace EligibilityPlatform.Tests.Services
         public async Task BRE_SalaryCapRowMatches_ShouldReturnCorrectEligibleAmount()
         {
             var product = new Product { ProductId = 70, ProductName = "Salary Plan", Code = "SAL", TenantId = TenantId, MaxEligibleAmount = 60000 };
-            var master  = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
-            var rule    = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>18", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var factor  = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
-            var ecard   = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
-            var pcard   = new Pcard { PcardId = 1, Expression = "1", ProductId = 70, Product = product, TenantId = TenantId };
+            var master = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
+            var rule = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>18", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var factor = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
+            var ecard = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
+            var pcard = new Pcard { PcardId = 1, Expression = "1", ProductId = 70, Product = product, TenantId = TenantId };
             // Two cap-amount rows: first fails (Age>40), second succeeds (Salary 30000-60000)
             var capAmt1 = new ProductCapAmount { ProductId = 70, TenantId = TenantId, Age = ">40", Salary = "All", Amount = 30000 };
             var capAmt2 = new ProductCapAmount { ProductId = 70, TenantId = TenantId, Age = "All", Salary = "30000-60000", Amount = 12000 };
-            var cap     = new ProductCap { ProductId = 70, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 50 };
+            var cap = new ProductCap { ProductId = 70, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 50 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2351,7 +2355,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt1, capAmt2 }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2380,13 +2384,13 @@ namespace EligibilityPlatform.Tests.Services
             var prodA = new Product { ProductId = 80, ProductName = "A", Code = "PA", TenantId = TenantId, MaxEligibleAmount = 10000 };
             var prodB = new Product { ProductId = 81, ProductName = "B", Code = "PB", TenantId = TenantId };
             var master = new EruleMaster { Id = 1, EruleName = "R1", IsActive = true, TenantId = TenantId };
-            var rule   = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>18", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var rule = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>18", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
             var factor = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
-            var ecard  = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
+            var ecard = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
             // Only prodA has a PCard; prodB has no PCard
-            var pcard  = new Pcard { PcardId = 1, Expression = "1", ProductId = 80, Product = prodA, TenantId = TenantId };
+            var pcard = new Pcard { PcardId = 1, Expression = "1", ProductId = 80, Product = prodA, TenantId = TenantId };
             var capAmt = new ProductCapAmount { ProductId = 80, TenantId = TenantId, Age = "All", Salary = "All", Amount = 10000 };
-            var cap    = new ProductCap { ProductId = 80, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
+            var cap = new ProductCap { ProductId = 80, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { prodA, prodB }.BuildMock());
@@ -2395,7 +2399,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2424,10 +2428,10 @@ namespace EligibilityPlatform.Tests.Services
             var m2 = new EruleMaster { Id = 2, EruleName = "R2", IsActive = true, TenantId = TenantId };
             var m3 = new EruleMaster { Id = 3, EruleName = "R3", IsActive = true, TenantId = TenantId };
             // R1: Age>40 FAILS, R2: Salary>50000 FAILS, R3: Age>20 PASSES
-            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>40",       Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var rule1 = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdAge}>40", Version = 1, EruleMaster = m1, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
             var rule2 = new Erule { EruleId = 2, EruleMasterId = 2, Expression = $"{PIdSalary}>50000", Version = 1, EruleMaster = m2, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var rule3 = new Erule { EruleId = 3, EruleMasterId = 3, Expression = $"{PIdAge}>20",       Version = 1, EruleMaster = m3, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge,    TenantId = TenantId };
+            var rule3 = new Erule { EruleId = 3, EruleMasterId = 3, Expression = $"{PIdAge}>20", Version = 1, EruleMaster = m3, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var f1 = new Factor { FactorId = 1, ParameterId = PIdAge, TenantId = TenantId };
             var f2 = new Factor { FactorId = 2, ParameterId = PIdSalary, TenantId = TenantId };
             // E1→R1, E2→R2, E3→R3
             var e1 = new Ecard { EcardId = 300, Expression = "1", TenantId = TenantId };
@@ -2436,7 +2440,7 @@ namespace EligibilityPlatform.Tests.Services
             // PCard: "(300 AND 301) OR 302" → (false AND false) OR true = true
             var pcard = new Pcard { PcardId = 90, Expression = "(300 AND 301) OR 302", ProductId = 90, Product = product, TenantId = TenantId };
             var capAmt = new ProductCapAmount { ProductId = 90, TenantId = TenantId, Age = "All", Salary = "All", Amount = 50000 };
-            var cap    = new ProductCap { ProductId = 90, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
+            var cap = new ProductCap { ProductId = 90, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
 
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(StandardParams().BuildMock());
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
@@ -2445,7 +2449,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { f1, f2 }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { e1, e2, e3 }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2471,20 +2475,20 @@ namespace EligibilityPlatform.Tests.Services
         public async Task BRE_ExternalApi_ProvidesSalary_RuleUsesIt_ShouldBeEligible()
         {
             var product = new Product { ProductId = 100, ProductName = "ApiPlan", Code = "API", TenantId = TenantId, MaxEligibleAmount = 40000 };
-            var master  = new EruleMaster { Id = 1, EruleName = "SalRule", IsActive = true, TenantId = TenantId };
+            var master = new EruleMaster { Id = 1, EruleName = "SalRule", IsActive = true, TenantId = TenantId };
             // Rule: Salary>30000 — Salary will come from external API
-            var rule    = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdSalary}>30000", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
-            var factor  = new Factor { FactorId = 1, ParameterId = PIdSalary, TenantId = TenantId };
-            var ecard   = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
-            var pcard   = new Pcard { PcardId = 1, Expression = "1", ProductId = 100, Product = product, TenantId = TenantId };
-            var capAmt  = new ProductCapAmount { ProductId = 100, TenantId = TenantId, Age = "All", Salary = "All", Amount = 40000 };
-            var cap     = new ProductCap { ProductId = 100, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
+            var rule = new Erule { EruleId = 1, EruleMasterId = 1, Expression = $"{PIdSalary}>30000", Version = 1, EruleMaster = master, TenantId = TenantId, ValidFrom = DateTime.Now.AddDays(-1) };
+            var factor = new Factor { FactorId = 1, ParameterId = PIdSalary, TenantId = TenantId };
+            var ecard = new Ecard { EcardId = 1, Expression = "1", TenantId = TenantId };
+            var pcard = new Pcard { PcardId = 1, Expression = "1", ProductId = 100, Product = product, TenantId = TenantId };
+            var capAmt = new ProductCapAmount { ProductId = 100, TenantId = TenantId, Age = "All", Salary = "All", Amount = 40000 };
+            var cap = new ProductCap { ProductId = 100, TenantId = TenantId, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
 
             // External API returns salary=45000
-            var node   = new Node   { NodeId = 1, NodeUrl = "http://ext-api", TenantId = TenantId };
-            var api    = new NodeApi { Apiid = 1, NodeId = 1, Apiname = "FinApi", IsActive = true, TenantId = TenantId, HttpMethodType = "GET", EndpointPath = "/salary", RequestBody = "{}", RequestParameters = "{}" };
+            var node = new Node { NodeId = 1, NodeUrl = "http://ext-api", TenantId = TenantId };
+            var api = new NodeApi { Apiid = 1, NodeId = 1, Apiname = "FinApi", IsActive = true, TenantId = TenantId, HttpMethodType = "GET", EndpointPath = "/salary", RequestBody = "{}", RequestParameters = "{}" };
             var apiParam = new ApiParameter { ApiParamterId = 1, ApiId = 1, ParameterName = "salary", ParameterDirection = "Output", TenantId = TenantId };
-            var apiMap   = new ApiParameterMap { ApiParameterId = 1, ParameterId = PIdSalary, ApiId = 1, TenantId = TenantId };
+            var apiMap = new ApiParameterMap { ApiParameterId = 1, ParameterId = PIdSalary, ApiId = 1, TenantId = TenantId };
 
             _mockUow.Setup(u => u.NodeModelRepository.GetAll()).Returns(new List<Node> { node });
             _mockUow.Setup(u => u.NodeApiRepository.GetAll()).Returns(new List<NodeApi> { api });
@@ -2506,7 +2510,7 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Setup(u => u.FactorRepository.Query()).Returns(new List<Factor> { factor }.BuildMock());
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
-            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns(new List<Pcard> { pcard });
+            _mockUow.Setup(u => u.PcardRepository.GetByIds(It.IsAny<List<int>>())).Returns([pcard]);
             _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(new List<ProductCapAmount> { capAmt }.BuildMock());
             _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { cap }.BuildMock());
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
@@ -2563,6 +2567,184 @@ namespace EligibilityPlatform.Tests.Services
 
             Assert.NotNull(result);
             Assert.Equal("MYREQ-999", result.RequestId);
+        }
+        [Theory]
+        [InlineData("10-20", "15", true)]
+        [InlineData("10-20", "25", false)]
+        [InlineData("-10--5", "-7", true)]
+        [InlineData("<=1000", "500", true)]
+        [InlineData("<=1000", "1500", false)]
+        [InlineData(">=1000", "1500", true)]
+        [InlineData(">=1000", "500", false)]
+        [InlineData("<1000", "500", true)]
+        [InlineData("<1000", "1000", false)]
+        [InlineData(">1000", "1500", true)]
+        [InlineData(">1000", "1000", false)]
+        [InlineData("=1000", "1000", true)]
+        [InlineData("=1000", "1500", false)]
+        [InlineData("", "1000", false)]
+        [InlineData("=1000", "", false)]
+        [InlineData("invalid", "1000", false)]
+        [InlineData("10-20", "invalid", false)]
+        public void MatchCondition_VariousInputs_ShouldReturnExpectedResult(string expression, string input, bool expected)
+        {
+            var result = EligibleProductsService.MatchCondition(expression, input);
+            Assert.Equal(expected, result);
+        }
+        [Fact]
+        public void ValidateEcards_InvalidExpression_ShouldReturnFalse()
+        {
+            var ecards = new List<Ecard> { new Ecard { EcardId = 1, Expression = "1 AND (", TenantId = 1 } };
+            var ruleResults = new List<RuleResult> { new RuleResult { RuleID = 1, IsValid = true } };
+            var result = _service.ValidateEcards(ecards, ruleResults);
+            
+            Assert.Single(result);
+            Assert.False(result[0].Result);
+        }
+
+        [Fact]
+        public void GetPcardIdByEcards_InvalidExpression_ShouldSkip()
+        {
+            var pcard = new Pcard { PcardId = 1, Expression = "1 AND (", TenantId = 1 };
+            _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard> { pcard }.BuildMock());
+            
+            var ecardIds = new List<int> { 1 };
+            var result = _service.GetPcardIdByEcards(1, ecardIds);
+            
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void ValidatePcards_InvalidExpression_ShouldReturnFalse()
+        {
+            var pcards = new List<Pcard> { new Pcard { PcardId = 1, Expression = "1 AND (", TenantId = 1 } };
+            var ecardResults = new List<EcardResult> { new EcardResult { EcardID = 1, Result = true } };
+            var result = _service.ValidatePcards(pcards, ecardResults);
+            
+            Assert.Single(result);
+            Assert.False(result[0].Result);
+        }
+
+        [Fact]
+        public void GetEcardByEruleId_InvalidExpression_ShouldSkip()
+        {
+            var ecard = new Ecard { EcardId = 1, Expression = "1 AND (", TenantId = 1 };
+            _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard> { ecard }.BuildMock());
+            
+            var ruleIds = new List<int> { 1 };
+            var result = _service.GetEcardByEruleId(1, ruleIds);
+            
+            Assert.Empty(result);
+        }
+        [Fact]
+        public void CheckProductWithException_ValidExceptionRule_ShouldReturnEligibilityResult()
+        {
+            int tenantId = 1;
+            Dictionary<int, object> keyValues = new() { { 1, "30" }, { 3, "70" } };
+
+            var exceptionRule = new ExceptionManagement
+            {
+                ExceptionManagementId = 1,
+                IsActive = true,
+                IsTemporary = false,
+                Expression = "1 > 20",
+                Scope = "Product Eligibility, Limit Amount",
+                FixedPercentage = 50,
+                TenantId = tenantId
+            };
+
+            var factors = new List<Factor> { new Factor { FactorId = 1, ParameterId = 1, FactorName = "Age" } };
+            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(factors.BuildMock());
+
+            // Mock score parameter
+            var parameters = new List<Parameter> { new Parameter { ParameterId = 3, ParameterName = "score" } };
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(parameters.BuildMock());
+
+            var exceptionProduct = new ExceptionProduct { ExceptionManagementId = 1, ProductId = 10 };
+            _mockUow.Setup(u => u.ExceptionProductRepository.Query()).Returns(new List<ExceptionProduct> { exceptionProduct }.BuildMock());
+
+            var productCap = new ProductCap { ProductId = 10, MinimumScore = 0, MaximumScore = 100, ProductCapPercentage = 100 };
+            _mockUow.Setup(u => u.ProductCapRepository.Query()).Returns(new List<ProductCap> { productCap }.BuildMock());
+
+            var product = new Product { ProductId = 10, ProductName = "Test Product", Code = "TP1", MaxEligibleAmount = 10000 };
+            _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
+
+            // Mock conditions
+            var conditions = new List<Condition> { new Condition { ConditionId = 1, ConditionValue = ">" } };
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(conditions);
+
+            var result = _service.CheckProductWithException(tenantId, keyValues, new[] { exceptionRule });
+
+            Assert.Single(result);
+            Assert.True(result.First().IsProcessedByException);
+            Assert.Equal(5000, result.First().EligibleAmount); // 50% fixed of 10000
+        }
+
+        [Fact]
+        public void ValidateERules_ValidRules_ShouldReturnRuleResults()
+        {
+            int tenantId = 1;
+            Dictionary<int, object> keyValues = new() { { 1, "30" } };
+
+            var erule = new Erule { EruleId = 1, Expression = "1 > 20", TenantId = tenantId };
+            
+            var factors = new List<Factor> { new Factor { FactorId = 1, ParameterId = 1, FactorName = "Age" } };
+            _mockUow.Setup(u => u.FactorRepository.Query()).Returns(factors.BuildMock());
+
+            var conditions = new List<Condition> { new Condition { ConditionId = 1, ConditionValue = ">" } };
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(conditions);
+
+            var result = _service.ValidateERules(tenantId, new List<Erule> { erule }, keyValues);
+
+            Assert.Single(result);
+            Assert.True(result.First().IsValid);
+        }
+        [Fact]
+        public void CheckEligibleAmount_WithScoreMultiplier_ShouldApplyScoreLogic()
+        {
+            int tenantId = 1;
+            var validateProducts = new List<ProductEligibilityResult> { new() { ProductId = 10, ProductName = "P1" } };
+            var products = new List<Product> { new() { ProductId = 10, ProductName = "P1", MaxEligibleAmount = 10000 } };
+            var productCaps = new List<ProductCap> { new() { ProductId = 10, MinimumScore = 50, MaximumScore = 100, ProductCapPercentage = 80 } };
+            var capAmounts = new List<ProductCapAmount> { new() { ProductId = 10, TenantId = tenantId, Amount = 5000, Age = "All", Salary = "All" } };
+            var keyValues = new Dictionary<int, object> { { 1, "30" }, { 2, "5000" }, { 4, 80 } }; // score=80
+
+            _mockUow.Setup(u => u.ProductCapAmountRepository.Query()).Returns(capAmounts.BuildMock());
+            _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(new List<ParameterBinding>().BuildMock());
+            _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(new List<Parameter> { new() { ParameterId = 4, ParameterName = "score", TenantId = tenantId } }.BuildMock());
+
+            // Act
+            var result = _service.CheckEligibleAmount(tenantId, validateProducts, products, productCaps, keyValues);
+
+            // Assert
+            var p = result.Products.First();
+            // Score 80 meets 50-100 range -> 80% multiplier. 5000 * 0.8 = 4000
+            Assert.Equal(4000, p.EligibleAmount);
+        }
+
+        [Fact]
+        public void GetErrorMessagesForProduct_VariousFailureScenarios_ShouldReturnCorrectMessages()
+        {
+            // This is testing a private method indirectly or through internal exposure if possible.
+            // Since it's private, we'll test it via the main eligibility flow with specific failures.
+            int tenantId = 1;
+            var keyValues = new Dictionary<int, object>(); 
+
+            // Scenario: No PCards
+            _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { new() { ProductId = 1, Code = "C1", ProductName = "P1", TenantId = tenantId } }.BuildMock());
+            _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard>().BuildMock()); 
+
+            var result = _service.GetAllEligibleProducts(tenantId, keyValues);
+            Assert.Contains("No PCARDs found", result.Products.First().Message);
+        }
+
+        [Fact]
+        public async Task CallExternalApiWithMappingAsync_WhenApiNotFound_ShouldThrowException()
+        {
+            var request = new DynamicApiRequest { Url = "https://api.test.com" };
+            _mockUow.Setup(u => u.NodeApiRepository.GetAll()).Returns(new List<NodeApi>());
+
+            await Assert.ThrowsAsync<Exception>(() => _service.CallExternalApiWithMappingAsync(request));
         }
     }
 }

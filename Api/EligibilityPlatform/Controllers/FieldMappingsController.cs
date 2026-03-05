@@ -143,7 +143,7 @@ namespace MEligibilityPlatform.Controllers
         //            }
         //        }
 
-                // Fetches sample data from the external API
+        // Fetches sample data from the external API
         //        dynamic sampleData = await _apiClientService.FetchSampleResponseAsync(
         //            apiConfiguration,
         //            mappingConfiguration.Apiname!,

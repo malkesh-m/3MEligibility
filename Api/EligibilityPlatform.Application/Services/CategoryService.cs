@@ -182,19 +182,19 @@ namespace MEligibilityPlatform.Application.Services
 
                 if (notDeletedCategories.Count > 0)
                 {
-                    var msg = $"Cannot delete from Product because it is referenced by one or more Streams.: {string.Join(", ", notDeletedCategories)}.";
+                    var msg = $"Cannot delete from Category because it is referenced by one or more Streams.: {string.Join(", ", notDeletedCategories)}.";
                     resultMessage += msg;
                 }
 
                 if (deletedCategoryIds.Count > 0)
                 {
-                    var msg = $"{deletedCategoryIds.Count} Product deleted successfully.";
+                    var msg = $"{deletedCategoryIds.Count} Categories deleted successfully.";
                     resultMessage += " " + msg;
                 }
 
                 if (deletedCategoryIds.Count == 0 && notDeletedCategories.Count == 0)
                 {
-                    resultMessage = "No Products were deleted.";
+                    resultMessage = "No Categories were deleted.";
                 }
             }
             catch (Exception ex)
@@ -223,15 +223,15 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                query = query.Where(q => 
-                    (q.CategoryName != null && q.CategoryName.Contains(search)) ||
-                    (q.CatDescription != null && q.CatDescription.Contains(search))
+                query = query.Where(q =>
+                    (q.CategoryName != null && q.CategoryName.ToLower().Contains(search)) ||
+                    (q.CatDescription != null && q.CatDescription.ToLower().Contains(search))
                 );
             }
 
             var categorys = await query.ToListAsync();
             var data = _mapper.Map<List<CategoryCsvModel>>(categorys);
-            
+
             return await _exportService.ExportToExcel(data, "Categories", ["EntityName", "TenantId"]);
         }
 
@@ -355,6 +355,9 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of data rows in the worksheet.</returns>
         private static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet == null || worksheet.Dimension == null)
+                return 0;
+
             // Gets the last row number in the worksheet
             int lastRow = worksheet.Dimension.End.Row;
             // Initializes row count
@@ -413,7 +416,7 @@ namespace MEligibilityPlatform.Application.Services
             sheet.Cells[2, 3].Style.Font.Color.SetColor(System.Drawing.Color.Red);
 
             // Hides column 4 (TenantId) from view
-         
+
 
             // Auto-fits all columns to content
             sheet.Cells[sheet.Dimension.Address].AutoFitColumns();

@@ -193,7 +193,7 @@ public partial class EligibilityDbContext : DbContext
         {
             entity.ToTable("Audit");
             entity.HasIndex(e => e.TenantId, "Audit_TenantId");
-           
+
             entity.Property(e => e.ActionDate).HasColumnType("datetime");
             entity.Property(e => e.ActionName).HasMaxLength(50);
             entity.Property(e => e.FieldName).HasMaxLength(50);
@@ -430,7 +430,7 @@ public partial class EligibilityDbContext : DbContext
             //    .HasConstraintName("FK__ExceptionMgmt__TenantId__20DFD973").OnDelete(DeleteBehavior.Cascade); ;
         });
 
-     
+
 
         modelBuilder.Entity<ExceptionProduct>(entity =>
         {
@@ -484,7 +484,7 @@ public partial class EligibilityDbContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.RolePermissions)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__RolePerm__Role__1F98B2C1");          
+                .HasConstraintName("FK__RolePerm__Role__1F98B2C1");
             entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissions)
                 .HasForeignKey(d => d.PermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -969,10 +969,10 @@ public partial class EligibilityDbContext : DbContext
         {
             entity.ToTable("Permissions");
             entity.HasKey(e => e.PermissionId).HasName("PK__Permissions__8AFACE1AD71FF567");
-             entity.HasIndex(r => r.PermissionId)
-                .HasDatabaseName("IX_Permission_PermissionId");
-        
-              
+            entity.HasIndex(r => r.PermissionId)
+               .HasDatabaseName("IX_Permission_PermissionId");
+
+
             entity.Property(e => e.PermissionId).ValueGeneratedNever();
             entity.Property(e => e.CreatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             entity.Property(e => e.UpdatedByDateTime).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");

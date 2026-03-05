@@ -240,6 +240,12 @@ export class CardsComponent {
       this.loggedInUser = user;
     });
 
+    const expshownValue = (this.expressionForm.value.Expshown || '').toString();
+    if (!this.isParenthesesBalanced(expshownValue)) {
+      this.snackBar.open('Expression is invalid: unbalanced parentheses.', 'Close', { duration: 3000 });
+      return;
+    }
+
     if (this.expressionForm.invalid) {
       this.snackBar.open('Please fill out all required fields!', 'Close', { duration: 2000 });
       this.expressionForm.markAllAsTouched();
@@ -270,6 +276,21 @@ export class CardsComponent {
     } else {
       this.updateCard(payload);
     }
+  }
+
+  private isParenthesesBalanced(expression: string): boolean {
+    let depth = 0;
+    for (const ch of expression) {
+      if (ch === '(') {
+        depth++;
+      } else if (ch === ')') {
+        depth--;
+        if (depth < 0) {
+          return false;
+        }
+      }
+    }
+    return depth === 0;
   }
 
   addCard(payload: any) {

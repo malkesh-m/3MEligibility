@@ -34,6 +34,6 @@ namespace MEligibilityPlatform.Application.Helper
             return (memoryStream.ToArray(), file.ContentType);
         }
 
-        
+
     }
 }

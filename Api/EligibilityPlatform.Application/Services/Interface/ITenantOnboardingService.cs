@@ -1,5 +1,5 @@
-using MEligibilityPlatform.Domain.Models;
 using System.Threading.Tasks;
+using MEligibilityPlatform.Domain.Models;
 
 namespace MEligibilityPlatform.Application.Services.Interface
 {

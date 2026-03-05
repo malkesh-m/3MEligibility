@@ -115,10 +115,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The ID of the NodeApi record to retrieve.</param>
         /// <returns>The NodeApiListModel for the specified ID.</returns>
-        public NodeApiListModel GetById(int id ,int tenantId)
+        public NodeApiListModel GetById(int id, int tenantId)
         {
             // Retrieves the specific NodeApi entity by ID
-            var nodes = _uow.NodeApiRepository.Query().Where(n=>n.TenantId==tenantId&&n.Apiid==id);
+            var nodes = _uow.NodeApiRepository.Query().Where(n => n.TenantId == tenantId && n.Apiid == id);
             // Maps the entity to NodeApiListModel object
             return _mapper.Map<NodeApiListModel>(nodes);
         }

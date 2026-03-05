@@ -22,15 +22,15 @@ namespace EligibilityPlatform.Tests.Services
 
         public ValidatorServiceTests()
         {
-            _mockUow = new Mock<IUnitOfWork>();
-            _mockHistoryPcService = new Mock<IHistoryPcService>();
-            _service = new ValidatorService(_mockUow.Object, _mockHistoryPcService.Object);
+            _mockUow = new();
+            _mockHistoryPcService = new();
+            _service = new(_mockUow.Object, _mockHistoryPcService.Object);
         }
 
         private void SetupBasics()
         {
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition>
-            {
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(
+            [
                 new() { ConditionValue = "=" },
                 new() { ConditionValue = "!=" },
                 new() { ConditionValue = "<" },
@@ -40,13 +40,13 @@ namespace EligibilityPlatform.Tests.Services
                 new() { ConditionValue = "Range" },
                 new() { ConditionValue = "In List" },
                 new() { ConditionValue = "Not In List" }
-            });
+            ]);
 
             _mockUow.Setup(u => u.DataTypeRepository.GetById(1)).Returns(new DataType { DataTypeId = 1, DataTypeName = "Number" });
             _mockUow.Setup(u => u.DataTypeRepository.GetById(2)).Returns(new DataType { DataTypeId = 2, DataTypeName = "Date" });
             _mockUow.Setup(u => u.DataTypeRepository.GetById(3)).Returns(new DataType { DataTypeId = 3, DataTypeName = "String" });
 
-            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor>());
+            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns([]);
         }
 
         // =============================================================================
@@ -65,8 +65,8 @@ namespace EligibilityPlatform.Tests.Services
         {
             SetupBasics();
             var rule = new Erule { EruleId = 1, ExpShown = $"Age {op} {factorVal}" };
-            var factors = new List<Factor> { new Factor { FactorName = "Age", ParameterId = 1, Value1 = factorVal } };
-            
+            List<Factor> factors = [new() { FactorName = "Age", ParameterId = 1, Value1 = factorVal }];
+
             _mockUow.Setup(u => u.EruleRepository.GetById(1)).Returns(rule);
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 1 });
@@ -84,13 +84,13 @@ namespace EligibilityPlatform.Tests.Services
             // IMPORTANT: ValidatorService.Validate(Range) checks facts[1] which must match factor.Value1
             // In EvaluateExpression, splitting "Salary Range 3000-5000" by "range" gives facts[0]="Salary", facts[1]="3000-5000"
             // So factor.Value1 must be "3000-5000" for ValidateEntity to find it.
-            var factors = new List<Factor> { new Factor { FactorName = "Salary", ParameterId = 2, Value1 = "3000-5000", Value2 = "5000" } };
+            var factors = new List<Factor> { new() { FactorName = "Salary", ParameterId = 2, Value1 = "3000-5000", Value2 = "5000" } };
             // Wait, looking at EligibleProductsService.cs:730 (Range case):
             // if (double.TryParse(factor.Value1, out var lowerBound) && double.TryParse(factor.Value2, out var upperBound) ...)
             // So facts[1] must match factor.Value1. 
             // If the expression is "Salary Range 3000", facts[1] is "3000".
-            
-            var factorsFixed = new List<Factor> { new Factor { FactorName = "Salary", ParameterId = 2, Value1 = "3000", Value2 = "5000" } };
+
+            var factorsFixed = new List<Factor> { new() { FactorName = "Salary", ParameterId = 2, Value1 = "3000", Value2 = "5000" } };
             _mockUow.Setup(u => u.EruleRepository.GetById(2)).Returns(new Erule { EruleId = 2, ExpShown = "Salary Range 3000" });
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factorsFixed);
             _mockUow.Setup(u => u.ParameterRepository.GetById(2)).Returns(new Parameter { ParameterId = 2, DataTypeId = 1 });
@@ -105,7 +105,7 @@ namespace EligibilityPlatform.Tests.Services
         public void ValidateRule_DateRange_Success()
         {
             SetupBasics();
-            var factors = new List<Factor> { new Factor { FactorName = "DOB", ParameterId = 3, Value1 = "1990-01-01", Value2 = "2000-01-01" } };
+            var factors = new List<Factor> { new() { FactorName = "DOB", ParameterId = 3, Value1 = "1990-01-01", Value2 = "2000-01-01" } };
             _mockUow.Setup(u => u.EruleRepository.GetById(3)).Returns(new Erule { EruleId = 3, ExpShown = "DOB Range 1990-01-01" });
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
             _mockUow.Setup(u => u.ParameterRepository.GetById(3)).Returns(new Parameter { ParameterId = 3, DataTypeId = 2 });
@@ -120,11 +120,11 @@ namespace EligibilityPlatform.Tests.Services
         {
             SetupBasics();
             _mockUow.Setup(u => u.EruleRepository.GetById(4)).Returns(new Erule { EruleId = 4, ExpShown = "City In List SaudiCities" });
-            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> { new Factor { FactorName = "City", ParameterId = 4, Value1 = "SaudiCities" } });
+            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> { new() { FactorName = "City", ParameterId = 4, Value1 = "SaudiCities" } });
             _mockUow.Setup(u => u.ParameterRepository.GetById(4)).Returns(new Parameter { ParameterId = 4, DataTypeId = 3 });
-            
-            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(new List<ManagedList> { new ManagedList { ListId = 10, ListName = "SaudiCities" } }.BuildMock());
-            _mockUow.Setup(u => u.ListItemRepository.GetAll()).Returns(new List<ListItem> { new ListItem { ListId = 10, ItemName = "Riyadh" }, new ListItem { ListId = 10, ItemName = "Jeddah" } });
+
+            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(new List<ManagedList> { new() { ListId = 10, ListName = "SaudiCities" } }.BuildMock());
+            _mockUow.Setup(u => u.ListItemRepository.GetAll()).Returns(new List<ListItem> { new() { ListId = 10, ItemName = "Riyadh" }, new() { ListId = 10, ItemName = "Jeddah" } });
 
             var result = _service.ValidateRule(4, new Dictionary<int, object> { { 4, "Riyadh" } });
 
@@ -136,11 +136,11 @@ namespace EligibilityPlatform.Tests.Services
         {
             SetupBasics();
             _mockUow.Setup(u => u.EruleRepository.GetById(5)).Returns(new Erule { EruleId = 5, ExpShown = "Status Not In List Blocked" });
-            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> { new Factor { FactorName = "Status", ParameterId = 5, Value1 = "Blocked" } });
+            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> { new() { FactorName = "Status", ParameterId = 5, Value1 = "Blocked" } });
             _mockUow.Setup(u => u.ParameterRepository.GetById(5)).Returns(new Parameter { ParameterId = 5, DataTypeId = 3 });
-            
-            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(new List<ManagedList> { new ManagedList { ListId = 20, ListName = "Blocked" } }.BuildMock());
-            _mockUow.Setup(u => u.ListItemRepository.GetAll()).Returns(new List<ListItem> { new ListItem { ListId = 20, ItemName = "Fraud" } });
+
+            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(new List<ManagedList> { new() { ListId = 20, ListName = "Blocked" } }.BuildMock());
+            _mockUow.Setup(u => u.ListItemRepository.GetAll()).Returns(new List<ListItem> { new() { ListId = 20, ItemName = "Fraud" } });
 
             var result = _service.ValidateRule(5, new Dictionary<int, object> { { 5, "Active" } });
 
@@ -153,7 +153,7 @@ namespace EligibilityPlatform.Tests.Services
             SetupBasics();
             // If factor.Value1 is "All", it should return true regardless of input
             _mockUow.Setup(u => u.EruleRepository.GetById(6)).Returns(new Erule { EruleId = 6, ExpShown = "Field = All" });
-            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> { new Factor { FactorName = "Field", ParameterId = 6, Value1 = "All" } });
+            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> { new() { FactorName = "Field", ParameterId = 6, Value1 = "All" } });
             _mockUow.Setup(u => u.ParameterRepository.GetById(6)).Returns(new Parameter { ParameterId = 6, DataTypeId = 3 });
 
             var result = _service.ValidateRule(6, new Dictionary<int, object> { { 6, "Anything" } });
@@ -171,10 +171,10 @@ namespace EligibilityPlatform.Tests.Services
             SetupBasics();
             // f1 = 10 (T) AND f2 = 10 (F) => False (because 20 != 10)
             // ValidateEntity splits by condition and then looks up factor by name (lowercase, no spaces).
-            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> 
-            { 
-                new Factor { FactorName = "f1", ParameterId = 1, Value1 = "10" },
-                new Factor { FactorName = "f2", ParameterId = 2, Value1 = "10" }
+            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor>
+            {
+                new() { FactorName = "f1", ParameterId = 1, Value1 = "10" },
+                new() { FactorName = "f2", ParameterId = 2, Value1 = "10" }
             });
             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 1 });
             _mockUow.Setup(u => u.ParameterRepository.GetById(2)).Returns(new Parameter { ParameterId = 2, DataTypeId = 1 });
@@ -188,10 +188,10 @@ namespace EligibilityPlatform.Tests.Services
         public void ProcessExpression_OR_PassOnSecond()
         {
             SetupBasics();
-            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor> 
-            { 
-                new Factor { FactorName = "F1", ParameterId = 1, Value1 = "10" },
-                new Factor { FactorName = "F2", ParameterId = 2, Value1 = "20" }
+            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor>
+            {
+                new() { FactorName = "F1", ParameterId = 1, Value1 = "10" },
+                new() { FactorName = "F2", ParameterId = 2, Value1 = "20" }
             });
             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 1 });
             _mockUow.Setup(u => u.ParameterRepository.GetById(2)).Returns(new Parameter { ParameterId = 2, DataTypeId = 1 });
@@ -206,13 +206,13 @@ namespace EligibilityPlatform.Tests.Services
         {
             SetupBasics();
             // ( (T AND F) OR T ) AND T => True
-            var factors = new List<Factor> { new Factor { FactorName = "F1", ParameterId = 1, Value1 = "X" } };
+            var factors = new List<Factor> { new() { FactorName = "F1", ParameterId = 1, Value1 = "X" } };
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 3 });
 
             // We'll use literals to test pure expression logic
             var expression = "((true AND false) OR true) AND true";
-            var result = _service.ValidateFormErule(expression, new Dictionary<int, object>());
+            var result = _service.ValidateFormErule(expression, []);
 
             Assert.True(result.IsValidationPassed);
         }
@@ -224,8 +224,8 @@ namespace EligibilityPlatform.Tests.Services
             // Mock the Rule if needed (though ValidateFormErule uses direct expression)
             // But if it ever tries to Parse numbers as Rules:
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor>());
-            
-            var result = _service.ValidateFormErule("100 > 50 AND true = true AND 5.5 <= 10", new Dictionary<int, object>());
+
+            var result = _service.ValidateFormErule("100 > 50 AND true = true AND 5.5 <= 10", []);
 
             Assert.True(result.IsValidationPassed);
         }
@@ -238,36 +238,24 @@ namespace EligibilityPlatform.Tests.Services
         public async Task ValidAsync_PcardNotFound_ThrowsException()
         {
             _mockUow.Setup(u => u.PcardRepository.Query()).Returns(new List<Pcard>().BuildMock());
-            
-            await Assert.ThrowsAsync<Exception>(() => _service.ValidAsync(1, 999, new Dictionary<int, object>()));
+
+            await Assert.ThrowsAsync<Exception>(() => _service.ValidAsync(1, 999, []));
         }
 
         [Fact]
         public async Task ValidateCard_EcardNotFound_ThrowsException()
         {
             _mockUow.Setup(u => u.EcardRepository.Query()).Returns(new List<Ecard>().BuildMock());
-            
-            await Assert.ThrowsAsync<Exception>(() => _service.ValidateCard(888, new Dictionary<int, object>()));
+
+            await Assert.ThrowsAsync<Exception>(() => _service.ValidateCard(888, []));
         }
 
         [Fact]
-        public void ValidateFormECard_MultipleNumbers_Success()
+        public void ValidateFormECard_ExpandedExpression_Success()
         {
             SetupBasics();
-            // ValidateFormECard extracts numbers from "101, 102" -> ("101"), ("102")
-            // Then calls ProcessExpression( "(101)", ...) and ProcessExpression( "(102)", ...)
-            var ecards = new List<Ecard> 
-            { 
-                new Ecard { EcardId = 101, Expression = "true" },
-                new Ecard { EcardId = 102, Expression = "true" }
-            };
-            _mockUow.Setup(u => u.EcardRepository.GetAll()).Returns(ecards);
-            // Since ValidateFormECard calls ProcessExpression which might look for Rule 101/102
-            _mockUow.Setup(u => u.EruleRepository.GetById(101)).Returns(new Erule { EruleId = 101, ExpShown = "true" });
-            _mockUow.Setup(u => u.EruleRepository.GetById(102)).Returns(new Erule { EruleId = 102, ExpShown = "true" });
-            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor>());
-
-            var result = _service.ValidateFormECard("101 AND 102", new Dictionary<int, object>());
+            // ValidateFormECard expects a fully expanded expression with literals.
+            var result = _service.ValidateFormECard("( 20 Range 18-25 ) AND ( 5 > 3 )", []);
 
             Assert.True(result.IsValidationPassed);
         }
@@ -280,7 +268,7 @@ namespace EligibilityPlatform.Tests.Services
         public void Validate_NullValue_ReturnsInvalidWithErrorMessage()
         {
             SetupBasics();
-            var factors = new List<Factor> { new Factor { FactorName = "F1", ParameterId = 1, Value1 = "10" } };
+            var factors = new List<Factor> { new() { FactorName = "F1", ParameterId = 1, Value1 = "10" } };
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 1 });
 
@@ -295,9 +283,9 @@ namespace EligibilityPlatform.Tests.Services
         public void ProcessExpression_MalformedParentheses_HandledByException()
         {
             SetupBasics();
-            var expression = "true AND (false"; 
-            
-            var result = _service.ValidateFormErule(expression, new Dictionary<int, object>());
+            var expression = "true AND (false";
+
+            var result = _service.ValidateFormErule(expression, []);
             Assert.False(result.IsValidationPassed, "Malformed expression should return failure, not throw.");
         }
 
@@ -307,7 +295,7 @@ namespace EligibilityPlatform.Tests.Services
             SetupBasics();
             // User case: Expression "Age Range 18-25"
             // Factor has Value1 = "18-25", Value2 = null
-            var factors = new List<Factor> { new Factor { FactorName = "Age", ParameterId = 1, Value1 = "18-25", Value2 = null } };
+            var factors = new List<Factor> { new() { FactorName = "Age", ParameterId = 1, Value1 = "18-25", Value2 = null } };
             _mockUow.Setup(u => u.EruleRepository.GetById(1)).Returns(new Erule { EruleId = 1, ExpShown = "Age Range 18-25" });
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 1 });
@@ -322,7 +310,7 @@ namespace EligibilityPlatform.Tests.Services
         {
             SetupBasics();
             // User case: "( 20 Range 18-25 )"
-            var result = _service.ValidateFormErule("( 20 Range 18-25 )", new Dictionary<int, object>());
+            var result = _service.ValidateFormErule("( 20 Range 18-25 )", []);
 
             Assert.True(result.IsValidationPassed, "Should support literal range comparison '( 20 Range 18-25 )'");
         }
@@ -332,7 +320,7 @@ namespace EligibilityPlatform.Tests.Services
         {
             SetupBasics();
             // F1: Use ParameterId 10, Value1 "John"
-            var factors = new List<Factor> { new Factor { FactorName = "Name", ParameterId = 10, Value1 = "John" } };
+            var factors = new List<Factor> { new() { FactorName = "Name", ParameterId = 10, Value1 = "John" } };
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
             _mockUow.Setup(u => u.ParameterRepository.GetById(10)).Returns(new Parameter { ParameterId = 10, DataTypeId = 3 });
 
@@ -351,19 +339,128 @@ namespace EligibilityPlatform.Tests.Services
             // Rule 1: "Age Range 18-25"
             var rule = new Erule { EruleId = 1, ExpShown = "Age Range 18-25" };
             var eCard = new Ecard { EcardId = 1, Expression = "1" }; // Just Rule 1
-            
-            var factors = new List<Factor> { new Factor { FactorName = "Age", ParameterId = 1, Value1 = "18-25" } };
-            
+
+            var factors = new List<Factor> { new() { FactorName = "Age", ParameterId = 1, Value1 = "18-25" } };
+
             _mockUow.Setup(u => u.EcardRepository.GetAll()).Returns(new List<Ecard> { eCard });
             _mockUow.Setup(u => u.EruleRepository.GetById(1)).Returns(rule);
             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 1 });
             _mockUow.Setup(u => u.DataTypeRepository.GetById(1)).Returns(new DataType { DataTypeId = 1, DataTypeName = "int" });
-            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new Condition { ConditionValue = "Range" } });
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns(new List<Condition> { new() { ConditionValue = "Range" } });
 
-            var result = _service.ValidateFormECard("1", new Dictionary<int, object> { { 1, 22 } });
+            var result = _service.ValidateCard(eCard, new Dictionary<int, object> { { 1, 22 } });
 
             Assert.True(result.IsValidationPassed, "ECard should correctly validate a Rule containing a Range.");
+        }
+        [Fact]
+        public void AreParenthesesBalanced_ShouldReturnFalse_WhenUnbalancedAtStart()
+        {
+            var result = _service.ProcessExpression(") (", [], [], "Card");
+            Assert.False(result.IsValidationPassed);
+            Assert.Contains("unbalanced parentheses", result.ValidationDetails[0].ErrorMessage![0]);
+        }
+
+        [Fact]
+        public void EvaluateExpression_LiteralInList_ListNotFound_ShouldReturnFalse()
+        {
+            SetupBasics();
+            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(new List<ManagedList>().BuildMock());
+            
+            var result = _service.ValidateFormErule("AnyValue In List NonExistentList", []);
+            Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void EvaluateExpression_LiteralNotInList_ListNotFound_ShouldReturnFalse()
+        {
+            SetupBasics();
+            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(new List<ManagedList>().BuildMock());
+            
+            var result = _service.ValidateFormErule("AnyValue Not In List NonExistentList", []);
+            Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void EvaluateLiteral_UnsupportedBooleanOp_ShouldReturnFalse()
+        {
+            // EvaluateLiteral is private, but we can hit it via ValidateFormErule
+            SetupBasics();
+            var result = _service.ValidateFormErule("true < false", []);
+            Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void EvaluateLiteral_Range_InvalidFormat_ShouldReturnFalse()
+        {
+            SetupBasics();
+            var result = _service.ValidateFormErule("10 Range InvalidRange", []);
+            Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void EvaluateLiteral_InvalidNumericRight_ShouldReturnFalse()
+        {
+            SetupBasics();
+            var result = _service.ValidateFormErule("10 = NotANumber", []);
+            Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void ValidateEntity_ECardWithInvalidId_ShouldBreak()
+        {
+            SetupBasics();
+            var result = _service.ProcessExpression("NotAnInt", new List<Ecard>(), [], "ECard");
+            Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void ValidateEntity_Rule_FactorNotFound_ShouldBreak()
+        {
+            SetupBasics();
+            _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns([new() { ConditionValue = "=" }]);
+            _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(new List<Factor>().BuildMock());
+
+            var result = _service.ValidateFormErule("NoFactor = SomeValue", []);
+            Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void Validate_Range_InvalidDate_ShouldReturnFalse()
+        {
+             SetupBasics();
+             var factors = new List<Factor> { new() { FactorName = "DateF", ParameterId = 1, Value1 = "Invalid", Value2 = "Invalid" } };
+             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
+             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 2 });
+
+             var result = _service.ValidateFormErule("DateF Range 2023-01-01", new Dictionary<int, object> { { 1, "2023-01-01" } });
+             Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void Validate_Range_InvalidNumeric_ShouldReturnFalse()
+        {
+             SetupBasics();
+             var factors = new List<Factor> { new() { FactorName = "NumF", ParameterId = 1, Value1 = "ABC", Value2 = "DEF" } };
+             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
+             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 1 });
+
+             var result = _service.ValidateFormErule("NumF Range 10", new Dictionary<int, object> { { 1, 10 } });
+             Assert.False(result.IsValidationPassed);
+        }
+
+        [Fact]
+        public void Validate_UnknownCondition_ShouldReturnFalse()
+        {
+             SetupBasics();
+             _mockUow.Setup(u => u.ConditionRepository.GetAll()).Returns([new() { ConditionValue = "???" }]);
+             var factors = new List<Factor> { new() { FactorName = "F1", ParameterId = 1, Value1 = "V1" } };
+             _mockUow.Setup(u => u.FactorRepository.GetAll()).Returns(factors);
+             _mockUow.Setup(u => u.ParameterRepository.GetById(1)).Returns(new Parameter { ParameterId = 1, DataTypeId = 3 });
+
+             var result = _service.ValidateFormErule("F1 ??? V1", new Dictionary<int, object> { { 1, "V1" } });
+             Assert.False(result.IsValidationPassed);
+             Assert.Contains("Invalid condition", result.ValidationDetails[0].ErrorMessage![0]);
         }
     }
 }

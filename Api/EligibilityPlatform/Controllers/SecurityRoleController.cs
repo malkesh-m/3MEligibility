@@ -62,9 +62,10 @@ namespace MEligibilityPlatform.Controllers
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
-        {  var tenantId = User.GetTenantId();
+        {
+            var tenantId = User.GetTenantId();
             // Retrieves a specific security role by its ID
-            var result = _securityRoleService.GetById(id,tenantId);
+            var result = _securityRoleService.GetById(id, tenantId);
             // Checks if the security role was found
             if (result != null)
             {
@@ -248,7 +249,7 @@ namespace MEligibilityPlatform.Controllers
             foreach (var id in ids)
             {
                 // Retrieves the security role by ID to check if it exists
-                var item = _securityRoleService.GetById(id,tenantId);
+                var item = _securityRoleService.GetById(id, tenantId);
                 if (item == null)
                 {
                     // Returns error response if security role is not found
@@ -256,8 +257,8 @@ namespace MEligibilityPlatform.Controllers
                 }
                 var currentUserId = User.GetUserId();
                 var currentUserRoles = await _userRoleService.GetRoleNamesForUser(currentUserId, tenantId);
-                var currentRank =_userRoleService. GetHighestRank(currentUserRoles);
-                if ( _userRoleService.GetRank(item.RoleName ?? "")> currentRank)
+                var currentRank = _userRoleService.GetHighestRank(currentUserRoles);
+                if (_userRoleService.GetRank(item.RoleName ?? "") > currentRank)
                 {
                     return Ok(new ResponseModel { IsSuccess = false, Message = "You are not allowed to delete this role." });
                 }

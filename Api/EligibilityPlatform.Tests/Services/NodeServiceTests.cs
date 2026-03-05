@@ -30,11 +30,11 @@ namespace EligibilityPlatform.Tests.Services
         public async Task Add_ShouldAddEntity_WhenCodeIsUnique()
         {
             var model = new NodeCreateUpdateModel { Code = "N1", TenantId = 1 };
-            
+
             _mockUow.Setup(u => u.NodeModelRepository.GetAllByTenantId(1, false))
                 .Returns(new List<Node>().AsQueryable());
             _mockMapper.Setup(m => m.Map<List<NodeListModel>>(It.IsAny<List<Node>>()))
-                .Returns(new List<NodeListModel>());
+                .Returns([]);
             _mockMapper.Setup(m => m.Map<Node>(model)).Returns(new Node { Code = "N1", TenantId = 1 });
 
             await _service.Add(model);
@@ -47,10 +47,10 @@ namespace EligibilityPlatform.Tests.Services
         public async Task Add_ShouldThrowException_WhenCodeAlreadyExists()
         {
             var model = new NodeCreateUpdateModel { Code = "N1", TenantId = 1 };
-            var existingNodes = new List<NodeListModel> { new NodeListModel { Code = "N1" } };
-            
+            var existingNodes = new List<NodeListModel> { new() { Code = "N1" } };
+
             _mockUow.Setup(u => u.NodeModelRepository.GetAllByTenantId(1, false))
-                .Returns(new List<Node> { new Node { Code = "N1" } }.AsQueryable());
+                .Returns(new List<Node> { new() { Code = "N1" } }.AsQueryable());
             _mockMapper.Setup(m => m.Map<List<NodeListModel>>(It.IsAny<List<Node>>()))
                 .Returns(existingNodes);
 
@@ -72,9 +72,9 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public void GetAll_ShouldReturnMappedModels()
         {
-            var nodes = new List<Node> { new Node { NodeId = 1 } }.AsQueryable();
+            var nodes = new List<Node> { new() { NodeId = 1 } }.AsQueryable();
             _mockUow.Setup(u => u.NodeModelRepository.GetAllByTenantId(1, false)).Returns(nodes);
-            _mockMapper.Setup(m => m.Map<List<NodeListModel>>(It.IsAny<List<Node>>())).Returns(new List<NodeListModel> { new NodeListModel { NodeId = 1 } });
+            _mockMapper.Setup(m => m.Map<List<NodeListModel>>(It.IsAny<List<Node>>())).Returns([new NodeListModel { NodeId = 1 }]);
 
             var result = _service.GetAll(1);
 
@@ -100,7 +100,7 @@ namespace EligibilityPlatform.Tests.Services
         {
             var model = new NodeCreateUpdateModel { NodeId = 1, TenantId = 1 };
             var existingNode = new Node { NodeId = 1, TenantId = 1 };
-            
+
             _mockUow.Setup(u => u.NodeModelRepository.Query()).Returns(new List<Node> { existingNode }.AsQueryable());
             _mockMapper.Setup(m => m.Map<NodeCreateUpdateModel, Node>(model, existingNode)).Returns(existingNode);
 
@@ -115,13 +115,13 @@ namespace EligibilityPlatform.Tests.Services
         {
             var nodes = new List<Node>
             {
-                new Node { NodeId = 1, TenantId = 1 },
-                new Node { NodeId = 2, TenantId = 1 }
+                new() { NodeId = 1, TenantId = 1 },
+                new() { NodeId = 2, TenantId = 1 }
             }.AsQueryable();
 
             _mockUow.Setup(u => u.NodeModelRepository.Query()).Returns(nodes.BuildMock());
 
-            await _service.MultipleDelete(1, new List<int> { 1, 2 });
+            await _service.MultipleDelete(1, [1, 2]);
 
             _mockUow.Verify(u => u.NodeModelRepository.Remove(It.IsAny<Node>()), Times.Exactly(2));
             _mockUow.Verify(u => u.CompleteAsync(), Times.Once);

@@ -48,14 +48,14 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="model">The ListItemModel containing the data to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Add(ListItemCreateUpdateModel model)
-        { 
+        {
             var duplicateCode = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.Code == p.Code && p.TenantId == model.TenantId);
             if (duplicateCode)
             {
                 // Throws exception if parameter name already exists
                 throw new Exception("Code already exists in this List");
             }
-            var res = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.ItemName == p.ItemName&&p.TenantId==model.TenantId);
+            var res = _uow.ListItemRepository.Query().Any(p => p.ListId == model.ListId && model.ItemName == p.ItemName && p.TenantId == model.TenantId);
             if (res)
             {
                 // Throws exception if parameter name already exists
@@ -106,10 +106,10 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <param name="id">The ID of the list item to retrieve.</param>
         /// <returns>The ListItemModel for the specified ID.</returns>
-        public ListItemModel GetById(int id,int tenantId)
+        public ListItemModel GetById(int id, int tenantId)
         {
             // Retrieves the specific list item by ID
-            var item = _uow.ListItemRepository.Query().Where(l=>l.ItemId==id&& l.TenantId==tenantId);
+            var item = _uow.ListItemRepository.Query().Where(l => l.ItemId == id && l.TenantId == tenantId);
             // Maps the list item to ListItemModel object
             return _mapper.Map<ListItemModel>(item);
         }
@@ -140,7 +140,7 @@ namespace MEligibilityPlatform.Application.Services
             var Item = _uow.ListItemRepository.GetById(model.ItemId);
             // Sets the update timestamp to current UTC time
             model.UpdatedByDateTime = DateTime.UtcNow;
-        
+
             var userName = Item.CreatedBy;
             // Updates the list item with mapped data from the model
             _uow.ListItemRepository.Update(_mapper.Map<ListItemCreateUpdateModel, ListItem>(model, Item));
@@ -193,17 +193,17 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<Stream> ExportListIteam(int tenantId, ExportRequestModel request)
         {
             var listsQuery = from list in _uow.ListItemRepository.Query()
-                        join managedlist in _uow.ManagedListRepository.Query()
-                        on list.ListId equals managedlist.ListId
-                        where list.TenantId == tenantId
-                        select new ListItemModelDescription
-                        {
-                            ItemId = list.ItemId,
-                            ItemName = list.ItemName,
-                            ListId = list.ListId,
-                            ListName = managedlist.ListName ?? "",
-                            Code = list.Code
-                        };
+                             join managedlist in _uow.ManagedListRepository.Query()
+                             on list.ListId equals managedlist.ListId
+                             where list.TenantId == tenantId
+                             select new ListItemModelDescription
+                             {
+                                 ItemId = list.ItemId,
+                                 ItemName = list.ItemName,
+                                 ListId = list.ListId,
+                                 ListName = managedlist.ListName ?? "",
+                                 Code = list.Code
+                             };
 
             // Apply standardized Export logic: Selected -> Filtered -> All
             if (request.HasSelection)
@@ -213,7 +213,7 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                listsQuery = listsQuery.Where(q => 
+                listsQuery = listsQuery.Where(q =>
                     (q.ItemName != null && q.ItemName.Contains(search)) ||
                     (q.ListName != null && q.ListName.Contains(search)) ||
                     (q.Code != null && q.Code.Contains(search))
@@ -222,7 +222,7 @@ namespace MEligibilityPlatform.Application.Services
 
             var entities = await listsQuery.ToListAsync();
             var models = _mapper.Map<List<ListItemModelDescription>>(entities);
-            
+
             return await _exportService.ExportToExcel(models, "ListItem", ["EntityName"]);
         }
 
@@ -232,7 +232,7 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="fileStream">The file stream containing the Excel data to import.</param>
         /// <param name="createdBy">The user who is performing the import operation.</param>
         /// <returns>A task that represents the asynchronous operation, with a string message describing the result.</returns>
-        public async Task<string> ImportListIteams(Stream fileStream, string createdBy,int tenantId)
+        public async Task<string> ImportListIteams(Stream fileStream, string createdBy, int tenantId)
         {
             // Sets EPPlus license context to non-commercial
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -255,6 +255,11 @@ namespace MEligibilityPlatform.Application.Services
                     b?.Replace(" ", "").Trim(),
                     StringComparison.OrdinalIgnoreCase
                 );
+            }
+
+            if (worksheet.Dimension == null)
+            {
+                return "Uploaded File Is Empty";
             }
 
             for (int i = 0; i < expectedHeaders.Length; i++)
@@ -365,6 +370,9 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of rows with data.</returns>
         static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet == null || worksheet.Dimension == null)
+                return 0;
+
             // Gets the last row index from worksheet dimension
             int lastRow = worksheet.Dimension.End.Row;
             //int rowCount = 0;

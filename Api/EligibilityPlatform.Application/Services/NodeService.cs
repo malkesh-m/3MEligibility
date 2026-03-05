@@ -85,7 +85,7 @@ namespace MEligibilityPlatform.Application.Services
         public List<NodeListModel> GetAll(int tenantId)
         {
             // Queries nodes filtered by entity ID and *executes* the query immediately.
-            var nodesList = _uow.NodeModelRepository        
+            var nodesList = _uow.NodeModelRepository
                                 .GetAllByTenantId(tenantId)
                                 .ToList();
 

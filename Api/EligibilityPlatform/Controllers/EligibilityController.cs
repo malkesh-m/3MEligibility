@@ -75,11 +75,11 @@ namespace MEligibilityPlatform.Controllers
         [HttpPost("breintegrationalignment")]
         public async Task<IActionResult> BREIntegrationAlignment([FromBody] Dictionary<string, object> KeyValues, [FromQuery] int TenantId, [FromHeader] string? RequestId)
         {
-          
-                var result = await _eligibleProductsService.ProcessBREIntegration(KeyValues, TenantId, RequestId);
-                return Ok(result);
-            
-         }
+
+            var result = await _eligibleProductsService.ProcessBREIntegration(KeyValues, TenantId, RequestId);
+            return Ok(result);
+
+        }
         [ApiKeyAuth]
         // POST: api/moznapi/CallMOZNApi
         [HttpGet("moznapi")]

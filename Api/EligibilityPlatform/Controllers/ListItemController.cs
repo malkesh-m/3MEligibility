@@ -52,7 +52,7 @@ namespace MEligibilityPlatform.Controllers
         {
             var tenantId = User.GetTenantId();
             // Retrieves a list item record by ID
-            var result = _listItemService.GetById(id,tenantId);
+            var result = _listItemService.GetById(id, tenantId);
             // Checks if the list item record was found
             if (result != null)
             {
@@ -191,7 +191,7 @@ namespace MEligibilityPlatform.Controllers
         public async Task<IActionResult> ImportListIteams(IFormFile file)
         {
             var createdBy = User.GetUserName();
-            var tenantId = User.GetTenantId();  
+            var tenantId = User.GetTenantId();
             // Validates if file exists and has content
             if (file == null || file.Length == 0)
                 // Returns bad request if no file is uploaded

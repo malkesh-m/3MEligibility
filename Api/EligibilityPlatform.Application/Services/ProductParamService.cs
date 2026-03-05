@@ -162,7 +162,7 @@ namespace MEligibilityPlatform.Application.Services
                                ParameterName = param.ParameterName
                            }).FirstOrDefault() ?? throw new Exception($"ProductParam with ProductId {productId} not found for tenant {tenantId}");
             // Maps the entity to list model and returns
-            return _mapper.Map<ProductParamListModel>(product) ;
+            return _mapper.Map<ProductParamListModel>(product);
         }
 
         /// <summary>
@@ -361,6 +361,10 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of rows with data.</returns>
         static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet.Dimension == null)
+            {
+                return 0;
+            }
             // Gets the last row of the worksheet
             int lastRow = worksheet.Dimension.End.Row;
             // Initializes row counter
@@ -683,7 +687,7 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                productDetails = productDetails.Where(q => 
+                productDetails = productDetails.Where(q =>
                     (q.ProductName != null && q.ProductName.Contains(search)) ||
                     (q.ParameterName != null && q.ParameterName.Contains(search))
                 );

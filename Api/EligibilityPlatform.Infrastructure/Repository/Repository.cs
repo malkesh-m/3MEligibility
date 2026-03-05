@@ -88,7 +88,7 @@ namespace MEligibilityPlatform.Infrastructure.Repository
         /// <returns>Queryable of entities filtered by tenant.</returns>
         /// <exception cref="InvalidOperationException">Thrown if <typeparamref name="T"/> does not implement <see cref="ITenantEntity"/>.</exception>
 
-       public IQueryable<T> GetAllByTenantId(int tenantId, bool asNoTracking = false)
+        public IQueryable<T> GetAllByTenantId(int tenantId, bool asNoTracking = false)
         {
             if (!typeof(ITenantEntity).IsAssignableFrom(typeof(T)))
                 throw new InvalidOperationException($"Entity {typeof(T).Name} does not implement ITenantEntity.");

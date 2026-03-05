@@ -147,7 +147,7 @@ namespace MEligibilityPlatform.Application.Services
             _successCount = 0; _failureCount = 0; _totalRecords = 0;
 
             // List to store results from each worksheet
-            var results = new List<string>();
+            List<string> results = [];
             var sheetHandlers = GetBulkImportSheetHandlers(createdBy, tenantId);
             foreach (var worksheet in package.Workbook.Worksheets)
             {
@@ -426,7 +426,7 @@ namespace MEligibilityPlatform.Application.Services
             // Gets the number of data rows in the worksheet
             int rowCount = GetRowCount(worksheet);
             // List to store managed list models
-            var models = new List<ManagedList>();
+            List<ManagedList> models = [];
             // Counter for skipped records
             int skippedRecordsCount = 0;
             // Counter for duplicate records
@@ -525,7 +525,7 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
                 // Updates import counts
                 UpdateImportCounts(rowCount, insertedRecordsCount);
-                
+
                 // Builds result message based on import results
                 resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
                                $"{dublicatedRecordsCount} duplicates skipped, " +
@@ -545,12 +545,12 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the list item data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportListIteams(ExcelWorksheet worksheet, string createdBy,int  tenantId)
+        public async Task<string> ImportListIteams(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             // Gets the number of data rows in the worksheet
             int rowCount = GetRowCount(worksheet);
             // List to store list item models
-            var models = new List<ListItemModel>();
+            List<ListItemModel> models = [];
             // Counter for skipped records
             int skippedRecordsCount = 0;
             // Counter for duplicate records
@@ -620,8 +620,8 @@ namespace MEligibilityPlatform.Application.Services
                         // Sets the created by user
                         CreatedBy = createdBy,
                         UpdatedBy = createdBy,
-                        TenantId=tenantId
-                        
+                        TenantId = tenantId
+
                     };
                     // Adds model to the list
                     models.Add(model);
@@ -644,7 +644,7 @@ namespace MEligibilityPlatform.Application.Services
                     // Sets creation and update timestamps
                     model.CreatedByDateTime = DateTime.UtcNow;
                     model.UpdatedByDateTime = DateTime.UtcNow;
-                    
+
                     // Adds list item to repository
                     _uow.ListItemRepository.Add(_mapper.Map<ListItem>(model));
                     // Increments inserted records count
@@ -690,7 +690,7 @@ namespace MEligibilityPlatform.Application.Services
             // Gets the number of data rows in the worksheet
             int rowCount = GetRowCount(worksheet);
             // List to store parameter models
-            var models = new List<Parameter>();
+            List<Parameter> models = [];
             // Counter for skipped records
             int skippedRecordsCount = 0;
             // Counter for duplicate records
@@ -836,7 +836,7 @@ namespace MEligibilityPlatform.Application.Services
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
             // Initializes a list to store factor models
-            var models = new List<Factor>();
+            List<Factor> models = [];
             // Counter for skipped records due to validation errors
             int skippedRecordsCount = 0;
             // Counter for duplicate records found in the database
@@ -860,7 +860,7 @@ namespace MEligibilityPlatform.Application.Services
        ];
 
                 // Read header row
-                var excelHeaders = new List<string>();
+                List<string> excelHeaders = [];
                 for (int col = 1; col <= requiredHeaders.Length; col++)
                 {
                     excelHeaders.Add(worksheet.Cells[1, col].Text?.Trim()!);
@@ -979,12 +979,12 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the category data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportCategory(ExcelWorksheet worksheet, string createdBy,int tenantId)
+        public async Task<string> ImportCategory(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
             // Initializes a list to store category models
-            var models = new List<Category>();
+            List<Category> models = [];
             // Counter for skipped records due to validation errors
             int skippedRecordsCount = 0;
             // Counter for duplicate records found in the database
@@ -1036,7 +1036,7 @@ namespace MEligibilityPlatform.Application.Services
                     //var TenantId = worksheet.Cells[row, 4].Text;
 
                     // Check for empty or invalid fields
-                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription) )
+                    if (string.IsNullOrWhiteSpace(CategoryName) || string.IsNullOrWhiteSpace(CatDescription))
                     {
                         // Increments skipped records counter
                         skippedRecordsCount++;
@@ -1109,12 +1109,12 @@ namespace MEligibilityPlatform.Application.Services
         /// <param name="worksheet">The worksheet containing the product info data.</param>
         /// <param name="createdBy">The identifier of the user who initiated the import.</param>
         /// <returns>A task that represents the asynchronous operation, returning a summary message of the import process.</returns>
-        public async Task<string> ImportInfo(ExcelWorksheet worksheet, string createdBy,int tenantId)
+        public async Task<string> ImportInfo(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
             // Initializes a list to store product models
-            var models = new List<Product>();
+            List<Product> models = [];
             // Counter for skipped records due to validation errors
             int skippedRecordsCount = 0;
             // Counter for duplicate records found in the database
@@ -1320,7 +1320,7 @@ namespace MEligibilityPlatform.Application.Services
             // Gets the total number of rows in the worksheet
             int rowCount = GetRowCount(worksheet);
             // Initializes a list to store product parameter models
-            var models = new List<ProductParam>();
+            List<ProductParam> models = [];
             // Counter for skipped records due to validation errors
             int skippedRecordsCount = 0;
             // Counter for successfully inserted records
@@ -1352,7 +1352,7 @@ namespace MEligibilityPlatform.Application.Services
                     // Reads is required flag from column 9
                     var IsRequired = worksheet.Cells[row, 9].Text;
 
-                     // Check if required fields are empty or invalid
+                    // Check if required fields are empty or invalid
                     if (!int.TryParse(productId, out _) || !int.TryParse(parameterId, out _) || string.IsNullOrEmpty(paramValue) || string.IsNullOrEmpty(DisplayOrder) || !bool.TryParse(IsRequired, out _))
                     {
                         // Increments skipped records counter
@@ -1472,16 +1472,16 @@ namespace MEligibilityPlatform.Application.Services
             }
 
             int rowCount = GetRowCount(worksheet);
-            if (rowCount <= 1)
+            if (rowCount <= 0)
                 return "Uploaded file is empty.";
 
             int inserted = 0, skipped = 0, duplicate = 0;
-            var models = new List<EruleMaster>();
+            List<EruleMaster> models = [];
             HashSet<string> excelDuplicateCheck = [];
 
             try
             {
-                for (int row = 2; row <= rowCount; row++)
+                for (int row = 2; row <= rowCount + 1; row++)
                 {
                     string ruleName = worksheet.Cells[row, 1].Text.Trim();
                     string ruleDesc = worksheet.Cells[row, 2].Text.Trim();
@@ -1567,7 +1567,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<string> ImportECard(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             int rowCount = GetRowCount(worksheet);
-            var models = new List<EcardListModel>();
+            List<EcardListModel> models = [];
 
             int skippedRecordsCount = 0;
             int insertedRecordsCount = 0;
@@ -1669,7 +1669,7 @@ namespace MEligibilityPlatform.Application.Services
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
                 // Builds result message based on import results
-                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                resultMessage += $"{insertedRecordsCount} {GlobalcConstants.Created} " +
                                $"{duplicatedRecordsCount} duplicates skipped, " +
                                $"{skippedRecordsCount} invalid rows skipped.";
             }
@@ -1767,7 +1767,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<string> ImportPCard(ExcelWorksheet worksheet, string createdBy, int tenantId)
         {
             int rowCount = GetRowCount(worksheet);
-            var models = new List<PcardListModel>();
+            List<PcardListModel> models = [];
 
             int skippedRecordsCount = 0;
             int insertedRecordsCount = 0;
@@ -1838,7 +1838,7 @@ namespace MEligibilityPlatform.Application.Services
                         .Where(p => p.TenantId == tenantId && p.ProductName != null &&
                                     p.ProductName == ProductName)
                         .FirstOrDefaultAsync();
-                                        if (product == null)
+                    if (product == null)
                     {
                         skippedRecordsCount++;
                         resultMessage += $"Provide correct product name '{ProductName}' for Product Card '{PcardName}'. ";
@@ -1911,7 +1911,7 @@ namespace MEligibilityPlatform.Application.Services
                 UpdateImportCounts(rowCount, insertedRecordsCount);
 
                 // Builds result message based on import results
-                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                resultMessage += $"{insertedRecordsCount} {GlobalcConstants.Created} " +
                                $"{duplicatedRecordsCount} duplicates skipped, " +
                                $"{skippedRecordsCount} invalid rows skipped.";
             }
@@ -1986,6 +1986,9 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of data rows in the worksheet.</returns>
         static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet == null || worksheet.Dimension == null)
+                return 0;
+
             // Gets the last row number in the worksheet
             int lastRow = worksheet.Dimension.End.Row;
 

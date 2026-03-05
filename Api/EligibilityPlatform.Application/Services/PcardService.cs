@@ -186,20 +186,20 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<Stream> ExportPCards(int tenantId, ExportRequestModel request)
         {
             var pCardsQuery = from pcard in _uow.PcardRepository.Query()
-                             join product in _uow.ProductRepository.Query()
-                             on pcard.ProductId equals product.ProductId
-                             where pcard.TenantId == tenantId && product.TenantId == tenantId
-                             select new PcardCsvModel
-                             {
-                                 PcardId = pcard.PcardId,
-                                 PcardName = pcard.PcardName,
-                                 PcardDesc = pcard.PcardDesc,
-                                 Expression = pcard.Expression,
-                                 ProductId = pcard.ProductId,
-                                 ProductName = product.ProductName,
-                                 Expshown = pcard.Expshown,
-                                 Pstatus = pcard.Pstatus
-                             };
+                              join product in _uow.ProductRepository.Query()
+                              on pcard.ProductId equals product.ProductId
+                              where pcard.TenantId == tenantId && product.TenantId == tenantId
+                              select new PcardCsvModel
+                              {
+                                  PcardId = pcard.PcardId,
+                                  PcardName = pcard.PcardName,
+                                  PcardDesc = pcard.PcardDesc,
+                                  Expression = pcard.Expression,
+                                  ProductId = pcard.ProductId,
+                                  ProductName = product.ProductName,
+                                  Expshown = pcard.Expshown,
+                                  Pstatus = pcard.Pstatus
+                              };
 
             // Apply standardized Export logic: Selected -> Filtered -> All
             if (request.HasSelection)
@@ -209,7 +209,7 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                pCardsQuery = pCardsQuery.Where(q => 
+                pCardsQuery = pCardsQuery.Where(q =>
                     (q.PcardName != null && q.PcardName.Contains(search)) ||
                     (q.ProductName != null && q.ProductName.Contains(search))
                 );
@@ -217,7 +217,7 @@ namespace MEligibilityPlatform.Application.Services
 
             var entities = await pCardsQuery.ToListAsync();
             var models = _mapper.Map<List<PcardCsvModel>>(entities);
-            
+
             return await _exportService.ExportToExcel(models, "Pcard");
         }
 
@@ -332,7 +332,7 @@ namespace MEligibilityPlatform.Application.Services
                     var ExpressionShown = worksheet.Cells[row, 5].Text;
 
                     // Validate required fields
-                    if (string.IsNullOrWhiteSpace(PcardName) ||    
+                    if (string.IsNullOrWhiteSpace(PcardName) ||
                         string.IsNullOrWhiteSpace(ProductName) ||
                         string.IsNullOrWhiteSpace(ProductIdText) ||
                         string.IsNullOrWhiteSpace(ExpressionShown))
@@ -366,6 +366,7 @@ namespace MEligibilityPlatform.Application.Services
                     var alreadyExist = _uow.PcardRepository.Query().Any(p => p.ProductId == productId);
                     if (alreadyExist)
                     {
+                        duplicatedRecordsCount++;
                         resultMessage += $"Stream '{ProductName}' for Stream Card '{PcardName}' is already associated with another Stream Card. ";
                         continue;
                     }
@@ -408,9 +409,11 @@ namespace MEligibilityPlatform.Application.Services
                 await _uow.CompleteAsync();
 
                 // Final combined message
-                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
-                               $"{duplicatedRecordsCount} duplicates skipped, " +
-                               $"{skippedRecordsCount} invalid rows skipped.";
+                var summary = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
+                                $"{duplicatedRecordsCount} duplicates skipped, " +
+                                $"{skippedRecordsCount} invalid rows skipped.";
+                
+                resultMessage = string.IsNullOrWhiteSpace(resultMessage) ? summary : $"{summary} Errors: {resultMessage}";
             }
             catch (Exception ex)
             {
@@ -483,6 +486,10 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of rows with data.</returns>
         private static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet.Dimension == null)
+            {
+                return 0;
+            }
             // Get last row in worksheet
             int lastRow = worksheet.Dimension.End.Row;
             // Initialize row count

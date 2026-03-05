@@ -1776,13 +1776,13 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ERule_EruleMasterId_Version",
                 table: "ERule",
-                columns: new[] { "EruleMasterId", "Version" },
+                columns: ["EruleMasterId", "Version"],
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_EruleMaster_EruleName_EntityId",
                 table: "EruleMaster",
-                columns: new[] { "EruleName", "EntityId" },
+                columns: ["EruleName", "EntityId"],
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1953,7 +1953,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "UQ_Parameter_EntityId_ParameterName",
                 table: "Parameter",
-                columns: new[] { "EntityId", "ParameterName" },
+                columns: ["EntityId", "ParameterName"],
                 unique: true);
 
             migrationBuilder.CreateIndex(

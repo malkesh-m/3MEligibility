@@ -245,7 +245,7 @@ namespace MEligibilityPlatform.Middleware
                 }
 
                 var ip = _userContext.GetIpAddress();
-                var userName = _userContext.GetUserName()??"";
+                var userName = _userContext.GetUserName() ?? "";
                 int tenantId = _userContext.GetTenantId();
                 string actionName = entry.State switch
                 {
@@ -267,7 +267,7 @@ namespace MEligibilityPlatform.Middleware
                     UpdatedByDateTime = now,
                     IPAddress = ip,
                     UserName = userName,
-                    TenantId=tenantId
+                    TenantId = tenantId
                 };
 
                 _pendingAuditInfos.Add(new AuditInfo

@@ -36,14 +36,14 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="model">The <see cref="ProductAddUpdateModel"/> containing the product details to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Add(ProductAddUpdateModel model,string token);
+        Task Add(ProductAddUpdateModel model, string token);
 
         /// <summary>
         /// Updates an existing product record.
         /// </summary>
         /// <param name="model">The <see cref="ProductAddUpdateModel"/> containing the updated product details.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task Update(ProductAddUpdateModel model,string token);
+        Task Update(ProductAddUpdateModel model, string token);
 
         /// <summary>
         /// Deletes a product record by its identifier within a specific entity.

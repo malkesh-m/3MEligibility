@@ -38,7 +38,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Calls the service to retrieve all audit records with pagination.
             /// </summary>
-            var result = await _AuditService.GetAll(tenantId,pageIndex, pageSize);
+            var result = await _AuditService.GetAll(tenantId, pageIndex, pageSize);
 
             /// <summary>
             /// Returns successful response with the retrieved audit records.
@@ -60,7 +60,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Retrieves a specific audit record by ID from the service.
             /// </summary>
-            var result = _AuditService.GetById(id,tenantId);
+            var result = _AuditService.GetById(id, tenantId);
 
             /// <summary>
             /// Checks if the audit record was found.

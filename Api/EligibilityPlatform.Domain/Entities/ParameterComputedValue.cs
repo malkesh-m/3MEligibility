@@ -1,4 +1,5 @@
 ﻿namespace MEligibilityPlatform.Domain.Entities;
+
 public class ParameterComputedValue
 {
     public int ComputedValueId { get; set; }

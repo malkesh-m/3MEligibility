@@ -38,7 +38,7 @@ namespace MEligibilityPlatform.Controllers
             // Retrieves all users for the current entity
             ApiResponse<List<UserGetModel>> result = await _userService.GetAll(User.GetTenantId(), ct);
             // Returns success response with the list of users
-            return Ok( result);
+            return Ok(result);
         }
         [Authorize]
         [HttpGet("me")]
@@ -47,8 +47,8 @@ namespace MEligibilityPlatform.Controllers
             var userId = User.GetUserId();
             var tenantId = User.GetTenantId();
             // Retrieves all users for the current entity
-            var result = await _userService.GetUserPermissionsAsync(userId,tenantId);
-            var data = new {userId,permissions=result };
+            var result = await _userService.GetUserPermissionsAsync(userId, tenantId);
+            var data = new { userId, permissions = result };
             // Returns success response with the list of users
             return Ok(data);
         }

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace MEligibilityPlatform.Application.Services.Interface
 {
-   public interface IDriveService
+    public interface IDriveService
     {
         Task<ApiResponse<FileUploadResponse>> UploadAsync(IFormFile file, string token, CancellationToken ct = default);
         Task DeleteAsync(int fileId, string token, CancellationToken ct = default);

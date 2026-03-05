@@ -187,14 +187,14 @@ namespace MEligibilityPlatform.Application.Services
             else if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 string search = request.SearchTerm.ToLower();
-                listsQuery = listsQuery.Where(q => 
+                listsQuery = listsQuery.Where(q =>
                     q.ListName != null && q.ListName.Contains(search)
                 );
             }
 
             var lists = await listsQuery.ToListAsync();
             var models = _mapper.Map<List<ManagedListModelDescription>>(lists);
-            
+
             return await _exportService.ExportToExcel(models, "Lists", ["EntityName"]);
         }
 
@@ -475,10 +475,18 @@ namespace MEligibilityPlatform.Application.Services
                 // Persist all changes to the database
                 await _uow.CompleteAsync();
 
-                // Final combined message
-                resultMessage = $"{insertedRecordsCount} {GlobalcConstants.Created} " +
-                               $"{dublicatedRecordsCount} duplicates skipped, " +
-                               $"{skippedRecordsCount} invalid rows skipped.";
+                var parts = new List<string>
+                {
+                    $"{insertedRecordsCount} {GlobalcConstants.Created}",
+                    $"{dublicatedRecordsCount} duplicated records skipped"
+                };
+
+                if (skippedRecordsCount > 0)
+                {
+                    parts.Add($"{skippedRecordsCount} invalid rows skipped");
+                }
+
+                resultMessage = string.Join(". ", parts) + ".";
             }
             catch (Exception ex)
             {
@@ -497,6 +505,9 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>The number of non-empty rows.</returns>
         static int GetRowCount(ExcelWorksheet worksheet)
         {
+            if (worksheet == null || worksheet.Dimension == null)
+                return 0;
+
             // Get the last row number in the worksheet dimension
             int lastRow = worksheet.Dimension.End.Row;
 

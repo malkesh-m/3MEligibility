@@ -47,8 +47,8 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task AddRange_ShouldAddEntitiesAndComplete()
         {
-            var models = new List<ApiParametersCreateUpdateModel> { new ApiParametersCreateUpdateModel { ApiId = 1 } };
-            var entities = new List<ApiParameter> { new ApiParameter { ApiId = 1 } };
+            var models = new List<ApiParametersCreateUpdateModel> { new() { ApiId = 1 } };
+            var entities = new List<ApiParameter> { new() { ApiId = 1 } };
 
             _mockMapper.Setup(m => m.Map<List<ApiParameter>>(models)).Returns(entities);
             _mockUow.Setup(u => u.ApiParametersRepository.AddRange(entities));
@@ -66,8 +66,8 @@ namespace EligibilityPlatform.Tests.Services
             var apiId = 1;
             var data = new List<ApiParameter>
             {
-                new ApiParameter { ApiId = apiId },
-                new ApiParameter { ApiId = 2 }
+                new() { ApiId = apiId },
+                new() { ApiId = 2 }
             }.AsQueryable();
 
             var mockSet = data.BuildMock();
@@ -85,8 +85,8 @@ namespace EligibilityPlatform.Tests.Services
         public void GetAll_ShouldReturnListOfModels()
         {
             var tenantId = 1;
-            var entities = new List<ApiParameter> { new ApiParameter { ApiId = 1 } };
-            var models = new List<ApiParametersListModel> { new ApiParametersListModel { ApiId = 1 } };
+            var entities = new List<ApiParameter> { new() { ApiId = 1 } };
+            var models = new List<ApiParametersListModel> { new() { ApiId = 1 } };
 
             _mockUow.Setup(u => u.ApiParametersRepository.GetAllByTenantId(tenantId, false)).Returns(entities.AsQueryable());
             _mockMapper.Setup(m => m.Map<List<ApiParametersListModel>>(entities)).Returns(models);
@@ -117,10 +117,10 @@ namespace EligibilityPlatform.Tests.Services
         public async Task GetByApiId_ShouldReturnModels()
         {
             var apiId = 1;
-            var data = new List<ApiParameter> { new ApiParameter { ApiId = apiId } }.BuildMock();
+            var data = new List<ApiParameter> { new() { ApiId = apiId } }.BuildMock();
 
             _mockUow.Setup(u => u.ApiParametersRepository.Query()).Returns(data);
-            var expectedModels = new List<ApiParametersListModel> { new ApiParametersListModel { ApiId = apiId } };
+            var expectedModels = new List<ApiParametersListModel> { new() { ApiId = apiId } };
             _mockMapper.Setup(m => m.Map<List<ApiParametersListModel>>(It.IsAny<List<ApiParameter>>())).Returns(expectedModels);
 
             var result = await _service.GetByApiId(apiId);

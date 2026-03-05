@@ -336,7 +336,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "UQ_Parameter_TenantId_ParameterName",
                 table: "Parameter",
-                columns: new[] { "TenantId", "ParameterName" },
+                columns: ["TenantId", "ParameterName"],
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -815,7 +815,7 @@ namespace MEligibilityPlatform.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "UQ_Parameter_EntityId_ParameterName",
                 table: "Parameter",
-                columns: new[] { "EntityId", "ParameterName" },
+                columns: ["EntityId", "ParameterName"],
                 unique: true);
 
             migrationBuilder.CreateIndex(

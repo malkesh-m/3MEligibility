@@ -51,7 +51,7 @@ namespace EligibilityPlatform.Tests.Services
         public async Task Add_ShouldThrowException_WhenCodeIsDuplicate()
         {
             var model = new ListItemCreateUpdateModel { TenantId = 1, ListId = 1, Code = "L1", ItemName = "Item 1" };
-            var existingData = new List<ListItem> { new ListItem { TenantId = 1, ListId = 1, Code = "L1", ItemName = "Other Item" } }.AsQueryable();
+            var existingData = new List<ListItem> { new() { TenantId = 1, ListId = 1, Code = "L1", ItemName = "Other Item" } }.AsQueryable();
 
             _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(existingData);
 
@@ -63,7 +63,7 @@ namespace EligibilityPlatform.Tests.Services
         public async Task Add_ShouldThrowException_WhenItemNameIsDuplicate()
         {
             var model = new ListItemCreateUpdateModel { TenantId = 1, ListId = 1, Code = "L1", ItemName = "Item 1" };
-            var existingData = new List<ListItem> { new ListItem { TenantId = 1, ListId = 1, Code = "Other Code", ItemName = "Item 1" } }.AsQueryable();
+            var existingData = new List<ListItem> { new() { TenantId = 1, ListId = 1, Code = "Other Code", ItemName = "Item 1" } }.AsQueryable();
 
             _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(existingData);
 
@@ -89,10 +89,10 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task GetAll_ShouldReturnMappedModels()
         {
-            var data = new List<ListItem> { new ListItem { TenantId = 1, ItemId = 1 } }.BuildMock();
+            var data = new List<ListItem> { new() { TenantId = 1, ItemId = 1 } }.BuildMock();
             _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(data);
 
-            var expected = new List<ListItemModel> { new ListItemModel { ItemId = 1 } };
+            var expected = new List<ListItemModel> { new() { ItemId = 1 } };
             _mockMapper.Setup(m => m.Map<List<ListItemModel>>(It.IsAny<List<ListItem>>())).Returns(expected);
 
             var result = await _service.GetAll(1);
@@ -106,7 +106,7 @@ namespace EligibilityPlatform.Tests.Services
         {
             var id = 1;
             var tenantId = 1;
-            var data = new List<ListItem> { new ListItem { TenantId = tenantId, ItemId = id } }.AsQueryable();
+            var data = new List<ListItem> { new() { TenantId = tenantId, ItemId = id } }.AsQueryable();
             var expected = new ListItemModel { ItemId = id };
 
             _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(data);
@@ -140,7 +140,7 @@ namespace EligibilityPlatform.Tests.Services
         public async Task Update_ShouldThrowException_WhenCodeIsDuplicate()
         {
             var model = new ListItemCreateUpdateModel { TenantId = 1, ListId = 1, ItemId = 1, Code = "L1", ItemName = "Item 1" };
-            var existingData = new List<ListItem> { new ListItem { TenantId = 1, ListId = 1, ItemId = 2, Code = "L1", ItemName = "Other Item" } }.AsQueryable();
+            var existingData = new List<ListItem> { new() { TenantId = 1, ListId = 1, ItemId = 2, Code = "L1", ItemName = "Other Item" } }.AsQueryable();
 
             _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(existingData);
 
@@ -152,7 +152,7 @@ namespace EligibilityPlatform.Tests.Services
         public async Task Update_ShouldThrowException_WhenItemNameIsDuplicate()
         {
             var model = new ListItemCreateUpdateModel { TenantId = 1, ListId = 1, ItemId = 1, Code = "L1", ItemName = "Item 1" };
-            var existingData = new List<ListItem> { new ListItem { TenantId = 1, ListId = 1, ItemId = 2, Code = "Other Code", ItemName = "Item 1" } }.AsQueryable();
+            var existingData = new List<ListItem> { new() { TenantId = 1, ListId = 1, ItemId = 2, Code = "Other Code", ItemName = "Item 1" } }.AsQueryable();
 
             _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(existingData);
 
@@ -177,6 +177,129 @@ namespace EligibilityPlatform.Tests.Services
             _mockUow.Verify(u => u.ListItemRepository.Remove(entity1), Times.Once);
             _mockUow.Verify(u => u.ListItemRepository.Remove(It.IsAny<ListItem>()), Times.Exactly(2));
             _mockUow.Verify(u => u.CompleteAsync(), Times.Once);
+        }
+        [Fact]
+        public async Task ExportListIteam_WithSearch_ShouldReturnExcelStream()
+        {
+            var listData = new List<ListItem> { new() { TenantId = 1, ItemId = 1, ItemName = "Item1", ListId = 1, Code = "L1" } }.AsQueryable().BuildMock();
+            var managedListData = new List<ManagedList> { new() { ListId = 1, ListName = "List1" } }.AsQueryable().BuildMock();
+
+            _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(listData);
+            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(managedListData);
+
+            var request = new ExportRequestModel { SearchTerm = "Item" };
+            var mockStream = new System.IO.MemoryStream();
+            _mockExportService.Setup(e => e.ExportToExcel(It.IsAny<IEnumerable<ListItemModelDescription>>(), "ListItem", It.IsAny<string[]>())).ReturnsAsync(mockStream);
+
+            var result = await _service.ExportListIteam(1, request);
+
+            Assert.NotNull(result);
+            Assert.Same(mockStream, result);
+        }
+
+        [Fact]
+        public async Task ExportListIteam_WithSelection_ShouldReturnExcelStream()
+        {
+            var listData = new List<ListItem> { new() { TenantId = 1, ItemId = 1, ItemName = "Item1", ListId = 1, Code = "L1" } }.AsQueryable().BuildMock();
+            var managedListData = new List<ManagedList> { new() { ListId = 1, ListName = "List1" } }.AsQueryable().BuildMock();
+
+            _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(listData);
+            _mockUow.Setup(u => u.ManagedListRepository.Query()).Returns(managedListData);
+
+            var request = new ExportRequestModel { SelectedIds = [1] };
+            var mockStream = new System.IO.MemoryStream();
+            _mockExportService.Setup(e => e.ExportToExcel(It.IsAny<IEnumerable<ListItemModelDescription>>(), "ListItem", It.IsAny<string[]>())).ReturnsAsync(mockStream);
+
+            var result = await _service.ExportListIteam(1, request);
+
+            Assert.NotNull(result);
+            Assert.Same(mockStream, result);
+        }
+
+        [Fact]
+        public async Task DownloadTemplate_ShouldReturnExcelByteArray()
+        {
+            var mockManagedLists = new List<ManagedListGetModel>
+            {
+                new() { ListId = 1, ListName = "List1" },
+            };
+            _mockManagedListService.Setup(m => m.GetAll(1)).ReturnsAsync(mockManagedLists);
+
+            var result = await _service.DownloadTemplate(1);
+
+            Assert.NotNull(result);
+            Assert.NotEmpty(result);
+        }
+        [Fact]
+        public async Task ImportListIteams_WithValidExcel_ShouldReturnSuccessMessage()
+        {
+            using var stream = new System.IO.MemoryStream();
+            using (var package = new OfficeOpenXml.ExcelPackage(stream))
+            {
+                var sheet = package.Workbook.Worksheets.Add("ListItem");
+                sheet.Cells[1, 1].Value = "ListName*";
+                sheet.Cells[1, 2].Value = "ItemName*";
+                sheet.Cells[1, 3].Value = "ListId*";
+                sheet.Cells[1, 4].Value = "Code*";
+                sheet.Cells[2, 1].Value = "List1";
+                sheet.Cells[2, 2].Value = "Item1";
+                sheet.Cells[2, 3].Value = "1";
+                sheet.Cells[2, 4].Value = "C1";
+                package.Save();
+            }
+            stream.Position = 0;
+
+            _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(new List<ListItem>().BuildMock());
+            _mockUow.Setup(u => u.CompleteAsync()).Returns(Task.CompletedTask);
+
+            var result = await _service.ImportListIteams(stream, "Admin", 1);
+
+            Assert.Contains("1 Created", result);
+            _mockUow.Verify(u => u.ListItemRepository.Add(It.IsAny<ListItem>(), false), Times.Once);
+        }
+
+        [Fact]
+        public async Task ImportListIteams_WithDuplicateItem_ShouldSkip()
+        {
+            using var stream = new System.IO.MemoryStream();
+            using (var package = new OfficeOpenXml.ExcelPackage(stream))
+            {
+                var sheet = package.Workbook.Worksheets.Add("ListItem");
+                sheet.Cells[1, 1].Value = "ListName*";
+                sheet.Cells[1, 2].Value = "ItemName*";
+                sheet.Cells[1, 3].Value = "ListId*";
+                sheet.Cells[1, 4].Value = "Code*";
+                sheet.Cells[2, 1].Value = "List1";
+                sheet.Cells[2, 2].Value = "ExistingItem";
+                sheet.Cells[2, 3].Value = "1";
+                sheet.Cells[2, 4].Value = "C1";
+                package.Save();
+            }
+            stream.Position = 0;
+
+            var existing = new List<ListItem> { new() { ItemName = "ExistingItem", ListId = 1, TenantId = 1 } }.BuildMock();
+            _mockUow.Setup(u => u.ListItemRepository.Query()).Returns(existing);
+
+            var result = await _service.ImportListIteams(stream, "Admin", 1);
+
+            Assert.Contains("1 duplicates skipped", result);
+            _mockUow.Verify(u => u.ListItemRepository.Add(It.IsAny<ListItem>(), false), Times.Never);
+        }
+
+        [Fact]
+        public async Task ImportListIteams_EmptyFile_ShouldReturnErrorMessage()
+        {
+            using var stream = new System.IO.MemoryStream();
+            using (var package = new OfficeOpenXml.ExcelPackage(stream))
+            {
+                package.Workbook.Worksheets.Add("ListItem");
+                package.Save();
+            }
+            stream.Position = 0;
+
+            var result = await _service.ImportListIteams(stream, "Admin", 1);
+
+            Assert.Equal("Uploaded File Is Empty", result);
         }
     }
 }

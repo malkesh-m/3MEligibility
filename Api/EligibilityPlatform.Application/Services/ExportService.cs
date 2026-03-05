@@ -17,7 +17,7 @@ namespace MEligibilityPlatform.Application.Services
         public async Task<Stream> ExportToExcel<T>(IEnumerable<T> data, string sheetName, string[]? ignoredProperties = null)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            
+
             using var package = new ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add(sheetName);
 

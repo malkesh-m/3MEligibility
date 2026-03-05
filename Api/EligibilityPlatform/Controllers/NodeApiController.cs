@@ -58,7 +58,7 @@ namespace MEligibilityPlatform.Controllers
         {
             var tenantId = User.GetTenantId();
             // Retrieves a node API record by ID
-            var result = _nodeApiService.GetById(id,tenantId);
+            var result = _nodeApiService.GetById(id, tenantId);
             // Checks if the record was found
             if (result != null)
             {

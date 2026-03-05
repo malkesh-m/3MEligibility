@@ -21,7 +21,7 @@ namespace MEligibilityPlatform.Application.Services
         private const string SuperAdminRoleName = "Super Admin";
         private const string AdminRoleName = "Admin";
         private const string UserRoleName = "User";
-        
+
         /// The unit of work instance for database operations.
         private readonly IUnitOfWork _uow = uow;
 

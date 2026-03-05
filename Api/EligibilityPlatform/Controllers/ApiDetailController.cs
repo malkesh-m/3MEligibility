@@ -118,7 +118,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Validates the model state before processing.
             /// </summary>
-            var tenantId = User.GetTenantId(); 
+            var tenantId = User.GetTenantId();
 
 
             if (!ModelState.IsValid)

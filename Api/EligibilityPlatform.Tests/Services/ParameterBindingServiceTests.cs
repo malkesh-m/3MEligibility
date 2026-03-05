@@ -28,11 +28,11 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public void GetAllBindings_ShouldReturnMappedModels()
         {
-            var entities = new List<ParameterBinding> { new ParameterBinding { Id = 1, TenantId = 1 } }.AsQueryable();
-            
+            var entities = new List<ParameterBinding> { new() { Id = 1, TenantId = 1 } }.AsQueryable();
+
             _mockUow.Setup(u => u.ParameterBindingRepository.Query()).Returns(entities);
             _mockMapper.Setup(m => m.Map<List<ParameterBindingModel>>(It.IsAny<IQueryable<ParameterBinding>>()))
-                .Returns(new List<ParameterBindingModel> { new ParameterBindingModel { Id = 1 } });
+                .Returns([new ParameterBindingModel { Id = 1 }]);
 
             var result = _service.GetAllBindings(1);
 

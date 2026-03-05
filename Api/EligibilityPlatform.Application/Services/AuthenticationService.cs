@@ -189,7 +189,7 @@ namespace MEligibilityPlatform.Application.Services
                 tokenResponse.EnsureSuccessStatusCode();
 
                 // Parses token response
-                var tokenJson = await tokenResponse.Content.ReadAsStringAsync();
+                var tokenJson = await tokenResponse.Content.ReadAsStringAsync(ct);
                 var tokenData = JsonSerializer.Deserialize<JsonElement>(tokenJson);
 
                 // Extracts access token from response

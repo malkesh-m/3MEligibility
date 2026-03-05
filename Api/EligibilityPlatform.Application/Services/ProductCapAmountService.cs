@@ -52,7 +52,7 @@ namespace MEligibilityPlatform.Application.Services
         /// </summary>
         /// <returns>A task with a list of <see cref="ProductCapAmountModel"/> instances.</returns>
         public List<ProductCapAmountModel> GetAll(int tenantId)
-        { 
+        {
             // Retrieve all entities from repository
             var entities = _uow.ProductCapAmountRepository.GetAllByTenantId(tenantId);
             // Map entities to models

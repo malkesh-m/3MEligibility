@@ -119,6 +119,12 @@ export class ValidatorDialogComponent {
 
   validateExpression() {
     console.log(this.expshown)
+    const expressionToCheck = (this.actionType === 'form' ? this.evaluateExpression : this.expshown) || '';
+    if (!this.isParenthesesBalanced(expressionToCheck)) {
+      this.validationMessage = 'Expression is invalid: unbalanced parentheses.';
+      this.validationResult = false;
+      return;
+    }
     const allFactorsSelected = Object.keys(this.selectedFactors).length === this.filteredParameters.length;
     if (!allFactorsSelected) {
       this.validationMessage = '⚠️ Please select a factor for each parameter before validating.';
@@ -245,4 +251,20 @@ export class ValidatorDialogComponent {
       }
     }
   }
+
+  private isParenthesesBalanced(expression: string): boolean {
+    let depth = 0;
+    for (const ch of expression) {
+      if (ch === '(') {
+        depth++;
+      } else if (ch === ')') {
+        depth--;
+        if (depth < 0) {
+          return false;
+        }
+      }
+    }
+    return depth === 0;
+  }
 }
+

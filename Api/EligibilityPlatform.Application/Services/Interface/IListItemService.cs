@@ -19,7 +19,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="id">The unique identifier of the list item to retrieve.</param>
         /// <returns>The <see cref="ListItemModel"/> with the specified ID.</returns>
-        ListItemModel GetById(int id,int tenantId);
+        ListItemModel GetById(int id, int tenantId);
 
         /// <summary>
         /// Adds a new list item.

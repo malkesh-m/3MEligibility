@@ -32,7 +32,7 @@ namespace MEligibilityPlatform.Controllers
         /// <param name="year">The year to filter the summary (optional).</param>
         /// <returns>An <see cref="IActionResult"/> containing the monthly summary.</returns>
         /// 
-        [Authorize(Policy =Permissions.Dashboard.View)]
+        [Authorize(Policy = Permissions.Dashboard.View)]
         [HttpGet("monthly-summary")]
         public async Task<IActionResult> GetMonthlySummary(int? year = null)
         {
@@ -200,7 +200,7 @@ namespace MEligibilityPlatform.Controllers
         {
             var tenantId = User.GetTenantId();
 
-            return  Ok(await _dashboardService.GetAverageProcessingTimeAsync(tenantId));
+            return Ok(await _dashboardService.GetAverageProcessingTimeAsync(tenantId));
         }
 
         [Authorize(Policy = Permissions.Dashboard.View)]

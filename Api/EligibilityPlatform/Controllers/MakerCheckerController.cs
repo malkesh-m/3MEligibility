@@ -29,7 +29,8 @@ namespace MEligibilityPlatform.Controllers
         [Authorize(Policy = Permissions.MakerChecker.View)]
         [HttpGet("getall")]
         public IActionResult GetAll()
-        {  var tenantId = User.GetTenantId();
+        {
+            var tenantId = User.GetTenantId();
             // Retrieves all maker checker records
             var data = _makerChecker.GetAll(tenantId);
             // Returns success response with the retrieved data

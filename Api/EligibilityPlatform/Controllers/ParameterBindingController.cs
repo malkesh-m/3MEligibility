@@ -12,18 +12,18 @@ namespace MEligibilityPlatform.Controllers
     {
         private readonly IParameterBindingService _bindingService = bindingService;
         private readonly ILogger<ParameterBindingController> _logger = logger;
-        [Authorize(Policy =Permissions.ParameterBinding.View)]
+        [Authorize(Policy = Permissions.ParameterBinding.View)]
         [HttpGet]
-        public  IActionResult Get()
+        public IActionResult Get()
         {
             var tenantId = User.GetTenantId();
-            var result =  _bindingService.GetAllBindings(tenantId);
+            var result = _bindingService.GetAllBindings(tenantId);
             return Ok(result);
         }
         [Authorize(Policy = Permissions.ParameterBinding.Create)]
 
         [HttpPost]
-        public async Task<IActionResult> Post( ParameterBindingAddModel model)
+        public async Task<IActionResult> Post(ParameterBindingAddModel model)
         {
             try
             {

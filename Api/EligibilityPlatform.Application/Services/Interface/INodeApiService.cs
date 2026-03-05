@@ -19,7 +19,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="id">The unique identifier of the node API record to retrieve.</param>
         /// <returns>The <see cref="NodeApiListModel"/> with the specified ID.</returns>
-        NodeApiListModel GetById(int id,int tenantId);
+        NodeApiListModel GetById(int id, int tenantId);
 
         /// <summary>
         /// Adds a new node API record.

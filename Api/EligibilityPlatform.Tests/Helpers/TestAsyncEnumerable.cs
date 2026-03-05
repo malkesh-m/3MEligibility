@@ -28,14 +28,9 @@ namespace EligibilityPlatform.Tests.Helpers
         }
     }
 
-    public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
+    public class TestAsyncEnumerator<T>(IEnumerator<T> inner) : IAsyncEnumerator<T>
     {
-        private readonly IEnumerator<T> _inner;
-
-        public TestAsyncEnumerator(IEnumerator<T> inner)
-        {
-            _inner = inner;
-        }
+        private readonly IEnumerator<T> _inner = inner;
 
         public ValueTask DisposeAsync()
         {
@@ -85,29 +80,25 @@ namespace EligibilityPlatform.Tests.Helpers
 
         public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
         {
-            var expectedResultType = typeof(TResult).GetGenericArguments().FirstOrDefault();
-            
-            if (expectedResultType == null)
-            {
-                // It's possible the TResult is not a generic type but the result type itself?
-                expectedResultType = typeof(TResult);
-            }
-
+            var expectedResultType = typeof(TResult).GetGenericArguments().FirstOrDefault() ?? typeof(TResult);
             var executionResult = typeof(IQueryProvider)
                 .GetMethods()
                 .First(m => m.Name == nameof(IQueryProvider.Execute) && m.IsGenericMethod)
                 .MakeGenericMethod(expectedResultType)
                 .Invoke(this, new[] { expression });
 
-            return (TResult)typeof(Task).GetMethod(nameof(Task.FromResult))
+            var fromResultMethod = typeof(Task).GetMethod(nameof(Task.FromResult)) ?? throw new InvalidOperationException("Task.FromResult method not found.");
+            var result = fromResultMethod
                 .MakeGenericMethod(expectedResultType)
-                .Invoke(null, new[] { executionResult });
+                .Invoke(null, [executionResult]);
+
+            return (TResult)result!;
         }
     }
-    
-    public static class AsyncEnumerableExtensions 
+
+    public static class AsyncEnumerableExtensions
     {
-        public static IQueryable<T> BuildMock<T>(this IEnumerable<T> source) 
+        public static IQueryable<T> BuildMock<T>(this IEnumerable<T> source)
         {
             return new TestAsyncEnumerable<T>(source);
         }

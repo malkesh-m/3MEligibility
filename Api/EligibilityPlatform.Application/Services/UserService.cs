@@ -129,8 +129,8 @@ namespace MEligibilityPlatform.Application.Services
             response.EnsureSuccessStatusCode();
 
             var data = await response.Content.ReadFromJsonAsync<ApiResponse<List<UserGetModel>>>(cancellationToken: ct);
-            
-            
+
+
             return data ?? new ApiResponse<List<UserGetModel>>();
         }
         public async Task<ApiResponse<UserGetModel>> GetById(int userId, CancellationToken ct = default)
@@ -176,7 +176,7 @@ namespace MEligibilityPlatform.Application.Services
             {
                 // Log error and return empty list to prevent crashes
                 Console.WriteLine($"Error getting roles for user {userId} in tenant {tenantId}: {ex.Message}");
-                return  [];
+                return [];
             }
         }
 
@@ -869,7 +869,7 @@ namespace MEligibilityPlatform.Application.Services
             // Returns the list of permissions.
             return permissions;
         }
-        public async Task<List<string>> GetUserPermissionsAsync(int userId,int tenantId)
+        public async Task<List<string>> GetUserPermissionsAsync(int userId, int tenantId)
         {
             var cacheKey = $"PERMISSIONS_USER_{userId}";
 
@@ -885,7 +885,7 @@ namespace MEligibilityPlatform.Application.Services
                       where ur.UserId == userId
                             && ur.TenantId == tenantId
                             && p.PermissionAction != null
-                         select p.PermissionAction ).Distinct().ToListAsync();
+                      select p.PermissionAction).Distinct().ToListAsync();
 
             _cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(30));
 

@@ -29,7 +29,7 @@ namespace MEligibilityPlatform.Domain.Models
         /// Gets whether any selection or filter is active.
         /// </summary>
         public bool HasSelection => SelectedIds != null && SelectedIds.Count > 0;
-        
+
         /// <summary>
         /// Gets whether any filter (search or field-specific) is active.
         /// </summary>

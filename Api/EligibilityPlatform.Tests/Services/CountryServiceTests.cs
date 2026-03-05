@@ -41,7 +41,7 @@ namespace EligibilityPlatform.Tests.Services
             // Assert
             _mockUow.Verify(u => u.CountryRepository.Add(entity, false), Times.Once);
             _mockUow.Verify(u => u.CompleteAsync(), Times.Once);
-            Assert.NotEqual(default(DateTime), model.UpdatedByDateTime);
+            Assert.NotEqual(default, model.UpdatedByDateTime);
         }
 
         [Fact]
@@ -68,8 +68,8 @@ namespace EligibilityPlatform.Tests.Services
         public void GetAll_ShouldReturnMappedCountries_WhenCalled()
         {
             // Arrange
-            var entities = new List<Country> { new Country { CountryId = 1, CountryName = "C1" } };
-            var models = new List<CountryModel> { new CountryModel { CountryId = 1, CountryName = "C1" } };
+            var entities = new List<Country> { new() { CountryId = 1, CountryName = "C1" } };
+            var models = new List<CountryModel> { new() { CountryId = 1, CountryName = "C1" } };
 
             _mockUow.Setup(u => u.CountryRepository.GetAll()).Returns(entities);
             _mockMapper.Setup(m => m.Map<List<CountryModel>>(entities)).Returns(models);
@@ -144,7 +144,7 @@ namespace EligibilityPlatform.Tests.Services
             // Assert
             _mockUow.Verify(u => u.CountryRepository.Update(mappedEntity), Times.Once);
             _mockUow.Verify(u => u.CompleteAsync(), Times.Once);
-            Assert.NotEqual(default(DateTime), model.UpdatedByDateTime);
+            Assert.NotEqual(default, model.UpdatedByDateTime);
         }
     }
 }

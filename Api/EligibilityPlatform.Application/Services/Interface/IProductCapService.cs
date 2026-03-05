@@ -35,7 +35,7 @@ namespace MEligibilityPlatform.Application.Services.Interface
         /// </summary>
         /// <param name="id">The unique identifier of the product cap record to retrieve.</param>
         /// <returns>The <see cref="ProductCapModel"/> with the specified ID.</returns>
-        ProductCapModel GetById(int id,int tenantId);
+        ProductCapModel GetById(int id, int tenantId);
 
         /// <summary>
         /// Retrieves product cap records associated with a specific product identifier.

@@ -43,4 +43,3 @@ namespace MEligibilityPlatform.Application.Services.Interface
         Task Remove(int id);
     }
 }
-

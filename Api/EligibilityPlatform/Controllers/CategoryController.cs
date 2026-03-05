@@ -144,7 +144,7 @@ namespace MEligibilityPlatform.Controllers
             /// <summary>
             /// Gets the current user's name for audit tracking.
             /// </summary>
-            string UserName = User.GetUserName() ;
+            string UserName = User.GetUserName();
 
             /// <summary>
             /// Sets the updated by field to the current user.

@@ -500,6 +500,11 @@ export class ProductCardsComponent implements OnInit {
     this.authService.currentUser$.subscribe((user) => {
       this.loggedInUser = user;
     });
+    const expshownValue = (this.expressionForm.value.Expshown || '').toString();
+    if (!this.isParenthesesBalanced(expshownValue)) {
+      this._snackBar.open('Expression is invalid: unbalanced parentheses.', 'Close', { duration: 3000 });
+      return;
+    }
     if (this.expressionForm.valid) {
       this.sequenceExp = this.sequence.map(item => {
         if (item.type === "cards") {
@@ -531,6 +536,21 @@ export class ProductCardsComponent implements OnInit {
     } else {
       this.expressionForm.markAllAsTouched();
     }
+  }
+
+  private isParenthesesBalanced(expression: string): boolean {
+    let depth = 0;
+    for (const ch of expression) {
+      if (ch === '(') {
+        depth++;
+      } else if (ch === ')') {
+        depth--;
+        if (depth < 0) {
+          return false;
+        }
+      }
+    }
+    return depth === 0;
   }
 
   validateValueInput(event: KeyboardEvent | ClipboardEvent): void {

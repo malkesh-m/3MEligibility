@@ -17,7 +17,7 @@ namespace MEligibilityPlatform.Application.Services
     /// <summary>
     /// Service for automated tenant onboarding with all required initial data.
     /// </summary>
-    public class TenantOnboardingService(IUnitOfWork uow, IUserService userService, IHttpClientFactory httpClientFactory,IConfiguration configuration) : ITenantOnboardingService
+    public class TenantOnboardingService(IUnitOfWork uow, IUserService userService, IHttpClientFactory httpClientFactory, IConfiguration configuration) : ITenantOnboardingService
     {
         private readonly IUnitOfWork _uow = uow;
         private readonly IUserService _userService = userService;
@@ -89,10 +89,15 @@ namespace MEligibilityPlatform.Application.Services
                         }
                     };
 
-                _uow.SecurityRoleRepository.AddRange(roles);
+                _uow.SecurityRoleRepository?.AddRange(roles);
                 await _uow.CompleteAsync();
 
-                var adminRole = roles.First(g => g.RoleName!.Equals("Super Admin",StringComparison.OrdinalIgnoreCase));
+                var adminRole = roles.FirstOrDefault(g => g.RoleName!.Equals("Super Admin", StringComparison.OrdinalIgnoreCase));
+                if (adminRole == null)
+                {
+                    result.Errors.Add("Failed to create Super Admin role.");
+                    return result;
+                }
 
 
                 var userRole = new UserRole
@@ -106,7 +111,7 @@ namespace MEligibilityPlatform.Application.Services
                     UpdatedByDateTime = now
                 };
 
-                _uow.UserRoleRepository.Add(userRole);
+                _uow.UserRoleRepository?.Add(userRole);
 
 
                 var permissions = await _uow.PermissionRepository.Query().ToListAsync();
@@ -119,7 +124,7 @@ namespace MEligibilityPlatform.Application.Services
                     UpdatedByDateTime = now
                 }).ToList();
 
-                _uow.RolePermissionRepository.AddRange(rolePermissions);
+                _uow.RolePermissionRepository?.AddRange(rolePermissions);
 
 
                 var dataTypes = await _uow.DataTypeRepository.Query().ToListAsync();
@@ -134,9 +139,9 @@ namespace MEligibilityPlatform.Application.Services
 
                 if (numericType != null)
                 {
-                parameters.AddRange(
-                [
-                    CreateParameter("Age", numericType.DataTypeId, request.TenantId, now, "R001", "Customer's age does not satisfy eligibility rule"),
+                    parameters.AddRange(
+                    [
+                        CreateParameter("Age", numericType.DataTypeId, request.TenantId, now, "R001", "Customer's age does not satisfy eligibility rule"),
                     CreateParameter("Salary", numericType.DataTypeId, request.TenantId, now, "R002", "Customer's salary does not satisfy eligibility rule"),
                     CreateParameter("Score", numericType.DataTypeId, request.TenantId, now, "R003", "Customer's score does not satisfy eligibility rule"),
                     CreateParameter("ProbabilityOfDefault", numericType.DataTypeId, request.TenantId, now, "R006", "ProbabilityofDefault is Required")]);
@@ -152,7 +157,7 @@ namespace MEligibilityPlatform.Application.Services
 
                 if (parameters.Count != 0)
                 {
-                    _uow.ParameterRepository.AddRange(parameters);
+                    _uow.ParameterRepository?.AddRange(parameters);
                 }
 
 
@@ -162,7 +167,7 @@ namespace MEligibilityPlatform.Application.Services
                     TenantId = request.TenantId
                 };
 
-                _uow.SettingRepository.Add(setting);
+                _uow.SettingRepository?.Add(setting);
 
 
                 await _uow.CompleteAsync();
@@ -179,7 +184,7 @@ namespace MEligibilityPlatform.Application.Services
 
             return result;
         }
-        private static Parameter CreateParameter( string name, int dataTypeId, int tenantId, DateTime now, string rejectionCode, string rejectionMessage)
+        private static Parameter CreateParameter(string name, int dataTypeId, int tenantId, DateTime now, string rejectionCode, string rejectionMessage)
         {
             return new Parameter
             {
@@ -191,8 +196,8 @@ namespace MEligibilityPlatform.Application.Services
                 CreatedByDateTime = now,
                 UpdatedByDateTime = now,
                 RejectionReason = rejectionMessage,
-                RejectionReasonCode =rejectionCode,
-                IsMandatory=true
+                RejectionReasonCode = rejectionCode,
+                IsMandatory = true
             };
         }
 
@@ -231,7 +236,7 @@ namespace MEligibilityPlatform.Application.Services
                 var isAlreadyOnboarded =
                     await _uow.SecurityRoleRepository.Query()
                         .AnyAsync(x => x.TenantId == tenantId);
-             
+
                 if (isAlreadyOnboarded)
                 {
                     validation.IsEligible = false;
