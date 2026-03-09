@@ -26,7 +26,7 @@ namespace MEligibilityPlatform.Controllers
         /// Retrieves all data type records.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="DataTypeModel"/> objects.</returns>
-        [Authorize(Policy = Permissions.DataType.View)]
+        [Authorize]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -47,7 +47,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the data type.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="DataTypeModel"/> if found; otherwise, not found.</returns>
-        [Authorize(Policy = Permissions.DataType.View)]
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)

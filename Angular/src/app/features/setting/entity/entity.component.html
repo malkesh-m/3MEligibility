@@ -14,27 +14,27 @@
     <!-- Actions Buttons -->
     <div class="d-flex align-items-center ms-3">
       <button appUseractivity="User Click on Add button" [componentName]="'EntityComponent'"
-        [actionType]="'ButtonClick'" class="clickable-icon me-2" (click)="openForm()" *ngIf="hasPermission('15')">
+        [actionType]="'ButtonClick'" class="clickable-icon me-2" (click)="openForm()" *ngIf="hasPermission('Permissions.MasterData.Access')">
         <mat-icon matTooltip="{{ 'Add' | translate }}">add_circle_outline</mat-icon>
       </button>
       <button appUseractivity="User Click on Download Template button" [componentName]="'EntityComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon me-2" (click)="downloadTemplate()"
-        *ngIf="hasPermission('11')">
+        *ngIf="hasPermission('Permissions.MasterData.Access')">
         <mat-icon matTooltip="{{ 'Download Template' | translate }}">cloud_download</mat-icon>
       </button>
       <button appUseractivity="User Click on Import button" [componentName]="'EntityComponent'"
         [actionType]="'ButtonClick'" class="clickable-icon me-2" (click)="fileInput.click()"
-        *ngIf="hasPermission('11')">
+        *ngIf="hasPermission('Permissions.MasterData.Access')">
         <mat-icon matTooltip="{{ 'Import' | translate }}">upload</mat-icon>
       </button>
       <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
       <button appUseractivity="User Click on Export button" [componentName]="'EntityComponent'"
-        [actionType]="'ButtonClick'" class="clickable-icon me-2" (click)="exportEntities()" *ngIf="hasPermission('12')">
+        [actionType]="'ButtonClick'" class="clickable-icon me-2" (click)="exportEntities()" *ngIf="hasPermission('Permissions.MasterData.Access')">
         <mat-icon matTooltip="{{ 'Export' | translate }}">download</mat-icon>
       </button>
       <button appUseractivity="User Click on Delete Multiple button" [componentName]="'EntityComponent'"
         [actionType]="'ButtonClick'" (click)="deleteMulSelectedRows()" class="clickable-icon"
-        *ngIf="hasPermission('13')">
+        *ngIf="hasPermission('Permissions.MasterData.Access')">
         <mat-icon matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
       </button>
     </div>
@@ -256,11 +256,11 @@
       <td mat-cell *matCellDef="let entity">
         <div class="cell-actions">
           <!-- Edit Icon -->
-          <mat-icon class="clickable-icon edit" (click)="editRecord(entity)" *ngIf="hasPermission('14')"
+          <mat-icon class="clickable-icon edit" (click)="editRecord(entity)" *ngIf="hasPermission('Permissions.MasterData.Access')"
             matTooltip="{{ 'Edit' | translate }}">edit_note</mat-icon>
 
           <!-- Delete Icon -->
-          <mat-icon class="clickable-icon delete" (click)="deleteRecord(entity)" *ngIf="hasPermission('13')"
+          <mat-icon class="clickable-icon delete" (click)="deleteRecord(entity)" *ngIf="hasPermission('Permissions.MasterData.Access')"
             matTooltip="{{ 'Delete' | translate }}">delete_outline</mat-icon>
         </div>
       </td>

@@ -200,22 +200,22 @@ export class ProductComponent {
 
   getAddPermission(): boolean {
     return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Create')) ||
-      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Create')) || (this.activeTab === 'Details' && this.hasPermission('112'));
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Create')) || (this.activeTab === 'Details' && this.hasPermission('Permissions.Product.Create'));
   }
 
   getDeletePermission(): boolean {
     return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Delete')) ||
-      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Delete')) || (this.activeTab === 'Details' && this.hasPermission('114'));
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Delete')) || (this.activeTab === 'Details' && this.hasPermission('Permissions.Product.Delete'));
   }
 
   getImportPermission(): boolean {
     return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Import')) ||
-      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Import')) || (this.activeTab === 'Details' && this.hasPermission('115'));
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Import')) || (this.activeTab === 'Details' && this.hasPermission('Permissions.Product.Import'));
   }
 
   getExportPermission(): boolean {
     return (this.activeTab === 'Category' && this.hasPermission('Permissions.Category.Export')) ||
-      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Export')) || (this.activeTab === 'Details' && this.hasPermission('116'));
+      (this.activeTab === 'Info' && this.hasPermission('Permissions.Product.Export')) || (this.activeTab === 'Details' && this.hasPermission('Permissions.Product.Export'));
   }
 
   hasPermission(permissionId: string): boolean {

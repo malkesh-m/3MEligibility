@@ -152,8 +152,8 @@ export class RoleComponent implements OnInit, AfterViewInit {
   }
 
   getAddPermission(): boolean {
-    return (this.activeTab === 'role' && this.hasPermission('49')) ||
-      (this.activeTab === 'assignedUser' && this.hasPermission('45'));
+    return (this.activeTab === 'role' && this.hasPermission('Permissions.Role.Create')) ||
+      (this.activeTab === 'assignedUser' && this.hasPermission('Permissions.UserRole.Create'));
   }
 
   hasPermission(permissionId: string): boolean {

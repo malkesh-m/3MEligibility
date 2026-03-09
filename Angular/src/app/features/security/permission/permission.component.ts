@@ -36,7 +36,7 @@ export interface PermissionRecord {
 })
 
 export class PermissionComponent implements OnInit {
-  // Show all permissions returned by the API (no whitelist filtering).
+  // Permissions are filtered to those referenced in the frontend.
   records: RoleRecord[] = [];
   permissionRecord: PermissionRecord[] = [];
   permissionAssignedDataSource = new MatTableDataSource<PermissionRecord>(this.permissionRecord);
@@ -92,6 +92,123 @@ export class PermissionComponent implements OnInit {
     'Configuration',
     'Bulk Import'
   ];
+  // Keep permission screen focused on permissions actually referenced in the frontend.
+  // This prevents assigning backend-only or unused permissions.
+  private readonly frontendPermissionActions = new Set<string>([
+    'permissions.accesscontrol.access',
+    'permissions.approvals.access',
+    'permissions.audit.screen',
+    'permissions.bulkimport.access',
+    'permissions.bulkimport.screen',
+    'permissions.bulkimport.view',
+    'permissions.bulkimport.download',
+    'permissions.bulkimport.import',
+    'permissions.businesslogic.access',
+    'permissions.connections.access',
+    'permissions.dashboard.screen',
+    'permissions.datatype.view',
+    'permissions.ecard.screen',
+    'permissions.ecard.create',
+    'permissions.ecard.delete',
+    'permissions.ecard.edit',
+    'permissions.ecard.export',
+    'permissions.ecard.import',
+    'permissions.factor.screen',
+    'permissions.factor.create',
+    'permissions.factor.delete',
+    'permissions.factor.edit',
+    'permissions.factor.export',
+    'permissions.factor.import',
+    'permissions.integration.screen',
+    'permissions.limitandcaps.access',
+    'permissions.log.view',
+    'permissions.logs.access',
+    'permissions.makerchecker.screen',
+    'permissions.makerchecker.view',
+    'permissions.makerchecker.edit',
+    'permissions.makercheckerconfig.screen',
+    'permissions.makercheckerconfig.edit',
+    'permissions.managedlist.screen',
+    'permissions.managedlist.create',
+    'permissions.managedlist.delete',
+    'permissions.managedlist.edit',
+    'permissions.managedlist.export',
+    'permissions.managedlist.import',
+    'permissions.masterdata.access',
+    'permissions.parameter.screen',
+    'permissions.parameter.create',
+    'permissions.parameter.delete',
+    'permissions.parameter.edit',
+    'permissions.parameter.export',
+    'permissions.parameter.import',
+    'permissions.parameterbinding.screen',
+    'permissions.pcard.screen',
+    'permissions.pcard.create',
+    'permissions.pcard.delete',
+    'permissions.pcard.edit',
+    'permissions.pcard.export',
+    'permissions.pcard.import',
+    'permissions.permission.screen',
+    'permissions.product.screen',
+    'permissions.product.create',
+    'permissions.product.delete',
+    'permissions.product.edit',
+    'permissions.product.export',
+    'permissions.product.import',
+    'permissions.productcap.screen',
+    'permissions.productcap.create',
+    'permissions.productcap.delete',
+    'permissions.productcap.edit',
+    'permissions.productcapamount.screen',
+    'permissions.productcapamount.create',
+    'permissions.productcapamount.delete',
+    'permissions.productcapamount.edit',
+    'permissions.role.screen',
+    'permissions.role.create',
+    'permissions.role.delete',
+    'permissions.role.edit',
+    'permissions.rolepermission.view',
+    'permissions.rolepermission.create',
+    'permissions.rolepermission.delete',
+    'permissions.rolepermission.edit',
+    'permissions.rule.screen',
+    'permissions.rule.create',
+    'permissions.rule.delete',
+    'permissions.rule.edit',
+    'permissions.rule.export',
+    'permissions.rule.import',
+    'permissions.userrole.create',
+    'permissions.userrole.delete',
+    'permissions.validator.rule',
+    'permissions.validator.ecard',
+    'permissions.validator.pcard',
+    'permissions.apiparametermaps.view',
+    'permissions.apiparametermaps.create',
+    'permissions.apiparametermaps.edit',
+    'permissions.apiparametermaps.delete',
+    'permissions.apiparameters.view',
+    'permissions.apiparameters.create',
+    'permissions.apiparameters.edit',
+    'permissions.apiparameters.delete',
+    'permissions.node.view',
+    'permissions.node.create',
+    'permissions.node.edit',
+    'permissions.node.delete',
+    'permissions.nodeapi.view',
+    'permissions.nodeapi.create',
+    'permissions.nodeapi.edit',
+    'permissions.nodeapi.delete',
+    'permissions.category.create',
+    'permissions.category.delete',
+    'permissions.category.edit',
+    'permissions.category.export',
+    'permissions.category.import',
+    'permissions.listitem.create',
+    'permissions.listitem.delete',
+    'permissions.listitem.edit',
+    'permissions.listitem.export',
+    'permissions.listitem.import'
+  ]);
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -260,7 +377,10 @@ export class PermissionComponent implements OnInit {
     this.isLoading = true;
     this.permissionService.getUnAssignedPermissionsByRoleId(roleId).subscribe({
       next: (response) => {
-        const data = response.data.map((item: any) => ({
+        const raw = Array.isArray(response.data) ? response.data : [];
+        const data = raw
+          .filter((item: any) => this.isFrontendPermission(item.permissionAction))
+          .map((item: any) => ({
           permissionId: item.permissionId,
           roleId: item.roleId,
           permissionAction: item.permissionAction || '',
@@ -291,7 +411,10 @@ export class PermissionComponent implements OnInit {
     this.isLoading = true;
     this.permissionService.getAssignedPermissionsByRoleId(roleId).subscribe({
       next: (response) => {
-        const data = response.data.map((item: any) => ({
+        const raw = Array.isArray(response.data) ? response.data : [];
+        const data = raw
+          .filter((item: any) => this.isFrontendPermission(item.permissionAction))
+          .map((item: any) => ({
           permissionId: item.permissionId,
           roleId: item.roleId,
           permissionAction: item.permissionAction || '',
@@ -347,6 +470,10 @@ export class PermissionComponent implements OnInit {
     if (!action) return '';
     // Simply remove "Permissions." and replace dots with spaces
     return action.replace('Permissions.', '').replace(/\./g, ' ');
+  }
+  private isFrontendPermission(action?: string | null): boolean {
+    if (!action) return false;
+    return this.frontendPermissionActions.has(action.toLowerCase().trim());
   }
 
   private toTitleWords(value: string): string {

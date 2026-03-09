@@ -3,7 +3,7 @@
     <div class="header-content">
         <!-- LEFT: Dynamic Tenant Logo & Name -->
         <div class="tenant-brand" style="display: flex; align-items: center; gap: 12px;">
-            <img *ngIf="tenantLogoUrl" [src]="tenantLogoUrl" alt="Tenant Logo" class="tenant-logo" style="max-height: 50px; width: 150px; object-fit: contain; border-radius: 6px;">
+            <img *ngIf="tenantLogoUrl" [src]="tenantLogoUrl" alt="Tenant Logo" class="tenant-logo" style="max-height: 50px; width: 100px; object-fit: contain; border-radius: 6px;">
             <div *ngIf="!tenantLogoUrl" class="tenant-logo-fallback" style="height: 47px; width: 70px; border-radius: 6px; background: #2563EB; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 {{ tenantInitials || 'T' }}
             </div>

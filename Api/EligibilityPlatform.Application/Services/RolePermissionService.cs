@@ -137,39 +137,99 @@ namespace MEligibilityPlatform.Application.Services
                 throw new InvalidOperationException("Super Admin role permissions cannot be removed.");
             }
 
+            // 1. Identify what the user explicitly wants to remove
             var incomingIds = rolePermissionModel.PermissionIds.ToHashSet();
-            var incomingActions = await _uow.PermissionRepository.Query()
-                .Where(p => incomingIds.Contains(p.PermissionId) && p.PermissionAction != null)
+            
+            // Fetch relevant permissions in bulk to ensure mock reliability and performance
+            var allPermissions = await _uow.PermissionRepository.Query()
+                .Where(p => p.PermissionAction != null)
+                .ToListAsync();
+
+            var actionsToRemove = allPermissions
+                .Where(p => incomingIds.Contains(p.PermissionId))
                 .Select(p => p.PermissionAction!)
-                .ToListAsync();
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Expand removal set (e.g. MasterData.Access → Product.Screen, etc.)
-            var expandedActions = PermissionDependencies.ResolveRemoval(incomingActions);
+            if (actionsToRemove.Count == 0) return;
 
-            // Get all PermissionIds to remove
-            var allRemoveIds = await _uow.PermissionRepository.Query()
-                .Where(p => p.PermissionAction != null && expandedActions.Contains(p.PermissionAction))
-                .Select(p => p.PermissionId)
-                .ToListAsync();
-
-            var itemsToRemove = new List<RolePermission>();
-
-            foreach (var permissionId in allRemoveIds)
+            // Expand .Access removals to intelligently remove their underlying .Screens
+            var accessActionsToRemove = actionsToRemove
+                .Where(a => a.EndsWith(".Access", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            
+            foreach (var accessAction in accessActionsToRemove)
             {
-                var item = await _uow.RolePermissionRepository
-                    .GetRolePermission(rolePermissionModel.RoleId, permissionId);
-
-                if (item != null)
-                {
-                    itemsToRemove.Add(item);
-                }
+                actionsToRemove.UnionWith(PermissionDependencies.GetChildScreens(accessAction));
             }
+
+            // Expand .Screen removals to intelligently remove their underlying functional actions (.Create, .Edit, etc.)
+            // We ensure we only grab actions with the exact same prefix (e.g. "Rule." from "Rule.Screen")
+            // .View and .Access are explicitly excluded from this sweep.
+            var screenActionsToRemove = actionsToRemove
+                .Where(a => a.EndsWith(".Screen", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var screenAction in screenActionsToRemove)
+            {
+                var prefix = screenAction[..(screenAction.LastIndexOf('.') + 1)]; // e.g. "Rule."
+                
+                var childActions = allPermissions
+                    .Where(p => p.PermissionAction != null && 
+                                p.PermissionAction.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && 
+                                !p.PermissionAction.EndsWith(".View", StringComparison.OrdinalIgnoreCase) &&
+                                !p.PermissionAction.EndsWith(".Access", StringComparison.OrdinalIgnoreCase) &&
+                                !p.PermissionAction.EndsWith(".Screen", StringComparison.OrdinalIgnoreCase))
+                    .Select(p => p.PermissionAction!);
+
+                actionsToRemove.UnionWith(childActions);
+            }
+
+            // 2. Identify all permissions currently assigned to this role
+            var assignedPermissions = await _uow.RolePermissionRepository.Query()
+                .Where(w => w.RoleId == rolePermissionModel.RoleId && w.TenantId == rolePermissionModel.TenantId)
+                .ToListAsync();
+
+            if (assignedPermissions.Count == 0) return;
+
+            var assignedPermissionIds = assignedPermissions.Select(rp => rp.PermissionId).ToHashSet();
+            
+            var permissionMap = allPermissions
+                .Where(p => assignedPermissionIds.Contains(p.PermissionId))
+                .ToDictionary(p => p.PermissionId, p => p.PermissionAction!);
+
+            var assignedActions = permissionMap.Values.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            // 3. Determine "What's Left" (Seeds only: technical .View and .Access items don't survive on their own to keep .Views alive)
+            var leftActions = assignedActions
+                .Where(a => !actionsToRemove.Contains(a))
+                .Where(a => !a.EndsWith(".View", StringComparison.OrdinalIgnoreCase) && 
+                            !a.EndsWith(".Access", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            // 4. Resolve "What's Left" to find survival set (Technical dependencies only)
+            var actionsToKeep = PermissionDependencies.ResolveTechnicalOnly(leftActions);
+
+            // 5. Final Removal Set: Explicitly requested removals + explicitly orphaned .View APIs.
+            // We DO NOT auto-remove .Access, .Screen, or any other type. Those require explicit user deletion.
+            var actionsToRemoveSet = new HashSet<string>(actionsToRemove, StringComparer.OrdinalIgnoreCase);
+            
+            var finalRemovalSet = new HashSet<string>(actionsToRemoveSet, StringComparer.OrdinalIgnoreCase);
+
+            var orphanedViews = assignedActions
+                .Where(a => a.EndsWith(".View", StringComparison.OrdinalIgnoreCase) && !actionsToKeep.Contains(a));
+
+            finalRemovalSet.UnionWith(orphanedViews);
+
+            // 6. Execute removal
+            var itemsToRemove = assignedPermissions
+                .Where(rp => permissionMap.TryGetValue(rp.PermissionId, out var action) && finalRemovalSet.Contains(action))
+                .ToList();
 
             if (itemsToRemove.Count != 0)
             {
                 _uow.RolePermissionRepository.RemoveRange(itemsToRemove);
+                await _uow.CompleteAsync();
             }
-            await _uow.CompleteAsync();
 
             var userIds = await _uow.UserRoleRepository.Query()
             .Where(x => x.RoleId == rolePermissionModel.RoleId)

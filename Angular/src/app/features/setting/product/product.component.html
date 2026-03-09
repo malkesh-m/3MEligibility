@@ -70,7 +70,7 @@
     <div *ngSwitchCase="'Details'">
       <app-product-list #productChild (updateTableRows)="categoryTableDataUpdate($event)"
         [columnsDisplayAry]="detailsTableColumnAry" [headerDisplayAry]="detailsTableHeaderAry" [listAry]="detailsList"
-        [productList]="infoList" [currentTab]="activeTab" [editPermissionId]="'113'" [deletePermissionId]="'114'">
+        [productList]="infoList" [currentTab]="activeTab" [editPermissionId]="'Permissions.Product.Edit'" [deletePermissionId]="'Permissions.Product.Delete'">
       </app-product-list>
     </div>
   </div>

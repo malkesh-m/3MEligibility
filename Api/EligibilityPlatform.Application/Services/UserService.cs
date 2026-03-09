@@ -836,7 +836,7 @@ namespace MEligibilityPlatform.Application.Services
                     // Maps permission ID.
                     PermissionId = rp.PermissionId,
                     // Maps permission action.
-                    PermissionAction = rp.PermissionAction
+                    PermissionAction = rp.PermissionAction??""
                 })
                 .ToListAsync();
 
@@ -862,7 +862,7 @@ namespace MEligibilityPlatform.Application.Services
                     // Maps permission ID.
                     PermissionId = rp.PermissionId,
                     // Maps permission action.
-                    PermissionAction = rp.PermissionAction
+                    PermissionAction = rp.PermissionAction??""
                 })
                 .ToListAsync();
 

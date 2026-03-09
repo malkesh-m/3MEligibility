@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'integration', pathMatch: 'full', data: { title: 'Connections' } },
   { path: '', component: ConnectionsComponent },
   { path: 'integration', component: IntegrationComponent, canActivate: [permissionGuard], data: { requiredPermissionId: "Permissions.Integration.View", title: 'Integration' } },
-  { path: 'mapping', component: MappingComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 6, title: 'Mapping' } }
+  { path: 'mapping', component: MappingComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 'Permissions.ApiParameterMaps.View', title: 'Mapping' } }
 ];
 
 

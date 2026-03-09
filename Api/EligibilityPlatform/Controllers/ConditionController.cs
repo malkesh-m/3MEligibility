@@ -26,7 +26,7 @@ namespace MEligibilityPlatform.Controllers
         /// Retrieves all condition records.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> containing a list of <see cref="ConditionModel"/> objects.</returns>
-        [Authorize(Policy = Permissions.Condition.View)]
+        [Authorize]
 
         [HttpGet("getall")]
         public IActionResult Get()
@@ -47,7 +47,7 @@ namespace MEligibilityPlatform.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the condition.</param>
         /// <returns>An <see cref="IActionResult"/> containing the <see cref="ConditionModel"/> if found.</returns>
-        [Authorize(Policy = Permissions.Condition.View)]
+        [Authorize]
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)

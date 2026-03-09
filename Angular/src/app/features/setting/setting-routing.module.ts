@@ -27,7 +27,7 @@ import { ParameterBindingComponent } from './parameter-binding/parameter-binding
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full', data: { title: 'Dashboard' } },
   { path: '', component: SettingComponent },
-  { path: 'entity', component: EntityComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 9, title: 'Entity' } },
+  { path: 'entity', component: EntityComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 'Permissions.MasterData.Access', title: 'Entity' } },
   { path: 'factors', component: FactorsComponent/*, canActivate: [permissionGuard], data: { requiredPermissionId: 8 } */, data: { title: 'Factors' } },
   { path: 'parameters', component: ParametersComponent /*, canActivate: [permissionGuard], data: { requiredPermissionId: 10 }*/, data: { title: 'Parameters' } },
   { path: 'lists', component: ListsComponent, data: { title: 'Managed Lists' } },
@@ -39,7 +39,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: 'list', component: ProductListComponent, data: { title: 'Products' } },
       { path: 'info', component: ProductListComponent, data: { title: 'Product Info' } },
-      { path: 'details', component: ProductListComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 51 } },
+      { path: 'details', component: ProductListComponent, canActivate: [permissionGuard], data: { requiredPermissionId: 'Permissions.ProductParam.View' } },
     ],
   },
   { path: 'rules', component: RulesComponent, data: { title: 'Rules' } },
