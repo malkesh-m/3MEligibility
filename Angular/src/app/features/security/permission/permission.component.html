@@ -56,58 +56,61 @@
 </ul>
 
 <!-- Assigned Permissions Table -->
-<div *ngIf="activeTab === 'AssignedPermissions'" class="table-wrapper">
-    <div *ngIf="permissionAssignedDataSource.data.length === 0" class="text-center text-muted">
-        {{ 'No items to show...' | translate }}
-    </div>
-    <table mat-table [dataSource]="permissionAssignedDataSource" matSort
-        *ngIf="permissionAssignedDataSource.data.length > 0">
+<div [hidden]="activeTab !== 'AssignedPermissions'" class="table-wrapper">
+    <table mat-table [dataSource]="permissionAssignedDataSource" matSort class="mat-elevation-z8 w-100">
+        <!-- Checkbox Column -->
         <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef>
-                <!-- Optional header for checkbox -->
-            </th>
-            <td mat-cell *matCellDef="let entity">
-                <mat-checkbox [(ngModel)]="entity.selected" (change)="onCheckboxChange(entity)">
-                </mat-checkbox>
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+                <mat-checkbox [(ngModel)]="row.selected" (change)="onCheckboxChange(row)"></mat-checkbox>
             </td>
         </ng-container>
+
+        <!-- Permission name Column -->
         <ng-container matColumnDef="permissionAction">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-            <td mat-cell *matCellDef="let entity"> {{
-                formatPermissionAction(entity.permissionAction) }} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Permission' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+                {{ formatPermissionAction(row.permissionAction) }}
+            </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="combinedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: combinedColumns;"></tr>
     </table>
-    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+
+    <div *ngIf="permissionAssignedDataSource.data.length === 0" class="text-center text-muted p-4">
+        {{ 'No items to show...' | translate }}
+    </div>
+    <mat-paginator #assignedPaginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>
 
 <!-- Available Permissions Table -->
-<div *ngIf="activeTab === 'AvailablePermissions'" class="table-wrapper">
-    <div *ngIf="permissionUnassignedDataSource.data.length === 0" class="text-center text-muted">
-        {{ 'No items to show...' | translate }}
-    </div>
-    <table mat-table [dataSource]="permissionUnassignedDataSource" matSort
-        *ngIf="permissionUnassignedDataSource.data.length > 0">
+<div [hidden]="activeTab !== 'AvailablePermissions'" class="table-wrapper">
+    <table mat-table [dataSource]="permissionUnassignedDataSource" matSort class="mat-elevation-z8 w-100">
+        <!-- Checkbox Column -->
         <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef>
-                <!-- Optional header for checkbox -->
-            </th>
-            <td mat-cell *matCellDef="let entity">
-                <mat-checkbox [(ngModel)]="entity.selected" (change)="onCheckboxChange(entity)">
-                </mat-checkbox>
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+                <mat-checkbox [(ngModel)]="row.selected" (change)="onCheckboxChange(row)"></mat-checkbox>
             </td>
         </ng-container>
 
+        <!-- Permission name Column -->
         <ng-container matColumnDef="permissionAction">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'Name' | translate }} </th>
-            <td mat-cell *matCellDef="let entity"> {{
-                formatPermissionAction(entity.permissionAction) }} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'Permission' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+                {{ formatPermissionAction(row.permissionAction) }}
+            </td>
         </ng-container>
+
         <tr mat-header-row *matHeaderRowDef="combinedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: combinedColumns;" class="select-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: combinedColumns;"></tr>
     </table>
-    <mat-paginator class="paginator" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+
+    <div *ngIf="permissionUnassignedDataSource.data.length === 0" class="text-center text-muted p-4">
+        {{ 'No items to show...' | translate }}
+    </div>
+    <mat-paginator #unassignedPaginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
 </div>
+
 <app-spinner [isLoading]="isLoading || isDownloading || isUploading" [message]="message"></app-spinner>

@@ -22,6 +22,10 @@ export interface PermissionRecord {
   permissionId: number;
   roleId: number;
   permissionAction: string;
+  permissionName: string;
+  isMasterSwitch: boolean;
+  moduleName: string;
+  resourceName: string;
   selected: boolean;
 }
 @Component({
@@ -55,12 +59,17 @@ export class PermissionComponent implements OnInit {
   selectedRowsItem: Set<number> = new Set();
   displayedColumns: string[] = ['permissionAction']; // Original columns
   combinedColumns: string[] = []; // To include 'select' column
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('assignedPaginator') assignedPaginator!: MatPaginator;
+  @ViewChild('unassignedPaginator') unassignedPaginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   isLoading: boolean = false;
   message: string = this.translate.instant("Loading data, please wait...");
   isUploading: boolean = false;
   isDownloading: boolean = false;
+
+  // Hierarchical Data
+  groupedAssigned: any[] = [];
+  groupedUnassigned: any[] = [];
   constructor(
     private permissionService: PermissionService,
     private PermissionsService: PermissionsService,
@@ -119,7 +128,7 @@ export class PermissionComponent implements OnInit {
     return this.PermissionsService.hasPermission(permissionId);
   }
 
-  switchTab(tab: string): void {
+  switchTab(tab: 'AssignedPermissions' | 'AvailablePermissions'): void {
     this.activeTab = tab;
     const urlTree = this.router.createUrlTree([], {
       relativeTo: this.route,
@@ -251,18 +260,23 @@ export class PermissionComponent implements OnInit {
     this.isLoading = true;
     this.permissionService.getUnAssignedPermissionsByRoleId(roleId).subscribe({
       next: (response) => {
-        this.permissionUnassignedDataSource.data = response.data.map((item: any) => ({
+        const data = response.data.map((item: any) => ({
           permissionId: item.permissionId,
           roleId: item.roleId,
-          permissionAction: item.permissionAction
-        }))
-          .sort((a: any, b: any) => this.comparePermissions(a.permissionAction, b.permissionAction));
-        this.permissionUnassignedDataSource.paginator = this.paginator;
+          permissionAction: item.permissionAction || '',
+          permissionName: item.permissionName || item.permissionAction || '',
+          isMasterSwitch: !!item.isMasterSwitch || (item.permissionAction || '').endsWith('.Screen'),
+          moduleName: item.moduleName || 'General',
+          resourceName: item.resourceName || 'General',
+          selected: false
+        })).sort((a: any, b: any) => this.comparePermissions(a, b));
+
+        this.permissionUnassignedDataSource.data = data;
+        this.permissionUnassignedDataSource.paginator = this.unassignedPaginator;
         this.permissionUnassignedDataSource.sort = this.sort;
         this.isLoading = false;
       },
       error: (error) => {
-        this.permissionAssignedDataSource.data = [];
         this.permissionUnassignedDataSource.data = [];
         this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
@@ -277,20 +291,24 @@ export class PermissionComponent implements OnInit {
     this.isLoading = true;
     this.permissionService.getAssignedPermissionsByRoleId(roleId).subscribe({
       next: (response) => {
-        this.permissionAssignedDataSource.data = response.data.map((item: any) => ({
+        const data = response.data.map((item: any) => ({
           permissionId: item.permissionId,
           roleId: item.roleId,
-          permissionAction: item.permissionAction
-        }))
-          .sort((a: any, b: any) => this.comparePermissions(a.permissionAction, b.permissionAction));
-        this.permissionAssignedDataSource.paginator = this.paginator;
+          permissionAction: item.permissionAction || '',
+          permissionName: item.permissionName || item.permissionAction || '',
+          isMasterSwitch: !!item.isMasterSwitch || (item.permissionAction || '').endsWith('.Screen'),
+          moduleName: item.moduleName || 'General',
+          resourceName: item.resourceName || 'General',
+          selected: false
+        })).sort((a: any, b: any) => this.comparePermissions(a, b));
+
+        this.permissionAssignedDataSource.data = data;
+        this.permissionAssignedDataSource.paginator = this.assignedPaginator;
         this.permissionAssignedDataSource.sort = this.sort;
         this.isLoading = false;
       },
       error: (error) => {
         this.permissionAssignedDataSource.data = [];
-        this.permissionUnassignedDataSource.data = [];
-
         this._snackBar.open(this.translate.instant(error.message), this.translate.instant('Okay'), {
           horizontalPosition: 'right',
           verticalPosition: 'top', duration: 3000,
@@ -301,8 +319,16 @@ export class PermissionComponent implements OnInit {
   }
 
   onCheckboxChange(entity: PermissionRecord): void {
+    // Simple flat selection. No UI-level cascading cascades.
+    // Backend handles all mapping logic (PermissionDependencies) on Save/Remove.
+    this.updateSelectedList(entity);
+  }
+
+  private updateSelectedList(entity: PermissionRecord): void {
     if (entity.selected) {
-      this.selectedPermissionIds.push(entity.permissionId);
+      if (!this.selectedPermissionIds.includes(entity.permissionId)) {
+        this.selectedPermissionIds.push(entity.permissionId);
+      }
     } else {
       this.selectedPermissionIds = this.selectedPermissionIds.filter(id => id !== entity.permissionId);
     }
@@ -312,27 +338,19 @@ export class PermissionComponent implements OnInit {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     if (this.activeTab === 'AvailablePermissions') {
       this.permissionUnassignedDataSource.filter = filterValue;
-      this.permissionUnassignedDataSource.paginator = this.paginator;
+      this.permissionUnassignedDataSource.paginator = this.unassignedPaginator;
       this.permissionUnassignedDataSource.sort = this.sort;
     }
   }
 
   formatPermissionAction(action: string): string {
-    if (!action) {
-      return '';
-    }
-    const withoutPrefix = action.replace(/^Permissions\./i, '');
-    const parts = withoutPrefix.split('.');
-    const resource = parts.shift() ?? withoutPrefix;
-    const resourceLabel = this.normalizeModuleName(resource);
-    if (parts.length === 0) {
-      return resourceLabel;
-    }
-    const actionLabel = parts.map(p => this.toTitleWords(p)).join(' ');
-    return `${resourceLabel}: ${actionLabel}`;
+    if (!action) return '';
+    // Simply remove "Permissions." and replace dots with spaces
+    return action.replace('Permissions.', '').replace(/\./g, ' ');
   }
 
   private toTitleWords(value: string): string {
+    if (!value) return '';
     return value
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/_/g, ' ')
@@ -340,6 +358,7 @@ export class PermissionComponent implements OnInit {
   }
 
   private normalizeModuleName(value: string): string {
+    if (!value) return 'General';
     const name = this.toTitleWords(value);
     if (name.toLowerCase() === 'dashboard') return 'Dashboard';
     if (name.toLowerCase() === 'maker checker') return 'Maker Checker';
@@ -353,28 +372,36 @@ export class PermissionComponent implements OnInit {
     return name;
   }
 
-  private comparePermissions(a: string, b: string): number {
-    const aMeta = this.permissionSortMeta(a);
-    const bMeta = this.permissionSortMeta(b);
-    if (aMeta.isAccess !== bMeta.isAccess) {
-      return aMeta.isAccess ? -1 : 1;
-    }
-    if (aMeta.moduleIndex !== bMeta.moduleIndex) {
-      return aMeta.moduleIndex - bMeta.moduleIndex;
-    }
-    return aMeta.label.localeCompare(bMeta.label);
-  }
+  private comparePermissions(a: PermissionRecord, b: PermissionRecord): number {
+    // 1. Global Priority: .Access (Module Headers) and .Screen permissions come first
+    const aIsAccess = a.permissionAction.endsWith('.Access');
+    const bIsAccess = b.permissionAction.endsWith('.Access');
+    const aIsScreen = a.permissionAction.endsWith('.Screen');
+    const bIsScreen = b.permissionAction.endsWith('.Screen');
 
-  private permissionSortMeta(action: string): { isAccess: boolean; moduleIndex: number; label: string } {
-    const withoutPrefix = (action || '').replace(/^Permissions\./i, '');
-    const parts = withoutPrefix.split('.');
-    const resource = parts.shift() ?? withoutPrefix;
-    const actionLabel = parts.join(' ');
-    const isAccess = actionLabel.toLowerCase() === 'access';
-    const moduleName = this.normalizeModuleName(resource);
-    const moduleIndex = Math.max(0, this.moduleOrder.indexOf(moduleName));
-    const label = this.formatPermissionAction(action);
-    return { isAccess, moduleIndex, label };
+    // .Access always absolute first
+    if (aIsAccess !== bIsAccess) {
+      return aIsAccess ? -1 : 1;
+    }
+
+    // .Screen always absolute second (before other actions)
+    if (aIsScreen !== bIsScreen) {
+      return aIsScreen ? -1 : 1;
+    }
+
+    // 2. Secondary sort: Module Order
+    const aModuleIndex = this.moduleOrder.indexOf(this.normalizeModuleName(a.moduleName));
+    const bModuleIndex = this.moduleOrder.indexOf(this.normalizeModuleName(b.moduleName));
+
+    const aModIdx = aModuleIndex === -1 ? 99 : aModuleIndex;
+    const bModIdx = bModuleIndex === -1 ? 99 : bModuleIndex;
+
+    if (aModIdx !== bModIdx) {
+      return aModIdx - bModIdx;
+    }
+
+    // 3. Tertiary sort: Alphabetical by name
+    return a.permissionName.localeCompare(b.permissionName);
   }
 
 }

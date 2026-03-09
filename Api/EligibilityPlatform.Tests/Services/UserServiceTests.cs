@@ -320,7 +320,7 @@ namespace EligibilityPlatform.Tests.Services
                 new TestHttpClientFactory(new HttpClient()));
 
             var method = typeof(UserService).GetMethod("GetUserRolesAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var task = (Task<List<RoleModel>>)method!.Invoke(service, new object[] { 1, 3 })!;
+            var task = (Task<List<RoleModel>>)method!.Invoke(service, [1, 3])!;
             var result = await task;
 
             Assert.Single(result);
@@ -346,7 +346,7 @@ namespace EligibilityPlatform.Tests.Services
                 new TestHttpClientFactory(new HttpClient()));
 
             var method = typeof(UserService).GetMethod("GetUserRolesAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var task = (Task<List<RoleModel>>)method!.Invoke(service, new object[] { 1, 3 })!;
+            var task = (Task<List<RoleModel>>)method!.Invoke(service, [1, 3])!;
             var result = await task;
 
             Assert.Empty(result);
@@ -355,14 +355,14 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public void GetUserRoles_ReturnsRoleFromClaims()
         {
-            var claims = new System.Security.Claims.ClaimsIdentity(new[]
-            {
+            var claims = new System.Security.Claims.ClaimsIdentity(
+            [
                 new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "Admin")
-            }, "test");
+            ], "test");
             var principal = new System.Security.Claims.ClaimsPrincipal(claims);
             var method = typeof(UserService).GetMethod("GetUserRoles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
-            var result = (string?)method!.Invoke(null, new object[] { principal });
+            var result = (string?)method!.Invoke(null, [principal]);
 
             Assert.Equal("Admin", result);
         }

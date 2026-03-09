@@ -1,4 +1,5 @@
 using MapsterMapper;
+using MEligibilityPlatform.Application.Constants;
 using MEligibilityPlatform.Application.Services.Interface;
 using MEligibilityPlatform.Application.UnitOfWork;
 using MEligibilityPlatform.Domain.Entities;
@@ -40,12 +41,33 @@ namespace MEligibilityPlatform.Application.Services
         {
             await EnsureCanEditRolePermissions(rolePermissionModel.RoleId, rolePermissionModel.TenantId);
 
+            // ── Step 1: Resolve dependency .View permissions ─────────────────
+            // Get action strings for incoming permission IDs
+            var incomingIds = rolePermissionModel.PermissionIds.ToHashSet();
+
+            var incomingActions = await _uow.PermissionRepository.Query()
+                .Where(p => incomingIds.Contains(p.PermissionId) && p.PermissionAction != null)
+                .Select(p => p.PermissionAction!)
+                .ToListAsync();
+
+            // Expand with auto-dependencies (e.g. Factor.Create → Parameter.View)
+            var expandedActions = PermissionDependencies.Resolve(incomingActions);
+
+            // Map expanded action strings back to PermissionIds
+            var expandedPermissionIds = await _uow.PermissionRepository.Query()
+                .Where(p => p.PermissionAction != null && expandedActions.Contains(p.PermissionAction))
+                .Select(p => p.PermissionId)
+                .ToListAsync();
+
+            // Merge original + expanded IDs
+            var allPermissionIds = incomingIds.Union(expandedPermissionIds).ToHashSet();
+
             var existingPermissionIds = await _uow.RolePermissionRepository.Query()
                 .Where(x => x.RoleId == rolePermissionModel.RoleId && x.TenantId == rolePermissionModel.TenantId)
                 .Select(x => x.PermissionId)
                 .ToListAsync();
 
-            var rolePermissions = rolePermissionModel.PermissionIds
+            var rolePermissions = allPermissionIds
                 .Where(permissionId => !existingPermissionIds.Contains(permissionId))
                 .Select(permissionId => new RolePermission
                 {
@@ -115,9 +137,24 @@ namespace MEligibilityPlatform.Application.Services
                 throw new InvalidOperationException("Super Admin role permissions cannot be removed.");
             }
 
+            var incomingIds = rolePermissionModel.PermissionIds.ToHashSet();
+            var incomingActions = await _uow.PermissionRepository.Query()
+                .Where(p => incomingIds.Contains(p.PermissionId) && p.PermissionAction != null)
+                .Select(p => p.PermissionAction!)
+                .ToListAsync();
+
+            // Expand removal set (e.g. MasterData.Access → Product.Screen, etc.)
+            var expandedActions = PermissionDependencies.ResolveRemoval(incomingActions);
+
+            // Get all PermissionIds to remove
+            var allRemoveIds = await _uow.PermissionRepository.Query()
+                .Where(p => p.PermissionAction != null && expandedActions.Contains(p.PermissionAction))
+                .Select(p => p.PermissionId)
+                .ToListAsync();
+
             var itemsToRemove = new List<RolePermission>();
 
-            foreach (var permissionId in rolePermissionModel.PermissionIds)
+            foreach (var permissionId in allRemoveIds)
             {
                 var item = await _uow.RolePermissionRepository
                     .GetRolePermission(rolePermissionModel.RoleId, permissionId);
@@ -153,16 +190,29 @@ namespace MEligibilityPlatform.Application.Services
         /// </returns>
         public async Task<IList<AssignedPermissionModel>> GetAssignedPermissions(int roleId, int tenantId)
         {
-            return await _uow.RolePermissionRepository.Query()
+            var assigned = await _uow.RolePermissionRepository.Query()
                 .Include(i => i.Permission)
                 .Where(w => w.RoleId == roleId && w.TenantId == tenantId)
+                // HIDE technical .view permissions; SHOW .Screen and .Access (Module Headers)
+                .Where(w => w.Permission.PermissionAction != null && 
+                           !w.Permission.PermissionAction.ToLower().Trim().EndsWith(".view"))
+                .ToListAsync();
+
+            // Group by Action to ensure UI only shows unique permission names
+            return assigned
+                .GroupBy(g => g.Permission.PermissionAction, StringComparer.OrdinalIgnoreCase)
+                .Select(s => s.First())
                 .Select(s => new AssignedPermissionModel
                 {
                     RoleId = s.RoleId,
                     PermissionAction = s.Permission.PermissionAction ?? "",
-                    PermissionId = s.PermissionId
+                    PermissionName = FormatPermissionName(s.Permission.PermissionAction ?? ""),
+                    PermissionId = s.PermissionId,
+                    IsMasterSwitch = (s.Permission.PermissionAction ?? "").ToLower().EndsWith(".access"),
+                    ModuleName = GetModuleName(s.Permission.PermissionAction ?? ""),
+                    ResourceName = GetResourceName(s.Permission.PermissionAction ?? "")
                 })
-                .ToListAsync();
+                .ToList();
         }
 
         /// <summary>
@@ -174,19 +224,92 @@ namespace MEligibilityPlatform.Application.Services
         /// </returns>
         public async Task<IList<AssignedPermissionModel>> GetUnAssignedPermissions(int roleId, int tenantId)
         {
-            var assignedPermissionIds = _uow.RolePermissionRepository.Query()
+            // Get action strings that are ALREADY assigned to this role
+            var assignedPermissionActions = await _uow.RolePermissionRepository.Query()
                 .Where(w => w.RoleId == roleId && w.TenantId == tenantId)
-                .Select(s => s.PermissionId);
+                .Join(_uow.PermissionRepository.Query(),
+                    rp => rp.PermissionId,
+                    p => p.PermissionId,
+                    (rp, p) => p.PermissionAction)
+                .Where(a => a != null)
+                .Distinct()
+                .ToListAsync();
 
-            return await _uow.PermissionRepository.Query()
-                .Where(w => !assignedPermissionIds.Contains(w.PermissionId))
+            // Get all permissions, filter out .view, and remove those whose ACTION is already assigned
+            var unassignedPermissions = await _uow.PermissionRepository.Query()
+                .Where(w => w.PermissionAction != null && !w.PermissionAction.ToLower().Trim().EndsWith(".view"))
+                .Where(w => !assignedPermissionActions.Contains(w.PermissionAction!))
+                .ToListAsync();
+
+            // Ensure unique actions in the result set to avoid duplicate rows in UI
+            return unassignedPermissions
+                .GroupBy(g => g.PermissionAction, StringComparer.OrdinalIgnoreCase)
+                .Select(s => s.First())
                 .Select(s => new AssignedPermissionModel
                 {
                     RoleId = roleId,
                     PermissionAction = s.PermissionAction ?? "",
-                    PermissionId = s.PermissionId
+                    PermissionName = FormatPermissionName(s.PermissionAction ?? ""),
+                    PermissionId = s.PermissionId,
+                    IsMasterSwitch = (s.PermissionAction ?? "").ToLower().EndsWith(".access"),
+                    ModuleName = GetModuleName(s.PermissionAction ?? ""),
+                    ResourceName = GetResourceName(s.PermissionAction ?? "")
                 })
-                .ToListAsync();
+                .ToList();
+        }
+
+        private static string FormatPermissionName(string action)
+        {
+            if (string.IsNullOrWhiteSpace(action)) return "";
+
+            // Remove "Permissions." prefix
+            var prefix = "Permissions.";
+            var clean = action.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) 
+                ? action[prefix.Length..] 
+                : action;
+
+            // Replace "." with " "
+            clean = clean.Replace(".", " ");
+
+            // Special handling for Master Switches
+            if (clean.EndsWith(" Access", StringComparison.OrdinalIgnoreCase))
+            {
+                return $"[MODULE] {clean.Replace(" Access", "", StringComparison.OrdinalIgnoreCase)}";
+            }
+
+            return clean;
+        }
+
+        private static string GetModuleName(string action)
+        {
+            if (string.IsNullOrWhiteSpace(action)) return "General";
+            
+            var prefix = "Permissions.";
+            var withoutPrefix = action.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) 
+                ? action[prefix.Length..] 
+                : action;
+
+            var parts = withoutPrefix.Split('.');
+            
+            // First part is the module (e.g. MasterData)
+            return parts.Length > 0 ? parts[0] : "General";
+        }
+
+        private static string GetResourceName(string action)
+        {
+            if (string.IsNullOrWhiteSpace(action)) return "General";
+            
+            var prefix = "Permissions.";
+            var withoutPrefix = action.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) 
+                ? action[prefix.Length..] 
+                : action;
+
+            var parts = withoutPrefix.Split('.');
+            
+            // If it's Permissions.Parameter.View -> Resource is Parameter
+            // The mapping from Resource to Module is actually complex 
+            // but for now we follow the parts[0] convention
+            return parts.Length > 0 ? parts[0] : "General";
         }
 
         /// <summary>

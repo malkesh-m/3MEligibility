@@ -54,10 +54,74 @@ namespace MEligibilityPlatform.Application.Services
         /// <returns>A list of PermissionModel representing all roles.</returns>
         public List<PermissionModel> GetAll()
         {
-            // Retrieves all roles from the repository
-            var roles = _uow.PermissionRepository.GetAll();
-            // Maps the roles to PermissionModel objects
-            return _mapper.Map<List<PermissionModel>>(roles);
+            var permissions = _uow.PermissionRepository.GetAll();
+
+            // Filter out technical .view permissions; SHOW .Screen and .Access (Module Headers)
+            var filtered = permissions
+                .Where(p => p.PermissionAction != null && 
+                           !p.PermissionAction.ToLower().Trim().EndsWith(".view"))
+                .ToList();
+
+            // Ensure unique actions to avoid duplicate rows in UI
+            var uniquePermissions = filtered
+                .GroupBy(g => g.PermissionAction, StringComparer.OrdinalIgnoreCase)
+                .Select(s => s.First())
+                .ToList();
+
+            var models = _mapper.Map<List<PermissionModel>>(uniquePermissions);
+            
+            // Populate human-readable names
+            foreach(var m in models)
+            {
+                m.PermissionName = FormatPermissionName(m.PermissionAction ?? "");
+                m.IsMasterSwitch = (m.PermissionAction ?? "").ToLower().EndsWith(".access");
+                m.ModuleName = GetModuleName(m.PermissionAction ?? "");
+                m.ResourceName = GetResourceName(m.PermissionAction ?? "");
+            }
+
+            return models;
+        }
+
+        private static string FormatPermissionName(string action)
+        {
+            if (string.IsNullOrWhiteSpace(action)) return "";
+            
+            var prefix = "Permissions.";
+            var clean = action.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) 
+                ? action[prefix.Length..] 
+                : action;
+
+            clean = clean.Replace(".", " ");
+
+            if (clean.EndsWith(" Access", StringComparison.OrdinalIgnoreCase))
+                return $"[MODULE] {clean.Replace(" Access", "", StringComparison.OrdinalIgnoreCase)}";
+            return clean;
+        }
+
+        private static string GetModuleName(string action)
+        {
+            if (string.IsNullOrWhiteSpace(action)) return "General";
+            
+            var prefix = "Permissions.";
+            var withoutPrefix = action.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) 
+                ? action[prefix.Length..] 
+                : action;
+
+            var parts = withoutPrefix.Split('.');
+            return parts.Length > 0 ? parts[0] : "General";
+        }
+
+        private static string GetResourceName(string action)
+        {
+            if (string.IsNullOrWhiteSpace(action)) return "General";
+            
+            var prefix = "Permissions.";
+            var withoutPrefix = action.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) 
+                ? action[prefix.Length..] 
+                : action;
+
+            var parts = withoutPrefix.Split('.');
+            return parts.Length > 0 ? parts[0] : "General";
         }
 
         /// <summary>

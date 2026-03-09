@@ -8,14 +8,11 @@ namespace MEligibilityPlatform.Domain.Models
         public int PermissionId { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Screen ID must be a positive integer.")]
-        public int? ScreenId { get; set; }
-        [RegularExpression(
-   @"^[\u0600-\u06FFa-zA-Z0-9_\-\s]+$",
-   ErrorMessage = "Permission Action can contain Arabic letters, English letters, numbers, spaces, hyphens, and underscores only."
-)]
-        [Required(ErrorMessage = "Permission Action is required.")]
-        [StringLength(50, ErrorMessage = "Permission Action cannot be longer than 50 characters.")]
-        public string? PermissionAction { get; set; }
+        public required string PermissionAction { get; set; }
+        public string? PermissionName { get; set; }
+        public bool IsMasterSwitch { get; set; }
+        public string ModuleName { get; set; } = string.Empty;
+        public string ResourceName { get; set; } = string.Empty;
         public DateTime UpdatedByDateTime { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime CreatedByDateTime { get; set; }

@@ -10,6 +10,35 @@ namespace MEligibilityPlatform.Application.Constants
 
     public static class Permissions
     {
+        public static class MasterData
+        {
+            public const string Access = "Permissions.MasterData.Access";
+        }
+        public static class BusinessLogic
+        {
+            public const string Access = "Permissions.BusinessLogic.Access";
+        }
+        public static class Connections
+        {
+            public const string Access = "Permissions.Connections.Access";
+        }
+        public static class AccessControl
+        {
+            public const string Access = "Permissions.AccessControl.Access";
+        }
+        public static class Approvals
+        {
+            public const string Access = "Permissions.Approvals.Access";
+        }
+        public static class LimitAndCaps
+        {
+            public const string Access = "Permissions.LimitAndCaps.Access";
+        }
+        public static class Logs
+        {
+            public const string Access = "Permissions.Logs.Access";
+        }
+
         public static List<string> GetRegisteredPermissions()
         {
             var permissions = new List<string>();
@@ -65,6 +94,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Audit
         {
+            public const string Screen = "Permissions.Audit.Screen";
             public const string Create = "Permissions.Audit.Create";
             public const string Delete = "Permissions.Audit.Delete";
             public const string Edit = "Permissions.Audit.Edit";
@@ -73,7 +103,8 @@ namespace MEligibilityPlatform.Application.Constants
 
         public static class BulkImport
         {
-
+            public const string Access = "Permissions.BulkImport.Access";
+            public const string Screen = "Permissions.BulkImport.Screen";
             public const string View = "Permissions.BulkImport.View";
             public const string DownloadImportedFile = "Permissions.BulkImport.Download";
             public const string Import = "Permissions.BulkImport.Import";
@@ -117,7 +148,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Dashboard
         {
-
+            public const string Screen = "Permissions.Dashboard.Screen";
             public const string View = "Permissions.Dashboard.View";
         }
 
@@ -130,6 +161,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class ECard
         {
+            public const string Screen = "Permissions.ECard.Screen";
             public const string Create = "Permissions.ECard.Create";
             public const string Delete = "Permissions.ECard.Delete";
             public const string Edit = "Permissions.ECard.Edit";
@@ -153,6 +185,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Factor
         {
+            public const string Screen = "Permissions.Factor.Screen";
             public const string Create = "Permissions.Factor.Create";
             public const string Delete = "Permissions.Factor.Delete";
             public const string Edit = "Permissions.Factor.Edit";
@@ -180,6 +213,11 @@ namespace MEligibilityPlatform.Application.Constants
             public const string Delete = "Permissions.HistoryEr.Delete";
             public const string Edit = "Permissions.HistoryEr.Edit";
             public const string View = "Permissions.HistoryEr.View";
+        }
+        public static class Integration
+        {
+            public const string Screen = "Permissions.Integration.Screen";
+            public const string View = "Permissions.Integration.View";
         }
         public static class HistoryParameter
         {
@@ -211,6 +249,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class MakerChecker
         {
+            public const string Screen = "Permissions.MakerChecker.Screen";
             public const string Create = "Permissions.MakerChecker.Create";
             public const string Delete = "Permissions.MakerChecker.Delete";
             public const string Edit = "Permissions.MakerChecker.Edit";
@@ -219,6 +258,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class ManagedList
         {
+            public const string Screen = "Permissions.ManagedList.Screen";
             public const string Create = "Permissions.ManagedList.Create";
             public const string Delete = "Permissions.ManagedList.Delete";
             public const string Edit = "Permissions.ManagedList.Edit";
@@ -253,6 +293,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Parameter
         {
+            public const string Screen = "Permissions.Parameter.Screen";
             public const string Create = "Permissions.Parameter.Create";
             public const string Delete = "Permissions.Parameter.Delete";
             public const string Edit = "Permissions.Parameter.Edit";
@@ -264,6 +305,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class ParameterBinding
         {
+            public const string Screen = "Permissions.ParameterBinding.Screen";
             public const string Create = "Permissions.ParameterBinding.Create";
             public const string View = "Permissions.ParameterBinding.View";
 
@@ -279,6 +321,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class PCard
         {
+            public const string Screen = "Permissions.PCard.Screen";
             public const string Create = "Permissions.PCard.Create";
             public const string Delete = "Permissions.PCard.Delete";
             public const string Edit = "Permissions.PCard.Edit";
@@ -289,6 +332,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class ProductCapAmount
         {
+            public const string Screen = "Permissions.ProductCapAmount.Screen";
             public const string Create = "Permissions.ProductCapAmount.Create";
             public const string Delete = "Permissions.ProductCapAmount.Delete";
             public const string Edit = "Permissions.ProductCapAmount.Edit";
@@ -298,6 +342,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class ProductCap
         {
+            public const string Screen = "Permissions.ProductCap.Screen";
             public const string Create = "Permissions.ProductCap.Create";
             public const string Delete = "Permissions.ProductCap.Delete";
             public const string Edit = "Permissions.ProductCap.Edit";
@@ -307,6 +352,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Product
         {
+            public const string Screen = "Permissions.Product.Screen";
             public const string Create = "Permissions.Product.Create";
             public const string Delete = "Permissions.Product.Delete";
             public const string Edit = "Permissions.Product.Edit";
@@ -327,6 +373,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Permission
         {
+            public const string Screen = "Permissions.Permission.Screen";
             public const string Create = "Permissions.Permission.Create";
             public const string Delete = "Permissions.Permission.Delete";
             public const string Edit = "Permissions.Permission.Edit";
@@ -336,6 +383,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Rule
         {
+            public const string Screen = "Permissions.Rule.Screen";
             public const string Create = "Permissions.Rule.Create";
             public const string Delete = "Permissions.Rule.Delete";
             public const string Edit = "Permissions.Rule.Edit";
@@ -388,7 +436,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class MakerCheckerConfig
         {
-
+            public const string Screen = "Permissions.MakerCheckerConfig.Screen";
             public const string Edit = "Permissions.MakerCheckerConfig.Edit";
             public const string View = "Permissions.MakerCheckerConfig.View";
 
@@ -396,6 +444,7 @@ namespace MEligibilityPlatform.Application.Constants
         }
         public static class Role
         {
+            public const string Screen = "Permissions.Role.Screen";
             public const string Create = "Permissions.Role.Create";
             public const string Delete = "Permissions.Role.Delete";
             public const string Edit = "Permissions.Role.Edit";

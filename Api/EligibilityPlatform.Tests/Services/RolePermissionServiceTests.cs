@@ -260,7 +260,7 @@ namespace EligibilityPlatform.Tests.Services
 
             var method = typeof(RolePermissionService).GetMethod("EnsureCanEditRolePermissions", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-            var task = (Task)method!.Invoke(_service, new object[] { 1, 2 })!;
+            var task = (Task)method!.Invoke(_service, [1, 2])!;
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () => await task);
         }

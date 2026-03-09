@@ -212,8 +212,8 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task DownloadTemplate_ShouldReturnBytes()
         {
-            _mockDataTypeService.Setup(d => d.GetAll()).Returns(new List<DataTypeModel>());
-            _mockConditionService.Setup(c => c.GetAll()).Returns(new List<ConditionModel>());
+            _mockDataTypeService.Setup(d => d.GetAll()).Returns([]);
+            _mockConditionService.Setup(c => c.GetAll()).Returns([]);
 
             var result = await _service.DownloadTemplate(1);
 
@@ -363,7 +363,7 @@ namespace EligibilityPlatform.Tests.Services
 
             _mockUow.Setup(u => u.ProductRepository.Query()).Returns(new List<Product> { product }.BuildMock());
             _mockUow.Setup(u => u.ParameterRepository.Query()).Returns(parameters.BuildMock());
-            _mockMapper.Setup(m => m.Map<List<ParameterModel>?>(It.IsAny<List<Parameter>>())).Returns(new List<ParameterModel> { new() });
+            _mockMapper.Setup(m => m.Map<List<ParameterModel>?>(It.IsAny<List<Parameter>>())).Returns([new()]);
 
             var result = _service.GetParameterByProducts(tenantId, productId);
 
@@ -517,7 +517,7 @@ namespace EligibilityPlatform.Tests.Services
                 }.BuildMock());
 
             _mockMapper.Setup(m => m.Map<List<SystemParameterModel>>(It.IsAny<List<SystemParameter>>()))
-                .Returns((List<SystemParameter> src) => src.Select(s => new SystemParameterModel { Name = s.Name }).ToList());
+                .Returns((List<SystemParameter> src) => [.. src.Select(s => new SystemParameterModel { Name = s.Name })]);
 
             var result = await _service.GetSystemParameters();
 
@@ -589,8 +589,8 @@ namespace EligibilityPlatform.Tests.Services
             Assert.NotNull(applyConditional);
             Assert.NotNull(sanitize);
 
-            applyConditional!.Invoke(null, new object[] { sheet, "TestRange", "A", 1, 2, "B" });
-            var sanitized = (string)sanitize!.Invoke(null, new object[] { "1 Bad-Name" })!;
+            applyConditional!.Invoke(null, [sheet, "TestRange", "A", 1, 2, "B"]);
+            var sanitized = (string)sanitize!.Invoke(null, ["1 Bad-Name"])!;
 
             Assert.StartsWith("_1", sanitized);
             Assert.Contains("Bad_Name", sanitized);

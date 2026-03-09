@@ -207,9 +207,6 @@ namespace MEligibilityPlatform.Application.Services
             var currentRank = GetHighestRank(currentUserRoles);
             var targetRank = GetRank(targetRoleName);
 
-            if (targetRank == 0)
-                return (false, "Invalid target role.");
-
             if (targetRank == Rank.SuperAdmin && currentRank != Rank.SuperAdmin)
                 return (false, $"Only Super Admin can {action} the Super Admin role.");
 

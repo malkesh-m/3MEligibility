@@ -44,24 +44,36 @@ namespace MEligibilityPlatform.Domain.Models
 
     public class AssignedAndUnAssignedPermissionModel
     {
+        public string PermissionAction { get; set; } = string.Empty;
+        public string PermissionName { get; set; } = string.Empty;
         public int PermissionId { get; set; }
         public int RoleId { get; set; }
-        public required string PermissionAction { get; set; }
         public bool IsAssigned { get; set; }
+        public bool IsMasterSwitch { get; set; }
+        public string ModuleName { get; set; } = string.Empty;
+        public string ResourceName { get; set; } = string.Empty;
     }
 
     public class AssignedPermissionModel
     {
+        public string PermissionAction { get; set; } = string.Empty;
+        public string PermissionName { get; set; } = string.Empty;
         public int PermissionId { get; set; }
         public int RoleId { get; set; }
-        public required string PermissionAction { get; set; }
+        public bool IsMasterSwitch { get; set; }
+        public string ModuleName { get; set; } = string.Empty;
+        public string ResourceName { get; set; } = string.Empty;
         public DateTime UpdatedByDateTime { get; set; }
     }
 
     public class UnAssignedPermissionModel
     {
+        public string PermissionAction { get; set; } = string.Empty;
+        public string PermissionName { get; set; } = string.Empty;
         public int PermissionId { get; set; }
         public int RoleId { get; set; }
-        public required string PermissionAction { get; set; }
+        public bool IsMasterSwitch { get; set; }
+        public string ModuleName { get; set; } = string.Empty;
+        public string ResourceName { get; set; } = string.Empty;
     }
 }

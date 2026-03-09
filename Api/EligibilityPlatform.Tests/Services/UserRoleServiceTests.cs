@@ -242,10 +242,10 @@ namespace EligibilityPlatform.Tests.Services
         {
             _mockSecurityRoleRepo.Setup(r => r.Query()).Returns(new List<SecurityRole>().BuildMock());
 
-            var result = await _service.EnsureCanManageUserRole(1, 2, 3, "assign");
+            var (IsValid, ErrorMessage) = await _service.EnsureCanManageUserRole(1, 2, 3, "assign");
 
-            Assert.False(result.IsValid);
-            Assert.Equal("Role not found.", result.ErrorMessage);
+            Assert.False(IsValid);
+            Assert.Equal("Role not found.", ErrorMessage);
         }
 
         [Fact]
@@ -267,10 +267,10 @@ namespace EligibilityPlatform.Tests.Services
             _mockSecurityRoleRepo.Setup(r => r.Query()).Returns(securityRoles);
             _mockUserRoleRepo.Setup(r => r.Query()).Returns(userRoles);
 
-            var result = await _service.EnsureCanManageUserRole(1, 5, 9, "assign");
+            var (IsValid, ErrorMessage) = await _service.EnsureCanManageUserRole(1, 5, 9, "assign");
 
-            Assert.False(result.IsValid);
-            Assert.Contains("Only Super Admin", result.ErrorMessage);
+            Assert.False(IsValid);
+            Assert.Contains("Only Super Admin", ErrorMessage);
         }
 
         [Fact]
@@ -287,10 +287,10 @@ namespace EligibilityPlatform.Tests.Services
             _mockUserRoleRepo.Setup(r => r.Query()).Returns(userRoles);
             _mockSecurityRoleRepo.Setup(r => r.Query()).Returns(securityRoles);
 
-            var result = await _service.EnsureCanManageUserRole(1, 5, 1, "remove users from");
+            var (IsValid, ErrorMessage) = await _service.EnsureCanManageUserRole(1, 5, 1, "remove users from");
 
-            Assert.False(result.IsValid);
-            Assert.Equal("You cannot remove the last Super Admin user.", result.ErrorMessage);
+            Assert.False(IsValid);
+            Assert.Equal("You cannot remove the last Super Admin user.", ErrorMessage);
         }
 
         [Fact]
@@ -308,10 +308,10 @@ namespace EligibilityPlatform.Tests.Services
             _mockUserRoleRepo.Setup(r => r.Query()).Returns(userRoles);
             _mockSecurityRoleRepo.Setup(r => r.Query()).Returns(securityRoles);
 
-            var result = await _service.EnsureCanManageUserRole(2, 2, 5, "assign");
+            var (IsValid, ErrorMessage) = await _service.EnsureCanManageUserRole(2, 2, 5, "assign");
 
-            Assert.False(result.IsValid);
-            Assert.Contains("Only Admin or Super Admin", result.ErrorMessage);
+            Assert.False(IsValid);
+            Assert.Contains("Only Admin or Super Admin", ErrorMessage);
         }
 
         [Fact]
@@ -328,10 +328,31 @@ namespace EligibilityPlatform.Tests.Services
             _mockUserRoleRepo.Setup(r => r.Query()).Returns(userRoles);
             _mockSecurityRoleRepo.Setup(r => r.Query()).Returns(securityRoles);
 
-            var result = await _service.EnsureCanManageUserRole(2, 2, 5, "assign");
+            var (IsValid, ErrorMessage) = await _service.EnsureCanManageUserRole(2, 2, 5, "assign");
 
-            Assert.True(result.IsValid);
-            Assert.Null(result.ErrorMessage);
+            Assert.True(IsValid);
+            Assert.Null(ErrorMessage);
+        }
+
+        [Fact]
+        public async Task EnsureCanManageUserRole_WhenTargetCustomRole_ReturnsSuccess()
+        {
+            var userRoles = new List<UserRole>
+            {
+                new() { UserId = 5, RoleId = 3, TenantId = 2 }
+            }.BuildMock();
+            var securityRoles = new List<SecurityRole>
+            {
+                new() { RoleId = 3, TenantId = 2, RoleName = "User" },
+                new() { RoleId = 10, TenantId = 2, RoleName = "Custom Role" }
+            }.BuildMock();
+            _mockUserRoleRepo.Setup(r => r.Query()).Returns(userRoles);
+            _mockSecurityRoleRepo.Setup(r => r.Query()).Returns(securityRoles);
+
+            var (IsValid, ErrorMessage) = await _service.EnsureCanManageUserRole(10, 2, 5, "assign");
+
+            Assert.True(IsValid);
+            Assert.Null(ErrorMessage);
         }
 
         [Fact]

@@ -384,9 +384,9 @@ namespace EligibilityPlatform.Tests.Services
         [Fact]
         public async Task DownloadTemplate_ReturnsBytes()
         {
-            _mockCategoryService.Setup(s => s.GetAll(2)).ReturnsAsync(new List<CategoryListModel>());
-            _mockParameterService.Setup(s => s.GetAll(2)).ReturnsAsync(new List<ParameterListModel>());
-            _mockFactorService.Setup(s => s.GetAll(2)).ReturnsAsync(new List<FactorListModel>());
+            _mockCategoryService.Setup(s => s.GetAll(2)).ReturnsAsync([]);
+            _mockParameterService.Setup(s => s.GetAll(2)).ReturnsAsync([]);
+            _mockFactorService.Setup(s => s.GetAll(2)).ReturnsAsync([]);
 
             var result = await _service.DownloadTemplate(2);
 
